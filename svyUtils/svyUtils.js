@@ -80,6 +80,8 @@ function testHostName(hostname, timeout) {
 /**
  * Function to parse urls and retrieve the different parts of it. Taken from http://blog.stevenlevithan.com/archives/parseuri
  * 
+ * FIXME: A queryString with multiple values for the same parameter is not supported. The queryKey only returns the last value: ?x=1&x=2 becomes ...,"queryKey":{"x":"2"}
+ * 
  * @param {String} url
  * @param {Boolean} [strictMode] Default false
  * @return {{anchor: String, query: String, file: String, directory: String, path: String, relative: String, port: Number, host: String, password:String, user: String, userInfo: String, authority: String, protocol:String, source: String, queryKey: Object<String>}}
@@ -90,10 +92,10 @@ function parseUrl(url, strictMode) {
 	// parseUri 1.2.2
 	// (c) Steven Levithan <stevenlevithan.com>
 	// MIT License
-	var o = {}
+	var o = { }
 	o.strictMode = strictMode;
 	o.key = ["source", "protocol", "authority", "userInfo", "user", "password", "host", "port", "relative", "path", "directory", "file", "query", "anchor"];
-	o.q = {};
+	o.q = { };
 	o.q.name = "queryKey";
 	o.q.parser = /(?:^|&)([^&=]*)=?([^&]*)/g
 	o.parser = { };
@@ -101,12 +103,14 @@ function parseUrl(url, strictMode) {
 	o.parser.loose = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*):?([^:@]*))?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
 
 	var m = o.parser[o.strictMode ? "strict" : "loose"].exec(url);
-	var uri = {};
+	/**@type {{anchor: String, query: String, file: String, directory: String, path: String, relative: String, port: Number, host: String, password:String, user: String, userInfo: String, authority: String, protocol:String, source: String, queryKey: Object<String>}}*/
+	var uri = { };
 	var i = 14;
 	while (i--) uri[o.key[i]] = m[i] || "";
-	uri[o.q.name] = {};
-	uri[o.key[12]].replace(o.q.parser, function($0, $1, $2) {
+	uri[o.q.name] = { };
+	uri[o.key[12]].replace(o.q.parser, function($0, $1, $2) { 
 			if ($1) uri[o.q.name][$1] = $2;
 		});
 	return uri;
 }
+
