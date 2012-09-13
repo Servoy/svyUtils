@@ -224,18 +224,3 @@ var customJSEvent = function(formName, elementName, modifiers, source, type, pos
 	//TODO make this a getter?
 	this.data = data
 }
-
-
-/**
- * @param canBeAnything
- * @param {*} canBeAnythingAgain
- * @param {Object} canBeAnyJSObject
- * @param {JSFoundset<db:/udm/contacts>} fs
- * @param {Array<byte>} byteArray
- * @param {String[]} stringArray
- * @param {...String} restStuff
- * @properties={typeid:24,uuid:"120AD448-9A6B-4967-8A03-9FDAC0599FD0"}
- */
-function testSolex(canBeAnything, canBeAnythingAgain, canBeAnyJSObject, fs, byteArray, stringArray, restStuff) {
-	
-}
