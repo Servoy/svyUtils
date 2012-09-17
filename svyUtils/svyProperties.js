@@ -331,22 +331,31 @@ function getValueArray(_values) {
  * @properties={typeid:24,uuid:"D373C17C-EDF6-488B-AC75-FAB1D0FC88CE"}
  */
 function setDefaultProperties(propertyNames, propertyValues) {
+	if (!propertyNames || propertyNames.length == 0) {
+		return;
+	}
 	/** @type {QBSelect<db:/svy_framework/nav_properties>} */	
 	var query = databaseManager.createSelect("db:/" + globals["nav_db_framework"] + "/nav_properties");
 	query.result.addPk();
+	query.where.add(query.columns.property_name.isin(propertyNames));
 	
 	/** @type {JSFoundSet<db:/svy_framework/nav_properties>} */
-	var fs = databaseManager.getFoundSet("db:/" + globals["nav_db_framework"] + "/nav_properties");
+	var fs = databaseManager.getFoundSet(query);
+	
+	if (utils.hasRecords(fs)) {
+		for (var fsi = 1; fsi <= fs.getSize(); fsi++) {
+			var record = fs.getRecord(fsi);
+			var index = propertyNames.indexOf(record.property_name);
+			if (index > -1) {
+				propertyNames.splice(index,1);
+				propertyValues.splice(index,1);
+			}
+		}
+	}
 	
 	for (var i = 0; i < propertyNames.length; i++) {
 		var propName = propertyNames[i];
-		query.where.clear();
-		query.where.add(query.columns.property_name.eq(propName));
-		fs.loadRecords(query);
-		if (utils.hasRecords(fs)) {
-			continue;
-		}
-		var record = fs.getRecord(fs.newRecord());
+		record = fs.getRecord(fs.newRecord());
 		record.property_name = propName;
 		record.property_value = propertyValues[i];
 		if (databaseManager.saveData(record)) {
