@@ -325,15 +325,20 @@ function getValueArray(_values) {
  * 
  * The method will only create the properties that do not already exist
  * 
- * @param {String[]} propertyNames
- * @param {Object[][]} propertyValues
+ * @param {Array} properties - Array<{name: String, value: Object}>
  *
  * @properties={typeid:24,uuid:"D373C17C-EDF6-488B-AC75-FAB1D0FC88CE"}
  */
-function setDefaultProperties(propertyNames, propertyValues) {
-	if (!propertyNames || propertyNames.length == 0) {
+function setDefaultProperties(properties) {
+	if (!properties || properties.length == 0) {
 		return;
 	}
+	
+	var propertyNames = new Array();
+	for (var pp = 0; pp < properties.length; pp++) {
+		propertyNames.push(properties[pp].name);
+	}
+	
 	/** @type {QBSelect<db:/svy_framework/nav_properties>} */	
 	var query = databaseManager.createSelect("db:/" + globals["nav_db_framework"] + "/nav_properties");
 	query.result.addPk();
@@ -348,20 +353,20 @@ function setDefaultProperties(propertyNames, propertyValues) {
 			var index = propertyNames.indexOf(record.property_name);
 			if (index > -1) {
 				propertyNames.splice(index,1);
-				propertyValues.splice(index,1);
+				properties.splice(index,1);
 			}
 		}
 	}
 	
-	for (var i = 0; i < propertyNames.length; i++) {
-		var propName = propertyNames[i];
+	for (var i = 0; i < properties.length; i++) {
+		var prop = properties[i];
 		record = fs.getRecord(fs.newRecord());
-		record.property_name = propName;
-		record.property_value = propertyValues[i];
+		record.property_name = prop.name;
+		record.property_value = prop.value instanceof Array ? prop.value : [prop.value];
 		if (databaseManager.saveData(record)) {
-			application.output("Created new property \"" + propName + "\"", LOGGINGLEVEL.INFO);
+			application.output("Created new property \"" + prop.name + "\" with value " + record.property_value, LOGGINGLEVEL.INFO);
 		} else {
-			application.output("Failed to create new property \"" + propName + "\"", LOGGINGLEVEL.WARNING);
+			application.output("Failed to create new property \"" + prop.name + "\"", LOGGINGLEVEL.WARNING);
 		}
 	}
 }
