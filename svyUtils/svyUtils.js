@@ -114,3 +114,21 @@ function parseUrl(url, strictMode) {
 	return uri;
 }
 
+
+/**
+ * Adds the number of days to the given date
+ * 
+ * @param {Date} date - the date to add to
+ * @param {Number} numberOfDays - the number of days to add to the given date
+ * 
+ * @author patrick
+ * @since 19.09.2012
+ *
+ * @properties={typeid:24,uuid:"17DB0238-299A-4896-8DD4-E77BECE1A85B"}
+ */
+function addDays(date, numberOfDays) {
+	var javaCal = java.util.Calendar.getInstance();
+	javaCal.setTimeInMillis(date.getTime());
+	javaCal.add(java.util.Calendar.DATE, numberOfDays);
+	return new Date(javaCal.getTimeInMillis());
+}
