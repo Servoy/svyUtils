@@ -47,9 +47,9 @@ function SvyException(errorMessage, i18nKey, i18nArguments) {
  * 
  * @properties={typeid:24,uuid:"B22507E5-510C-4365-B71D-4376200D8FC7"}
  */
-function NO_RECORD() {
+function NoRecordException() {
 	
-	NO_RECORD.prototype = new SvyException("No record was given or the foundset is empty");
+	NoRecordException.prototype = new SvyException("No record was given or the foundset is empty");
 	
 }
 
@@ -59,7 +59,7 @@ function NO_RECORD() {
  * @param {JSRecord} record
  * @properties={typeid:24,uuid:"C64D9C03-D0FF-4064-A9EE-978057A63BA7"}
  */
-function NO_OWNER(record) {
+function NoOwnerException(record) {
 	
 	/**
 	 * The record where the problem occured
@@ -67,7 +67,7 @@ function NO_OWNER(record) {
 	 */
 	this.record = record;
 	
-	NO_OWNER.prototype = new SvyException("There is no owner for the current record.");
+	NoOwnerException.prototype = new SvyException("There is no owner for the current record.");
 	
 }
 
@@ -81,7 +81,7 @@ function NO_OWNER(record) {
  *
  * @properties={typeid:24,uuid:"D31D1A18-4D09-421C-B288-4DEEA554B637"}
  */
-function PASSWORD_RULE_VIOLATION(record, message, i18nKey, i18nArguments) {
+function PasswordRuleViolationException(record, message, i18nKey, i18nArguments) {
 	
 	/**
 	 * The record where the problem occured
@@ -89,7 +89,7 @@ function PASSWORD_RULE_VIOLATION(record, message, i18nKey, i18nArguments) {
 	 */
 	this.record = record;
 	
-	PASSWORD_RULE_VIOLATION.prototype = new SvyException(message, i18nKey, i18nArguments);
+	PasswordRuleViolationException.prototype = new SvyException(message, i18nKey, i18nArguments);
 }
 
 /**
@@ -100,7 +100,7 @@ function PASSWORD_RULE_VIOLATION(record, message, i18nKey, i18nArguments) {
  *
  * @properties={typeid:24,uuid:"2CA76922-50A3-405E-AAD1-A430C3DA4479"}
  */
-function USER_NOT_MEMBER_OF_ORGANIZATION(record, organizationId) {
+function UserNotMemberOfOrganizationException(record, organizationId) {
 	
 	/**
 	 * The record where the problem occured
@@ -113,7 +113,7 @@ function USER_NOT_MEMBER_OF_ORGANIZATION(record, organizationId) {
 	 */
 	this.organizationId = organizationId;
 	
-	USER_NOT_MEMBER_OF_ORGANIZATION.prototype = new SvyException("User not part of organization");
+	UserNotMemberOfOrganizationException.prototype = new SvyException("User not part of organization");
 }
 
 /**
@@ -123,7 +123,7 @@ function USER_NOT_MEMBER_OF_ORGANIZATION(record, organizationId) {
  *
  * @properties={typeid:24,uuid:"294FA011-F0BA-4AAA-A2EB-D25492367723"}
  */
-function FILE_NOT_FOUND(file) {
+function FileNotFoundException(file) {
 	
 	/**
 	 * The file that could not be found
@@ -131,7 +131,7 @@ function FILE_NOT_FOUND(file) {
 	 */
 	this.file = file;
 	
-	FILE_NOT_FOUND.prototype = new SvyException("File not found");
+	FileNotFoundException.prototype = new SvyException("File not found");
 }
 
 /**
@@ -233,4 +233,36 @@ function DeleteRecordFailedException(errorMessage, i18nKey, i18nArguments, found
 	this.foundsetOrRecord = foundsetOrRecord;
 	
 	DeleteRecordFailedException.prototype = new SvyException(errorMessage,i18nKey,i18nArguments);
+}
+
+/**
+ * Raised when the dataprovider needs to be unique
+ * 
+ * @param {JSRecord} record
+ * @param {String} dataprovider
+ * 
+ * @author patrick
+ * @since 30.09.2012
+ *
+ * @properties={typeid:24,uuid:"A5938C9A-A680-4A21-9C58-30899C38DE47"}
+ */
+function ValueNotUniqueException(record, dataprovider) {
+
+	/**
+	 * The record that violates a unique constraint
+	 * 
+	 * @type {JSRecord}
+	 */
+	this.record = record;
+	
+	/**
+	 * The dataprovider that is not unique
+	 * 
+	 * @type {String}
+	 */
+	this.dataprovider = dataprovider;
+	
+	// TODO: i18n with argument dataprovider
+	ValueNotUniqueException.prototype = new SvyException("Dataprovider not unique");
+	
 }
