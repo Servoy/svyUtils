@@ -114,21 +114,57 @@ function parseUrl(url, strictMode) {
 	return uri;
 }
 
-
 /**
- * Adds the number of days to the given date
+ * Tests if a given value for the given dataprovider<br>
+ * is unique in the table of the given foundset or record
  * 
- * @param {Date} date - the date to add to
- * @param {Number} numberOfDays - the number of days to add to the given date
+ * @param {JSRecord|JSFoundSet} foundsetOrRecord
+ * @param {String} dataproviderName
+ * @param {Object} value
+ * 
+ * @throws {scopes.svyExceptions.IllegalArgumentException}
  * 
  * @author patrick
- * @since 19.09.2012
+ * @since 2012-10-04
  *
- * @properties={typeid:24,uuid:"17DB0238-299A-4896-8DD4-E77BECE1A85B"}
+ * @properties={typeid:24,uuid:"FDA0FED5-7A26-46BF-B090-8626CA0C665A"}
  */
-function addDays(date, numberOfDays) {
-	var javaCal = java.util.Calendar.getInstance();
-	javaCal.setTimeInMillis(date.getTime());
-	javaCal.add(java.util.Calendar.DATE, numberOfDays);
-	return new Date(javaCal.getTimeInMillis());
+function isValueUnique(foundsetOrRecord, dataproviderName, value) {
+	if (!foundsetOrRecord || !dataproviderName) {
+		throw new scopes.svyExceptions.IllegalArgumentException("no parameters provided to scopes.svyUtils.isValueUnique(foundsetOrRecord, dataproviderName, value)");
+	}
+	var dataSource = foundsetOrRecord.getDataSource();
+	var pkNames = databaseManager.getTable(dataSource).getRowIdentifierColumnNames();
+	var query = databaseManager.createSelect(dataSource);
+	for (var i = 0; i < pkNames.length; i++) {
+		query.result.add(query.getColumn(pkNames[i]).count);
+	}
+	if (value == null) {
+		query.where.add(query.getColumn(dataproviderName).isNull);
+	} else {
+		query.where.add(query.getColumn(dataproviderName).eq(value));
+	}
+	var dataset = databaseManager.getDataSetByQuery(query,1);
+	if (dataset.getValue(1,1) == 0) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/**
+ * Returns true if a given object has a property with the given value
+ * 
+ * @param {Object} object
+ * @param {Object} value
+ *
+ * @properties={typeid:24,uuid:"1EF0D951-510C-4411-BD58-68E8515728AE"}
+ */
+function objectHasValue(object, value) {
+	for (var i in object) {
+		if (object[i] === value) {
+			return true;
+		}
+	}
+	return false;
 }
