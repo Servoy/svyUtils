@@ -157,6 +157,9 @@ function isValueUnique(foundsetOrRecord, dataproviderName, value) {
  * 
  * @param {Object} object
  * @param {Object} value
+ * 
+ * @author patrick
+ * @since 2012-10-04
  *
  * @properties={typeid:24,uuid:"1EF0D951-510C-4411-BD58-68E8515728AE"}
  */
@@ -167,4 +170,171 @@ function objectHasValue(object, value) {
 		}
 	}
 	return false;
+}
+
+/**
+ * Returns the width of a text for the given font in pixels
+ * 
+ * @param {String} font
+ * @param {String} text
+ * 
+ * @return {Number} pixelWidth
+ * 
+ * @author patrick
+ * @since 2012-10-05
+ * 
+ * @properties={typeid:24,uuid:"43B8A885-F8BA-46A8-BE47-EF0F0C2E5DDC"}
+ */
+function getTextWidth(font, text) {
+	var fontParts = font.split(",");
+	var javaFont = new java.awt.Font(fontParts[0], fontParts[1], fontParts[2]);
+	var tlkt = Packages.java.awt.Toolkit.getDefaultToolkit(); 
+	var metrics = tlkt.getFontMetrics(javaFont);
+	return metrics.stringWidth(text);
+}
+
+/**
+ * Returns the height of any text for the given font in pixels
+ * 
+ * @param {String} font
+ * 
+ * @return {Number} pixelHeight
+ * 
+ * @author patrick
+ * @since 2012-10-05
+ * 
+ * @properties={typeid:24,uuid:"9CA1941E-51B9-41E8-807A-98BD277051D8"}
+ */
+function getTextHeight(font) {
+	var fontParts = font.split(",");
+	var javaFont = new java.awt.Font(fontParts[0], fontParts[1], fontParts[2]);
+	var tlkt = Packages.java.awt.Toolkit.getDefaultToolkit(); 
+	var metrics = tlkt.getFontMetrics(javaFont);
+	return metrics.getHeight();
+}
+
+/**
+ * A StyleParser that can be used to access a number of style class properties from a given style
+ * 
+ * @param {String} styleName
+ * 
+ * @constructor 
+ * 
+ * @author patrick
+ * @since 2012-10-05
+ *
+ * @properties={typeid:24,uuid:"77CDFED0-AB73-4663-A4E3-464917CFF0DE"}
+ */
+function StyleParser(styleName) {
+	
+	this.styleName = styleName;
+	
+	var style = solutionModel.getStyle(styleName);
+	
+	var styleSheet = new Packages.com.servoy.j2db.util.ServoyStyleSheet(style.text, styleName);
+	
+	/**
+	 * Returns the font of the given style class
+	 * 
+	 * @param {String} styleClass
+	 * @return {String} font
+	 */
+	this.getFontString = function(styleClass) {
+		var rule = styleSheet.getCSSRule(styleClass);
+		var font = styleSheet.getFont(rule);
+		return Packages.com.servoy.j2db.util.PersistHelper.createFontString(font);
+	}
+	
+	/**
+	 * Returns the background color of the given style class
+	 * 
+	 * @param {String} styleClass
+	 * @return {String} backgroundColor
+	 */
+	this.getBackgroundColor = function(styleClass) {
+		var rule = styleSheet.getCSSRule(styleClass);
+		var color = styleSheet.getBackground(rule);
+		return Packages.com.servoy.j2db.util.PersistHelper.createColorString(color);
+	}
+	
+	/**
+	 * Returns the foreground color of the given style class
+	 * 
+	 * @param {String} styleClass
+	 * @return {String} foregroundColor
+	 */
+	this.getForegroundColor = function(styleClass) {
+		var rule = styleSheet.getCSSRule(styleClass);
+		var color = styleSheet.getForeground(rule);
+		return Packages.com.servoy.j2db.util.PersistHelper.createColorString(color);
+	}	
+	
+	/**
+	 * Returns the border of the given style class
+	 * 
+	 * @param {String} styleClass
+	 * @return {String} border
+	 */
+	this.getBorder = function(styleClass) {
+		var rule = styleSheet.getCSSRule(styleClass);
+		var border = styleSheet.getBorder(rule);
+		return Packages.com.servoy.j2db.util.ComponentFactoryHelper.createBorderString(border);
+	}	
+	
+	/**
+	 * Returns the foreground color of the given style class
+	 * 
+	 * @param {String} styleClass
+	 * @return {String} font
+	 */
+	this.getMargins = function(styleClass) {
+		var rule = styleSheet.getCSSRule(styleClass);
+		var margins = styleSheet.getMargin(rule);
+		return Packages.com.servoy.j2db.util.PersistHelper.createInsetsString(margins);
+	}	
+	
+	/**
+	 * Returns the horizontal alignment of the given style class
+	 * 
+	 * @param {String} styleClass
+	 * @return {Number} horizontalAlignment
+	 */
+	this.getHorizontalAlignment = function(styleClass) {
+		var rule = styleSheet.getCSSRule(styleClass);
+		return styleSheet.getHAlign(rule);
+	}	
+	
+	/**
+	 * Returns the vertical alignment of the given style class
+	 * 
+	 * @param {String} styleClass
+	 * @return {Number} verticalAlignment
+	 */
+	this.getVerticalAlignment = function(styleClass) {
+		var rule = styleSheet.getCSSRule(styleClass);
+		return styleSheet.getVAlign(rule);
+	}
+	
+	/**
+	 * Returns a java.awt.Font from the given font string
+	 * 
+	 * @param {String} fontString
+	 * 
+	 * @return {java.awt.Font} font
+	 */
+	this.getJavaFont = function(fontString) {
+		return Packages.com.servoy.j2db.util.PersistHelper.createFont(fontString);
+	}
+	
+	/**
+	 * Returns a java.awt.Font from the given font string
+	 * 
+	 * @param {String} colorString
+	 * 
+	 * @return {java.awt.Color} color
+	 */
+	this.getJavaColor = function(colorString) {
+		return Packages.com.servoy.j2db.util.PersistHelper.createColor(colorString);
+	}
+	
 }
