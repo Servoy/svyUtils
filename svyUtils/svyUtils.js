@@ -119,8 +119,10 @@ function parseUrl(url, strictMode) {
  * is unique in the table of the given foundset or record
  * 
  * @param {JSRecord|JSFoundSet} foundsetOrRecord
- * @param {String} dataproviderName
- * @param {Object} value
+ * @param {String} dataproviderName - the name of the dataprovider that should be tested for uniqueness
+ * @param {Object} value - the value that should be unique in the given dataprovider
+ * @param {String[]} [extraQueryColumns] - optional array of additional dataproviders that can be used in the unique query
+ * @param {Object[]} [extraQueryValues] - optional array of additional values that can be used in the unique query
  * 
  * @throws {scopes.svyExceptions.IllegalArgumentException}
  * 
@@ -129,7 +131,7 @@ function parseUrl(url, strictMode) {
  *
  * @properties={typeid:24,uuid:"FDA0FED5-7A26-46BF-B090-8626CA0C665A"}
  */
-function isValueUnique(foundsetOrRecord, dataproviderName, value) {
+function isValueUnique(foundsetOrRecord, dataproviderName, value, extraQueryColumns, extraQueryValues) {
 	if (!foundsetOrRecord || !dataproviderName) {
 		throw new scopes.svyExceptions.IllegalArgumentException("no parameters provided to scopes.svyUtils.isValueUnique(foundsetOrRecord, dataproviderName, value)");
 	}
@@ -141,10 +143,23 @@ function isValueUnique(foundsetOrRecord, dataproviderName, value) {
 	}
 	if (value == null) {
 		query.where.add(query.getColumn(dataproviderName).isNull);
+	} else if (value instanceof UUID) {
+		query.where.add(query.getColumn(dataproviderName).eq(value.toString()));
 	} else {
 		query.where.add(query.getColumn(dataproviderName).eq(value));
 	}
-	var dataset = databaseManager.getDataSetByQuery(query,1);
+	if (extraQueryColumns && extraQueryValues && extraQueryColumns.length == extraQueryValues.length) {
+		for (var j = 0; j < extraQueryColumns.length; j++) {
+			if (extraQueryValues[j] == null) {
+				query.where.add(query.getColumn(extraQueryColumns[j]).isNull);
+			} else if (extraQueryValues[j] instanceof UUID) {
+				query.where.add(query.getColumn(extraQueryColumns[j]).eq(extraQueryValues[j].toString()));
+			} else {
+				query.where.add(query.getColumn(extraQueryColumns[j]).eq(extraQueryValues[j]));
+			}
+		}
+	}
+	var dataset = databaseManager.getDataSetByQuery(query, 1);
 	if (dataset.getValue(1,1) == 0) {
 		return true;
 	} else {
