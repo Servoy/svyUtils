@@ -161,6 +161,25 @@ function IllegalStateException(errorMessage, i18nKey, i18nArguments){
 }
 
 /**
+ * Raised when an invalid email address was given
+ * 
+ * @param {String} emailAddress
+ * @param {String} [i18nKey]
+ * @param {Array} [i18nArguments]
+ * 
+ * @author patrick
+ * @since 2012-10-12
+ *
+ * @properties={typeid:24,uuid:"35E80D58-3A04-42A8-AAAB-DAA3168A12BB"}
+ */
+function InvalidEmailAddressException(emailAddress, i18nKey, i18nArguments) {
+	
+	this.emailAddress = emailAddress;
+	
+	InvalidEmailAddressException.prototype = new SvyException("Invalid email address", i18nKey, i18nArguments);
+}
+
+/**
  * Raised when JSFoundSet.newRecord() failed
  * 
  * @param {String} errorMessage
