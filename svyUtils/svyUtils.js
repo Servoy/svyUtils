@@ -386,27 +386,6 @@ function unzip(fileToUnzip, targetFile) {
 		targetFile.mkdirs();
 	}
 	
-	function channelCopy(src, dest) {
-		var buffer = java.nio.ByteBuffer.allocateDirect(8 * 1024);
-	    while (src.read(buffer) != -1) {
-	      // prepare the buffer to be drained
-	      buffer.flip();
-	      // write to the channel, may block
-	      dest.write(buffer);
-	      // If partial transfer, shift remainder down
-	      // If buffer is empty, same as doing clear()
-	      buffer.compact();
-	    }
-	    // EOF will leave buffer in fill state
-	    buffer.flip();
-	    // make sure the buffer is fully drained.
-	    while (buffer.hasRemaining()) {
-	      dest.write(buffer);
-	    }
-	    
-	    src.close();
-	}
-	
 	try {
 		var zip = new java.util.zip.ZipFile(fileToUnzip.getAbsolutePath());
 		var zipEntries = zip.entries();
@@ -427,8 +406,10 @@ function unzip(fileToUnzip, targetFile) {
 				/** @type {java.io.OutputStream} */
 				var fos = new java.io.FileOutputStream(zipFile.getAbsolutePath());
 				
+				/** @type {java.nio.channels.ReadableByteChannel} */
 				var inputChannel = java.nio.channels.Channels.newChannel(is);
-				var outputChannel = java.nio.channels.Channels.newChannel(fos);
+				/** @type {java.nio.channels.WritableByteChannel} */
+				var outputChannel = java.nio.channels.Channels.newChannel(fos);		
 
 				channelCopy(inputChannel, outputChannel);
 
@@ -471,31 +452,6 @@ function zip(fileToZip, targetFile) {
 		if (targetFile.deleteFile()) {
 			return;
 		}
-	}
-	
-	/**
-	 * @param {java.nio.channels.ReadableByteChannel} src
-	 * @param {java.nio.channels.WritableByteChannel} dest
-	 */
-	function channelCopy(src, dest) {
-		var buffer = java.nio.ByteBuffer.allocateDirect(8 * 1024);
-	    while (src.read(buffer) != -1) {
-	      // prepare the buffer to be drained
-	      buffer.flip();
-	      // write to the channel, may block
-	      dest.write(buffer);
-	      // If partial transfer, shift remainder down
-	      // If buffer is empty, same as doing clear()
-	      buffer.compact();
-	    }
-	    // EOF will leave buffer in fill state
-	    buffer.flip();
-	    // make sure the buffer is fully drained.
-	    while (buffer.hasRemaining()) {
-	      dest.write(buffer);
-	    }
-	    
-	    src.close();
 	}
 	
 	try {
@@ -554,6 +510,37 @@ function zip(fileToZip, targetFile) {
 		} catch(e) {
 		}
 	}
+}
+
+/**
+ * Copies streams
+ * 
+ * @param {java.nio.channels.ReadableByteChannel} src
+ * @param {java.nio.channels.WritableByteChannel} dest
+ * 
+ * @private 
+ *
+ * @properties={typeid:24,uuid:"1E7D6817-F26F-4947-A99C-57930C483FC5"}
+ */
+function channelCopy(src, dest) {
+	var buffer = java.nio.ByteBuffer.allocateDirect(8 * 1024);
+    while (src.read(buffer) != -1) {
+      // prepare the buffer to be drained
+      buffer.flip();
+      // write to the channel, may block
+      dest.write(buffer);
+      // If partial transfer, shift remainder down
+      // If buffer is empty, same as doing clear()
+      buffer.compact();
+    }
+    // EOF will leave buffer in fill state
+    buffer.flip();
+    // make sure the buffer is fully drained.
+    while (buffer.hasRemaining()) {
+      dest.write(buffer);
+    }
+    
+    src.close();
 }
 
 /**
