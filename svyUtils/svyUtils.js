@@ -387,7 +387,7 @@ function unzip(fileToUnzip, targetFile) {
 	}
 	
 	function channelCopy(src, dest) {
-		var buffer = java.nio.ByteBuffer.allocateDirect(4 * 1024);
+		var buffer = java.nio.ByteBuffer.allocateDirect(8 * 1024);
 	    while (src.read(buffer) != -1) {
 	      // prepare the buffer to be drained
 	      buffer.flip();
@@ -478,7 +478,7 @@ function zip(fileToZip, targetFile) {
 	 * @param {java.nio.channels.WritableByteChannel} dest
 	 */
 	function channelCopy(src, dest) {
-		var buffer = java.nio.ByteBuffer.allocateDirect(4 * 1024);
+		var buffer = java.nio.ByteBuffer.allocateDirect(8 * 1024);
 	    while (src.read(buffer) != -1) {
 	      // prepare the buffer to be drained
 	      buffer.flip();
@@ -570,7 +570,7 @@ function zip(fileToZip, targetFile) {
  * @properties={typeid:24,uuid:"512CAE03-E646-4191-A2E5-58620598B2BE"}
  */
 function replaceTagsInWordProcessingDocument(document, record) {
-	
+
 	/**
 	 * @param {plugins.file.JSFile} dir
 	 */
