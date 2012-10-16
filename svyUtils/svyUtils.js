@@ -449,7 +449,7 @@ function zip(fileToZip, targetFile) {
 	}
 	
 	if (targetFile.exists()) {
-		if (targetFile.deleteFile()) {
+		if (!targetFile.deleteFile()) {
 			return;
 		}
 	}
@@ -524,23 +524,23 @@ function zip(fileToZip, targetFile) {
  */
 function channelCopy(src, dest) {
 	var buffer = java.nio.ByteBuffer.allocateDirect(8 * 1024);
-    while (src.read(buffer) != -1) {
-      // prepare the buffer to be drained
-      buffer.flip();
-      // write to the channel, may block
-      dest.write(buffer);
-      // If partial transfer, shift remainder down
-      // If buffer is empty, same as doing clear()
-      buffer.compact();
-    }
-    // EOF will leave buffer in fill state
-    buffer.flip();
-    // make sure the buffer is fully drained.
-    while (buffer.hasRemaining()) {
-      dest.write(buffer);
-    }
-    
-    src.close();
+	while (src.read(buffer) != -1) {
+		// prepare the buffer to be drained
+		buffer.flip();
+		// write to the channel, may block
+		dest.write(buffer);
+		// If partial transfer, shift remainder down
+		// If buffer is empty, same as doing clear()
+		buffer.compact();
+	}
+	// EOF will leave buffer in fill state
+	buffer.flip();
+	// make sure the buffer is fully drained.
+	while (buffer.hasRemaining()) {
+		dest.write(buffer);
+	}
+
+	src.close();
 }
 
 /**
@@ -578,7 +578,14 @@ function replaceTagsInWordProcessingDocument(document, record) {
 	}
 	
 	var docType = document.getName().substr(document.getName().lastIndexOf(".") + 1);
-	var unzippedDir = unzip(document);
+	var tmpFile = plugins.file.convertToJSFile(java.lang.System.getProperty("java.io.tmpdir") + java.io.File.separator + application.getUUID().toString());
+	tmpFile.mkdirs();
+	var unzippedDir = unzip(document, tmpFile);
+	
+	if (!unzippedDir) {
+		return false;
+	}
+	
 	var contentFilePath;
 	var content;
 	if (docType == "docx") {
@@ -595,7 +602,7 @@ function replaceTagsInWordProcessingDocument(document, record) {
 	content = plugins.file.readTXTFile(contentFilePath);
 	content = utils.stringReplaceTags(content, record);
 	plugins.file.writeTXTFile(contentFilePath, content, "UTF-8");
-	zip(unzippedDir, plugins.file.convertToJSFile("F:\\merged.docx"));
+	zip(unzippedDir, document);
 	deleteDirectory(unzippedDir);
 	unzippedDir.deleteFile();
 	
