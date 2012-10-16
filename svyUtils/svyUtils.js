@@ -427,7 +427,7 @@ function unzip(fileToUnzip, targetFile) {
 }
 
 /**
- * Zips the given file<p>
+ * Zips the given file or directory<p>
  * 
  * The zip file will either be written to the given target file
  * or a zip file is created using the same name and location as the original file<p>
@@ -436,6 +436,10 @@ function unzip(fileToUnzip, targetFile) {
  * 
  * @param {plugins.file.JSFile} fileToZip
  * @param {plugins.file.JSFile} [targetFile]
+ * 
+ * @return {plugins.file.JSFile} zipFile
+ * 
+ * @throws {Error}
  * 
  * @author patrick
  * @since 2012-10-15
@@ -450,7 +454,7 @@ function zip(fileToZip, targetFile) {
 	
 	if (targetFile.exists()) {
 		if (!targetFile.deleteFile()) {
-			return;
+			return null;
 		}
 	}
 	
@@ -502,6 +506,7 @@ function zip(fileToZip, targetFile) {
 	}
 	catch(e) {
 		application.output("Error zipping file \"" + fileToZip.getAbsolutePath() + "\": " + e, LOGGINGLEVEL.ERROR);
+		throw e;
 	} finally {
 		try {
 			if (zos != null) {
@@ -510,6 +515,8 @@ function zip(fileToZip, targetFile) {
 		} catch(e) {
 		}
 	}
+	
+	return targetFile;
 }
 
 /**
