@@ -242,10 +242,25 @@ function getTextHeight(font) {
  */
 function StyleParser(styleName) {
 	
+	/**
+	 * The name of this style
+	 * 
+	 * @type {String}
+	 */
 	this.styleName = styleName;
 	
+	/**
+	 * Style
+	 * 
+	 * @type {JSStyle}
+	 */
 	var style = solutionModel.getStyle(styleName);
 	
+	/**
+	 * ServoyStyleSheet
+	 * 
+	 * @type {Packages.com.servoy.j2db.util.ServoyStyleSheet}
+	 */
 	var styleSheet = new Packages.com.servoy.j2db.util.ServoyStyleSheet(style.text, styleName);
 	
 	/**
@@ -342,7 +357,7 @@ function StyleParser(styleName) {
 	}
 	
 	/**
-	 * Returns a java.awt.Font from the given font string
+	 * Returns a java.awt.Color from the given color string
 	 * 
 	 * @param {String} colorString
 	 * 
@@ -526,11 +541,14 @@ function zip(fileToZip, targetFile) {
  * @param {java.nio.channels.WritableByteChannel} dest
  * 
  * @private 
+ * 
+ * @author patrick
+ * @since 2012-10-15
  *
  * @properties={typeid:24,uuid:"1E7D6817-F26F-4947-A99C-57930C483FC5"}
  */
 function channelCopy(src, dest) {
-	var buffer = java.nio.ByteBuffer.allocateDirect(8 * 1024);
+	var buffer = java.nio.ByteBuffer.allocateDirect(16 * 1024);
 	while (src.read(buffer) != -1) {
 		// prepare the buffer to be drained
 		buffer.flip();
