@@ -54,6 +54,25 @@ function NoRecordException() {
 }
 
 /**
+ * No related record present
+ * 
+ * @properties={typeid:24,uuid:"001EBC86-83A1-4E96-A77D-81317C07F503"}
+ */
+function NoRelatedRecordException() {
+	
+	NoRelatedRecordException.prototype = new SvyException("No related record was found");
+	
+}
+
+/**
+ * @properties={typeid:24,uuid:"08D88894-91B8-4A02-9230-3F57D8A43123"}
+ */
+function SendMailException()
+{
+	SendMailException.prototype = new SvyException("Could not send mail")
+}
+
+/**
  * No owner set
  * 
  * @param {JSRecord} record
