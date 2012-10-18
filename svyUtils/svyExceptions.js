@@ -180,6 +180,18 @@ function IllegalStateException(errorMessage, i18nKey, i18nArguments){
 }
 
 /**
+ * Raised when record can not be activated
+ * @param {String} errorMessage
+ * @param {String} [i18nKey]
+ * @param {Array} [i18nArguments]
+ *
+ * @properties={typeid:24,uuid:"5E40B384-FCB1-4438-8B43-B830290544E0"}
+ */
+function CannotActivateException(errorMessage, i18nKey, i18nArguments){
+	CannotActivateException.prototype = new SvyException(errorMessage,i18nKey,i18nArguments);
+}
+
+/**
  * Raised when an invalid email address was given
  * 
  * @param {String} emailAddress
