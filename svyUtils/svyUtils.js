@@ -408,12 +408,14 @@ function unzip(fileToUnzip, targetFile) {
 		while (zipEntries.hasMoreElements()) {
 			/** @type {java.util.zip.ZipEntry} */
 			var zipEntry = zipEntries.nextElement();
+			var zipEntryName = zipEntry.getName();
+			zipEntryName = utils.stringReplace(zipEntryName, "/", java.io.File.separator);
 			if (zipEntry.isDirectory()) {
-				var zipDir = plugins.file.convertToJSFile(targetFile.getAbsolutePath() + fileSeparator + zipEntry.getName());
+				var zipDir = plugins.file.convertToJSFile(targetFile.getAbsolutePath() + fileSeparator + zipEntryName);
 				zipDir.mkdirs();
 				continue;
 			} else {
-				var zipFile = plugins.file.convertToJSFile(targetFile.getAbsolutePath() + fileSeparator + zipEntry.getName());
+				var zipFile = plugins.file.convertToJSFile(targetFile.getAbsolutePath() + fileSeparator + zipEntryName);
 				if (!zipFile.getParentFile().exists()) {
 					zipFile.getParentFile().mkdirs();
 				}
@@ -429,6 +431,7 @@ function unzip(fileToUnzip, targetFile) {
 				channelCopy(inputChannel, outputChannel);
 
 				is.close();
+				outputChannel.close();
 				fos.close();
 			}
 		}
@@ -451,6 +454,7 @@ function unzip(fileToUnzip, targetFile) {
  * 
  * @param {plugins.file.JSFile} fileToZip
  * @param {plugins.file.JSFile} [targetFile]
+ * @param {Array<String>} [filenamesToStoreUncompressed] array of file names that should be stored uncompressed in the archive
  * 
  * @return {plugins.file.JSFile} zipFile
  * 
@@ -461,7 +465,7 @@ function unzip(fileToUnzip, targetFile) {
  *
  * @properties={typeid:24,uuid:"86DDDAC8-1D6F-49FE-BD70-8611F7000D17"}
  */
-function zip(fileToZip, targetFile) {
+function zip(fileToZip, targetFile, filenamesToStoreUncompressed) {
 	var filePath = fileToZip.getAbsolutePath();
 	if (!targetFile) {
 		targetFile = plugins.file.convertToJSFile(filePath + ".zip");
@@ -476,6 +480,7 @@ function zip(fileToZip, targetFile) {
 	try {
 		/** @type {java.util.zip.ZipOutputStream} */
 		var zos = new java.util.zip.ZipOutputStream(new java.io.FileOutputStream(targetFile.getAbsolutePath()));
+		
 		/** @type {java.nio.channels.WritableByteChannel} */
 		var outputChannel = java.nio.channels.Channels.newChannel(zos);		
 		
@@ -491,6 +496,10 @@ function zip(fileToZip, targetFile) {
 					var singleFile = files[i];
 					zipFile(singleFile, base, zipOutputStream);
 				}
+				if (!files || files.length == 0) {
+					// empty directory
+					zipOutputStream.putNextEntry(new java.util.zip.ZipEntry(file.getPath().substring(base.getPath().length + 1) + "/"));
+				}
 			} else {
 				/** @type {java.io.InputStream} */
 				var is = new java.io.FileInputStream(file);
@@ -500,7 +509,16 @@ function zip(fileToZip, targetFile) {
 				} else {
 					entryPath = file.getPath().substring(base.getPath().length + 1);
 				}
+				entryPath = utils.stringReplace(entryPath, java.io.File.separator, "/");
 				var entry = new java.util.zip.ZipEntry(entryPath);
+				
+				if (filenamesToStoreUncompressed && filenamesToStoreUncompressed.indexOf(file.getName()) != -1) {
+					entry.setMethod(java.util.zip.ZipEntry.STORED);
+					entry.setSize(file.size());
+					var crc = new java.util.zip.CRC32();
+					crc.update(file.getBytes());
+					entry.setCrc(crc.getValue());
+				}
 				
 				zipOutputStream.putNextEntry(entry);
 				
@@ -512,11 +530,13 @@ function zip(fileToZip, targetFile) {
 				is.close();
 			}
 		}
-		
+			
 		zipFile(fileToZip, fileToZip, zos);
-		outputChannel.close();
-		zos.close();
 		
+		outputChannel.close();
+		outputChannel = null;
+		
+		zos.close();
 		zos = null;
 	}
 	catch(e) {
@@ -524,6 +544,9 @@ function zip(fileToZip, targetFile) {
 		throw e;
 	} finally {
 		try {
+			if (outputChannel != null) {
+				outputChannel.close();
+			}
 			if (zos != null) {
 				zos.close();
 			}
