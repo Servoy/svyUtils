@@ -56,6 +56,46 @@ function add(date, years, months, days, hours, minutes, seconds) {
 }
 
 /**
+ * Transposes a date object by the amount specified and returns a new date object
+ * 
+ * @param {Date} date
+ * @param {Number} amount
+ * @param {Number} units
+ * 
+ * @throws {scopes.svyExceptions.IllegalArgumentException}
+ * 
+ * @author Sean
+ *
+ * @properties={typeid:24,uuid:"087B4A13-CBD8-46F3-985C-61F596B9C451"}
+ */
+function addUnits(date, amount, units) {
+	if(!date) throw new scopes.svyExceptions.IllegalArgumentException('date cannot be null/undefined', null, null);
+	if(!amount) throw new scopes.svyExceptions.IllegalArgumentException('amount cannot be null/undefined', null, null);
+	if(!units) throw new scopes.svyExceptions.IllegalArgumentException('units cannot be null/undefined', null, null);
+	date = new Date(date.valueOf());
+	switch (units) {
+		case scopes.svyUnits$time.HOUR:
+			date.setHours(date.getHours() + amount);
+			break;
+		case scopes.svyUnits$time.DAY:
+			date.setDate(date.getDate()+amount);
+			break;
+		case scopes.svyUnits$time.WEEK:
+			date.setDate(date.getDate()+(amount*7));
+			break;
+		case scopes.svyUnits$time.MONTH:
+			date.setMonth(date.getMonth()+amount);
+			break;
+		case scopes.svyUnits$time.YEAR:
+			date.setFullYear(date.getFullYear()+amount);
+			break;
+		default:
+			throw new scopes.svyExceptions.IllegalArgumentException('Unsupported value for units', null, null);
+	}
+	return date;
+}
+
+/**
  * Adds the given number of years to the given date and returns a new date<br>
  * Negative number of years will be substracted
  * 
@@ -431,9 +471,10 @@ function getLastDayOfWeek(date) {
 	calendar.setTimeInMillis(date.getTime());
 	var tmp = java.util.Calendar.getInstance();
 	tmp.clear();
-	tmp.set(java.util.Calendar.YEAR,calendar.get(java.util.Calendar.YEAR));
-	tmp.set(java.util.Calendar.WEEK_OF_YEAR, calendar.get(java.util.Calendar.WEEK_OF_YEAR));
-	tmp.add(java.util.Calendar.DAY_OF_MONTH, 6);
+	tmp.set(calendar.get(java.util.Calendar.YEAR), calendar.get(java.util.Calendar.MONTH), calendar.get(java.util.Calendar.DATE));
+	tmp.add(java.util.Calendar.WEEK_OF_YEAR, 1);
+	tmp.set(java.util.Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
+	tmp.add(java.util.Calendar.DATE, -1);
 	return new Date(tmp.getTimeInMillis());
 }
 
@@ -535,6 +576,43 @@ function DateTime(date) {
 	 * The Date object of this DateTime
 	 */
 	this.date = date;
+	
+	/**
+	 * Adds the given unit with the given amount to this date
+	 * 
+	 * @param {Number} unit - one of scopes.svyUnits$time
+	 * @param {Number} amount
+	 * 
+	 * @throws {scopes.svyExceptions.IllegalArgumentException}
+	 * 
+	 * @return {DateTime}
+	 */
+	this.addUnits = function(unit, amount) {
+		/** @type {DateTime} */
+		var _this = this;
+		if(!amount) throw new scopes.svyExceptions.IllegalArgumentException('amount cannot be null/undefined', null, null);
+		if(!unit) throw new scopes.svyExceptions.IllegalArgumentException('units cannot be null/undefined', null, null);
+		switch (unit) {
+			case scopes.svyUnits$time.HOUR:
+				date.setHours(_this.date.getHours() + amount);
+				break;
+			case scopes.svyUnits$time.DAY:
+				date.setDate(_this.date.getDate() + amount);
+				break;
+			case scopes.svyUnits$time.WEEK:
+				date.setDate(_this.date.getDate() + (amount * 7));
+				break;
+			case scopes.svyUnits$time.MONTH:
+				date.setMonth(_this.date.getMonth() + amount);
+				break;
+			case scopes.svyUnits$time.YEAR:
+				date.setFullYear(_this.date.getFullYear() + amount);
+				break;
+			default:
+				throw new scopes.svyExceptions.IllegalArgumentException('Unsupported value for units', null, null);
+		}
+		return this;
+	}
 	
 	/**
 	 * Adds the given number of days to the given date<br>
