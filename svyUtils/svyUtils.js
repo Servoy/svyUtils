@@ -205,6 +205,9 @@ function getTextWidth(font, text) {
 	var javaFont = new java.awt.Font(fontParts[0], fontParts[1], fontParts[2]);
 	var tlkt = Packages.java.awt.Toolkit.getDefaultToolkit(); 
 	var metrics = tlkt.getFontMetrics(javaFont);
+	if (text.substr(0,5) == "i18n:") {
+		text = i18n.getI18NMessage(text);
+	}
 	return metrics.stringWidth(text);
 }
 
@@ -221,6 +224,9 @@ function getTextWidth(font, text) {
  * @properties={typeid:24,uuid:"9CA1941E-51B9-41E8-807A-98BD277051D8"}
  */
 function getTextHeight(font) {
+	if (!font) {
+		return 20;
+	}
 	var fontParts = font.split(",");
 	var javaFont = new java.awt.Font(fontParts[0], fontParts[1], fontParts[2]);
 	var tlkt = Packages.java.awt.Toolkit.getDefaultToolkit(); 
@@ -655,4 +661,44 @@ function replaceTagsInWordProcessingDocument(document, record) {
 	unzippedDir.deleteFile();
 	
 	return true;
+}
+
+/**
+ * Converts a value to JSON
+ *
+ * @param displayedValue The displayed value.
+ * @param {String} dbType The type of the database column. Can be one of "TEXT", "INTEGER", "NUMBER", "DATETIME" or "MEDIA".
+ *
+ * @returns {Object} the database value.
+ * 
+ * @author patrick
+ * @date 25.10.2012
+ *
+ * @properties={typeid:24,uuid:"0786C8EC-B388-485E-8017-2B45A68047A8"}
+ */
+function jsonConvertFromObject(displayedValue, dbType) {
+	if (displayedValue instanceof Array) {
+		// in case we receive a Native Array here, 
+		// try to convert it to a JS array
+		displayedValue = displayedValue.concat(new Array());
+	}
+	return JSON.stringify(displayedValue);
+}
+
+/**
+ * Converts a value from JSON
+ *
+ * @param databaseValue The database value.
+ * @param {String} dbType The type of the database column. Can be one of "TEXT", "INTEGER", "NUMBER", "DATETIME" or "MEDIA".
+ *
+ * @returns {Object} the displayed value.
+ * 
+ * @author patrick
+ * @since 25.10.2012
+ *
+ * @properties={typeid:24,uuid:"4842EB94-BB21-4F75-A069-4F42898A0014"}
+ */
+function jsonConvertToObject(databaseValue, dbType) {
+	if (databaseValue == null) return null;
+	return JSON.parse(databaseValue)
 }
