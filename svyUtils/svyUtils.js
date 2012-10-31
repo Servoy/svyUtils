@@ -682,6 +682,9 @@ function jsonConvertFromObject(displayedValue, dbType) {
 		// try to convert it to a JS array
 		displayedValue = displayedValue.concat(new Array());
 	}
+	if (displayedValue instanceof UUID) {
+		displayedValue = displayedValue.toString();
+	}
 	return JSON.stringify(displayedValue);
 }
 
