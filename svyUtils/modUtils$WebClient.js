@@ -291,6 +291,8 @@ var c;
 /**
  * Used by the updateUI Web Client polyfill 
  * @private 
+ * @type {Continuation}
+ *
  * @properties={typeid:35,uuid:"78C02CA0-BC14-4B4D-8D42-10224DED1D81",variableType:-4}
  */
 var terminator = new Continuation()
