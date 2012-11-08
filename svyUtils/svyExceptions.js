@@ -316,3 +316,30 @@ function ValueNotUniqueException(record, dataprovider) {
 	ValueNotUniqueException.prototype = new SvyException("Dataprovider not unique");
 	
 }
+/**
+ * Raised when a there is an error in an HTTP operation, most commonly a failed request (status code != SC_OK)
+ * 
+ * @param {String} errorMessage
+ * @param {String} [i18nKey]
+ * @param {Array} [i18nArguments]
+ * @param {Number} [httpCode]
+ * @param {String} [httpResponseBody]
+ * @author Sean
+ *
+ * @properties={typeid:24,uuid:"F1C95D28-6967-4FAE-B319-6D1D732FF734"}
+ */
+function HTTPException(errorMessage, i18nKey, i18nArguments, httpCode, httpResponseBody){
+	/**
+	 * The HTTP Response Code
+	 * @type {Number}
+	 */
+	this.httpCode = httpCode;
+	/**
+	 * The Response of the 
+	 * @type {String}
+	 */
+	this.httpResponseBody = httpResponseBody;
+	
+	
+	HTTPException.prototype = new SvyException(errorMessage,i18nKey,i18nArguments);
+}
