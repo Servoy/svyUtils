@@ -1,13 +1,20 @@
 /*
  * All kind of utilities when running the Web Client.
- * Note that these utilities do not check if they are being called in a Web Client!
+ * Note that these utilities do not necessarily check if they are being called in a Web Client!
  * 
- * Some interesting resources that were used in some of the utils:
+ * Some interesting resources that were used for some of the utility methods:
  * - http://chillenious.wordpress.com/2006/05/03/wicket-header-contributions-with-behaviors/
  * - http://spatula.net/blog/2006/11/better-than-ajax-adding-client-side.html
  * - http://www.codesmell.org/blog/2010/01/playing-with-wickets-templates/
  * - http://karthikg.wordpress.com/2008/01/24/developing-a-custom-apache-wicket-component/
  */
+
+/**
+ * @type {String}
+ *
+ * @properties={typeid:35,uuid:"C3ADC3E6-A4EC-42E3-B9DC-4B1D9637B6F9"}
+ */
+var MEDIA_URL_PREFIX = 'media:///'
 
 /**
  * Centers a (tab)panel within its container through CSS. Tabpanel should left anchored only
@@ -24,7 +31,7 @@ function centerPanel(element) {
 
 /**
  * Sets the visibility of components in the browser. This means that all the markup is included, but is also hidden.
- * Differs from plugins.WebClientUtils impl., as that does it by changing the value for the CSS display property, while this impl. does it through the CSS visibility property
+ * Note: uses display, not visibility, as Servoy toggles the visibility property as well
  * 
  * @param {RuntimeComponent} component
  * @param {Boolean} visibility
@@ -32,7 +39,8 @@ function centerPanel(element) {
  * @properties={typeid:24,uuid:"8421ED23-0497-4D0F-9CEE-71F543FF0838"}
  */
 function setComponentVisibility(component, visibility) {
-	var style = visibility ? 'visibility: inherit' : 'visibility: hidden'
+	//var style = visibility ? 'visibility: inherit' : 'visibility: hidden'
+	var style = visibility ? 'display: block' : 'display: none'
 	var model = Packages.org.apache.wicket.model.Model(style)
 	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('style', model, '')
 	unwrapElement(component).add(behavior)
@@ -49,8 +57,10 @@ function setComponentVisibility(component, visibility) {
  */
 function addClass(component, className) {
 	var model = Packages.org.apache.wicket.model.Model(className)
-	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('style', model, '')
-	unwrapElement(component).add(behavior)
+	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('class', true, model, ' ')
+	
+	var unwrappedComponent = unwrapElement(component)
+	unwrappedComponent.add(behavior)
 }
 
 /**
@@ -64,44 +74,57 @@ function addPlaceHolderText(element, text) {
 	unwrapElement(element).add(behavior)
 }
 
-/**
- * // TODO generated, please specify type and doc for the params
- * @param element
- * @param code
- *
- * @properties={typeid:24,uuid:"EE277DEA-EBE5-4DFE-97CA-05F2BADC26B1"}
+///**
+// * @param element
+// * @param transformer
+// *
+// * @properties={typeid:24,uuid:"3E793967-80F4-4531-A66B-A3009CA538FD"}
+// */
+//function addMarkupTransformerBehavior(element, transformer) {
+//	var behavior = new Packages.org.apache.wicket.markup.transformer.AbstractTransformerBehavior({
+//		transform: transformer
+//	})
+//	unwrapElement(element).add(behavior)
+//}
+
+/*
+ * WARNING Methods below use getPageContributer through the PluginAccess to add global dependancies in such a way that it'll work in the onOpen event handler of a solutions
+ * Note that the implementation is flawed as the resource is added to only the current Wicket page, which related to one JSWindow
+ * As a result, the resource is not available in dialogs or additional tabs.
+ * See https://support.servoy.com/browse/SVY-3192 to get this fixed
  */
-function addKeyDownEventHandler(element, code) {
-	var comp = unwrapElement(element)
-	var behavior = new Packages.org.apache.wicket.behavior.StringHeaderContributor('<script>$(\'#' + comp.getMarkupId() + '\').keydown(' + code + ')</script>')
-	comp.add(behavior)
-}
 
 /**
- * @param {RuntimeComponent} element
  * @param {String} url
- *
+ * @param {RuntimeComponent} [element]
+ * 
+ * @return {scopes.modUtils$WebClient}
+ * 
  * @properties={typeid:24,uuid:"3FFD6F91-CE66-4337-9E52-2A7CC5ECF295"}
  */
-function addJavaScriptDependancy(element, url) {
+function addJavaScriptDependancy(url, element) {
 	var contributor = new Packages.org.apache.wicket.behavior.HeaderContributor(new Packages.org.apache.wicket.markup.html.IHeaderContributor({
 			renderHead: function(/**@type {Packages.org.apache.wicket.markup.html.IHeaderResponse}*/ response) {
 				response.renderJavascriptReference(convertMediaURL(url, response))
 			}
 		})
 	)
-	
-	unwrapElement(element).add(contributor)
+	if (element) {
+		unwrapElement(element).add(contributor)
+	} else {
+		getWebClientPluginAccess().getPageContributor().add(contributor)
+	}
 	return this
 }
 
 /**
- * @param {RuntimeComponent} element
  * @param {String} url
- *
+ * @param {RuntimeComponent} [element]
+ * @return {scopes.modUtils$WebClient}
+ * 
  * @properties={typeid:24,uuid:"84B8B212-C873-465F-8F2C-EE74A466CEC6"}
  */
-function addCSSDependancy(element, url) {
+function addCSSDependancy(url, element) {
 	var contributor = new Packages.org.apache.wicket.behavior.HeaderContributor(new Packages.org.apache.wicket.markup.html.IHeaderContributor({
 			renderHead: function(/**@type {Packages.org.apache.wicket.markup.html.IHeaderResponse}*/ response) {
 				response.renderCSSReference(convertMediaURL(url, response))
@@ -109,10 +132,16 @@ function addCSSDependancy(element, url) {
 		})
 	)
 	
-	unwrapElement(element).add(contributor)
+	if (element) {
+		unwrapElement(element).add(contributor)
+	} else {
+		getWebClientPluginAccess().getPageContributor().add(contributor)
+	}
+	return this
 }
 
 /**
+ * TODO: add UnitTest for accessing .hashCode() method on bytes of media
  * @private 
  * @param {String} url
  * @param {Packages.org.apache.wicket.markup.html.IHeaderResponse} response
@@ -121,51 +150,84 @@ function addCSSDependancy(element, url) {
  * @properties={typeid:24,uuid:"C6EC0C48-2E49-46A7-A630-E162626FB362"}
  */
 function convertMediaURL(url, response) { 
-	if (url.substr(0,9) != 'media:///') {
+	if (url.substr(0, MEDIA_URL_PREFIX.length) != MEDIA_URL_PREFIX) {
 		return url
 	}
-	var media = solutionModel.getMedia(url.substr(9))
+	var media = solutionModel.getMedia(url.substr(MEDIA_URL_PREFIX.length))
 	if (media == null) {
 		application.output('Could not locate "' + url + '" in the media library for inclusion in the Web Client markup',LOGGINGLEVEL.WARNING)
 		return '#'
-	}
+	} 
+	url += '&amp;hc=' + media.bytes.hashCode()
+	
 	var resourceReference = new Packages.org.apache.wicket.ResourceReference("media");
-	//TODO: see if a revision number or modification timestamp can be found to append as hash, to trigger automatic refresh in the browser
-	return url.replace('media:///', Packages.org.apache.wicket.RequestCycle.get().urlFor(resourceReference) + '?s=' + application.getSolutionName() + '&amp;id=')
+	return url.replace(MEDIA_URL_PREFIX, Packages.org.apache.wicket.RequestCycle.get().urlFor(resourceReference) + '?s=' + application.getSolutionName() + '&amp;id=')
 }
 
 /**
- * @param element
+ * TODO: determine if ID can be optional and then auto generate one
+ * TODO: figure out how to generate small unique ID's (how does Servoy do this?)
+ * // TODO generated, please specify type and doc for the params
  * @param code
+ * @param id
+ * @param element
+ *
+ * @properties={typeid:24,uuid:"7E3B4734-F5C3-454E-B239-7EC81DC4F9D9"}
+ */
+function addDynamicJavaScript(code, id, element) {
+	var contributor = new Packages.org.apache.wicket.behavior.HeaderContributor(new Packages.org.apache.wicket.markup.html.IHeaderContributor({
+			renderHead: function(/**@type {Packages.org.apache.wicket.markup.html.IHeaderResponse}*/ response) {
+				response.renderJavascript(code, id) 
+			}
+		})
+	)
+	if (element) {
+		unwrapElement(element).add(contributor)
+	} else {
+		getWebClientPluginAccess().getPageContributor().add(contributor)
+	}
+}
+
+/**
+ * TODO: figure out if correctly implemented: every ajax update executed the code again, so no good for init logic like keyboard shortcuts for example
+ * @param {String} code
+ * @param {RuntimeComponent} [element]
  *
  * @properties={typeid:24,uuid:"A37ACBC3-8F68-48E8-AEC5-C1F00739CDAA"}
  */
-function addOnDOMReadyScript(element, code) {
+function addOnDOMReadyScript(code, element) {
 	var contributor = new Packages.org.apache.wicket.behavior.HeaderContributor(new Packages.org.apache.wicket.markup.html.IHeaderContributor({
 			renderHead: function(/**@type {Packages.org.apache.wicket.markup.html.IHeaderResponse}*/ response) {
 				response.renderOnDomReadyJavascript(code) 
 			}
 		})
 	)
-
-	unwrapElement(element).add(contributor)
+	if (element) {
+		unwrapElement(element).add(contributor)
+	} else {
+		getWebClientPluginAccess().getPageContributor().add(contributor)
+	}
 }
 
 /**
- * @param element
- * @param code
+ * TODO: figure out if correctly implemented: every ajax update executed the code again, so no good for init logic like keyboard shortcuts for example
+ * @param {String} code
+ * @param {RuntimeComponent} [element]
  *
  * @properties={typeid:24,uuid:"DB2D9CFF-410E-489A-BE5B-2EF83F8FFC18"}
  */
-function addOnLoadScript(element, code) {
+function addOnLoadScript(code, element) {
 	var contributor = new Packages.org.apache.wicket.behavior.HeaderContributor(new Packages.org.apache.wicket.markup.html.IHeaderContributor({
 			renderHead: function(/**@type {Packages.org.apache.wicket.markup.html.IHeaderResponse}*/ response) {
 				response.renderOnLoadJavascript(code) 
 			}
 		})
 	)
-
-	unwrapElement(element).add(contributor)
+	if (element) {
+		unwrapElement(element).add(contributor)
+	} else {
+		getWebClientPluginAccess().getPageContributor().add(contributor)
+	}
 }
 
 /**
@@ -180,7 +242,37 @@ function getElementMarkupId(element) {
 }
 
 /**
+ * @param {RuntimeComponent} element
+ *
+ * @properties={typeid:24,uuid:"3BB9D4B3-CA3F-4EC7-AF5A-90895FD701FF"}
+ */
+function getFormName(element) {
+	var component = unwrapElement(element)
+	/** @type {Packages.com.servoy.j2db.server.headlessclient.WebForm}*/
+	var form = component.findParent(Packages.com.servoy.j2db.IFormUIInternal)
+	if (form) {
+		return form.getFormContext().getValue(1,2)
+	}
+	return null
+}
+
+/**
+ * Utility method to get PluginAccess
  * @private
+ * TODO: unittest
+ * @return {Packages.com.servoy.j2db.server.headlessclient.IWebClientPluginAccess}
+ * @SuppressWarnings(wrongparameters)
+ * @properties={typeid:24,uuid:"AF74EA3D-B2EB-41EC-A333-D806D7972FA5"}
+ */
+function getWebClientPluginAccess() {
+	return unwrapElement(plugins.window)['getClientPluginAccess']()
+}
+
+/**
+ * Utility method to gain access to the underlying Java component in order to access more low level API
+ * @private
+ * @SuppressWarnings(wrongparameters)
+ * 
  * @param {RuntimeComponent} element
  *
  * @return {Packages.org.apache.wicket.Component}
@@ -188,12 +280,19 @@ function getElementMarkupId(element) {
  * @properties={typeid:24,uuid:"60FD0C93-55A0-4E4E-AA5B-42F037E42A49"}
  */
 function unwrapElement(element) {
-	var list = new Packages.java.util.ArrayList();
-	list.add(element)
-
 	/**@type {Packages.org.apache.wicket.Component}*/
-	var unwrappedElement = list.get(0) 
-	return unwrappedElement
+	var component;
+	
+	if (element instanceof RuntimeForm) {
+		//Using reflection because Servoy's WrapFactory prevents access to the unwrapped FormController
+		//and only the FormController has access to the FormUI
+		component = unwrapElement(Packages.com.servoy.j2db.FormController).getMethod('getFormUI').invoke(element).get('servoywebform')
+	} else {
+		var list = new Packages.java.util.ArrayList();
+		list.add(element)
+		component = list.get(0)
+	}
+	return component
 }
 
 /**
@@ -299,7 +398,7 @@ var terminator = new Continuation()
 
 /**
  * Web Client compatible application.updateUI polyfill
- * 
+ * Warning: use with care, can result in unpredictable behavior when used in the wrong event types or at the right moment
  * @param {Number} [milliseconds]
  * 
  * @properties={typeid:24,uuid:"4651696E-4E25-49B1-A2FE-EB561A859F5A"}
