@@ -1,0 +1,12 @@
+addEmptyValue:1,
+customValues:"Hour|100\r
+Day|200\r
+Week|300\r
+Month|400\r
+Quarter|500\r
+Year|600",
+name:"svyUnits$time",
+returnDataProviders:1,
+showDataProviders:1,
+typeid:34,
+uuid:"8BAAF027-BA2C-4B22-B065-E42D17D30F46"
