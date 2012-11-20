@@ -10,6 +10,7 @@
  */
 
 /**
+ * @private
  * @type {String}
  *
  * @properties={typeid:35,uuid:"C3ADC3E6-A4EC-42E3-B9DC-4B1D9637B6F9"}
