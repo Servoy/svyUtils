@@ -19,6 +19,7 @@
 var events = {}
 
 /**
+ * TODO: externalize to utility scope, so it can be used wider
  * Converts function references to string representations
  * @private
  * @param {Function|String} action
