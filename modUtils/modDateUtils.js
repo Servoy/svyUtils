@@ -6,7 +6,7 @@
 /**
  * A java.util.Calendar instance used to do the math
  * @private
- * @properties={typeid:35,uuid:"B31EC585-12D8-4E8E-9449-788A96A22C6F",variableType:-4}
+ * @properties={typeid:35,uuid:"B530F9F6-F4AA-4032-90F2-165CE818F0E2",variableType:-4}
  */
 var calendar = java.util.Calendar.getInstance();
 
@@ -21,7 +21,7 @@ var calendar = java.util.Calendar.getInstance();
  * 
  * @return {Date}
  *
- * @properties={typeid:24,uuid:"C2BBF1A3-1D58-44F7-8E50-50D0C7510BD5"}
+ * @properties={typeid:24,uuid:"4FA4B0E0-F216-4F8C-9C66-CD35B04341A5"}
  */
 function addToDate(date, dateField, value) {
 	calendar.setTimeInMillis(date.getTime());
@@ -42,7 +42,7 @@ function addToDate(date, dateField, value) {
  * 
  * @return {Date} newDate
  *
- * @properties={typeid:24,uuid:"0FAD9785-1C41-424D-B459-B5A116055BE8"}
+ * @properties={typeid:24,uuid:"1DD3F28A-4DE2-4024-B9FD-74EB709A4DBE"}
  */
 function add(date, years, months, days, hours, minutes, seconds) {
 	calendar.setTimeInMillis(date.getTime());	
@@ -66,7 +66,7 @@ function add(date, years, months, days, hours, minutes, seconds) {
  * 
  * @author Sean
  *
- * @properties={typeid:24,uuid:"087B4A13-CBD8-46F3-985C-61F596B9C451"}
+ * @properties={typeid:24,uuid:"10750B47-4FF4-4E42-BEDB-50A4996F863A"}
  */
 function addUnits(date, amount, units) {
 	if(!date) throw new scopes.svyExceptions.IllegalArgumentException('date cannot be null/undefined', null, null);
@@ -104,7 +104,7 @@ function addUnits(date, amount, units) {
  * 
  * @return {Date} result
  *
- * @properties={typeid:24,uuid:"645D8BC5-41F0-48C9-879D-FD3B30BFF200"}
+ * @properties={typeid:24,uuid:"D3D23A5C-FB5E-444A-9235-FF2380626C37"}
  */
 function addYears(date, years) {
 	return addToDate(date, java.util.Calendar.YEAR, years);
@@ -119,7 +119,7 @@ function addYears(date, years) {
  * 
  * @return {Date} result
  *
- * @properties={typeid:24,uuid:"A7351ED8-23C6-47BE-A0F8-AFE239DC027F"}
+ * @properties={typeid:24,uuid:"7358814D-F415-435A-9869-450322A991B8"}
  */
 function addMonths(date, months) {
 	return addToDate(date, java.util.Calendar.MONTH, months);
@@ -134,7 +134,7 @@ function addMonths(date, months) {
  * 
  * @return {Date} result
  *
- * @properties={typeid:24,uuid:"9F329C32-10B8-4899-AD26-A29A6E4DF898"}
+ * @properties={typeid:24,uuid:"37F5AB88-F314-443A-A3B0-C461358E268C"}
  */
 function addWeeks(date, weeks) {
 	return addToDate(date, java.util.Calendar.WEEK_OF_YEAR, weeks);
@@ -149,7 +149,7 @@ function addWeeks(date, weeks) {
  * 
  * @return {Date} result
  *
- * @properties={typeid:24,uuid:"1A18C63D-8BF3-4821-A785-89976D09B0E1"}
+ * @properties={typeid:24,uuid:"01D13A1A-DE46-4781-9568-D47D35367A53"}
  */
 function addDays(date, days) {
 	return addToDate(date, java.util.Calendar.DATE, days);
@@ -164,7 +164,7 @@ function addDays(date, days) {
  * 
  * @return {Date} result
  *
- * @properties={typeid:24,uuid:"58E508CF-F61D-4818-A539-04EB5B6B2D12"}
+ * @properties={typeid:24,uuid:"6AC6974F-7666-4BDE-AF33-8BA23C7D27AC"}
  */
 function addHours(date, hours) {
 	return addToDate(date, java.util.Calendar.HOUR, hours);
@@ -179,7 +179,7 @@ function addHours(date, hours) {
  * 
  * @return {Date} result
  *
- * @properties={typeid:24,uuid:"2463F39B-FE86-4A04-A147-2373231BA93E"}
+ * @properties={typeid:24,uuid:"B00B2AE8-3BDE-4F98-9CAD-E3956931DE0D"}
  */
 function addMinutes(date, minutes) {
 	return addToDate(date, java.util.Calendar.MINUTE, minutes);
@@ -194,7 +194,7 @@ function addMinutes(date, minutes) {
  * 
  * @return {Date} result
  *
- * @properties={typeid:24,uuid:"53B59AE5-3788-44A3-9ABA-2EB006F33C2B"}
+ * @properties={typeid:24,uuid:"F88A6297-AD9A-4D88-9E96-2DF4893565AA"}
  */
 function addSeconds(date, seconds) {
 	return addToDate(date, java.util.Calendar.SECOND, seconds);
@@ -207,7 +207,7 @@ function addSeconds(date, seconds) {
  * 
  * @return {Date} result
  *
- * @properties={typeid:24,uuid:"C9F1565E-8992-4166-A897-F0CF3E9807D4"}
+ * @properties={typeid:24,uuid:"7A83DF24-4C7B-4517-AEED-1510596FC3E1"}
  */
 function toStartOfDay(date) {
 	date.setHours(0, 0, 0, 0);
@@ -221,7 +221,7 @@ function toStartOfDay(date) {
  * 
  * @return {Date} result
  *
- * @properties={typeid:24,uuid:"A5174FF5-102D-4C85-ABE0-C12C62E59C16"}
+ * @properties={typeid:24,uuid:"D2DFB7F8-D0B0-45B4-857F-6F62324D4D00"}
  */
 function toEndOfDay(date) {
 	date.setHours(23, 59, 59, 999);
@@ -241,7 +241,7 @@ function toEndOfDay(date) {
  * 
  * @return {String} searchString
  *
- * @properties={typeid:24,uuid:"5AAA29BB-51F7-4D71-8213-E6885D7FFD2C"}
+ * @properties={typeid:24,uuid:"5ED119D2-F223-4432-A961-1BB4F2EF89B1"}
  */
 function createDateSearchString(start, end) {
 	start.setHours(0, 0, 0, 0);
@@ -262,7 +262,7 @@ function createDateSearchString(start, end) {
  * 
  * @return {String} searchString
  *
- * @properties={typeid:24,uuid:"9A1F4995-0DC8-4153-BDD9-A4CDFDAAF327"}
+ * @properties={typeid:24,uuid:"D748D1C1-C941-4DF9-8C2A-5252406C1F92"}
  */
 function createDateTimeSearchString(start, end) {
 	var pattern = "yyyy-MM-dd HH:mm:ss";
@@ -279,7 +279,7 @@ function createDateTimeSearchString(start, end) {
  * 
  * @return {Number} fullDaysBetween
  *
- * @properties={typeid:24,uuid:"108B647E-FC66-4843-8E83-0ACAA9A68720"}
+ * @properties={typeid:24,uuid:"0A801EEE-CA27-4F06-A2ED-02D46F2E14B2"}
  */
 function getDayDifference(start, end) {
 	return Math.ceil(((end.getTime() - start.getTime()) / 86400000));
@@ -292,7 +292,7 @@ function getDayDifference(start, end) {
  * 
  * @return {String[]} monthNames
  *
- * @properties={typeid:24,uuid:"FA8FCF0C-7D26-484B-977D-95D290F4753A"}
+ * @properties={typeid:24,uuid:"3F10EB17-E55A-4C80-8C3B-B84BC1938C03"}
  */
 function getMonthNames(locale) {
 	var dfs;
@@ -312,7 +312,7 @@ function getMonthNames(locale) {
  * 
  * @return {String[]} shortMonthNames
  *
- * @properties={typeid:24,uuid:"6D7CAA25-0203-41E0-8F2E-68996BE73CF3"}
+ * @properties={typeid:24,uuid:"CF428C70-D3BA-45D9-A34D-D676FB70A3F1"}
  */
 function getShortMonthNames(locale) {
 	var dfs;
@@ -333,9 +333,9 @@ function getShortMonthNames(locale) {
  * @return {String[]} weekdayNames
  * 
  * @example // returns an array of all week days in French<br>
- * var dayNames = scopes.svyDateUtils.getWeekdayNames("fr");
+ * var dayNames = scopes.modDateUtils.getWeekdayNames("fr");
  *
- * @properties={typeid:24,uuid:"69A5E277-70E9-4E4E-97BA-994876865767"}
+ * @properties={typeid:24,uuid:"4778DD69-DE77-4D06-B3C6-12474DC3E97C"}
  */
 function getWeekdayNames(locale) {
 	var dfs;
@@ -356,9 +356,9 @@ function getWeekdayNames(locale) {
  * @return {String[]} shortWeekdayNames
  * 
  * @example // returns an array of all the short names of the week days in French<br>
- * var dayNames = scopes.svyDateUtils.getShortWeekdayNames("fr");
+ * var dayNames = scopes.modDateUtils.getShortWeekdayNames("fr");
  *
- * @properties={typeid:24,uuid:"9A35983C-A6CC-4139-B9C9-2F55380FE747"}
+ * @properties={typeid:24,uuid:"16778B92-87AA-4CE0-9EBA-F1944ED16507"}
  */
 function getShortWeekdayNames(locale) {
 	var dfs;
@@ -378,7 +378,7 @@ function getShortWeekdayNames(locale) {
  * 
  * @return {Boolean} isLeapYear
  *
- * @properties={typeid:24,uuid:"E74C21C0-0118-47C3-8B0F-532F95E269AA"}
+ * @properties={typeid:24,uuid:"D7E92064-7783-46CE-953D-0974EE28CB70"}
  */
 function isLeapYear(year) {
 	var cal = new java.util.GregorianCalendar();
@@ -392,7 +392,7 @@ function isLeapYear(year) {
  *
  * @return {Number} dayOfWeek
  * 
- * @properties={typeid:24,uuid:"EAB40554-2809-4581-8A41-14EFE74F4B32"}
+ * @properties={typeid:24,uuid:"8E96177F-7CC3-4D65-A32A-DB5370F5AEA0"}
  */
 function getDayOfWeek(date) {
 	calendar.setTimeInMillis(date.getTime());
@@ -406,7 +406,7 @@ function getDayOfWeek(date) {
  *
  * @return {Number} dayOfYear
  * 
- * @properties={typeid:24,uuid:"0EA61AF3-2829-4E42-A88C-FFB6BC23896F"}
+ * @properties={typeid:24,uuid:"EE0C0A3C-45F8-4339-804A-CC322EAC1167"}
  */
 function getDayOfYear(date) {
 	calendar.setTimeInMillis(date.getTime());
@@ -420,7 +420,7 @@ function getDayOfYear(date) {
  * 
  * @return {Date} firstDayOfWeek
  *
- * @properties={typeid:24,uuid:"0A1D71F3-9BDB-4C34-A8CF-CC5636C106F0"}
+ * @properties={typeid:24,uuid:"D428EE72-A164-4138-8176-046EF42991DF"}
  */
 function getFirstDayOfWeek(date) {
 	calendar.setTimeInMillis(date.getTime());
@@ -439,7 +439,7 @@ function getFirstDayOfWeek(date) {
  * 
  * @return {Date} firstDayOfMonth
  *
- * @properties={typeid:24,uuid:"7C02ADA9-3E54-4D48-9A36-81D228CDD802"}
+ * @properties={typeid:24,uuid:"D043339D-BA76-4D86-B3DB-7E314C46C902"}
  */
 function getFirstDayOfMonth(date) {
 	return new Date(date.getFullYear(), date.getMonth(), 1);
@@ -452,7 +452,7 @@ function getFirstDayOfMonth(date) {
  * 
  * @return {Date} firstDayOfMonth
  *
- * @properties={typeid:24,uuid:"93B1C8A8-4F25-46C9-95E7-DE970B669115"}
+ * @properties={typeid:24,uuid:"1EC5F8CB-3B68-4BCA-A103-450822D50D2A"}
  */
 function getFirstDayOfYear(date) {
 	return new Date(date.getFullYear(), 0, 1);
@@ -465,7 +465,7 @@ function getFirstDayOfYear(date) {
  * 
  * @return {Date} lastDayOfWeek
  *
- * @properties={typeid:24,uuid:"89AE5866-6633-4E5E-8001-E985E0B29A57"}
+ * @properties={typeid:24,uuid:"5A1D9EE9-28AD-406D-BF49-063936A488D0"}
  */
 function getLastDayOfWeek(date) {
 	calendar.setTimeInMillis(date.getTime());
@@ -485,7 +485,7 @@ function getLastDayOfWeek(date) {
  * 
  * @return {Date} lastDayOfYear
  *
- * @properties={typeid:24,uuid:"3C204742-6D57-47F9-AEB8-6C0712765F6D"}
+ * @properties={typeid:24,uuid:"D44F025E-4FB8-45D2-B2AE-90B6E447485B"}
  */
 function getLastDayOfYear(date) {
 	calendar.setTimeInMillis(date.getTime());
@@ -501,7 +501,7 @@ function getLastDayOfYear(date) {
  * 
  * @param {Date} date
  *
- * @properties={typeid:24,uuid:"AB969B10-57FA-498E-9E05-7311D678D18F"}
+ * @properties={typeid:24,uuid:"9C359DEE-3A07-47AA-BDF6-036BE15F936B"}
  */
 function getISODateTime(date) {
 	return utils.dateFormat(date,"yyyyMMdd'T'HHmmss");
@@ -512,7 +512,7 @@ function getISODateTime(date) {
  * 
  * @param {Date} date
  *
- * @properties={typeid:24,uuid:"A3DC35D1-E862-476E-83B4-467EFFD37FC3"}
+ * @properties={typeid:24,uuid:"539C43A0-30CB-4CDB-96CD-4340698D3FB5"}
  */
 function getISODate(date) {
 	return utils.dateFormat(date,"yyyyMMdd");
@@ -523,7 +523,7 @@ function getISODate(date) {
  * 
  * @param {Date} date
  *
- * @properties={typeid:24,uuid:"62F0C2E9-C492-48E7-AA5B-3FD589DE2AE8"}
+ * @properties={typeid:24,uuid:"68676C3F-B7FC-41BC-8444-31DF26C3132C"}
  */
 function getISOTime(date) {
 	return utils.dateFormat(date,"'T'HHmmss");
@@ -536,7 +536,7 @@ function getISOTime(date) {
  * 
  * @return {Date} lastDayOfMonth
  *
- * @properties={typeid:24,uuid:"3FA2E1A8-7640-4DBB-9A0F-2C4B63C0B3F9"}
+ * @properties={typeid:24,uuid:"8C74DB1F-EFA0-4B26-B0BC-5AFF537662E6"}
  */
 function getLastDayOfMonth(date) {
 	calendar.setTimeInMillis(date.getTime());
@@ -553,7 +553,7 @@ function getLastDayOfMonth(date) {
  * 
  * @param {Date} date
  *
- * @properties={typeid:24,uuid:"F4732B65-BF91-4EAF-9925-F8E11988FB7D"}
+ * @properties={typeid:24,uuid:"891F26C0-B77B-44F3-8B1E-124AC99BCD0C"}
  */
 function getDecimalHours(date) {
 	var hours = date.getHours();
@@ -568,7 +568,7 @@ function getDecimalHours(date) {
  * @constructor 
  * @param {Date} date
  *
- * @properties={typeid:24,uuid:"9651D079-AD0D-4769-A766-FED23DD2ED99"}
+ * @properties={typeid:24,uuid:"26749D5F-AB9D-46AE-951B-E3CC8B3E1B26"}
  */
 function DateTime(date) {
 	
