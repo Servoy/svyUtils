@@ -275,7 +275,8 @@ function unwrapElement(element) {
 	if (element instanceof RuntimeForm) {
 		//Using reflection because Servoy's WrapFactory prevents access to the unwrapped FormController
 		//and only the FormController has access to the FormUI
-		component = unwrapElement(Packages.com.servoy.j2db.FormController).getMethod('getFormUI').invoke(element).get('servoywebform')
+		//The impl. below works, because it grabs the FormController class and not an instance of it
+		component = unwrapElement(Packages.com.servoy.j2db.FormController)['getMethod']('getFormUI').invoke(element).get('servoywebform')
 	} else {
 		var list = new Packages.java.util.ArrayList();
 		list.add(element)
@@ -347,11 +348,11 @@ function setTimeBoundUserProperty(name, value, validity) {
 	
 	for (var index = 0; index < cookies.length; index++) {
 		if (cookies[index].getName().equals(name)) {
-			//Getting all the values of the cookie, removing the Cookie from the WebResponse and adding it again, as the WebResponse doesn't support getting existing Cookies
 			//CHECKME: these values aren't used. Does everything work regardless? If so, remove the code
-			var encodedValue = cookies[index].getValue()
-			var domain = cookies[index].getDomain()
-			var path = cookies[index].getPath()
+			//Getting all the values of the cookie, removing the Cookie from the WebResponse and adding it again, as the WebResponse doesn't support getting existing Cookies
+//			var encodedValue = cookies[index].getValue()
+//			var domain = cookies[index].getDomain()
+//			var path = cookies[index].getPath()
 			cookies[index].setPath('/servoy-webclient/')
 			request.getWebResponse().clearCookie(cookies[index]);
 		}
