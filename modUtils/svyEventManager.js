@@ -79,11 +79,12 @@ function getActionIdx(obj, evt, action, binding) {
 
 /**
  * Adds a listener
- *
+ * TODO: add option to specify if form-based listener methods should load the form when invoked and the form is unloaded
  * @param {*} obj The element attached to the action.
  * @param {String} evt The name of the event.
  * @param {Function|String} action The action to execute upon the event firing.
  * @param {Object} [binding] The object to scope the action to.
+ * 
  * @return {Boolean} Returns true if adding the listener succeeded, false otherwise.
  *
  * @properties={typeid:24,uuid:"35003AFB-65AF-42E1-A05C-E920FD3B538F"}
@@ -164,7 +165,7 @@ function fireEvent(e, obj, evt, args) {
 							continue
 					}
 					if (curel[act].binding) {
-						action = action['bind'](curel[act].binding); //TODO: don't access the bind function through property lookup, when bind is recognized by Servoy
+						action = action.bind(curel[act].binding); //TODO: check out his doesn't blow things up
 					}
 					action(e, args);
 				}
