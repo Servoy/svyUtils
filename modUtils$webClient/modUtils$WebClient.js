@@ -97,7 +97,7 @@ function addPlaceHolderText(element, text) {
 
 /**
  * @param {String} url
- * @param {RuntimeComponent} [element]
+ * @param {RuntimeComponent|RuntimeForm} [element]
  * 
  * @properties={typeid:24,uuid:"3FFD6F91-CE66-4337-9E52-2A7CC5ECF295"}
  */
@@ -113,7 +113,7 @@ function addJavaScriptDependancy(url, element) {
 
 /**
  * @param {String} url
- * @param {RuntimeComponent} [element]
+ * @param {RuntimeComponent|RuntimeForm} [element]
  * 
  * @properties={typeid:24,uuid:"84B8B212-C873-465F-8F2C-EE74A466CEC6"}
  */
@@ -155,9 +155,9 @@ function convertMediaURL(url, response) {
  * TODO: determine if ID can be optional and then auto generate one
  * TODO: figure out how to generate small unique ID's (how does Servoy do this?)
  * // TODO generated, please specify type and doc for the params
- * @param code
- * @param id
- * @param element
+ * @param {String} code
+ * @param {String} id
+ * @param {RuntimeComponent|RuntimeForm} element
  *
  * @properties={typeid:24,uuid:"7E3B4734-F5C3-454E-B239-7EC81DC4F9D9"}
  */
@@ -174,7 +174,7 @@ function addDynamicJavaScript(code, id, element) {
 /**
  * TODO: figure out if correctly implemented: every ajax update executed the code again, so no good for init logic like keyboard shortcuts for example
  * @param {String} code
- * @param {RuntimeComponent} [element]
+ * @param {RuntimeComponent|RuntimeForm} [element]
  *
  * @properties={typeid:24,uuid:"A37ACBC3-8F68-48E8-AEC5-C1F00739CDAA"}
  */
@@ -191,7 +191,7 @@ function addOnDOMReadyScript(code, element) {
 /**
  * TODO: figure out if correctly implemented: every ajax update executed the code again, so no good for init logic like keyboard shortcuts for example
  * @param {String} code
- * @param {RuntimeComponent} [element]
+ * @param {RuntimeComponent|RuntimeForm} [element]
  *
  * @properties={typeid:24,uuid:"DB2D9CFF-410E-489A-BE5B-2EF83F8FFC18"}
  */
@@ -207,7 +207,7 @@ function addOnLoadScript(code, element) {
 
 /**
  * Returns the value of the ID attribute of the element in the browser
- * @param {RuntimeComponent} element
+ * @param {RuntimeComponent|RuntimeForm} element
  * @return {String}
  *
  * @properties={typeid:24,uuid:"B705A7B3-CA51-4494-A207-1C31559DA437"}
@@ -262,7 +262,7 @@ function addBehavior(behavior, component) {
  * @private
  * @SuppressWarnings(wrongparameters)
  * 
- * @param {RuntimeComponent} element
+ * @param {RuntimeComponent|RuntimeForm} element
  *
  * @return {Packages.org.apache.wicket.Component}
  *
