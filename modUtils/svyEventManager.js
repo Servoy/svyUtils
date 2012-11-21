@@ -167,7 +167,7 @@ function fireEvent(e, obj, evt, args) {
 					if (curel[act].binding) {
 						action = action.bind(curel[act].binding); //TODO: check out his doesn't blow things up
 					}
-					action(e, args);
+					action.apply(null, [e].concat(Array.prototype.slice.call(args, 0)))
 				}
 			}
 		}
