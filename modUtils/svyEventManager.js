@@ -176,55 +176,55 @@ function fireEvent(e, obj, evt, args) {
 	}
 }
 
-/**
- * @param {String} formName
- * @param {String} elementName
- * @param {Number} modifiers
- * @param {Object} source
- * @param {Number} type
- * @param {{x: Number, y: Number}} position
- * @param {Object} data
- *
- * @properties={typeid:24,uuid:"0F2D7A99-F669-41EA-9CB9-F84DBCC768DA"}
- */
-function newJSEvent(formName, elementName, modifiers, source, type, position, data) {
-	return new customJSEvent(formName, elementName, modifiers, source, type, position, data)
-}
-
-/**
- * @constructor
- * @private
- * @SuppressWarnings(unused)
- * @properties={typeid:35,uuid:"CF005E81-F845-49E5-A4B3-A2B36F6FF13F",variableType:-4}
- */
-var customJSEvent = function(formName, elementName, modifiers, source, type, position, data) {
-	var time = application.getTimeStamp()
-
-	this.getElementName = function() {
-		return elementName
-	}
-	this.getFormName = function() {
-		return formName
-	}
-	this.getModifiers = function() {
-		return modifiers
-	}
-	this.getSource = function() {
-		return source
-	}
-	this.getTimeStamp = function() {
-		return time
-	}
-	this.getType = function() {
-		return type
-	}
-	this.getX = function() {
-		return position.x
-	}
-	this.getY = function() {
-		return position.y
-	}
-
-	//TODO make this a getter?
-	this.data = data
-}
+///**
+// * @param {String} formName
+// * @param {String} elementName
+// * @param {Number} modifiers
+// * @param {Object} source
+// * @param {Number} type
+// * @param {{x: Number, y: Number}} position
+// * @param {Object} data
+// *
+// * @properties={typeid:24,uuid:"0F2D7A99-F669-41EA-9CB9-F84DBCC768DA"}
+// */
+//function newJSEvent(formName, elementName, modifiers, source, type, position, data) {
+//	return new customJSEvent(formName, elementName, modifiers, source, type, position, data)
+//}
+//
+///**
+// * @constructor
+// * @private
+// * @SuppressWarnings(unused)
+// * @properties={typeid:35,uuid:"CF005E81-F845-49E5-A4B3-A2B36F6FF13F",variableType:-4}
+// */
+//var customJSEvent = function(formName, elementName, modifiers, source, type, position, data) {
+//	var time = application.getTimeStamp()
+//
+//	this.getElementName = function() {
+//		return elementName
+//	}
+//	this.getFormName = function() {
+//		return formName
+//	}
+//	this.getModifiers = function() {
+//		return modifiers
+//	}
+//	this.getSource = function() {
+//		return source
+//	}
+//	this.getTimeStamp = function() {
+//		return time
+//	}
+//	this.getType = function() {
+//		return type
+//	}
+//	this.getX = function() {
+//		return position.x
+//	}
+//	this.getY = function() {
+//		return position.y
+//	}
+//
+//	//TODO make this a getter?
+//	this.data = data
+//}
