@@ -79,6 +79,7 @@ function getActionIdx(obj, evt, action, binding) {
 
 /**
  * Adds a listener
+ * FIXME: obj and binding param can be objects that might get unloaded, thus would cause a memory leak
  * TODO: add option to specify if form-based listener methods should load the form when invoked and the form is unloaded
  * @param {*} obj The element attached to the action.
  * @param {String} evt The name of the event.
@@ -154,6 +155,7 @@ function fireEvent(e, obj, evt, args) {
 					var actionStringParts = curel[act].action.split('.');
 					/**@type {Function}*/
 					var action
+					//FIXME: check if the form is still loaded before firing the action: Listeners should not instantiate unloaded forms
 					switch (actionStringParts[0]) {
 						case 'forms':
 							action = forms[actionStringParts[1]][actionStringParts[2]]
