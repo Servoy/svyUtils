@@ -139,7 +139,7 @@ function removeListener(obj, evt, action, binding) {
  * @param {JSEvent} [e] A builtin event passthrough
  * @param {*} obj The object attached to the action.
  * @param {String} evt The name of the event.
- * @param {Object} [args] The argument attached to the event.
+ * @param {Object|Array<Object>} [args] The argument attached to the event.
  *
  * @properties={typeid:24,uuid:"47AE1425-E064-4AF6-A712-AAA33E54C30C"}
  */
@@ -167,7 +167,7 @@ function fireEvent(e, obj, evt, args) {
 					if (curel[act].binding) {
 						action = action.bind(curel[act].binding); //TODO: check out his doesn't blow things up
 					}
-					action.apply(null, [e].concat(Array.prototype.slice.call(args, 0)))
+					action.apply(null, [e].concat(args))
 				}
 			}
 		}
