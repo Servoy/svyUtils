@@ -51,8 +51,8 @@ function setComponentVisibility(component, visibility) {
  * Sets the visibility of components in the browser. This means that all the markup is included, but is also hidden.
  * Differs from plugins.WebClientUtils impl., as that does it by changing the value for the CSS display property, while this impl. does it through the CSS visibility property
  * 
- * @param {RuntimeComponent} component
- * @param {Boolean} visibility
+ * @param {RuntimeComponent|RuntimeForm} component
+ * @param {String} className
  *
  * @properties={typeid:24,uuid:"BEF22467-35CD-4397-B10C-4BBE9789DD17"}
  */
@@ -99,8 +99,6 @@ function addPlaceHolderText(element, text) {
  * @param {String} url
  * @param {RuntimeComponent} [element]
  * 
- * @return {scopes.modUtils$WebClient}
- * 
  * @properties={typeid:24,uuid:"3FFD6F91-CE66-4337-9E52-2A7CC5ECF295"}
  */
 function addJavaScriptDependancy(url, element) {
@@ -110,18 +108,12 @@ function addJavaScriptDependancy(url, element) {
 			}
 		})
 	)
-	if (element) {
-		unwrapElement(element).add(contributor)
-	} else {
-		getWebClientPluginAccess().getPageContributor().add(contributor)
-	}
-	return this
+	addBehavior(contributor, element)
 }
 
 /**
  * @param {String} url
  * @param {RuntimeComponent} [element]
- * @return {scopes.modUtils$WebClient}
  * 
  * @properties={typeid:24,uuid:"84B8B212-C873-465F-8F2C-EE74A466CEC6"}
  */
@@ -132,13 +124,7 @@ function addCSSDependancy(url, element) {
 			}
 		})
 	)
-	
-	if (element) {
-		unwrapElement(element).add(contributor)
-	} else {
-		getWebClientPluginAccess().getPageContributor().add(contributor)
-	}
-	return this
+	addBehavior(contributor, element)
 }
 
 /**
@@ -182,11 +168,7 @@ function addDynamicJavaScript(code, id, element) {
 			}
 		})
 	)
-	if (element) {
-		unwrapElement(element).add(contributor)
-	} else {
-		getWebClientPluginAccess().getPageContributor().add(contributor)
-	}
+	addBehavior(contributor, element)
 }
 
 /**
@@ -203,11 +185,7 @@ function addOnDOMReadyScript(code, element) {
 			}
 		})
 	)
-	if (element) {
-		unwrapElement(element).add(contributor)
-	} else {
-		getWebClientPluginAccess().getPageContributor().add(contributor)
-	}
+	addBehavior(contributor, element)
 }
 
 /**
@@ -224,11 +202,7 @@ function addOnLoadScript(code, element) {
 			}
 		})
 	)
-	if (element) {
-		unwrapElement(element).add(contributor)
-	} else {
-		getWebClientPluginAccess().getPageContributor().add(contributor)
-	}
+	addBehavior(contributor, element)
 }
 
 /**
@@ -246,6 +220,7 @@ function getElementMarkupId(element) {
  * @param {RuntimeComponent} element
  *
  * @properties={typeid:24,uuid:"3BB9D4B3-CA3F-4EC7-AF5A-90895FD701FF"}
+ * @SuppressWarnings(wrongparameters)
  */
 function getFormName(element) {
 	var component = unwrapElement(element)
@@ -267,6 +242,19 @@ function getFormName(element) {
  */
 function getWebClientPluginAccess() {
 	return unwrapElement(plugins.window)['getClientPluginAccess']()
+}
+
+/**
+ * @private
+ * @param {Packages.org.apache.wicket.behavior.IBehavior} behavior
+ * @param {RuntimeComponent|RuntimeForm} [component]
+ * 
+ * @properties={typeid:24,uuid:"08CB25D8-80EA-4BC5-BC73-2E15C5DC36A8"}
+ */
+function addBehavior(behavior, component) {
+	/**@type {Packages.org.apache.wicket.Component}*/
+	var target = component ? unwrapElement(component) : getWebClientPluginAccess().getPageContributor()
+	target.add(behavior)
 }
 
 /**
