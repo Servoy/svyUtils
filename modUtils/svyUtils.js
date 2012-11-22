@@ -30,6 +30,7 @@ function getJSFormInstances(superForm) {
 
 /**
  * Tries to connect to the provided hostname. If connection is successful, true is returned, otherwise false. (time)
+ * TODO: refactor name, as it's now seen as a UnitTest method
  * @private
  * @param {String} hostname
  * @param {Number} [timeout] timeout for the connection check (in milliseconds). Default: 200ms
