@@ -7,6 +7,10 @@
  * - http://spatula.net/blog/2006/11/better-than-ajax-adding-client-side.html
  * - http://www.codesmell.org/blog/2010/01/playing-with-wickets-templates/
  * - http://karthikg.wordpress.com/2008/01/24/developing-a-custom-apache-wicket-component/
+ * 
+ * TODO: document the exact behavior of the different ways to include some custom JS (when fired, how often)
+ * TODO: support Arrays of elements/components besides single elements/components to attach certain behaviors to.
+ * TODO: callback behaviors
  */
 
 /**
@@ -32,7 +36,7 @@ function centerPanel(element) {
 
 /**
  * Sets the visibility of components in the browser. This means that all the markup is included, but is also hidden.
- * Note: uses display, not visibility, as Servoy toggles the visibility property as well
+ * Note: uses the CSS display property and not the CSS visibility property, as Servoy uses the visibility property internally
  * 
  * @param {RuntimeComponent} component
  * @param {Boolean} visibility
