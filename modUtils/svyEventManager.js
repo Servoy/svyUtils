@@ -29,14 +29,14 @@
  * NOTE Event handler methods must be Servoy methods, not dynamically created functions inside code
  * 
  * Original implementation was adjusted to:
- * - don't store function references but Strings
+ * - don't store function references but Strings, to prevent mem leaks
  * - Removed binding param, as irrelevant within the context of Servoy (Servoy takes care of the binding)
  * - Modified the way arguments are applied when invoking a listener
  */
 
 /**
  * @private
- * @type {Object<Object<Array<{ action: String}>>>}
+ * @type {Object<Object<Array<String>>>}
  *
  * @properties={typeid:35,uuid:"EB9A7966-F1E0-4A2D-BB6D-4B65B76CB019",variableType:-4}
  */
@@ -71,25 +71,92 @@ function convertFunctionToString(action) {
 }
 
 /**
+ * @private 
+ * @param {*} obj
+ *
+ * @properties={typeid:24,uuid:"27DF517C-19E0-43AB-8FC6-402303D35C6F"}
+ */
+function convertObjectToString(obj) {
+	if (obj instanceof Function) {
+		return convertFunctionToString(obj)
+	}
+	if (obj instanceof String) {
+		/**@type {Array<String>}*/
+		var objStringParts = obj.split('.')
+		if (objStringParts == 0) {
+			return null
+		}
+		
+		if (['forms','globals','scopes'].indexOf(objStringParts[0]) == -1) {
+			return null
+		} else if (objStringParts.length == 1) {
+			return obj
+		}
+		
+		switch (objStringParts[0]) {
+			case 'forms':
+				if (solutionModel.getForm(objStringParts[1]) == null || !(objStringParts[1] in forms)) { //check both designtime forms and runtime instances, but prevent auto form loading
+					return null
+				} else if (objStringParts.length == 2) {
+					return obj
+				} else if ( (objStringParts[1] in forms && forms[objStringParts[1]][objStringParts[2]]) ||
+						    (solutionModel.getForm(objStringParts[1]).getComponent(objStringParts[2] || 
+						     solutionModel.getForm(objStringParts[1]).getBean(objStringParts[2]) || 
+							 solutionModel.getForm(objStringParts[1]).getMethod(objStringParts[2]) ||
+							 solutionModel.getForm(objStringParts[1]).getVariable(objStringParts[2])))) {
+					return obj
+				}
+				break;
+			case 'globals':
+				if (!(objStringParts[1] in globals)) {
+					return null
+				}
+				break;
+			case 'scopes':
+				if (!(objStringParts[1] in scopes)) {
+					return null
+				}
+				break;
+			default:
+				break;
+		}
+	}
+	
+	if (obj instanceof RuntimeForm) {
+		return 'forms.' + obj.controller.getName() //Controller might be encapsulated
+	} 
+	
+	if (obj == globals) {
+		return 'globals'
+	}
+	
+	var retval = null
+	solutionModel.getScopeNames().forEach(function(value, index, array){
+		if (obj == scopes[value]) {
+			retval = 'scopes.' + value
+		}
+	})
+	return retval
+}
+
+/**
  * Gets the index of the given action for the element
  * @private
  * 
- * @param {*} obj The element attached to the action.
- * @param {String} evt The name of the event.
- * @param {Function|String} action The action to execute upon the event firing.
+ * @param {String} obj The object for which to listen for event.
+ * @param {String} evt The event identifier
+ * @param {String} eventHandler The listener method to execute upon the event firing
  * @return {Number} Returns an integer.
  *
  * @properties={typeid:24,uuid:"F788E5CA-8B6F-4006-99A3-4A05CBD991D5"}
  */
-function getActionIdx(obj, evt, action) {
-	var actionString = convertFunctionToString(action)
-
+function getActionIdx(obj, evt, eventHandler) {
 	if (obj && evt) {
 		var curel = events[obj][evt];
 		if (curel) {
 			var len = curel.length;
 			for (var i = len - 1; i >= 0; i--) {
-				if (curel[i].action == actionString) {
+				if (curel[i] == eventHandler) {
 					return i;
 				}
 			}
@@ -103,33 +170,49 @@ function getActionIdx(obj, evt, action) {
 /**
  * Adds a listener
  * FIXME: obj param can be objects that might get unloaded, thus would cause a memory leak
- * TODO: add option to specify if form-based listener methods should load the form when invoked and the form is unloaded
- * @param {*} obj The element attached to the action.
- * @param {String} evt The name of the event.
- * @param {Function|String} action The action to execute upon the event firing.
+ * @param {*|String} obj The object on which to listen for events. Supported are forms, globals and custom scopes
+ * @param {String} eventType The event identifier
+ * @param {Function|String} eventHandler The listener method to execute upon event firing
  * 
  * @return {Boolean} Returns true if adding the listener succeeded, false otherwise.
- *
+ * 
+ * @example <pre>var EVENT_TYPES = {
+ * 	MY_OWN_EVENT_TYPE: 'myOwnEventType'
+ * }
+ * 
+ * function onLoad() {
+ * 	scopes.svyEventManager.addListener(this, EVENT_TYPES.MY_OWN_EVENT_TYPE, myEventHandler)
+ * }	 
+ * function myEventHandler(booleanValue, numberValue, stringValue) {
+ * 	application.output(arguments)
+ * }
+ * 
+ * function test(){
+ * 	scopes.svyEventManager.fireEvent(this, EVENT_TYPES.MY_FIRST_EVENT_TYPE, [true, 1, 'Hello world!'])
+ * }
+ * </pre>
+ * @example <pre>scopes.svyEventManager.addListener('forms.myForm', 'myEvent', 'scopes.myCustomScope.myEventHandlerMethod')</pre>
  * @properties={typeid:24,uuid:"35003AFB-65AF-42E1-A05C-E920FD3B538F"}
  */
-function addListener(obj, evt, action) {
-	var actionString = convertFunctionToString(action)
+function addListener(obj, eventType, eventHandler) {
+	var objectString = convertObjectToString(obj)
+	var actionString = convertObjectToString(eventHandler)
 	if (!actionString) return false
 
-	if (events[obj]) {
-		if (events[obj][evt]) {
-			if (getActionIdx(obj, evt, actionString) == -1) {
-				var curevt = events[obj][evt];
-				curevt[curevt.length] = { action: actionString};
+	if (events[objectString]) {
+		if (events[objectString][eventType]) {
+			if (getActionIdx(objectString, eventType, actionString) == -1) {
+				var curevt = events[objectString][eventType];
+				curevt[curevt.length] = actionString;
 			}
 		} else {
-			events[obj][evt] = [];
-			events[obj][evt][0] = { action: actionString};
+			events[objectString][eventType] = [];
+			events[objectString][eventType][0] = actionString;
 		}
 	} else {
-		events[obj] = {};
-		events[obj][evt] = [];
-		events[obj][evt][0] = { action: actionString};
+		events[objectString] = {};
+		events[objectString][eventType] = [];
+		events[objectString][eventType][0] = actionString;
 	}
 	return true
 }
@@ -137,43 +220,46 @@ function addListener(obj, evt, action) {
 /**
  * Removes a listener
  *
- * @param {*} obj The element attached to the action.
- * @param {String} evt The name of the event.
- * @param {Function|String} action The action to execute upon the event firing.
- * @param {*} [binding] The object to scope the action to.
+ * @param {*|String} obj The object from which the listener needs to be removed
+ * @param {String} eventType The event identifier
+ * @param {Function|String} eventHandler The listener to remove
  *
  * @properties={typeid:24,uuid:"B3C4A9FB-6058-43C2-BE8A-889ECE28C3EC"}
  */
-function removeListener(obj, evt, action) {
-	var actionString = convertFunctionToString(action)
-	if (events[obj]) {
-		if (events[obj][evt]) {
-			var idx = getActionIdx(obj, evt, actionString);
+function removeListener(obj, eventType, eventHandler) {
+	var objectString = convertObjectToString(obj)
+	var actionString = convertObjectToString(eventHandler)
+	if (events[objectString]) {
+		if (events[objectString][eventType]) {
+			var idx = getActionIdx(objectString, eventType, actionString);
 			if (idx >= 0) {
-				events[obj][evt].splice(idx, 1);
+				events[objectString][eventType].splice(idx, 1);
 			}
 		}
 	}
 }
 
 /**
- * Fires an event
+ * Fires the specified event, which will invoke all listeners added for the combination of obj and evt<br>
+ * <br>
+ * NOTE when the method specified as eventHandler in {@link #addListener()} is a Form method and the form is not loaded when the event is fired, the eventHandler will NOT be invoked
  *
- * @param {*} obj The object attached to the action.
- * @param {String} evt The name of the event.
- * @param {*|Array<*>} [args] The argument attached to the event.
+ * @param {*|String} obj The object on which behalf to fire the event
+ * @param {String} eventType The event identifier
+ * @param {*|Array<*>} [args] An value or Array of values to apply as arguments to the eventHandler invocation
  *
  * @properties={typeid:24,uuid:"47AE1425-E064-4AF6-A712-AAA33E54C30C"}
  */
-function fireEvent(obj, evt, args) {
-	if (obj && events) {
-		var evtel = events[obj];
+function fireEvent(obj, eventType, args) {
+	var objectString = convertObjectToString(obj)
+	if (objectString && events) {
+		var evtel = events[objectString];
 		if (evtel) {
-			var curel = evtel[evt];
+			var curel = evtel[eventType];
 			if (curel) {
 				for (var act in curel) {
-					if (!curel[act].action) continue
-					var actionStringParts = curel[act].action.split('.');
+					if (!curel[act]) continue
+					var actionStringParts = curel[act].split('.');
 					var scope
 					switch (actionStringParts[0]) {
 						case 'forms':
