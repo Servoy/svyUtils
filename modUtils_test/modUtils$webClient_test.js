@@ -1,5 +1,5 @@
 /**
- * @properties={typeid:24,uuid:"1A330EA0-A1A5-4179-B12B-24060448E6D4"}
+ * @properties={typeid:24,uuid:"D3A60C4D-44CE-49E0-B07A-431C8E85FD43"}
  */
 function testJavaDependencies() {
 	jsunit.assertEquals('Failed to instatiate Packages.org.apache.wicket.behavior.SimpleAttributeModifier', 'function', typeof Packages.org.apache.wicket.behavior.SimpleAttributeModifier)
