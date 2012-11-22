@@ -1,0 +1,14 @@
+items:[
+{
+height:480,
+partType:5,
+typeid:19,
+uuid:"9E691746-7F28-420F-825B-633E2F05682C"
+}
+],
+name:"testEventFiringOnUnloadedForm",
+navigatorID:"-1",
+showInMenu:true,
+styleName:"PlatformSampleImpl",
+typeid:3,
+uuid:"21091ABE-41BD-4DF4-9E75-B589A6829BEC"

@@ -1,0 +1,14 @@
+items:[
+{
+height:480,
+partType:5,
+typeid:19,
+uuid:"254C1B86-219D-4ABC-9A7E-4BD47D6A6DB9"
+}
+],
+name:"dummyFirstForm",
+navigatorID:"-1",
+showInMenu:true,
+styleName:"PlatformSampleImpl",
+typeid:3,
+uuid:"52D4F00F-4FE6-4E2B-9161-537346A8FD62"

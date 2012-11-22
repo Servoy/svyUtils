@@ -1,18 +1,42 @@
 /*
- * Event Manager implementation
+ * Implementation based on http://www.josh-davis.org/node/4, http://www.josh-davis.org/files/uploads/2007/05/custom-event-listeners.js
+ * ---------------------------------------------------------------------------------------------------------
+ * Copyright (c) 2007 	Josh Davis ( http://joshdavis.wordpress.com )
  * 
- * Supports adding, removing and firing events
+ * Licensed under the MIT License ( http://www.opensource.org/licenses/mit-license.php ) as follows:
  * 
- * Event handler methods must be Servoy methods, not dynamically created functions inside code
- *
- * TODO:
- * - Don't store actual object references
- * - Use JSEvent equivalent
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * ---------------------------------------------------------------------------------------------------------
+ * 
+ * Event Manager implementation, supports adding, removing and firing events
+ * 
+ * NOTE Event handler methods must be Servoy methods, not dynamically created functions inside code
+ * 
+ * Original implementation was adjusted to:
+ * - don't store function references but Strings
+ * - Removed binding param, as irrelevant within the context of Servoy (Servoy takes care of the binding)
+ * - Modified the way arguments are applied when invoking a listener
  */
 
 /**
  * @private
- * @type {Object<Object<Array<{ action: String, binding: Object }>>>}
+ * @type {Object<Object<Array<{ action: String}>>>}
  *
  * @properties={typeid:35,uuid:"EB9A7966-F1E0-4A2D-BB6D-4B65B76CB019",variableType:-4}
  */
@@ -53,12 +77,11 @@ function convertFunctionToString(action) {
  * @param {*} obj The element attached to the action.
  * @param {String} evt The name of the event.
  * @param {Function|String} action The action to execute upon the event firing.
- * @param {*} [binding] The object to scope the action to.
  * @return {Number} Returns an integer.
  *
  * @properties={typeid:24,uuid:"F788E5CA-8B6F-4006-99A3-4A05CBD991D5"}
  */
-function getActionIdx(obj, evt, action, binding) {
+function getActionIdx(obj, evt, action) {
 	var actionString = convertFunctionToString(action)
 
 	if (obj && evt) {
@@ -66,7 +89,7 @@ function getActionIdx(obj, evt, action, binding) {
 		if (curel) {
 			var len = curel.length;
 			for (var i = len - 1; i >= 0; i--) {
-				if (curel[i].action == actionString && curel[i].binding == binding) {
+				if (curel[i].action == actionString) {
 					return i;
 				}
 			}
@@ -79,35 +102,34 @@ function getActionIdx(obj, evt, action, binding) {
 
 /**
  * Adds a listener
- * FIXME: obj and binding param can be objects that might get unloaded, thus would cause a memory leak
+ * FIXME: obj param can be objects that might get unloaded, thus would cause a memory leak
  * TODO: add option to specify if form-based listener methods should load the form when invoked and the form is unloaded
  * @param {*} obj The element attached to the action.
  * @param {String} evt The name of the event.
  * @param {Function|String} action The action to execute upon the event firing.
- * @param {Object} [binding] The object to scope the action to.
  * 
  * @return {Boolean} Returns true if adding the listener succeeded, false otherwise.
  *
  * @properties={typeid:24,uuid:"35003AFB-65AF-42E1-A05C-E920FD3B538F"}
  */
-function addListener(obj, evt, action, binding) {
+function addListener(obj, evt, action) {
 	var actionString = convertFunctionToString(action)
 	if (!actionString) return false
 
 	if (events[obj]) {
 		if (events[obj][evt]) {
-			if (getActionIdx(obj, evt, actionString, binding) == -1) {
+			if (getActionIdx(obj, evt, actionString) == -1) {
 				var curevt = events[obj][evt];
-				curevt[curevt.length] = { action: actionString, binding: binding };
+				curevt[curevt.length] = { action: actionString};
 			}
 		} else {
 			events[obj][evt] = [];
-			events[obj][evt][0] = { action: actionString, binding: binding };
+			events[obj][evt][0] = { action: actionString};
 		}
 	} else {
 		events[obj] = {};
 		events[obj][evt] = [];
-		events[obj][evt][0] = { action: actionString, binding: binding };
+		events[obj][evt][0] = { action: actionString};
 	}
 	return true
 }
@@ -117,16 +139,16 @@ function addListener(obj, evt, action, binding) {
  *
  * @param {*} obj The element attached to the action.
  * @param {String} evt The name of the event.
- * @param {Function} action The action to execute upon the event firing.
+ * @param {Function|String} action The action to execute upon the event firing.
  * @param {*} [binding] The object to scope the action to.
  *
  * @properties={typeid:24,uuid:"B3C4A9FB-6058-43C2-BE8A-889ECE28C3EC"}
  */
-function removeListener(obj, evt, action, binding) {
+function removeListener(obj, evt, action) {
 	var actionString = convertFunctionToString(action)
 	if (events[obj]) {
 		if (events[obj][evt]) {
-			var idx = getActionIdx(obj, evt, actionString, binding);
+			var idx = getActionIdx(obj, evt, actionString);
 			if (idx >= 0) {
 				events[obj][evt].splice(idx, 1);
 			}
@@ -137,14 +159,13 @@ function removeListener(obj, evt, action, binding) {
 /**
  * Fires an event
  *
- * @param {JSEvent} [e] A builtin event passthrough
  * @param {*} obj The object attached to the action.
  * @param {String} evt The name of the event.
- * @param {Object|Array<Object>} [args] The argument attached to the event.
+ * @param {*|Array<*>} [args] The argument attached to the event.
  *
  * @properties={typeid:24,uuid:"47AE1425-E064-4AF6-A712-AAA33E54C30C"}
  */
-function fireEvent(e, obj, evt, args) {
+function fireEvent(obj, evt, args) {
 	if (obj && events) {
 		var evtel = events[obj];
 		if (evtel) {
@@ -153,23 +174,19 @@ function fireEvent(e, obj, evt, args) {
 				for (var act in curel) {
 					if (!curel[act].action) continue
 					var actionStringParts = curel[act].action.split('.');
-					/**@type {Function}*/
-					var action
-					//FIXME: check if the form is still loaded before firing the action: Listeners should not instantiate unloaded forms
+					var scope
 					switch (actionStringParts[0]) {
 						case 'forms':
-							action = forms[actionStringParts[1]][actionStringParts[2]]
+							if (!(actionStringParts[1] in forms)) continue; //form is currently not loaded, so not firing the event
+							scope = forms[actionStringParts[1]]
 							break;
 						case 'scopes':
-							action = scopes[actionStringParts[1]][actionStringParts[2]]
+							scope = scopes[actionStringParts[1]]
 							break;
 						default:
 							continue
 					}
-					if (curel[act].binding) {
-						action = action.bind(curel[act].binding); //TODO: check out his doesn't blow things up
-					}
-					action.apply(null, [e].concat(args))
+					scope[actionStringParts[2]].apply(scope, args)
 				}
 			}
 		}
