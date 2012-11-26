@@ -8,6 +8,7 @@
  * @properties={typeid:24,uuid:"4E5567AB-4BE9-406F-ABDF-5807EF930E09"}
  */
 function getJSFormInstances(superForm) {
+	//FIXME: get rid of workarounds for SVY-2711, which is solved by now
 	/**@type {Array<JSForm>}*/
 	var retval = []
 	var smForms = solutionModel.getForms()
