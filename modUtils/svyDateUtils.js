@@ -592,7 +592,7 @@ function DateTime(date) {
 	/**
 	 * The Date object of this DateTime
 	 */
-	this.date = date ? date : new Date();
+	this.date = date ? date : application.getServerTimeStamp();
 	
 	/**
 	 * Adds the given unit with the given amount to this date
