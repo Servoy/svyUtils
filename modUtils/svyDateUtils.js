@@ -349,6 +349,23 @@ function getWeekdayNames(locale) {
 }
 
 /**
+ * Returns the week of the year of the given date<p>
+ * 
+ * Note that the week of year depends on the current Locale in what is 
+ * considered the first day of week and the minimal number of days in the first week.
+ * 
+ * @param date
+ * 
+ * @return {Number} weekOfYear
+ *
+ * @properties={typeid:24,uuid:"DCC57BF8-DB94-46C5-A37E-2ED44AD8E4BC"}
+ */
+function getWeekOfYear(date) {
+	calendar.setTimeInMillis(date.getTime());
+	return calendar.get(java.util.Calendar.WEEK_OF_YEAR);
+}
+
+/**
  * Returns an array containing the short names of the weekdays for either the current or the given Locale
  * 
  * @param {String} [locale] - the optional Locale
@@ -566,7 +583,7 @@ function getDecimalHours(date) {
  * as for example <code>dateTimeObject.addDays(5).toStartOfDay().date</code>
  * 
  * @constructor 
- * @param {Date} date
+ * @param {Date} [date]
  *
  * @properties={typeid:24,uuid:"26749D5F-AB9D-46AE-951B-E3CC8B3E1B26"}
  */
@@ -575,7 +592,7 @@ function DateTime(date) {
 	/**
 	 * The Date object of this DateTime
 	 */
-	this.date = date;
+	this.date = date ? date : new Date();
 	
 	/**
 	 * Adds the given unit with the given amount to this date
@@ -721,7 +738,16 @@ function DateTime(date) {
 	 */
 	this.getDayOfYear = function() {
 		return getDayOfYear(this.date);
-	}	
+	}
+	
+	/**
+	 * Returns the week of the year
+	 * 
+	 * @return {Number} weekOfYear
+	 */
+	this.getWeekOfYear = function() {
+		return getWeekOfYear(this.date);
+	}
 	
 	/**
 	 * Sets the time of the given date to 00:00:00.000
