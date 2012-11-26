@@ -130,6 +130,7 @@ function convertObjectToString(obj) {
 		return 'globals'
 	}
 	
+	//FIXME: this code triggers the loading of all scopes, which are designed to be lazy loading, so unwanted and too much overhead
 	var retval = null
 	solutionModel.getScopeNames().forEach(function(value, index, array){
 		if (obj == scopes[value]) {
