@@ -290,7 +290,7 @@ function DeleteRecordFailedException(errorMessage, i18nKey, i18nArguments, found
  * 
  * @param {JSRecord} record
  * @param {String} dataprovider
- * 
+ * @constructor 
  * @author patrick
  * @since 30.09.2012
  *
@@ -313,7 +313,7 @@ function ValueNotUniqueException(record, dataprovider) {
 	this.dataprovider = dataprovider;
 	
 	// TODO: i18n with argument dataprovider
-	ValueNotUniqueException.prototype = new SvyException("Dataprovider not unique");
+	ValueNotUniqueException.prototype = new SvyException("Value not unique for: " + dataprovider);
 	
 }
 /**
