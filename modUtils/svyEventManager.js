@@ -87,10 +87,10 @@ function convertObjectToString(obj) {
 			return null
 		}
 		
-		if (['forms','globals','scopes'].indexOf(objStringParts[0]) == -1) {
-			return null
-		} else if (objStringParts.length == 1) {
+		if (objStringParts.length == 1) {
 			return obj
+		} else if (['forms','globals','scopes'].indexOf(objStringParts[0]) == -1) {
+			return null
 		}
 		
 		switch (objStringParts[0]) {
