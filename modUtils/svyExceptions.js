@@ -40,17 +40,13 @@ function SvyException(errorMessage, i18nKey, i18nArguments) {
 	});	
 }
 
-
-
 /**
  * No record present
  * 
  * @properties={typeid:24,uuid:"B22507E5-510C-4365-B71D-4376200D8FC7"}
  */
 function NoRecordException() {
-	
 	NoRecordException.prototype = new SvyException("No record was given or the foundset is empty");
-	
 }
 
 /**
