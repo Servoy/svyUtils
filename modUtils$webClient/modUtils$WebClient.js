@@ -149,7 +149,10 @@ function convertMediaURL(url, response) {
 		application.output('Could not locate "' + url + '" in the media library for inclusion in the Web Client markup',LOGGINGLEVEL.WARNING)
 		return '#'
 	} 
-	url += '&amp;hc=' + media.bytes.hashCode()
+	
+	/**@type {java.lang.Object}*/
+	var bytes = media.bytes
+	url += '&amp;hc=' + bytes.hashCode()
 	
 	var resourceReference = new Packages.org.apache.wicket.ResourceReference("media");
 	return url.replace(MEDIA_URL_PREFIX, Packages.org.apache.wicket.RequestCycle.get().urlFor(resourceReference) + '?s=' + application.getSolutionName() + '&amp;id=')
