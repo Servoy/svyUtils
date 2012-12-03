@@ -7,8 +7,6 @@ var DAY = 200;
 /**
  * @type {Number}
  * 
- * just a comment to test
- *
  * @properties={typeid:35,uuid:"3CE95EC7-4590-4661-9881-B535CDEF5F74",variableType:4}
  */
 var HOUR = 100;
@@ -36,3 +34,29 @@ var WEEK = 300;
  * @properties={typeid:35,uuid:"62313D54-23B9-4129-9CDF-0961DB6CD7EB",variableType:4}
  */
 var YEAR = 600;
+
+/**
+ * Checks if a value is one of the defined time units
+ * @param {Number} value
+ * @return {Boolean}
+ * @properties={typeid:24,uuid:"F9AC08C4-A8F8-40F7-8753-39D0A133EA06"}
+ */
+function isValueTimeUnit(value){
+	if(!value){
+		throw new scopes.svyExceptions.IllegalArgumentException('Value is required');
+	}
+	var values = [
+		HOUR,
+		DAY,
+		WEEK,
+		MONTH,
+		QUARTER,
+		YEAR
+	];
+	for(i in values){
+		if(value == values[i]){
+			return true;
+		}
+	}
+	return false;
+}
