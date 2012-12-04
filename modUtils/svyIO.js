@@ -1,4 +1,25 @@
 /**
+ * Opens a file from the file system using the default viewer for the fileType on the current platform. (.txt with editor, .pdf with pdf reader, .doc with word, etc.)
+ * TODO: Support opening in the WC: either plugins.file.writeFile, but required to read the content first or showUrl, if file is accessible from the outside
+ * TODO: test Linux support: SampleCode suggests using xdg-open here: https://www.servoy.com/forum/viewtopic.php?f=15&t=15237&p=81646&hilit=application+getosname+and+linux#p81653
+ * @param {plugins.file.JSFile|String} file The file that will be opened
+ * @param {String} [mimeType] Required for usage in the Web Client. Used by the browser to determine how to open the file
+ *
+ * @properties={typeid:24,uuid:"024F1389-E679-43A1-8DE6-F8F1493D072D"}
+ */
+function openFileWithDefaultViewer(file, mimeType) {
+	var _OS = application.getOSName();
+	if (/Windows/.test(_OS)) {
+		application.executeProgram('rundll32', 'url.dll, FileProtocolHandler', file);
+	} else if (/Linux|Freebsd/.test(_OS)) {
+		application.executeProgram('mozilla', file);
+	} else if (/Mac/.test(_OS)) {
+		application.executeProgram('open', file);
+	}
+	//What if no match?
+}
+
+/**
  * Unzips the given file to the given target file<p>
  * 
  * If no target file is given, all files in fileToUnzip will<br>
