@@ -264,9 +264,8 @@ function readFile(file, lineCallback) {
             	break
             }
         }
-     } catch (_oErr) {
-        application.output("ERROR: " + file.getName() + " at row " + _nReadLine, LOGGINGLEVEL.ERROR);
-        application.output("ERROR: " + _oErr, LOGGINGLEVEL.ERROR);
+     } catch (e) {
+        application.output('ERROR reading file "' + file.getName() + '": ' + e, LOGGINGLEVEL.ERROR);
      } finally {
         br.close();
      	fis = null;
@@ -284,9 +283,11 @@ function getLineCountForFile(file) {
 	try {
 		var fr = new Packages.java.io.FileReader(file);
 		var lnr = new Packages.java.io.LineNumberReader(fr)
-		while (lnr.readLine() != null) {}
-
+		while (lnr.readLine() != null) {
+		}
 	    return lnr.getLineNumber(); 
+	} catch (e) {
+        application.output('ERROR getting max lines for file "' + file.getName() + '": ' + e, LOGGINGLEVEL.ERROR);
 	} finally {
 		lnr.close();
 		fr.close()
@@ -303,12 +304,11 @@ function getLineCountForFile(file) {
  * @author patick
  * @since 11.09.2012
  *
- * @properties={typeid:24,uuid:"F7B2C1A8-3961-48DD-89BA-D41CFE4836E9"}
+ * @properties={typeid:24,uuid:"502D131D-3AF5-460D-BACA-A98BBDCB62FD"}
  */
 function isFileOpen(file) {
 	var result;
 	if (scopes.svySystem.isWindowsPlatform()) {
-		// Windows
 		if (!file.canWrite()) {
 			return true;
 		}
@@ -325,7 +325,7 @@ function isFileOpen(file) {
 			return true;
 		}
 	} else {
-		// Unix
+		//Unix
 		result = application.executeProgram("lsof", file.getAbsolutePath());
 		if (result && result.length > 0) {
 			return true;
