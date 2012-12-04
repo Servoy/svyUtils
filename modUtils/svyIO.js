@@ -254,10 +254,10 @@ function channelCopy(src, dest) {
  * @properties={typeid:24,uuid:"46688F48-D290-464B-990F-15D28B8E3C13"}
  */
 function readFile(file, lineCallback) {
-    var fis = new Packages.java.io.FileInputStream(file)
-    var isr = new Packages.java.io.InputStreamReader(fis, "UTF8")
-    var br = new Packages.java.io.BufferedReader(isr)
-    var line
+    var fis = new Packages.java.io.FileInputStream(file);
+    var isr = new Packages.java.io.InputStreamReader(fis, "UTF8");
+    var br = new Packages.java.io.BufferedReader(isr);
+    var line;
     try {
         while ((line = br.readLine())) {
             if(lineCallback(line) === false) {
@@ -290,6 +290,49 @@ function getLineCountForFile(file) {
 	} finally {
 		lnr.close();
 		fr.close()
+	}
+}
+
+
+
+/**
+ * Returns true if the given file is currently opened by the user
+ * 
+ * @param {plugins.file.JSFile} _file
+ * 
+ * @author patick
+ * @since 11.09.2012
+ *
+ * @properties={typeid:24,uuid:"F7B2C1A8-3961-48DD-89BA-D41CFE4836E9"}
+ */
+function isFileOpen(_file) {
+	var _osName = application.getOSName();
+	var _result;
+	if (_osName.toLowerCase().indexOf("windows") != -1) {
+		// Windows
+		if (!_file.canWrite()) {
+			return true;
+		}
+		var _originalfilePath = _file.getAbsolutePath();
+		var _parentFolder = _file.getParentFile().getAbsolutePath();
+		var _testFileName = application.getUUID().toString();
+		var _newName = _parentFolder + "\\" + _testFileName;
+		var _newFile = plugins.file.convertToJSFile(_newName);
+		_result = _file.renameTo(_newName);
+		if (_result) {
+			_newFile.renameTo(_originalfilePath);
+			return false;
+		} else {
+			return true;
+		}
+	} else {
+		// Unix
+		_result = application.executeProgram("lsof", _file.getAbsolutePath());
+		if (_result && _result.length > 0) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 }
 
