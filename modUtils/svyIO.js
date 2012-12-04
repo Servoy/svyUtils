@@ -240,3 +240,61 @@ function channelCopy(src, dest) {
 
 	src.close();
 }
+
+/**
+ * Reads the content of a file line by line, without reading the entire file into memory
+ * TODO: rethrow exceptions
+ * @param {plugins.file.JSFile} file
+ * @param {Function} lineCallback function that gets called for each line. Receives the line content as first argument. Return false from the callback to stop further reading
+ * 
+ * @example <pre>
+ * 
+ * </pre>
+ *
+ * @properties={typeid:24,uuid:"46688F48-D290-464B-990F-15D28B8E3C13"}
+ */
+function readFile(file, lineCallback) {
+    var fis = new Packages.java.io.FileInputStream(file)
+    var isr = new Packages.java.io.InputStreamReader(fis, "UTF8")
+    var br = new Packages.java.io.BufferedReader(isr)
+    var line
+    try {
+        while ((line = br.readLine())) {
+            if(lineCallback(line) === false) {
+            	break
+            }
+        }
+     } catch (_oErr) {
+        application.output("ERROR: " + file.getName() + " at row " + _nReadLine, LOGGINGLEVEL.ERROR);
+        application.output("ERROR: " + _oErr, LOGGINGLEVEL.ERROR);
+     } finally {
+        br.close();
+     	fis = null;
+     	isr = null;
+     	br = null;
+     }
+}
+
+/**
+ * @param {plugins.file.JSFile} file
+ * @return {Number}
+ * @properties={typeid:24,uuid:"E062A7C4-2347-40D4-9B1D-D8F25549B305"}
+ */
+function getLineCountForFile(file) {
+	try {
+		var fr = new Packages.java.io.FileReader(file);
+		var lnr = new Packages.java.io.LineNumberReader(fr)
+		while (lnr.readLine() != null) {}
+
+	    return lnr.getLineNumber(); 
+	} finally {
+		lnr.close();
+		fr.close()
+	}
+}
+
+/*
+ * TODO: add file writer stuff:
+ * - https://www.servoy.com/forum/viewtopic.php?f=22&t=13866&p=72648&hilit=java.io.filewriter#p72637
+ * - https://www.servoy.com/forum/viewtopic.php?t=6391
+ */
