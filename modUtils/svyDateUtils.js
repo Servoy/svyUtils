@@ -253,6 +253,26 @@ function createDateSearchString(start, end) {
 }
 
 /**
+ * Creates a date from the given week number in the given year<p>
+ * 
+ * Note that the week of year depends on the current Locale in what is 
+ * considered the first day of week and the minimal number of days in the first week.
+ * 
+ * @param {Number} year
+ * @param {Number} week
+ * 
+ * @return {Date}
+ *
+ * @properties={typeid:24,uuid:"33FE1C46-5022-4A5F-8D8A-6594962C9554"}
+ */
+function createDateFromWeekNumber(year, week) {
+	calendar.clear();
+	calendar.set(java.util.Calendar.YEAR,year);
+	calendar.set(java.util.Calendar.WEEK_OF_YEAR,week);
+	return new Date(calendar.getTimeInMillis());
+}
+
+/**
  * Creates a from - to search String for the two dates<br>
  * 
  * @see createDateSearchString(start, end) if date only search is needed
