@@ -54,7 +54,23 @@ function isHostAccessible(hostname, timeout) {
  * 
  * @param {String} url
  * @param {Boolean} [strictMode] Default false
- * @return {{anchor: String, query: String, file: String, directory: String, path: String, relative: String, port: Number, host: String, password:String, user: String, userInfo: String, authority: String, protocol:String, source: String, queryKey: Object<String>}}
+ * @return {{
+ * 	anchor: String, 
+ * 	query: String, 
+ * 	file: String, 
+ * 	directory: String, 
+ * 	path: String, 
+ * 	relative: String, 
+ * 	port: Number, 
+ * 	host: String, 
+ * 	password:String, 
+ * 	user: String, 
+ * 	userInfo: String, 
+ * 	authority: String, 
+ * 	protocol:String, 
+ * 	source: String, 
+ * 	queryKey: Object<String>
+ * }}
  *
  * @properties={typeid:24,uuid:"EE60CFA1-0E5E-4457-899F-45CB3E9271F3"}
  */
