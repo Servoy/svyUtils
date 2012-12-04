@@ -298,37 +298,36 @@ function getLineCountForFile(file) {
 /**
  * Returns true if the given file is currently opened by the user
  * 
- * @param {plugins.file.JSFile} _file
+ * @param {plugins.file.JSFile} file
  * 
  * @author patick
  * @since 11.09.2012
  *
  * @properties={typeid:24,uuid:"F7B2C1A8-3961-48DD-89BA-D41CFE4836E9"}
  */
-function isFileOpen(_file) {
-	var _osName = application.getOSName();
-	var _result;
-	if (_osName.toLowerCase().indexOf("windows") != -1) {
+function isFileOpen(file) {
+	var result;
+	if (scopes.svySystem.isWindowsPlatform()) {
 		// Windows
-		if (!_file.canWrite()) {
+		if (!file.canWrite()) {
 			return true;
 		}
-		var _originalfilePath = _file.getAbsolutePath();
-		var _parentFolder = _file.getParentFile().getAbsolutePath();
-		var _testFileName = application.getUUID().toString();
-		var _newName = _parentFolder + "\\" + _testFileName;
-		var _newFile = plugins.file.convertToJSFile(_newName);
-		_result = _file.renameTo(_newName);
-		if (_result) {
-			_newFile.renameTo(_originalfilePath);
+		var originalfilePath = file.getAbsolutePath();
+		var parentFolder = file.getParentFile().getAbsolutePath();
+		var testFileName = application.getUUID().toString();
+		var newName = parentFolder + "\\" + testFileName;
+		var newFile = plugins.file.convertToJSFile(newName);
+		result = file.renameTo(newName);
+		if (result) {
+			newFile.renameTo(originalfilePath);
 			return false;
 		} else {
 			return true;
 		}
 	} else {
 		// Unix
-		_result = application.executeProgram("lsof", _file.getAbsolutePath());
-		if (_result && _result.length > 0) {
+		result = application.executeProgram("lsof", file.getAbsolutePath());
+		if (result && result.length > 0) {
 			return true;
 		} else {
 			return false;
