@@ -132,7 +132,6 @@ function addCSSDependancy(url, element) {
 }
 
 /**
- * TODO: add UnitTest for accessing .hashCode() method on bytes of media
  * @private 
  * @param {String} url
  * @param {Packages.org.apache.wicket.markup.html.IHeaderResponse} response
@@ -161,7 +160,6 @@ function convertMediaURL(url, response) {
 /**
  * TODO: determine if ID can be optional and then auto generate one
  * TODO: figure out how to generate small unique ID's (how does Servoy do this?)
- * // TODO generated, please specify type and doc for the params
  * @param {String} code
  * @param {String} id
  * @param {RuntimeComponent|RuntimeForm} element
@@ -242,7 +240,6 @@ function getFormName(element) {
 /**
  * Utility method to get PluginAccess
  * @private
- * TODO: unittest
  * @return {Packages.com.servoy.j2db.server.headlessclient.IWebClientPluginAccess}
  * @SuppressWarnings(wrongparameters)
  * @properties={typeid:24,uuid:"AF74EA3D-B2EB-41EC-A333-D806D7972FA5"}
@@ -306,7 +303,6 @@ function XHTML2Text(XHTML) {
 /**
  * Returns Wicket clientinfo object
  * 
- * TODO: add class to unittest
  * @returns Packages.org.apache.wicket.protocol.http.request.WebClientInfo
  * @properties={typeid:24,uuid:"B4A9F2EE-4A3C-41F9-A767-381B83538309"}
  */
@@ -318,7 +314,6 @@ function getBrowserInfo() {
 
 /**
  * Allows to set the inactive session timeout for this webclient only
- * TODO: add class to unittest
  * @param {Number} timeOut the session timeout interval in milliseconds
  * @properties={typeid:24,uuid:"2CF23729-A1C2-4A58-89E2-DE78EC962833"}
  */
@@ -332,7 +327,6 @@ function setSessionTimeout(timeOut) {
 }
 
 /**
- * TODO: add class to unittest
  * @param {Boolean} state
  * @properties={typeid:24,uuid:"2CE6512E-555E-4BBF-A764-A3C404F2AD6A"}
  */
@@ -341,7 +335,6 @@ function setWicketDebugMode(state) {
 }
 
 /**
- * TODO: add class to unittest
  * @param {String} name property name
  * @param {String} value property value
  * @param {Number} validity validity in seconds
