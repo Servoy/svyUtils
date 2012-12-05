@@ -1,3 +1,9 @@
+/*
+ * Scope with base exceptions.
+ * 
+ * Note: when adding new exceptions, also set the prototype accordingly through the init function
+ */
+
 /**
  * General exception holding exception message, i18n key and arguments
  * 
@@ -61,7 +67,6 @@ function SvyException(errorMessage, i18nKey, i18nArguments) {
 		}
 	});	
 }
-
 
 /**
  * No record present
@@ -137,6 +142,20 @@ function IllegalArgumentException(errorMessage, i18nKey, i18nArguments) {
 	scopes.svyExceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
 }
 
+/**
+ * Raised when performing an operation that is not supported
+ * 
+ * @param {String} errorMessage
+ * @param {String} [i18nKey]
+ * @param {Array} [i18nArguments]
+ * 
+ * @constructor 
+ * 
+ * @properties={typeid:24,uuid:"0A15039E-D104-4453-B461-3C2927DA66F4"}
+ */
+function UnsupportedOperationException(errorMessage, i18nKey, i18nArguments){
+	scopes.svyExceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+}
 
 /**
  * Raised when a runtime state is not legal
@@ -154,7 +173,6 @@ function IllegalArgumentException(errorMessage, i18nKey, i18nArguments) {
 function IllegalStateException(errorMessage, i18nKey, i18nArguments){
 	scopes.svyExceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
 }
-
 
 /**
  * Raised when JSFoundSet.newRecord() failed
@@ -322,7 +340,6 @@ function HTTPException(errorMessage, i18nKey, i18nArguments, httpCode, httpRespo
 	scopes.svyExceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
 }
 
-
 /**
  * Set all prototypes to super class
  * 
@@ -337,6 +354,7 @@ var init = function() {
 	FileNotFoundException.prototype = 			new SvyException("File not found");
 	IllegalArgumentException.prototype = 		new SvyException("Illegal argument");
 	IllegalStateException.prototype = 			new SvyException("Illegal state");
+	UnsupportedOperationException.prototype = 	new SvyException("Unsupported operation");
 	NewRecordFailedException.prototype = 		new SvyException("Failed to create new record");
 	FindModeFailedException.prototype = 		new SvyException("Failed to enter find mode");
 	SaveDataFailedException.prototype = 		new SvyException("Failed to save data");
