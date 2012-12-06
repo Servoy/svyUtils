@@ -29,6 +29,18 @@ function getJSFormInstances(superForm) {
 	return retval
 }
 
+//TODO: create a method that gets all loaded RuntimeForms that are an instanceof a certain RuntimeForm or JSForm
+///**
+// * @param {RuntimeForm|JSForm|String} form
+// * @return {Array<String>}
+// *
+// * @properties={typeid:24,uuid:"05F00D04-160F-4489-A24F-395D122C0586"}
+// */
+//function getRuntimeFormInstanceNames(form) {
+//	//Trick is getting the JSForm for RuntimeForm instances created with application.createNewformInstance()
+//	//According to Johan: je moet weer naar het java object van het form (FormController) en daar moet je dan getForm() op aan roepen
+//}
+
 /**
  * Tests if a given value for the given dataprovider<br>
  * is unique in the table of the given foundset or record
