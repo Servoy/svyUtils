@@ -22,6 +22,13 @@
 var MEDIA_URL_PREFIX = 'media:///'
 
 /**
+ * @properties={typeid:24,uuid:"9287AC01-F11F-4949-BC4C-1C01F04D41D4"}
+ */
+function checkOperationSupported() {
+	if (!scopes.svySystem.isWebClient()) throw new scopes.svyExceptions.UnsupportedOperationException('Only supported in Web Client')
+}
+
+/**
  * Centers a (tab)panel within its container through CSS. Tabpanel should left anchored only
  * TODO: checks to see if tabpanel is not left/right anchored and if it that supported orientation
  * @param {RuntimeTabPanel} element
@@ -29,6 +36,7 @@ var MEDIA_URL_PREFIX = 'media:///'
  * @properties={typeid:24,uuid:"7B201980-B19F-4B56-AD61-1BCA3582EE3E"}
  */
 function centerPanel(element) {
+	checkOperationSupported()
 	var model = Packages.org.apache.wicket.model.Model('left: 50%;margin-left:-' + element.getWidth() / 2 + 'px;')
 	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('style', model, '')
 	unwrapElement(element).add(behavior)
@@ -44,7 +52,7 @@ function centerPanel(element) {
  * @properties={typeid:24,uuid:"8421ED23-0497-4D0F-9CEE-71F543FF0838"}
  */
 function setComponentVisibility(component, visibility) {
-	//var style = visibility ? 'visibility: inherit' : 'visibility: hidden'
+	checkOperationSupported()
 	var style = visibility ? 'display: block' : 'display: none'
 	var model = Packages.org.apache.wicket.model.Model(style)
 	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('style', model, '')
@@ -61,6 +69,7 @@ function setComponentVisibility(component, visibility) {
  * @properties={typeid:24,uuid:"BEF22467-35CD-4397-B10C-4BBE9789DD17"}
  */
 function addClass(component, className) {
+	checkOperationSupported()
 	var model = Packages.org.apache.wicket.model.Model(className)
 	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('class', true, model, ' ')
 	
@@ -75,6 +84,7 @@ function addClass(component, className) {
  * @properties={typeid:24,uuid:"26E18BFD-0456-429D-8C64-54DB1162B13D"}
  */
 function addPlaceHolderText(element, text) {
+	checkOperationSupported()
 	var behavior = new Packages.org.apache.wicket.behavior.SimpleAttributeModifier('placeholder', text)
 	unwrapElement(element).add(behavior)
 }
@@ -106,6 +116,7 @@ function addPlaceHolderText(element, text) {
  * @properties={typeid:24,uuid:"3FFD6F91-CE66-4337-9E52-2A7CC5ECF295"}
  */
 function addJavaScriptDependancy(url, element) {
+	checkOperationSupported()
 	var contributor = new Packages.org.apache.wicket.behavior.HeaderContributor(new Packages.org.apache.wicket.markup.html.IHeaderContributor({
 			renderHead: function(/**@type {Packages.org.apache.wicket.markup.html.IHeaderResponse}*/ response) {
 				response.renderJavascriptReference(convertMediaURL(url, response))
@@ -122,6 +133,7 @@ function addJavaScriptDependancy(url, element) {
  * @properties={typeid:24,uuid:"84B8B212-C873-465F-8F2C-EE74A466CEC6"}
  */
 function addCSSDependancy(url, element) {
+	checkOperationSupported()
 	var contributor = new Packages.org.apache.wicket.behavior.HeaderContributor(new Packages.org.apache.wicket.markup.html.IHeaderContributor({
 			renderHead: function(/**@type {Packages.org.apache.wicket.markup.html.IHeaderResponse}*/ response) {
 				response.renderCSSReference(convertMediaURL(url, response))
@@ -167,6 +179,7 @@ function convertMediaURL(url, response) {
  * @properties={typeid:24,uuid:"7E3B4734-F5C3-454E-B239-7EC81DC4F9D9"}
  */
 function addDynamicJavaScript(code, id, element) {
+	checkOperationSupported()
 	var contributor = new Packages.org.apache.wicket.behavior.HeaderContributor(new Packages.org.apache.wicket.markup.html.IHeaderContributor({
 			renderHead: function(/**@type {Packages.org.apache.wicket.markup.html.IHeaderResponse}*/ response) {
 				response.renderJavascript(code, id) 
@@ -184,6 +197,7 @@ function addDynamicJavaScript(code, id, element) {
  * @properties={typeid:24,uuid:"A37ACBC3-8F68-48E8-AEC5-C1F00739CDAA"}
  */
 function addOnDOMReadyScript(code, element) {
+	checkOperationSupported()
 	var contributor = new Packages.org.apache.wicket.behavior.HeaderContributor(new Packages.org.apache.wicket.markup.html.IHeaderContributor({
 			renderHead: function(/**@type {Packages.org.apache.wicket.markup.html.IHeaderResponse}*/ response) {
 				response.renderOnDomReadyJavascript(code) 
@@ -201,6 +215,7 @@ function addOnDOMReadyScript(code, element) {
  * @properties={typeid:24,uuid:"DB2D9CFF-410E-489A-BE5B-2EF83F8FFC18"}
  */
 function addOnLoadScript(code, element) {
+	checkOperationSupported()
 	var contributor = new Packages.org.apache.wicket.behavior.HeaderContributor(new Packages.org.apache.wicket.markup.html.IHeaderContributor({
 			renderHead: function(/**@type {Packages.org.apache.wicket.markup.html.IHeaderResponse}*/ response) {
 				response.renderOnLoadJavascript(code) 
@@ -218,6 +233,7 @@ function addOnLoadScript(code, element) {
  * @properties={typeid:24,uuid:"B705A7B3-CA51-4494-A207-1C31559DA437"}
  */
 function getElementMarkupId(element) {
+	checkOperationSupported()
 	return unwrapElement(element).getMarkupId()
 }
 
@@ -228,6 +244,7 @@ function getElementMarkupId(element) {
  * @SuppressWarnings(wrongparameters)
  */
 function getFormName(element) {
+	checkOperationSupported()
 	var component = unwrapElement(element)
 	/** @type {Packages.com.servoy.j2db.server.headlessclient.WebForm}*/
 	var form = component.findParent(Packages.com.servoy.j2db.IFormUIInternal)
@@ -307,6 +324,7 @@ function XHTML2Text(XHTML) {
  * @properties={typeid:24,uuid:"B4A9F2EE-4A3C-41F9-A767-381B83538309"}
  */
 function getBrowserInfo() {
+	checkOperationSupported()
 	/** @type {Packages.org.apache.wicket.protocol.http.request.WebClientInfo}*/
 	var clientInfo = Packages.org.apache.wicket.protocol.http.WebRequestCycle.get().getClientInfo();
 	return clientInfo;
@@ -318,6 +336,7 @@ function getBrowserInfo() {
  * @properties={typeid:24,uuid:"2CF23729-A1C2-4A58-89E2-DE78EC962833"}
  */
 function setSessionTimeout(timeOut) {
+	checkOperationSupported()
 	/**@type {Packages.org.apache.wicket.protocol.http.WebRequest}*/
 	var request = Packages.org.apache.wicket.RequestCycle.get().getRequest()
 	
@@ -331,6 +350,7 @@ function setSessionTimeout(timeOut) {
  * @properties={typeid:24,uuid:"2CE6512E-555E-4BBF-A764-A3C404F2AD6A"}
  */
 function setWicketDebugMode(state) {
+	checkOperationSupported()
 	Packages.org.apache.wicket.Application.get().getDebugSettings().setAjaxDebugModeEnabled(state);
 }
 
@@ -342,6 +362,7 @@ function setWicketDebugMode(state) {
  * @properties={typeid:24,uuid:"6797F6A1-0D0F-4B3A-87F9-642FAB9D78C1"}
  */
 function setTimeBoundUserProperty(name, value, validity) {
+	checkOperationSupported()
 	/** @type {Packages.org.apache.wicket.protocol.http.WebRequestCycle}*/
 	var request = Packages.org.apache.wicket.RequestCycle.get()
 	var cookies = request.getWebRequest().getCookies();
@@ -394,8 +415,10 @@ var terminator = new Continuation()
  * @properties={typeid:24,uuid:"4651696E-4E25-49B1-A2FE-EB561A859F5A"}
  */
 function updateUI(milliseconds) {
-   if (application.getApplicationType() == APPLICATION_TYPES.WEB_CLIENT) {
+	checkOperationSupported()
+	if (application.getApplicationType() == APPLICATION_TYPES.WEB_CLIENT) {
       c = new Continuation();
+      //TODO: convert to not use WebClientUtils plugin
       plugins.WebClientUtils.executeClientSideJS(plugins.WebClientUtils.generateCallbackScript(updateUIResume));
       terminator();
    } else {
