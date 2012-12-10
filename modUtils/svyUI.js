@@ -43,6 +43,49 @@ function getCheckBoxValueListItemRemoved(oldValue,newValue){
 }
 
 /**
+ * Returns all JSForms that are instances of a certain JSForm
+ *
+ * @param {JSForm} superForm
+ *
+ * @return {Array<JSForm>}
+ *
+ * @properties={typeid:24,uuid:"9C224492-54F0-49FB-8569-6276EE4F604A"}
+ */
+function getJSFormInstances(superForm) {
+	//FIXME: get rid of workarounds for SVY-2711, which is solved by now
+	/**@type {Array<JSForm>}*/
+	var retval = []
+	var smForms = solutionModel.getForms()
+	var smForm, instances
+	for (var i = 0; i < smForms.length; i++) {
+		smForm = smForms[i]
+		instances = []
+		if (retval.indexOf(smForm) != -1) continue //FIXME: this check doesn't work due to SVY-2711
+		while (smForm.extendsForm != null) {
+			instances.push(smForm)
+			if (smForm.extendsForm.name == superForm.name || retval.indexOf(smForm.extendsForm) != -1) { //FIXME: first clause should compare object, not name and second clause doesn't work due to SVY-2711
+				retval = retval.concat(instances)
+				break;
+			}
+			smForm = smForm.extendsForm
+		}
+	}
+	return retval
+}
+
+//TODO: create a method that gets all loaded RuntimeForms that are an instanceof a certain RuntimeForm or JSForm
+///**
+//* @param {RuntimeForm|JSForm|String} form
+//* @return {Array<String>}
+//*
+//* @properties={typeid:24,uuid:"05F00D04-160F-4489-A24F-395D122C0586"}
+//*/
+//function getRuntimeFormInstanceNames(form) {
+//	//Trick is getting the JSForm for RuntimeForm instances created with application.createNewformInstance()
+//	//According to Johan: je moet weer naar het java object van het form (FormController) en daar moet je dan getForm() op aan roepen
+//}
+
+/**
  * @param {JSForm|String} form
  * @properties={typeid:24,uuid:"46688892-4A91-4364-8FBE-E39F4FEAEB64"}
  */
@@ -122,7 +165,7 @@ function deepCopyJSForm(newFormName, original, prefix) {
  * @properties={typeid:24,uuid:"C8D4A06A-7D47-44F5-A5FE-BA25D29D3F5B"}
  */
 //function globalRecreateUI() {
-//	//TODO implement: function to call recreateUI on all instances of a certain form
+//	//TODO implement: function to call recreateUI on all instances of a certain form. Requires #getRuntimeFormInstanceNames()
 //}
 
 /**
