@@ -21,3 +21,28 @@ function pivotJSDataSet(dataset) {
 	}
 	return newDS
 }
+
+/**
+ * Gets a JSRecord with the specified PK from the specified datasource. 
+ * 
+ * @param {String} datasource
+ * @param {Object|Array<Object>} pks The PK column values for the record. Can be a single value or an Array with values (sorted by PK columnname) in case of a multi-column PK. 
+ *
+ * @return {JSRecord} The requested record. Can be null if not found
+ * 
+ * @properties={typeid:24,uuid:"A08119C8-7762-49C1-8B00-F9E8E7A65913"}
+ */
+function getRecord(datasource, pks) {
+	if (!pks || !datasource) return null
+	
+	/** @type {JSFoundSet} */
+	var fs = databaseManager.getFoundSet(datasource)
+
+//	according to Rob Servoy will do the convert if the UUID flag is set on the column
+//	if (/[0-9A-Fa-f]{8}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{12}/.test(""+pks)) {
+//		pks = application.getUUID(""+ pks);
+//	}
+
+	fs.loadRecords(databaseManager.convertToDataSet(pks instanceof Array ? pks : [pks]))
+	return  fs.getSize() ? fs.getRecord(1) : null
+}
