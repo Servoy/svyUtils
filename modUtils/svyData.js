@@ -26,7 +26,7 @@ function pivotJSDataSet(dataset) {
  * Gets a JSRecord with the specified PK from the specified datasource. 
  * 
  * @param {String} datasource
- * @param {Object|Array<Object>} pks The PK column values for the record. Can be a single value or an Array with values (sorted by PK columnname) in case of a multi-column PK. 
+ * @param {*|Array<*>} pks The PK column values for the record. Can be a single value or an Array with values (sorted by PK columnname) in case of a multi-column PK. 
  *
  * @return {JSRecord} The requested record. Can be null if not found
  * 
