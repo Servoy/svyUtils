@@ -124,3 +124,68 @@ function deepCopyJSForm(newFormName, original, prefix) {
 //function globalRecreateUI() {
 //	//TODO implement: function to call recreateUI on all instances of a certain form
 //}
+
+/**
+ * Convenient method to set multiple properties of a SplitPane in one go
+ * 
+ * @param {String} formName
+ * @param {String} elementName
+ * @param {Number} resizeWeight
+ * @param {Number} dividerLocation
+ * @param {Number} dividerSize
+ * @param {Boolean} continuousLayout
+ * @param {String} [bgColor] If omitted, the SplitPane will be made transparent
+ *
+ * @properties={typeid:24,uuid:"D9B6E37A-2129-475B-9410-3B99E72F3712"}
+ */
+function initSplitPane(formName, elementName, resizeWeight, dividerLocation, dividerSize, continuousLayout, bgColor) {
+	/** @type {RuntimeSplitPane} */
+	var splitPane = forms[formName].elements[elementName]
+
+	if (!(splitPane instanceof RuntimeSplitPane)) return;
+	
+	if (resizeWeight) 		splitPane.resizeWeight = resizeWeight
+	if (dividerLocation) 	restoreSplitPaneDividerPosition(formName, elementName, dividerLocation)
+	if (dividerSize)		splitPane.dividerSize = dividerSize
+	if (continuousLayout)	splitPane.continuousLayout = continuousLayout
+	if (bgColor && bgColor != 'transparent') {
+		splitPane.transparent = false
+		splitPane.bgcolor = bgColor
+	} else {
+		splitPane.transparent = true
+	}
+}
+
+//TODO: figure out how to solve svyProperties dependancy
+/**
+ * Persists the position of the splitpane divider to be used by {@link #restoreSplitPaneDividerPosition()} in a next user session
+ * @param {String} formName
+ * @param {String} elementName
+ *
+ * @properties={typeid:24,uuid:"0D95C059-BEB4-4537-A06B-7711D74F7B92"}
+ */
+function persistSplitPaneDividerPosition(formName, elementName) {
+	if (!formName || !elementName) {
+		application.output('svy_utl_saveSplitTabDividerPosition called without mandatory params', LOGGINGLEVEL.ERROR);
+		return;
+	}
+	var pos = forms[formName].elements[elementName].dividerLocation;
+	scopes.svyProperties.setUserProperty(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc', pos)
+}
+
+/**
+ * Restores the position of the splitpane divider persisted by {@link #persistSplitPaneDividerPosition()} between user sessions
+ * @param {String} formName
+ * @param {String} elementName
+ * @param {Number} position
+ *
+ * @properties={typeid:24,uuid:"1F58D03C-498B-4370-AF83-7DFEBAA025E7"}
+ */
+function restoreSplitPaneDividerPosition(formName, elementName, position) {
+	if (!formName || !elementName) {
+		application.output('svy_utl_setSplitTabDividerPosition called without mandatory params', LOGGINGLEVEL.ERROR);
+		return;
+	}
+	var pos = scopes.svyProperties.getPropertyValue(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc');
+	forms[formName].elements[elementName]['dividerLocation'] = pos|position;
+}
