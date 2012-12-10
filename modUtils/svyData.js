@@ -46,3 +46,73 @@ function getRecord(datasource, pks) {
 	fs.loadRecords(databaseManager.convertToDataSet(pks instanceof Array ? pks : [pks]))
 	return  fs.getSize() ? fs.getRecord(1) : null
 }
+
+/**
+ * Selects the first record in the foundset
+ * @param {JSFoundSet} foundset
+ * @return {Boolean} false when the foundset is empty
+ *
+ * @properties={typeid:24,uuid:"9A608220-70B3-4953-B9B0-1394ABBF8763"}
+ */
+function selectFirstRecord(foundset) {
+	if (foundset) {
+		foundset.setSelectedIndex(1);
+		return true;
+	}
+	return false
+}
+
+/**
+ * Selects the record before the selected record
+ * @param {JSFoundSet} foundset
+ * @return {Boolean} false when there is no previous record
+ *
+ * @properties={typeid:24,uuid:"547E1B75-551C-4583-B976-3ECCF5FCDD67"}
+ */
+function selectPreviousRecord(foundset) {
+	if (foundset && foundset.getSelectedIndex() != 1) {
+		foundset.setSelectedIndex(foundset.getSelectedIndex() - 1);
+		return true;
+	}
+	return false	
+}
+
+/**
+ * Selects the record after the selected record
+ * @param {JSFoundSet} foundset
+ * @return {Boolean} false when there is no next record
+ *
+ * @properties={typeid:24,uuid:"CEFC9684-3701-472E-9D3E-606E2984D8FC"}
+ */
+function selectNextRecord(foundset) {
+	if (foundset) {
+		var curIdx = foundset.getSelectedIndex()
+		foundset.setSelectedIndex(curIdx++);
+		return curIdx != foundset.getSelectedIndex();
+	}
+	return false
+}
+
+/**
+ * Selects the last record in the foundset. Warning: can be very expensive, as the entire foundset needs to be loaded
+ * @param {JSFoundSet} foundset
+ * @return {Boolean} false when the foundset is empty
+ *
+ * @properties={typeid:24,uuid:"ED9BA429-2E44-445E-8229-1FB852E7DA09"}
+ */
+function selectLastRecord(foundset) {
+	//TODO: test
+	var newIdx = databaseManager.getFoundSetCount(foundset)
+	if (!newIdx) return false
+	
+	foundset.getRecord(newIdx)
+	foundset.setSelectedIndex(newIdx);
+	return true
+	
+//	Code below not tested, but taken code above from old method in svy_utils
+//	var curIdx = -1
+//	while (curIdx != foundset.getSelectedIndex()) {
+//		curIdx = foundset.getSelectedIndex()
+//		foundset.setSelectedIndex(foundset.getSize())
+//	}
+}
