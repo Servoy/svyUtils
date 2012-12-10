@@ -1,0 +1,13 @@
+extendsID:"E63D1BFC-E29A-436A-90C4-FC690DD2E3AB",
+items:[
+{
+height:90,
+partType:5,
+typeid:19,
+uuid:"823D10A8-3F79-4BE9-A8CD-54C2B2F4A314"
+}
+],
+name:"test_svyUI$getFormParts_base",
+showInMenu:true,
+typeid:3,
+uuid:"A2B6B852-D5CE-4E92-8BE9-AE8A89CA61B3"

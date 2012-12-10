@@ -35,3 +35,14 @@ function getCheckBoxValueListItemRemoved(oldValue,newValue){
     }
     return oldItems[oldItems.length - 1];
 }
+
+/**
+ * @param {JSForm|String} form
+ * @properties={typeid:24,uuid:"46688892-4A91-4364-8FBE-E39F4FEAEB64"}
+ */
+function getJSFormHeight(form) {
+	/** @type {JSForm} */
+	var smform = typeof form == 'string' ? solutionModel.getForm(form) : form
+	var parts = smform.getParts(true)
+	return parts.length ? parts.pop().height : 0;
+}
