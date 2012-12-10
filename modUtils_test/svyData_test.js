@@ -5,7 +5,6 @@ function testPivotJSDataSet() {
 	var ds = databaseManager.createEmptyDataSet(0,['col1', 'col2'])
 	ds.addRow(['col1_row1','col2_row1'])
 	ds.addRow(['col1_row2','col2_row2'])
-	application.output(ds)
 	
 	var pivoted = scopes.svyData.pivotJSDataSet(ds)
 	jsunit.assertEquals(3,pivoted.getMaxColumnIndex())
