@@ -276,7 +276,7 @@ function readFile(file, lineCallback) {
 
 /**
  * @param {plugins.file.JSFile} file
- * @return {Number}
+ * @return {Number} The number of lines in the file. -1 in case of an issue getting the number of lines in the file
  * @properties={typeid:24,uuid:"E062A7C4-2347-40D4-9B1D-D8F25549B305"}
  */
 function getLineCountForFile(file) {
@@ -292,6 +292,7 @@ function getLineCountForFile(file) {
 		lnr.close();
 		fr.close()
 	}
+	return -1
 }
 
 
