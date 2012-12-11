@@ -1,4 +1,19 @@
 /**
+ * Constant representing IPv6
+ * @type {Number}
+ * @see getIPVersion
+ * @properties={typeid:35,uuid:"759C5A41-7A54-496D-A2D7-C6E671CE7BEF",variableType:4}
+ */
+var IPv6 = 6;
+
+/**
+ * Constant representing IPv4
+ * @type {Number}
+ * @see getIPVersion
+ * @properties={typeid:35,uuid:"A03C5F07-51BE-4B72-9238-94EAC2DE1B9C",variableType:4}
+ */
+var IPv4 = 4;
+/**
  * A Regular Expression to match any IP address which is deemed to be private by the RFC-1918 Standard for IPv4.
  * Uses the following ranges
  * 
@@ -31,6 +46,28 @@ function isInternalIPAddress(ipAddress){
 	return RFC_1918_RANGES.test(ipAddress);
 }
 
+/**
+ * Gets the IP version of a given IP Address. Easy to know if it's v6 or v4 
+ * @param {String} ipAddress
+ * @return {Number} version, on of the constants - IPv4, IPv6
+ * @see scopes.svyNet.IPv4
+ * @see scopes.svyNet.IPv6
+ * @example if(scopes.svyNet.getIPVersion(myAddress) == scopes.svyNet.IPv6){application.output('Version 6');}
+ * @properties={typeid:24,uuid:"B2102E81-89F8-408B-A22E-2A0FA89C4BBC"}
+ */
+function getIPVersion(ipAddress){
+	if(!ipAddress){
+		throw new scopes.svyExceptions.IllegalArgumentException('IP Address is required');
+	}
+	var iNetAddress = java.net.InetAddress.getByName(ipAddress);
+	if(iNetAddress instanceof java.net.Inet6Address){
+		return IPv6;
+	}
+	if(iNetAddress instanceof java.net.Inet4Address){
+		return IPv4;
+	}
+	return null;
+}
 /**
  * Tries to connect to the provided hostname. If connection is successful, true is returned, otherwise false. (time)
  * 
