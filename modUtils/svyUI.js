@@ -1,7 +1,7 @@
 /*
  * Scope with UI related utility methods
  * 
- * TODO: add method that gets the JSForm for any RuntimeForm instance, also instances created with application.createNewFormInstance()
+ * TODO: add method that gets the JSForm for any RuntimeForm instance or formName string, also instances created with application.createNewFormInstance()
  */
 
 /**
@@ -43,6 +43,23 @@ function getCheckBoxValueListItemRemoved(oldValue,newValue){
 }
 
 /**
+ * Returns the JSForm hierarchy for the given form, from it's utmost base form up to and including the specified form itself
+ * @param {JSForm|String} form
+ * @return {Array<JSForm>} super forms first, given form included as last entry in the returned Array)
+ *
+ * @properties={typeid:24,uuid:"AEC3ABF7-8DA5-4367-8124-5DDC477D11C2"}
+ */
+function getJSFormHierarchy(form) {
+	/** @type {Array<JSForm>} */
+	var retval = [form instanceof JSForm ? form : solutionModel.getForm(form)] //Doesn't currently support RuntimeForm instances created with application.createNewFromInstance(...)
+	var curForm = retval[0]
+	while ((curForm = curForm.extendsForm)) {
+		retval.push(curForm)
+	}
+	return retval.reverse()
+}
+
+/**
  * Returns all JSForms that are instances of a certain JSForm
  *
  * @param {JSForm} superForm
@@ -52,18 +69,17 @@ function getCheckBoxValueListItemRemoved(oldValue,newValue){
  * @properties={typeid:24,uuid:"9C224492-54F0-49FB-8569-6276EE4F604A"}
  */
 function getJSFormInstances(superForm) {
-	//FIXME: get rid of workarounds for SVY-2711, which is solved by now
 	/**@type {Array<JSForm>}*/
 	var retval = []
-	var smForms = solutionModel.getForms()
+	var smForms = solutionModel.getForms() //Getting this once and holding a reference to it is faster
 	var smForm, instances
 	for (var i = 0; i < smForms.length; i++) {
 		smForm = smForms[i]
 		instances = []
-		if (retval.indexOf(smForm) != -1) continue //FIXME: this check doesn't work due to SVY-2711
+		if (retval.indexOf(smForm) != -1) continue
 		while (smForm.extendsForm != null) {
 			instances.push(smForm)
-			if (smForm.extendsForm.name == superForm.name || retval.indexOf(smForm.extendsForm) != -1) { //FIXME: first clause should compare object, not name and second clause doesn't work due to SVY-2711
+			if (smForm.extendsForm == superForm || retval.indexOf(smForm.extendsForm) != -1) {
 				retval = retval.concat(instances)
 				break;
 			}
@@ -148,6 +164,9 @@ function deepCopyJSForm(newFormName, original, prefix) {
 	}
 	return clone
 }
+
+//TODO: create function that loops through all (nested) tabs on a given RuntimeForm, with callback to do something on each form encountered
+//To be used by deepCopyJSForm or deepCopyRuntimeForm
 
 /**
  * @param newFormName
