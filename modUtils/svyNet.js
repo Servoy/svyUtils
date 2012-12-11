@@ -1,4 +1,37 @@
 /**
+ * A Regular Expression to match any IP address which is deemed to be private by the RFC-1918 Standard for IPv4.
+ * Uses the following ranges
+ * 
+ * 127.  0.0.1
+ * 10.   0.0.0 –  10.255.255.255
+ * 172. 16.0.0 – 172. 31.255.255
+ * 192.168.0.0 – 192.168.255.255
+ * 
+ * @type {RegExp}
+ * @private
+ * @properties={typeid:35,uuid:"90150791-6CF0-4FEA-961C-B4A366AA6278",variableType:-4}
+ */
+var RFC_1918_RANGES = /(^127\.0\.0\.1)|(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)/;
+
+
+/**
+ * Tests if a given IP Address matches the most common internal IP patterns. Uses RFC 1918 standard for determination. 
+ * NOTE: This method is only valid for IPv4 addresses
+ * 
+ * @param {String} ipAddress
+ * @return {Boolean}
+ * 
+ * @see http://en.wikipedia.org/wiki/Private_network 
+ * @properties={typeid:24,uuid:"523E5A3F-E202-4DF4-9115-06786712E64E"}
+ */
+function isInternalIPAddress(ipAddress){
+	if(!ipAddress){
+		throw new scopes.svyExceptions.IllegalArgumentException('IP Address is required');
+	}
+	return RFC_1918_RANGES.test(ipAddress);
+}
+
+/**
  * Tries to connect to the provided hostname. If connection is successful, true is returned, otherwise false. (time)
  * 
  * @param {String} hostname
