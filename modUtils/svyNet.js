@@ -28,7 +28,6 @@ var IPv4 = 4;
  */
 var RFC_1918_RANGES = /(^127\.0\.0\.1)|(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)/;
 
-
 /**
  * Tests if a given IP Address matches the most common internal IP patterns. Uses RFC 1918 standard for determination. 
  * NOTE: This method is only valid for IPv4 addresses
