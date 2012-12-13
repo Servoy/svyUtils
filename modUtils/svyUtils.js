@@ -2,7 +2,7 @@
  * Tests if a given value for the given dataprovider<br>
  * is unique in the table of the given foundset or record
  * 
- * @param {JSRecord|JSFoundSet} foundsetOrRecord
+ * @param {JSRecord|JSFoundSet|String} foundsetRecordOrDataSource
  * @param {String} dataproviderName - the name of the dataprovider that should be tested for uniqueness
  * @param {Object} value - the value that should be unique in the given dataprovider
  * @param {String[]} [extraQueryColumns] - optional array of additional dataproviders that can be used in the unique query
@@ -15,11 +15,11 @@
  *
  * @properties={typeid:24,uuid:"FDA0FED5-7A26-46BF-B090-8626CA0C665A"}
  */
-function isValueUnique(foundsetOrRecord, dataproviderName, value, extraQueryColumns, extraQueryValues) {
-	if (!foundsetOrRecord || !dataproviderName) {
+function isValueUnique(foundsetRecordOrDataSource, dataproviderName, value, extraQueryColumns, extraQueryValues) {
+	if (!foundsetRecordOrDataSource || !dataproviderName) {
 		throw new scopes.svyExceptions.IllegalArgumentException("no parameters provided to scopes.svyUtils.isValueUnique(foundsetOrRecord, dataproviderName, value)");
 	}
-	var dataSource = foundsetOrRecord.getDataSource();
+	var dataSource = (foundsetRecordOrDataSource instanceof String) ? foundsetRecordOrDataSource : foundsetRecordOrDataSource.getDataSource();
 	var pkNames = databaseManager.getTable(dataSource).getRowIdentifierColumnNames();
 	var query = databaseManager.createSelect(dataSource);
 	for (var i = 0; i < pkNames.length; i++) {
