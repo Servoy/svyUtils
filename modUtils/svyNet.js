@@ -1,18 +1,13 @@
 /**
- * Constant representing IPv6
- * @type {Number}
- * @see getIPVersion
- * @properties={typeid:35,uuid:"759C5A41-7A54-496D-A2D7-C6E671CE7BEF",variableType:4}
+ * @enum
+ * @properties={typeid:35,uuid:"0B65A4C8-2FDF-429A-BDB6-4AB89BD0431F",variableType:-4}
  */
-var IPv6 = 6;
+var IP_VERSIONS = {
+	IPv6:6,
+	IPv4:4
+};
 
-/**
- * Constant representing IPv4
- * @type {Number}
- * @see getIPVersion
- * @properties={typeid:35,uuid:"A03C5F07-51BE-4B72-9238-94EAC2DE1B9C",variableType:4}
- */
-var IPv4 = 4;
+
 /**
  * A Regular Expression to match any IP address which is deemed to be private by the RFC-1918 Standard for IPv4.
  * Uses the following ranges
@@ -27,6 +22,7 @@ var IPv4 = 4;
  * @properties={typeid:35,uuid:"90150791-6CF0-4FEA-961C-B4A366AA6278",variableType:-4}
  */
 var RFC_1918_RANGES = /(^127\.0\.0\.1)|(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)/;
+
 
 /**
  * Tests if a given IP Address matches the most common internal IP patterns. Uses RFC 1918 standard for determination. 
@@ -60,10 +56,10 @@ function getIPVersion(ipAddress){
 	}
 	var iNetAddress = java.net.InetAddress.getByName(ipAddress);
 	if(iNetAddress instanceof java.net.Inet6Address){
-		return IPv6;
+		return IP_VERSIONS.IPv6;
 	}
 	if(iNetAddress instanceof java.net.Inet4Address){
-		return IPv4;
+		return IP_VERSIONS.IPv4;
 	}
 	return null;
 }
