@@ -87,7 +87,7 @@ function selectPreviousRecord(foundset) {
 function selectNextRecord(foundset) {
 	if (foundset) {
 		var curIdx = foundset.getSelectedIndex()
-		foundset.setSelectedIndex(curIdx++);
+		foundset.setSelectedIndex(++curIdx);
 		return curIdx != foundset.getSelectedIndex();
 	}
 	return false
