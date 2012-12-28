@@ -104,3 +104,74 @@ function isMobilePlatform() {
 	var userAgent = clientInfo.getUserAgent()
 	return /iPhone|iPad|Android/.test(userAgent)
 }
+
+/**
+ * Gets the Smart Client deep link URL for the specified solution
+ * 
+ * @param {String} [solutionName]
+ * @param {String} [methodName]
+ * @param {String} arg1
+ * @param {Object} [additionalArgs]
+ * @return {String}
+ * @properties={typeid:24,uuid:"1AA45C9D-2295-42A1-BDF8-E35C62C97CAD"}
+ */
+function getSolutionDeepLinkSmartClient(solutionName, methodName, arg1, additionalArgs){
+	if(!solutionName){
+		solutionName = application.getSolutionName();
+	}
+	var params = [];
+	if(methodName){
+		params.push('m='+methodName);
+	}
+	if(arg1){
+		params.push('a='+arg1);
+	}
+	if(additionalArgs){
+		if(!arg1){
+			throw new scopes.svyExceptions.IllegalArgumentException('Arg1 is not specified, but there is additional arguments')
+		}
+		for(name in additionalArgs){
+			params.push(name+'='+additionalArgs[name]);
+		}
+	}
+	var link = application.getServerURL() + '/servoy-client/' + solutionName + '.jnlp';
+	if(params.length){
+		link += '?' + params.join('&');
+	}
+	return link
+}
+/**
+ * Gets the Web Client deep link URL for the specified solution
+ * 
+ * @param {String} [solutionName]
+ * @param {String} [methodName]
+ * @param {String} [arg1]
+ * @param {Object} [additionalArgs]
+ * @return {String}
+ * @properties={typeid:24,uuid:"4E33E145-C058-40E9-AD26-3D52F3C2E351"}
+ */
+function getSolutionDeepLinkWebClient(solutionName, methodName, arg1, additionalArgs){
+	if(!solutionName){
+		solutionName = application.getSolutionName();
+	}
+	var params = [];
+	if(methodName){
+		params.push('m/'+methodName);
+	}
+	if(arg1){
+		params.push('a/'+arg1);
+	}
+	if(additionalArgs){
+		if(!arg1){
+			throw new scopes.svyExceptions.IllegalArgumentException('Arg1 is not specified, but there is additional arguments')
+		}
+		for(name in additionalArgs){
+			params.push(name+'/'+additionalArgs[name]);
+		}
+	}
+	var link = application.getServerURL() + '/servoy-webclient/ss/s/' + solutionName;
+	if(params.length){
+		link += '/' + params.join('/');
+	}
+	return link;
+}
