@@ -175,3 +175,35 @@ function getSolutionDeepLinkWebClient(solutionName, methodName, arg1, additional
 	}
 	return link;
 }
+
+/**
+ * Used by persistFormInMemory()/desistFormInMemory() to store references to forms so they are not automatically unloaded
+ * @private 
+ * @properties={typeid:35,uuid:"F444A6BF-1B5F-4745-A287-202CDE6AB020",variableType:-4}
+ */
+var persistentForms = []
+
+/**
+ * Prevents a form from being automatically unloaded
+ * @param {RuntimeForm} form
+ *
+ * @see Also see {@link #desistFormInMemory()}
+ * @properties={typeid:24,uuid:"DE32565B-093F-418F-8A91-446E6BD03ABE"}
+ */
+function persistFormInMemory(form) {
+	persistentForms.push(form)
+}
+
+/**
+ * Allow a form previously marked to not be automatically unloaded using {@link #persistFormInMemory(form)} to be automatically unloaded again
+ * @param {RuntimeForm} form
+ * @see Also see {@link #persistFormInMemory(form)}
+ *
+ * @properties={typeid:24,uuid:"3FEB59D8-CD26-4184-93CC-77819ED03F33"}
+ */
+function desistFormInMemory(form) {
+	var idx = persistentForms.indexOf(form)
+	if (idx != -1) {
+		persistentForms.splice(idx, 1)
+	}
+}
