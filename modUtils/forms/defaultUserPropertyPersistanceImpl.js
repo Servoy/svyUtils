@@ -44,8 +44,9 @@ var customImpl = null
 function setCustomImpl(form) {
 	if (form) {
 		scopes.svySystem.persistFormInMemory(this)
+		scopes.svySystem.persistFormInMemory(form)
 	} else {
-		scopes.svySystem.desistFormInMemory(this)
+		scopes.svySystem.desistFormInMemory(form)
 	}
 	customImpl = form
 }

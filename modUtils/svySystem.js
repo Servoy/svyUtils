@@ -191,7 +191,9 @@ var persistentForms = []
  * @properties={typeid:24,uuid:"DE32565B-093F-418F-8A91-446E6BD03ABE"}
  */
 function persistFormInMemory(form) {
-	persistentForms.push(form)
+	if (persistentForms.indexOf(form) == -1) {
+		persistentForms.push(form)
+	}
 }
 
 /**
