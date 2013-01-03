@@ -38,7 +38,7 @@
  * @private
  * @type {Object<Object<Array<String>>>}
  *
- * @properties={typeid:35,uuid:"EB9A7966-F1E0-4A2D-BB6D-4B65B76CB019",variableType:-4}
+ * @properties={typeid:35,uuid:"0FE5A45F-B494-49C8-9080-A51DCEDF3F5F",variableType:-4}
  */
 var events = {}
 
@@ -49,7 +49,7 @@ var events = {}
  * @param {Function|String} action
  * @return {String}
  * 
- * @properties={typeid:24,uuid:"E0E9A44A-DD06-4928-A521-F53EE328DAF2"}
+ * @properties={typeid:24,uuid:"0C9921E3-237F-4E85-B0A3-D2EB2E99A78E"}
  */
 function convertFunctionToString(action) {
 	if (action instanceof Function) {
@@ -74,7 +74,7 @@ function convertFunctionToString(action) {
  * @private 
  * @param {*} obj
  *
- * @properties={typeid:24,uuid:"27DF517C-19E0-43AB-8FC6-402303D35C6F"}
+ * @properties={typeid:24,uuid:"B14E62E6-95B1-4AE6-9AF1-032BA6B9495D"}
  */
 function convertObjectToString(obj) {
 	if (obj instanceof Function) {
@@ -148,7 +148,7 @@ function convertObjectToString(obj) {
  * @param {String} eventHandler The listener method to execute upon the event firing
  * @return {Number} Returns an integer.
  *
- * @properties={typeid:24,uuid:"F788E5CA-8B6F-4006-99A3-4A05CBD991D5"}
+ * @properties={typeid:24,uuid:"3B83F870-C874-4018-B608-38D4CB280EF2"}
  */
 function getActionIdx(obj, evt, eventHandler) {
 	if (obj && evt) {
@@ -181,18 +181,18 @@ function getActionIdx(obj, evt, eventHandler) {
  * }
  * 
  * function onLoad() {
- * 	scopes.svyEventManager.addListener(this, EVENT_TYPES.MY_OWN_EVENT_TYPE, myEventHandler)
+ * 	scopes.modUtils$eventManager.addListener(this, EVENT_TYPES.MY_OWN_EVENT_TYPE, myEventHandler)
  * }	 
  * function myEventHandler(booleanValue, numberValue, stringValue) {
  * 	application.output(arguments)
  * }
  * 
  * function test(){
- * 	scopes.svyEventManager.fireEvent(this, EVENT_TYPES.MY_FIRST_EVENT_TYPE, [true, 1, 'Hello world!'])
+ * 	scopes.modUtils$eventManager.fireEvent(this, EVENT_TYPES.MY_FIRST_EVENT_TYPE, [true, 1, 'Hello world!'])
  * }
  * </pre>
- * @example <pre>scopes.svyEventManager.addListener('forms.myForm', 'myEvent', 'scopes.myCustomScope.myEventHandlerMethod')</pre>
- * @properties={typeid:24,uuid:"35003AFB-65AF-42E1-A05C-E920FD3B538F"}
+ * @example <pre>scopes.modUtils$eventManager.addListener('forms.myForm', 'myEvent', 'scopes.myCustomScope.myEventHandlerMethod')</pre>
+ * @properties={typeid:24,uuid:"B55D1349-D418-4775-BB05-0451D7438A62"}
  */
 function addListener(obj, eventType, eventHandler) {
 	var objectString = convertObjectToString(obj)
@@ -224,7 +224,7 @@ function addListener(obj, eventType, eventHandler) {
  * @param {String} eventType The event identifier
  * @param {Function|String} eventHandler The listener to remove
  *
- * @properties={typeid:24,uuid:"B3C4A9FB-6058-43C2-BE8A-889ECE28C3EC"}
+ * @properties={typeid:24,uuid:"999BAC85-4450-4FF1-8252-BDC403778E06"}
  */
 function removeListener(obj, eventType, eventHandler) {
 	var objectString = convertObjectToString(obj)
@@ -248,7 +248,7 @@ function removeListener(obj, eventType, eventHandler) {
  * @param {String} eventType The event identifier
  * @param {*|Array<*>} [args] An value or Array of values to apply as arguments to the eventHandler invocation
  *
- * @properties={typeid:24,uuid:"47AE1425-E064-4AF6-A712-AAA33E54C30C"}
+ * @properties={typeid:24,uuid:"06FDBBB0-D4AF-48E1-BE0F-858BC089D977"}
  */
 function fireEvent(obj, eventType, args) {
 	var objectString = convertObjectToString(obj)
