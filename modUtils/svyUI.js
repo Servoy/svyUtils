@@ -218,7 +218,6 @@ function initSplitPane(formName, elementName, resizeWeight, dividerLocation, div
 	}
 }
 
-//TODO: figure out how to solve svyProperties dependancy
 /**
  * Persists the position of the splitpane divider to be used by {@link #restoreSplitPaneDividerPosition()} in a next user session
  * @param {String} formName
@@ -232,7 +231,7 @@ function persistSplitPaneDividerPosition(formName, elementName) {
 		return;
 	}
 	var pos = forms[formName].elements[elementName].dividerLocation;
-	scopes.svyProperties.setUserProperty(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc', pos)
+	scopes.svySystem.setUserProperty(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc', pos)
 }
 
 /**
@@ -248,6 +247,6 @@ function restoreSplitPaneDividerPosition(formName, elementName, position) {
 		application.output('svy_utl_setSplitTabDividerPosition called without mandatory params', LOGGINGLEVEL.ERROR);
 		return;
 	}
-	var pos = scopes.svyProperties.getPropertyValue(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc');
+	var pos = scopes.svySystem.getUserProperty(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc');
 	forms[formName].elements[elementName]['dividerLocation'] = pos|position;
 }
