@@ -193,6 +193,7 @@ function getUserProperty(name){
 /**
  * Gets the service provider implementation for the user property persistence mechanism
  * TODO: This returns only the FIRST subform which is registered and so assumes only ONE custom impl is registered. Can this be improved with some kind of hints?
+ * TODO: this impl also doesn't cache the custom impl, which requires a impl. lookup for each get/setUserProperty, which can cause too much overhead
  * 
  * @private 
  * @return {RuntimeForm<defaultUserPropertyPersistenceImpl>}
