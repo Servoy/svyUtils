@@ -1,6 +1,6 @@
 /**
  * @enum
- * @properties={typeid:35,uuid:"0B65A4C8-2FDF-429A-BDB6-4AB89BD0431F",variableType:-4}
+ * @properties={typeid:35,uuid:"20686801-4B73-4915-B354-4FE30E40B35A",variableType:-4}
  */
 var IP_VERSIONS = {
 	IPv6:6,
@@ -19,7 +19,7 @@ var IP_VERSIONS = {
  * 
  * @type {RegExp}
  * @private
- * @properties={typeid:35,uuid:"90150791-6CF0-4FEA-961C-B4A366AA6278",variableType:-4}
+ * @properties={typeid:35,uuid:"628B24C3-F308-4599-9749-AC0FD9EECFA8",variableType:-4}
  */
 var RFC_1918_RANGES = /(^127\.0\.0\.1)|(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)/;
 
@@ -32,7 +32,7 @@ var RFC_1918_RANGES = /(^127\.0\.0\.1)|(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)
  * @return {Boolean}
  * 
  * @see http://en.wikipedia.org/wiki/Private_network 
- * @properties={typeid:24,uuid:"523E5A3F-E202-4DF4-9115-06786712E64E"}
+ * @properties={typeid:24,uuid:"26648F56-9E34-4830-AA96-DAA58B393051"}
  */
 function isInternalIPAddress(ipAddress){
 	if(!ipAddress){
@@ -45,10 +45,10 @@ function isInternalIPAddress(ipAddress){
  * Gets the IP version of a given IP Address. Easy to know if it's v6 or v4 
  * @param {String} ipAddress
  * @return {Number} version, on of the constants - IPv4, IPv6
- * @see scopes.svyNet.IPv4
- * @see scopes.svyNet.IPv6
- * @example if(scopes.svyNet.getIPVersion(myAddress) == scopes.svyNet.IPv6){application.output('Version 6');}
- * @properties={typeid:24,uuid:"B2102E81-89F8-408B-A22E-2A0FA89C4BBC"}
+ * @see scopes.modUtils$net.IPv4
+ * @see scopes.modUtils$net.IPv6
+ * @example if(scopes.modUtils$net.getIPVersion(myAddress) == scopes.modUtils$net.IPv6){application.output('Version 6');}
+ * @properties={typeid:24,uuid:"0C61EBBD-B390-45E4-831B-F7E987407804"}
  */
 function getIPVersion(ipAddress){
 	if(!ipAddress){
@@ -70,7 +70,7 @@ function getIPVersion(ipAddress){
  * @param {Number} [timeout] timeout for the connection check (in milliseconds). Default: 200ms
  *
  * @return {Boolean} whether the host could be reached 
- * @properties={typeid:24,uuid:"9D72F66F-3712-4DFE-BAAF-C85F3E821E72"}
+ * @properties={typeid:24,uuid:"DFC17BE6-96D4-4FF8-A4E3-AB510B5C51A4"}
  */
 function isHostAccessible(hostname, timeout) {
 	var timeOut = timeout || 200
@@ -137,7 +137,7 @@ function isHostAccessible(hostname, timeout) {
  * 	queryKey: Object<String>
  * }}
  *
- * @properties={typeid:24,uuid:"EE60CFA1-0E5E-4457-899F-45CB3E9271F3"}
+ * @properties={typeid:24,uuid:"B8CC3376-A5FA-45E5-80C5-C6860B94B9DF"}
  */
 function parseUrl(url, strictMode) {
 	// parseUri 1.2.2
