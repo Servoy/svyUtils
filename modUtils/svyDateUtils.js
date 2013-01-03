@@ -11,6 +11,20 @@
 var calendar = java.util.Calendar.getInstance();
 
 /**
+ * @enum
+ * @final
+ * @properties={typeid:35,uuid:"EB317FA3-132A-4B0A-B1A0-E35F021D0414",variableType:-4}
+ */
+var UNITS = {
+	HOUR:100,
+	DAY:200,
+	WEEK:300,
+	MONTH:400,
+	QUARTER:500,
+	YEAR:600
+};
+
+/**
  * Adds the value of the given field to the given date
  * 
  * @private 
@@ -74,19 +88,19 @@ function addUnits(date, amount, units) {
 	if(!units) throw new scopes.svyExceptions.IllegalArgumentException('units cannot be null/undefined', null, null);
 	date = new Date(date.valueOf());
 	switch (units) {
-		case scopes.svyUnits$time.HOUR:
+		case scopes.svyDateUtils.UNITS.HOUR:
 			date.setHours(date.getHours() + amount);
 			break;
-		case scopes.svyUnits$time.DAY:
+		case scopes.svyDateUtils.UNITS.DAY:
 			date.setDate(date.getDate()+amount);
 			break;
-		case scopes.svyUnits$time.WEEK:
+		case scopes.svyDateUtils.UNITS.WEEK:
 			date.setDate(date.getDate()+(amount*7));
 			break;
-		case scopes.svyUnits$time.MONTH:
+		case scopes.svyDateUtils.UNITS.MONTH:
 			date.setMonth(date.getMonth()+amount);
 			break;
-		case scopes.svyUnits$time.YEAR:
+		case scopes.svyDateUtils.UNITS.YEAR:
 			date.setFullYear(date.getFullYear()+amount);
 			break;
 		default:
@@ -617,7 +631,7 @@ function DateTime(date) {
 	/**
 	 * Adds the given unit with the given amount to this date
 	 * 
-	 * @param {Number} unit - one of scopes.svyUnits$time
+	 * @param {Number} unit - one of scopes.svyDateUtils.UNITS
 	 * @param {Number} amount
 	 * 
 	 * @throws {scopes.svyExceptions.IllegalArgumentException}
@@ -630,19 +644,19 @@ function DateTime(date) {
 		if(!amount) throw new scopes.svyExceptions.IllegalArgumentException('amount cannot be null/undefined', null, null);
 		if(!unit) throw new scopes.svyExceptions.IllegalArgumentException('units cannot be null/undefined', null, null);
 		switch (unit) {
-			case scopes.svyUnits$time.HOUR:
+			case scopes.svyDateUtils.UNITS.HOUR:
 				date.setHours(_this.date.getHours() + amount);
 				break;
-			case scopes.svyUnits$time.DAY:
+			case scopes.svyDateUtils.UNITS.DAY:
 				date.setDate(_this.date.getDate() + amount);
 				break;
-			case scopes.svyUnits$time.WEEK:
+			case scopes.svyDateUtils.UNITS.WEEK:
 				date.setDate(_this.date.getDate() + (amount * 7));
 				break;
-			case scopes.svyUnits$time.MONTH:
+			case scopes.svyDateUtils.UNITS.MONTH:
 				date.setMonth(_this.date.getMonth() + amount);
 				break;
-			case scopes.svyUnits$time.YEAR:
+			case scopes.svyDateUtils.UNITS.YEAR:
 				date.setFullYear(_this.date.getFullYear() + amount);
 				break;
 			default:
