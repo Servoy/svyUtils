@@ -875,3 +875,29 @@ function DateTime(date) {
 		return this;
 	}		
 }
+
+/**
+ * Checks if a value is one of the defined time units
+ * @param {Number} value
+ * @return {Boolean}
+ * @properties={typeid:24,uuid:"F9AC08C4-A8F8-40F7-8753-39D0A133EA06"}
+ */
+function isValueTimeUnit(value){
+	if(!value){
+		throw new scopes.svyExceptions.IllegalArgumentException('Value is required');
+	}
+	var values = [
+		UNITS.HOUR,
+		UNITS.DAY,
+		UNITS.WEEK,
+		UNITS.MONTH,
+		UNITS.QUARTER,
+		UNITS.YEAR
+	];
+	for(i in values){
+		if(value == values[i]){
+			return true;
+		}
+	}
+	return false;
+}
