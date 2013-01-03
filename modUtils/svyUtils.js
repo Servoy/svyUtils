@@ -296,7 +296,7 @@ function replaceTagsInWordProcessingDocument(document, record) {
 	var docType = document.getName().substr(document.getName().lastIndexOf(".") + 1);
 	var tmpFile = plugins.file.convertToJSFile(java.lang.System.getProperty("java.io.tmpdir") + java.io.File.separator + application.getUUID().toString());
 	tmpFile.mkdirs();
-	var unzippedDir = scopes.svyIO.unzip(document, tmpFile);
+	var unzippedDir = scopes.modUtils$IO.unzip(document, tmpFile);
 	
 	if (!unzippedDir) {
 		return false;
@@ -318,7 +318,7 @@ function replaceTagsInWordProcessingDocument(document, record) {
 	content = plugins.file.readTXTFile(contentFilePath);
 	content = utils.stringReplaceTags(content, record);
 	plugins.file.writeTXTFile(contentFilePath, content, "UTF-8");
-	scopes.svyIO.zip(unzippedDir, document);
+	scopes.modUtils$IO.zip(unzippedDir, document);
 	deleteDirectory(unzippedDir);
 	unzippedDir.deleteFile();
 	

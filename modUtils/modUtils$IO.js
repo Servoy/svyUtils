@@ -7,7 +7,7 @@
  * </pre> 
  * @param {plugins.file.JSFile|String} file The file that will be opened
  *
- * @properties={typeid:24,uuid:"024F1389-E679-43A1-8DE6-F8F1493D072D"}
+ * @properties={typeid:24,uuid:"95C45F79-F469-4542-BB8B-BE226010D8B1"}
  */
 function openFileWithDefaultViewer(file) {
 	if (!scopes.svySystem.isSwingClient()) {
@@ -38,7 +38,7 @@ function openFileWithDefaultViewer(file) {
  * @author patrick
  * @since 2012-10-15
  * 
- * @properties={typeid:24,uuid:"757E9367-14BB-4488-883E-BD79E6531B0B"}
+ * @properties={typeid:24,uuid:"1453D732-A0CE-46B0-9EEE-81D656E61940"}
  */
 function unzip(fileToUnzip, targetFile) {
 	var zipFilePath = fileToUnzip.getAbsolutePath();
@@ -118,7 +118,7 @@ function unzip(fileToUnzip, targetFile) {
  * @author patrick
  * @since 2012-10-15
  *
- * @properties={typeid:24,uuid:"7483C635-ACD5-42D9-9109-9B97DDE9E5AD"}
+ * @properties={typeid:24,uuid:"9D6CECAE-ACD0-497F-9994-355861A2DE24"}
  */
 function zip(fileToZip, targetFile, filenamesToStoreUncompressed) {
 	var filePath = fileToZip.getAbsolutePath();
@@ -223,7 +223,7 @@ function zip(fileToZip, targetFile, filenamesToStoreUncompressed) {
  * @author patrick
  * @since 2012-10-15
  *
- * @properties={typeid:24,uuid:"C59BD222-0EAF-4A35-8778-BA8D3B18B985"}
+ * @properties={typeid:24,uuid:"8E3DD438-43FB-4499-A7B4-0D00F4956E90"}
  */
 function channelCopy(src, dest) {
 	var buffer = java.nio.ByteBuffer.allocateDirect(16 * 1024);
@@ -256,7 +256,7 @@ function channelCopy(src, dest) {
  * 
  * </pre>
  *
- * @properties={typeid:24,uuid:"46688F48-D290-464B-990F-15D28B8E3C13"}
+ * @properties={typeid:24,uuid:"B288B4EC-BC90-4ABA-9C2E-E45E600BF7D6"}
  */
 function readFile(file, lineCallback) {
     var fis = new Packages.java.io.FileInputStream(file);
@@ -282,7 +282,7 @@ function readFile(file, lineCallback) {
 /**
  * @param {plugins.file.JSFile} file
  * @return {Number} The number of lines in the file. -1 in case of an issue getting the number of lines in the file
- * @properties={typeid:24,uuid:"E062A7C4-2347-40D4-9B1D-D8F25549B305"}
+ * @properties={typeid:24,uuid:"EEFD9AA1-68B5-4DD9-8C4D-AE0EE2488F28"}
  */
 function getLineCountForFile(file) {
 	try {
@@ -308,7 +308,7 @@ function getLineCountForFile(file) {
  * @author patick
  * @since 11.09.2012
  *
- * @properties={typeid:24,uuid:"502D131D-3AF5-460D-BACA-A98BBDCB62FD"}
+ * @properties={typeid:24,uuid:"61CAFF50-B7A8-499D-8008-4B8457A3E2F6"}
  */
 function isFileOpen(file) {
 	var result;
