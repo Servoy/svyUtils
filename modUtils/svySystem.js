@@ -128,7 +128,7 @@ function getSolutionDeepLinkSmartClient(solutionName, methodName, args){
 			var values = args[name];
 			params.push(name +'=' + values.join('|'));
 		}
-	}
+	}	
 	var link = application.getServerURL() + '/servoy-client/' + solutionName + '.jnlp';
 	if(params.length){
 		link += '?' + params.join('&');
@@ -165,6 +165,51 @@ function getSolutionDeepLinkWebClient(solutionName, methodName, args){
 	}
 	return link;
 }
+
+/**
+ * Sets the value for the defined user property. Setting is persistent. Persistence is implementation-specific
+ * @param {String} name
+ * @param {String} value
+ *
+ * @properties={typeid:24,uuid:"11429A0F-77E8-42D0-91CD-7DFC2E81EB5A"}
+ */
+function setUserProperty(name, value){
+	getUserPropertyPersistanceImpl().setUserProperty(name,value);
+}
+
+/**
+ * Gets the value for the defined user property
+ *  
+ * @param {String} name
+ * @return {String}
+ * @properties={typeid:24,uuid:"5590FDC7-1E21-4D35-9EEE-DC34A63F78D4"}
+ */
+function getUserProperty(name){
+	return getUserPropertyPersistanceImpl().getUserProperty(name);
+}
+
+/**
+ * Gets the service provider implementation for the user property persistence mechanism
+ * TODO: This returns only the FIRST subform which is registered and so assumes only ONE custom impl is registered. Can this be improved with some kind of hints?
+ * 
+ * @private 
+ * @return {RuntimeForm<defaultUserPropertyPersistanceImpl>}
+ * @properties={typeid:24,uuid:"48047CB6-B07F-466C-85B9-77317B651EB8"}
+ */
+function getUserPropertyPersistanceImpl(){
+	var impl = 'defaultUserPropertyPersistanceImpl';
+	var implementations = scopes.svyUI.getJSFormInstances(solutionModel.getForm(impl));
+	if(implementations.length){
+		if(implementations.length > 1){
+			application.output('User Property Persistence SPI: More than one service providers for User Property Persistence. Using first implementation encountered',LOGGINGLEVEL.WARNING);
+		}
+		impl = implementations[0].name;
+	}
+	/** @type {RuntimeForm<defaultUserPropertyPersistanceImpl>} */
+	var form = forms[impl];
+	persistFormInMemory(form);
+	return form;
+}
 /**
  * Used by persistFormInMemory()/desistFormInMemory() to store references to forms so they are not automatically unloaded
  * @private 
@@ -198,3 +243,5 @@ function desistFormInMemory(form) {
 		persistentForms.splice(idx, 1)
 	}
 }
+
+
