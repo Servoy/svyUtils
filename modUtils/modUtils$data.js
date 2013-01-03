@@ -23,6 +23,31 @@ function pivotJSDataSet(dataset) {
 }
 
 /**
+ * Returns a new JSDataSet comprised of the two specified JSDataSets. Any columns addition has more than main are NOt copied over.
+ *
+ * @param {JSDataSet} main
+ * @param {JSDataSet} addition
+ * @return {JSDataSet} New JSDataSet containing all rowns from main joined with all rows from addition.
+ *
+ * @properties={typeid:24,uuid:"72E868A3-A03C-417C-BBC8-2980A55E5116"}
+ */
+function concatenateJSDataSets(main, addition) {
+	if (!(main instanceof JSDataSet && addition instanceof JSDataSet)) {
+		throw new scopes.modUtils$exceptions.IllegalArgumentException()
+	}
+
+	var newDS = databaseManager.createEmptyDataSet(0, main.getRowAsArray(-1) /*The row containing the ColumnNames*/) //TODO test
+	for (var i = 1; i <= main.getMaxRowIndex(); i++) {
+		newDS.addRow(main.getRowAsArray(i))
+	}
+	
+	for (i = 1; i <= addition.getMaxRowIndex(); i++) {
+		newDS.addRow(addition.getRowAsArray(i).slice(0,main.getMaxColumnIndex()))
+	}
+	return newDS
+}
+
+/**
  * Gets a JSRecord with the specified PK from the specified datasource. 
  * 
  * @param {String} datasource
@@ -35,7 +60,6 @@ function pivotJSDataSet(dataset) {
 function getRecord(datasource, pks) {
 	if (!pks || !datasource) return null
 	
-	/** @type {JSFoundSet} */
 	var fs = databaseManager.getFoundSet(datasource)
 
 //	according to Rob Servoy will do the convert if the UUID flag is set on the column
