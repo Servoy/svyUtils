@@ -8,7 +8,7 @@
  * @param {Object} oldValue
  * @param {Object} newValue
  * @return {Object} addedItem
- * @properties={typeid:24,uuid:"42F033EE-939F-4E4B-BFE8-02DF8B31B677"}
+ * @properties={typeid:24,uuid:"54636DFE-0DEE-42B9-BF37-47F3C2649876"}
  */
 function getCheckBoxValueListItemAdded(oldValue,newValue){
 	var oldItems = (oldValue) ? oldValue.toString().split('\n') : [];
@@ -27,7 +27,7 @@ function getCheckBoxValueListItemAdded(oldValue,newValue){
  * @param {Object} oldValue
  * @param {Object} newValue
  * @return {Object} addedItem
- * @properties={typeid:24,uuid:"F9B3D03A-1738-4B88-B7D8-F925504A7453"}
+ * @properties={typeid:24,uuid:"51C03A03-A22A-489A-B5E0-024D88BD52BE"}
  */
 function getCheckBoxValueListItemRemoved(oldValue,newValue){
 	var oldItems = (oldValue) ? oldValue.toString().split('\n') : [];
@@ -47,7 +47,7 @@ function getCheckBoxValueListItemRemoved(oldValue,newValue){
  * @param {JSForm|String} form
  * @return {Array<JSForm>} super forms first, given form included as last entry in the returned Array)
  *
- * @properties={typeid:24,uuid:"AEC3ABF7-8DA5-4367-8124-5DDC477D11C2"}
+ * @properties={typeid:24,uuid:"4E77988E-55A6-45FD-8D96-1DD5BAACFEEE"}
  */
 function getJSFormHierarchy(form) {
 	/** @type {Array<JSForm>} */
@@ -66,7 +66,7 @@ function getJSFormHierarchy(form) {
  *
  * @return {Array<JSForm>}
  *
- * @properties={typeid:24,uuid:"9C224492-54F0-49FB-8569-6276EE4F604A"}
+ * @properties={typeid:24,uuid:"38527628-D0D4-4EEE-9EF0-87D65AAEF013"}
  */
 function getJSFormInstances(superForm) {
 	/**@type {Array<JSForm>}*/
@@ -103,7 +103,7 @@ function getJSFormInstances(superForm) {
 
 /**
  * @param {JSForm|String} form
- * @properties={typeid:24,uuid:"46688892-4A91-4364-8FBE-E39F4FEAEB64"}
+ * @properties={typeid:24,uuid:"4EC9D579-FAD3-4C56-8F34-2891379AF31E"}
  */
 function getJSFormHeight(form) {
 	/** @type {JSForm} */
@@ -118,7 +118,7 @@ function getJSFormHeight(form) {
  * 
  * @see Also see {@link #plugins#window#setToolBarAreaVisible()}: hides/shows the entire toolbar area
  *
- * @properties={typeid:24,uuid:"52775802-43B7-423D-95CB-6EBE9719EC41"}
+ * @properties={typeid:24,uuid:"BF888281-F9E0-4907-89FD-ECAAA037C4CB"}
  */
 function setAllToolbarsVisibility(state) {
 	plugins.window.getToolbarNames().forEach(function(value){
@@ -131,7 +131,7 @@ function setAllToolbarsVisibility(state) {
  * 
  * @return {String} Returns the current parent form of a form or null when the form is not showing
  *
- * @properties={typeid:24,uuid:"C7294BCC-5F06-49EB-967A-191B8F604153"}
+ * @properties={typeid:24,uuid:"13529874-DBDA-4655-B6CB-8DAF94DC6CDE"}
  */
 function getParentFormName(form) {
 	var ctx = form.controller.getFormContext()
@@ -149,7 +149,7 @@ function getParentFormName(form) {
  * 
  * @return {JSForm} The clone
  * 
- * @properties={typeid:24,uuid:"1B86199D-6CBF-418A-AB58-4FFAE0B9FDD4"}
+ * @properties={typeid:24,uuid:"0B4DE5CF-0B58-44F2-B344-3E3B656E549D"}
  */
 function deepCopyJSForm(newFormName, original, prefix) {
 	var clone = solutionModel.cloneForm(newFormName, original)
@@ -198,7 +198,7 @@ function deepCopyJSForm(newFormName, original, prefix) {
  * @param {Boolean} continuousLayout
  * @param {String} [bgColor] If omitted, the SplitPane will be made transparent
  *
- * @properties={typeid:24,uuid:"D9B6E37A-2129-475B-9410-3B99E72F3712"}
+ * @properties={typeid:24,uuid:"B94825F2-EB16-49FD-BEBB-AA9A10EF65C1"}
  */
 function initSplitPane(formName, elementName, resizeWeight, dividerLocation, dividerSize, continuousLayout, bgColor) {
 	/** @type {RuntimeSplitPane} */
@@ -223,7 +223,7 @@ function initSplitPane(formName, elementName, resizeWeight, dividerLocation, div
  * @param {String} formName
  * @param {String} elementName
  *
- * @properties={typeid:24,uuid:"0D95C059-BEB4-4537-A06B-7711D74F7B92"}
+ * @properties={typeid:24,uuid:"F335B47A-2FFC-4A39-BE4F-19B31C5108B6"}
  */
 function persistSplitPaneDividerPosition(formName, elementName) {
 	if (!formName || !elementName) {
@@ -231,7 +231,7 @@ function persistSplitPaneDividerPosition(formName, elementName) {
 		return;
 	}
 	var pos = forms[formName].elements[elementName].dividerLocation;
-	scopes.svySystem.setUserProperty(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc', pos)
+	scopes.modUtils$system.setUserProperty(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc', pos)
 }
 
 /**
@@ -240,13 +240,13 @@ function persistSplitPaneDividerPosition(formName, elementName) {
  * @param {String} elementName
  * @param {Number} position
  *
- * @properties={typeid:24,uuid:"1F58D03C-498B-4370-AF83-7DFEBAA025E7"}
+ * @properties={typeid:24,uuid:"04FC34AA-629F-43BC-9C1E-6A7ED9735DA8"}
  */
 function restoreSplitPaneDividerPosition(formName, elementName, position) {
 	if (!formName || !elementName) {
 		application.output('svy_utl_setSplitTabDividerPosition called without mandatory params', LOGGINGLEVEL.ERROR);
 		return;
 	}
-	var pos = scopes.svySystem.getUserProperty(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc');
+	var pos = scopes.modUtils$system.getUserProperty(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc');
 	forms[formName].elements[elementName]['dividerLocation'] = pos|position;
 }

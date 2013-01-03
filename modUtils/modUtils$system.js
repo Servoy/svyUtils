@@ -3,21 +3,21 @@
  */
 
 /**
- * @properties={typeid:24,uuid:"3F795733-507C-479E-8F8B-986347223050"}
+ * @properties={typeid:24,uuid:"CA076FBF-D0BE-4C43-8264-0A9B87D52CC0"}
  */
 function isWebClient() {
 	return application.getApplicationType() == APPLICATION_TYPES.WEB_CLIENT
 }
 
 /**
- * @properties={typeid:24,uuid:"38954B44-9139-44ED-BD26-E0D56457199D"}
+ * @properties={typeid:24,uuid:"F7529082-605B-4ADC-A010-84936034B364"}
  */
 function isSmartClient() {
 	return application.getApplicationType() == APPLICATION_TYPES.SMART_CLIENT
 }
 
 /**
- * @properties={typeid:24,uuid:"109575EA-F6B4-4798-AF4B-E3067E59E166"}
+ * @properties={typeid:24,uuid:"B37DF176-F87D-49EF-8558-BD6D993C1A8F"}
  */
 function isRuntimeClient() {
 	return application.getApplicationType() == APPLICATION_TYPES.RUNTIME_CLIENT
@@ -25,7 +25,7 @@ function isRuntimeClient() {
 
 /**
  * Returns true if the client is either the Smart or Runtime Client
- * @properties={typeid:24,uuid:"C68E5945-465D-452D-9A75-CE78E891917F"}
+ * @properties={typeid:24,uuid:"C7915F79-3B6C-4F99-B898-D1287B6A7D36"}
  */
 function isSwingClient() {
 	return [APPLICATION_TYPES.SMART_CLIENT, APPLICATION_TYPES.RUNTIME_CLIENT].indexOf(application.getApplicationType()) 
@@ -40,21 +40,21 @@ function isSwingClient() {
 //}
 
 /**
- * @properties={typeid:24,uuid:"886FAEB2-6882-4D24-860B-F3804A98986E"}
+ * @properties={typeid:24,uuid:"D7B84F92-ACFB-48F0-9880-30111887DA75"}
  */
 function isWindowsPlatform() {
 	return /Windows/.test(application.getOSName())
 }
 
 /**
- * @properties={typeid:24,uuid:"3856C8FE-CEA6-4DD3-99F5-02D253DCB5DC"}
+ * @properties={typeid:24,uuid:"9AFA3C4F-A513-4F5E-A3F7-FD3B370D07F4"}
  */
 function isOSXPlatform() {
 	return /Mac/.test(application.getOSName())
 }
 
 /**
- * @properties={typeid:24,uuid:"BB1D7D24-32C6-4CFF-BAF9-0E682FAA751C"}
+ * @properties={typeid:24,uuid:"2C7CEF33-6B1A-427D-8DD2-3E98F3926014"}
  */
 function isLinuxPlatform() {
 	return /FreeBSD|Linux/.test(application.getOSName())
@@ -63,7 +63,7 @@ function isLinuxPlatform() {
 
 /**
  * Tests if the User Agent indicates an iPhone, iPad or iPod device (in Servoy Web Client)
- * @properties={typeid:24,uuid:"1CADF998-D886-4DE1-B43D-FAB7A7A14AFB"}
+ * @properties={typeid:24,uuid:"00D7B1A3-72BF-4A1A-9994-133C8545DBCC"}
  */
 function isIOSPlatform() {
 	if([APPLICATION_TYPES.WEB_CLIENT].indexOf(application.getApplicationType()) == -1) {
@@ -77,7 +77,7 @@ function isIOSPlatform() {
 
 /**
  * Tests if the User Agent indicates an Android device (in Servoy Web Client)
- * @properties={typeid:24,uuid:"95486154-ADC9-49E7-B9EB-12E1B14347FF"}
+ * @properties={typeid:24,uuid:"A3AEA4D4-DA10-4C6B-AC27-35E706C4ED75"}
  */
 function isAndroidPlatform() {
 	if([APPLICATION_TYPES.WEB_CLIENT].indexOf(application.getApplicationType()) == -1) {
@@ -92,7 +92,7 @@ function isAndroidPlatform() {
 
 /**
  * Tests if the User Agent indicates an Android or iOS device (in Servoy Web Client)
- * @properties={typeid:24,uuid:"B3F3DDE2-4582-4E01-A28D-97DD9AE6CEA8"}
+ * @properties={typeid:24,uuid:"3B743FE3-088D-4754-BEDD-1A8FD059121A"}
  */
 function isMobilePlatform() {
 	if([APPLICATION_TYPES.WEB_CLIENT].indexOf(application.getApplicationType()) == -1) {
@@ -112,7 +112,7 @@ function isMobilePlatform() {
  * @param {String} [methodName]
  * @param {Object} [args]
  * @return {String}
- * @properties={typeid:24,uuid:"1AA45C9D-2295-42A1-BDF8-E35C62C97CAD"}
+ * @properties={typeid:24,uuid:"4E7BDFBE-B409-4F3D-9D16-EE298EE58DA8"}
  */
 function getSolutionDeepLinkSmartClient(solutionName, methodName, args){
 	if(!solutionName){
@@ -142,7 +142,7 @@ function getSolutionDeepLinkSmartClient(solutionName, methodName, args){
  * @param {String} [methodName]
  * @param {Object} [args]
  * @return {String}
- * @properties={typeid:24,uuid:"4E33E145-C058-40E9-AD26-3D52F3C2E351"}
+ * @properties={typeid:24,uuid:"493977A5-FC79-4123-B73A-C64A224E166B"}
  */
 function getSolutionDeepLinkWebClient(solutionName, methodName, args){
 	if(!solutionName){
@@ -173,7 +173,7 @@ function getSolutionDeepLinkWebClient(solutionName, methodName, args){
  * @param {String} name
  * @param {String} value
  *
- * @properties={typeid:24,uuid:"11429A0F-77E8-42D0-91CD-7DFC2E81EB5A"}
+ * @properties={typeid:24,uuid:"F87CEA54-6C6D-4906-90B5-E909E0AD97B7"}
  */
 function setUserProperty(name, value){
 	getUserPropertyPersistanceImpl().setUserProperty(name,value);
@@ -184,7 +184,7 @@ function setUserProperty(name, value){
  *  
  * @param {String} name
  * @return {String}
- * @properties={typeid:24,uuid:"5590FDC7-1E21-4D35-9EEE-DC34A63F78D4"}
+ * @properties={typeid:24,uuid:"4FA111EE-21DC-4EB1-B2B4-AB17D8C191C1"}
  */
 function getUserProperty(name){
 	return getUserPropertyPersistanceImpl().getUserProperty(name);
@@ -196,11 +196,11 @@ function getUserProperty(name){
  * 
  * @private 
  * @return {RuntimeForm<defaultUserPropertyPersistanceImpl>}
- * @properties={typeid:24,uuid:"48047CB6-B07F-466C-85B9-77317B651EB8"}
+ * @properties={typeid:24,uuid:"1773B6BA-B1DF-41DA-BADC-5D8D65FE4C4E"}
  */
 function getUserPropertyPersistanceImpl(){
 	var impl = 'defaultUserPropertyPersistanceImpl';
-	var implementations = scopes.svyUI.getJSFormInstances(solutionModel.getForm(impl));
+	var implementations = scopes.modUtils$UI.getJSFormInstances(solutionModel.getForm(impl));
 	if(implementations.length){
 		if(implementations.length > 1){
 			application.output('User Property Persistence SPI: More than one service providers for User Property Persistence. Using first implementation encountered',LOGGINGLEVEL.WARNING);
@@ -215,7 +215,7 @@ function getUserPropertyPersistanceImpl(){
 /**
  * Used by persistFormInMemory()/desistFormInMemory() to store references to forms so they are not automatically unloaded
  * @private 
- * @properties={typeid:35,uuid:"F444A6BF-1B5F-4745-A287-202CDE6AB020",variableType:-4}
+ * @properties={typeid:35,uuid:"CB9D19C2-CD8D-4654-A193-95E83848E4AC",variableType:-4}
  */
 var persistentForms = []
 
@@ -224,7 +224,7 @@ var persistentForms = []
  * @param {RuntimeForm} form
  *
  * @see Also see {@link #desistFormInMemory()}
- * @properties={typeid:24,uuid:"DE32565B-093F-418F-8A91-446E6BD03ABE"}
+ * @properties={typeid:24,uuid:"119B971F-3D85-4EB6-AC32-5AF5511BA701"}
  */
 function persistFormInMemory(form) {
 	if (persistentForms.indexOf(form) == -1) {
@@ -237,7 +237,7 @@ function persistFormInMemory(form) {
  * @param {RuntimeForm} form
  * @see Also see {@link #persistFormInMemory(form)}
  *
- * @properties={typeid:24,uuid:"3FEB59D8-CD26-4184-93CC-77819ED03F33"}
+ * @properties={typeid:24,uuid:"D95CC74A-84B2-4B20-8F19-F56B8964E1E5"}
  */
 function desistFormInMemory(form) {
 	var idx = persistentForms.indexOf(form)

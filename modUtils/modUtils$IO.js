@@ -10,7 +10,7 @@
  * @properties={typeid:24,uuid:"95C45F79-F469-4542-BB8B-BE226010D8B1"}
  */
 function openFileWithDefaultViewer(file) {
-	if (!scopes.svySystem.isSwingClient()) {
+	if (!scopes.modUtils$system.isSwingClient()) {
 		throw new scopes.modUtils$exceptions.UnsupportedOperationException('Operation only supported in Smart or Runtime Client')
 	}
 	var osName = application.getOSName();
@@ -312,7 +312,7 @@ function getLineCountForFile(file) {
  */
 function isFileOpen(file) {
 	var result;
-	if (scopes.svySystem.isWindowsPlatform()) {
+	if (scopes.modUtils$system.isWindowsPlatform()) {
 		if (!file.canWrite()) {
 			return true;
 		}

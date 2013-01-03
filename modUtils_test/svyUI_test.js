@@ -2,9 +2,9 @@
  * @properties={typeid:24,uuid:"0AEFCB90-5651-4A2D-B0F8-18E7C2F114E7"}
  */
 function test_getFormHeight() {
-	jsunit.assertEquals(50, scopes.svyUI.getJSFormHeight("test_svyUI$getFormParts_base_base"));
-	jsunit.assertEquals(90, scopes.svyUI.getJSFormHeight("test_svyUI$getFormParts_base"));
-	jsunit.assertEquals(120, scopes.svyUI.getJSFormHeight("test_svyUI$getFormParts"));
+	jsunit.assertEquals(50, scopes.modUtils$UI.getJSFormHeight("test_svyUI$getFormParts_base_base"));
+	jsunit.assertEquals(90, scopes.modUtils$UI.getJSFormHeight("test_svyUI$getFormParts_base"));
+	jsunit.assertEquals(120, scopes.modUtils$UI.getJSFormHeight("test_svyUI$getFormParts"));
 }
 
 /**
