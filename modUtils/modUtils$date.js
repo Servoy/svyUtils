@@ -76,16 +76,16 @@ function add(date, years, months, days, hours, minutes, seconds) {
  * @param {Number} amount
  * @param {Number} units
  * 
- * @throws {scopes.svyExceptions.IllegalArgumentException}
+ * @throws {scopes.modUtils$exceptions.IllegalArgumentException}
  * 
  * @author Sean
  *
  * @properties={typeid:24,uuid:"93BFF9E9-ADE6-4E9C-9B24-182D177A09D7"}
  */
 function addUnits(date, amount, units) {
-	if(!date) throw new scopes.svyExceptions.IllegalArgumentException('date cannot be null/undefined', null, null);
-	if(!amount) throw new scopes.svyExceptions.IllegalArgumentException('amount cannot be null/undefined', null, null);
-	if(!units) throw new scopes.svyExceptions.IllegalArgumentException('units cannot be null/undefined', null, null);
+	if(!date) throw new scopes.modUtils$exceptions.IllegalArgumentException('date cannot be null/undefined', null, null);
+	if(!amount) throw new scopes.modUtils$exceptions.IllegalArgumentException('amount cannot be null/undefined', null, null);
+	if(!units) throw new scopes.modUtils$exceptions.IllegalArgumentException('units cannot be null/undefined', null, null);
 	date = new Date(date.valueOf());
 	switch (units) {
 		case scopes.modUtils$date.UNITS.HOUR:
@@ -104,7 +104,7 @@ function addUnits(date, amount, units) {
 			date.setFullYear(date.getFullYear()+amount);
 			break;
 		default:
-			throw new scopes.svyExceptions.IllegalArgumentException('Unsupported value for units', null, null);
+			throw new scopes.modUtils$exceptions.IllegalArgumentException('Unsupported value for units', null, null);
 	}
 	return date;
 }
@@ -634,15 +634,15 @@ function DateTime(date) {
 	 * @param {Number} unit - one of scopes.modUtils$date.UNITS
 	 * @param {Number} amount
 	 * 
-	 * @throws {scopes.svyExceptions.IllegalArgumentException}
+	 * @throws {scopes.modUtils$exceptions.IllegalArgumentException}
 	 * 
 	 * @return {DateTime}
 	 */
 	this.addUnits = function(unit, amount) {
 		/** @type {DateTime} */
 		var _this = this;
-		if(!amount) throw new scopes.svyExceptions.IllegalArgumentException('amount cannot be null/undefined', null, null);
-		if(!unit) throw new scopes.svyExceptions.IllegalArgumentException('units cannot be null/undefined', null, null);
+		if(!amount) throw new scopes.modUtils$exceptions.IllegalArgumentException('amount cannot be null/undefined', null, null);
+		if(!unit) throw new scopes.modUtils$exceptions.IllegalArgumentException('units cannot be null/undefined', null, null);
 		switch (unit) {
 			case scopes.modUtils$date.UNITS.HOUR:
 				date.setHours(_this.date.getHours() + amount);
@@ -660,7 +660,7 @@ function DateTime(date) {
 				date.setFullYear(_this.date.getFullYear() + amount);
 				break;
 			default:
-				throw new scopes.svyExceptions.IllegalArgumentException('Unsupported value for units', null, null);
+				throw new scopes.modUtils$exceptions.IllegalArgumentException('Unsupported value for units', null, null);
 		}
 		return this;
 	}
@@ -884,7 +884,7 @@ function DateTime(date) {
  */
 function isValueTimeUnit(value){
 	if(!value){
-		throw new scopes.svyExceptions.IllegalArgumentException('Value is required');
+		throw new scopes.modUtils$exceptions.IllegalArgumentException('Value is required');
 	}
 	var values = [
 		UNITS.HOUR,

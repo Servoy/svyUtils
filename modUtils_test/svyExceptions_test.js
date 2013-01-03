@@ -5,15 +5,15 @@ function testExceptionHierarchy() {
 	//for the used technique here, see: http://stackoverflow.com/questions/4152931/javascript-inheritance-call-super-constructor-or-use-prototype-chain
 	
 	function TestException(message) {
-		scopes.svyExceptions.SvyException.call(this, message);
+		scopes.modUtils$exceptions.SvyException.call(this, message);
 	}
 
-	TestException.prototype = new scopes.svyExceptions.SvyException();
+	TestException.prototype = new scopes.modUtils$exceptions.SvyException();
 
 	var x = new TestException('testing')
 	
 	jsunit.assertTrue(x instanceof TestException)
-	jsunit.assertTrue(x instanceof scopes.svyExceptions.SvyException)
+	jsunit.assertTrue(x instanceof scopes.modUtils$exceptions.SvyException)
 	
 	
 	jsunit.assertEquals('testing',x.message)

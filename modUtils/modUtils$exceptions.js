@@ -15,7 +15,7 @@
  * 
  * @constructor 
  *
- * @properties={typeid:24,uuid:"B5C94D85-CC71-44A2-B728-99252273A4FF"}
+ * @properties={typeid:24,uuid:"8D4DBBD3-4162-4F23-A61E-5875936E8AAB"}
  */
 function SvyException(errorMessage, i18nKey, i18nArguments) {
 	
@@ -73,7 +73,7 @@ function SvyException(errorMessage, i18nKey, i18nArguments) {
  * 
  * @constructor 
  * 
- * @properties={typeid:24,uuid:"B22507E5-510C-4365-B71D-4376200D8FC7"}
+ * @properties={typeid:24,uuid:"3FB6A57B-817A-412F-ABCF-5B35057E27EB"}
  */
 function NoRecordException() {
 	
@@ -84,7 +84,7 @@ function NoRecordException() {
  * 
  * @constructor
  * 
- * @properties={typeid:24,uuid:"001EBC86-83A1-4E96-A77D-81317C07F503"}
+ * @properties={typeid:24,uuid:"99684648-AB5F-404D-918D-A45FC36270BD"}
  */
 function NoRelatedRecordException() {
 	
@@ -97,12 +97,12 @@ function NoRelatedRecordException() {
  * 
  * @constructor 
  * 
- * @properties={typeid:24,uuid:"08D88894-91B8-4A02-9230-3F57D8A43123"}
+ * @properties={typeid:24,uuid:"73C704EB-7D7D-4B4B-AD05-88068C478184"}
  */
 function SendMailException(lastSendMailExceptionMessage)
 {
 	if (lastSendMailExceptionMessage) {
-		scopes.svyExceptions.SvyException.call(this, lastSendMailExceptionMessage);
+		scopes.modUtils$exceptions.SvyException.call(this, lastSendMailExceptionMessage);
 	}
 }
 
@@ -113,7 +113,7 @@ function SendMailException(lastSendMailExceptionMessage)
  * 
  * @constructor 
  *
- * @properties={typeid:24,uuid:"294FA011-F0BA-4AAA-A2EB-D25492367723"}
+ * @properties={typeid:24,uuid:"F452FF14-FB87-4A1B-936D-EBC9DD13D61E"}
  */
 function FileNotFoundException(file) {
 	
@@ -136,10 +136,10 @@ function FileNotFoundException(file) {
  *
  * @author Sean
  *
- * @properties={typeid:24,uuid:"CA8E2117-F6BF-45EB-8A87-4F48ABA1C4EA"}
+ * @properties={typeid:24,uuid:"8E3EBB8D-1397-4444-8E0C-3F9D3E036CC7"}
  */
 function IllegalArgumentException(errorMessage, i18nKey, i18nArguments) {
-	scopes.svyExceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+	scopes.modUtils$exceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
 }
 
 /**
@@ -151,10 +151,10 @@ function IllegalArgumentException(errorMessage, i18nKey, i18nArguments) {
  * 
  * @constructor 
  * 
- * @properties={typeid:24,uuid:"0A15039E-D104-4453-B461-3C2927DA66F4"}
+ * @properties={typeid:24,uuid:"4B19C306-E4D7-40F2-BE89-DF369F489094"}
  */
 function UnsupportedOperationException(errorMessage, i18nKey, i18nArguments){
-	scopes.svyExceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+	scopes.modUtils$exceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
 }
 
 /**
@@ -168,10 +168,10 @@ function UnsupportedOperationException(errorMessage, i18nKey, i18nArguments){
  * 
  * @author Sean
  * 
- * @properties={typeid:24,uuid:"9BD81D8F-A3FC-48BF-823A-E34D979DBCD9"}
+ * @properties={typeid:24,uuid:"04C9606C-70C0-4C03-854F-7BE2B09FF44C"}
  */
 function IllegalStateException(errorMessage, i18nKey, i18nArguments){
-	scopes.svyExceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+	scopes.modUtils$exceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
 }
 
 /**
@@ -186,7 +186,7 @@ function IllegalStateException(errorMessage, i18nKey, i18nArguments){
  * 
  * @author Sean
  * 
- * @properties={typeid:24,uuid:"A119ED1E-0AFB-4797-AD92-A54A3CC14EC5"}
+ * @properties={typeid:24,uuid:"F169D722-2B2F-41F5-87CF-EA7EF58ADD65"}
  */
 function NewRecordFailedException(errorMessage, i18nKey, i18nArguments, foundset) {
 	
@@ -197,7 +197,7 @@ function NewRecordFailedException(errorMessage, i18nKey, i18nArguments, foundset
 	 */
 	this.foundset = foundset;
 
-	scopes.svyExceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+	scopes.modUtils$exceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
 }
 
 /**
@@ -212,7 +212,7 @@ function NewRecordFailedException(errorMessage, i18nKey, i18nArguments, foundset
  * 
  * @author Sean
  * 
- * @properties={typeid:24,uuid:"64C7062A-FFB8-4933-8556-4D035387F003"}
+ * @properties={typeid:24,uuid:"530D13F3-440F-4059-B00A-96D3689C92EB"}
  */
 function FindModeFailedException(errorMessage, i18nKey, i18nArguments, foundset){
 	
@@ -222,7 +222,7 @@ function FindModeFailedException(errorMessage, i18nKey, i18nArguments, foundset)
 	 */
 	this.foundset = foundset;
 	
-	scopes.svyExceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+	scopes.modUtils$exceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
 }
 
 /**
@@ -237,7 +237,7 @@ function FindModeFailedException(errorMessage, i18nKey, i18nArguments, foundset)
  * 
  * @author Sean
  *
- * @properties={typeid:24,uuid:"561FDA43-B94A-4133-98B6-D98B50ACD0C9"}
+ * @properties={typeid:24,uuid:"4B09EF6B-D100-4BF1-B90B-00BD4D9F814B"}
  */
 function SaveDataFailedException(errorMessage, i18nKey, i18nArguments, foundsetOrRecord){
 	
@@ -247,7 +247,7 @@ function SaveDataFailedException(errorMessage, i18nKey, i18nArguments, foundsetO
 	 */
 	this.foundsetOrRecord = foundsetOrRecord;
 	
-	scopes.svyExceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+	scopes.modUtils$exceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
 }
 
 /**
@@ -262,7 +262,7 @@ function SaveDataFailedException(errorMessage, i18nKey, i18nArguments, foundsetO
  * 
  * @author Sean
  *
- * @properties={typeid:24,uuid:"BD31A2D1-C1FD-41C0-98F7-76F36BC8ED57"}
+ * @properties={typeid:24,uuid:"0325165D-2736-4BAE-BE13-F3FE685A98D1"}
  */
 function DeleteRecordFailedException(errorMessage, i18nKey, i18nArguments, foundsetOrRecord){
 	
@@ -272,7 +272,7 @@ function DeleteRecordFailedException(errorMessage, i18nKey, i18nArguments, found
 	 */
 	this.foundsetOrRecord = foundsetOrRecord;
 	
-	scopes.svyExceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+	scopes.modUtils$exceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
 }
 
 /**
@@ -288,7 +288,7 @@ function DeleteRecordFailedException(errorMessage, i18nKey, i18nArguments, found
  * @author patrick
  * @since 30.09.2012
  *
- * @properties={typeid:24,uuid:"A5938C9A-A680-4A21-9C58-30899C38DE47"}
+ * @properties={typeid:24,uuid:"B855809D-DE16-4398-B2C3-0D2324E33FE5"}
  */
 function ValueNotUniqueException(record, dataprovider, i18nKey, i18nArguments) {
 
@@ -304,7 +304,7 @@ function ValueNotUniqueException(record, dataprovider, i18nKey, i18nArguments) {
 	 */
 	this.dataprovider = dataprovider;
 	
-	scopes.svyExceptions.SvyException.call(this, "Value not unique for: " + dataprovider, i18nKey, i18nArguments);
+	scopes.modUtils$exceptions.SvyException.call(this, "Value not unique for: " + dataprovider, i18nKey, i18nArguments);
 	
 }
 
@@ -321,7 +321,7 @@ function ValueNotUniqueException(record, dataprovider, i18nKey, i18nArguments) {
  * 
  * @author Sean
  *
- * @properties={typeid:24,uuid:"F1C95D28-6967-4FAE-B319-6D1D732FF734"}
+ * @properties={typeid:24,uuid:"81CF0FE3-F3C4-4203-B934-6936C37BED65"}
  */
 function HTTPException(errorMessage, i18nKey, i18nArguments, httpCode, httpResponseBody) {
 
@@ -337,7 +337,7 @@ function HTTPException(errorMessage, i18nKey, i18nArguments, httpCode, httpRespo
 	 */
 	this.httpResponseBody = httpResponseBody;
 
-	scopes.svyExceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+	scopes.modUtils$exceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
 }
 
 /**
@@ -345,7 +345,7 @@ function HTTPException(errorMessage, i18nKey, i18nArguments, httpCode, httpRespo
  * 
  * @protected  
  * 
- * @properties={typeid:35,uuid:"2D41F2C6-1601-4A25-9AF1-F451EC371F3D",variableType:-4}
+ * @properties={typeid:35,uuid:"36364157-A05A-4806-B13E-DA08DD8C27D6",variableType:-4}
  */
 var init = function() {
 	NoRecordException.prototype = 				new SvyException("No record was given or the foundset is empty");

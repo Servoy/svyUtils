@@ -25,7 +25,7 @@ var MEDIA_URL_PREFIX = 'media:///'
  * @properties={typeid:24,uuid:"9287AC01-F11F-4949-BC4C-1C01F04D41D4"}
  */
 function checkOperationSupported() {
-	if (!scopes.svySystem.isWebClient()) throw new scopes.svyExceptions.UnsupportedOperationException('Only supported in Web Client')
+	if (!scopes.svySystem.isWebClient()) throw new scopes.modUtils$exceptions.UnsupportedOperationException('Only supported in Web Client')
 }
 
 /**

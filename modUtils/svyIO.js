@@ -11,7 +11,7 @@
  */
 function openFileWithDefaultViewer(file) {
 	if (!scopes.svySystem.isSwingClient()) {
-		throw new scopes.svyExceptions.UnsupportedOperationException('Operation only supported in Smart or Runtime Client')
+		throw new scopes.modUtils$exceptions.UnsupportedOperationException('Operation only supported in Smart or Runtime Client')
 	}
 	var osName = application.getOSName();
 	if (/Windows/.test(osName)) {

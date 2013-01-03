@@ -8,7 +8,7 @@
  * @param {String[]} [extraQueryColumns] - optional array of additional dataproviders that can be used in the unique query
  * @param {Object[]} [extraQueryValues] - optional array of additional values that can be used in the unique query
  * 
- * @throws {scopes.svyExceptions.IllegalArgumentException}
+ * @throws {scopes.modUtils$exceptions.IllegalArgumentException}
  * 
  * @author patrick
  * @since 2012-10-04
@@ -17,7 +17,7 @@
  */
 function isValueUnique(foundsetRecordOrDataSource, dataproviderName, value, extraQueryColumns, extraQueryValues) {
 	if (!foundsetRecordOrDataSource || !dataproviderName) {
-		throw new scopes.svyExceptions.IllegalArgumentException("no parameters provided to scopes.svyUtils.isValueUnique(foundsetOrRecord, dataproviderName, value)");
+		throw new scopes.modUtils$exceptions.IllegalArgumentException("no parameters provided to scopes.svyUtils.isValueUnique(foundsetOrRecord, dataproviderName, value)");
 	}
 	var dataSource = (foundsetRecordOrDataSource instanceof String) ? foundsetRecordOrDataSource : foundsetRecordOrDataSource.getDataSource();
 	var pkNames = databaseManager.getTable(dataSource).getRowIdentifierColumnNames();

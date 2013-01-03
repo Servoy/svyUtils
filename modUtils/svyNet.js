@@ -36,7 +36,7 @@ var RFC_1918_RANGES = /(^127\.0\.0\.1)|(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)
  */
 function isInternalIPAddress(ipAddress){
 	if(!ipAddress){
-		throw new scopes.svyExceptions.IllegalArgumentException('IP Address is required');
+		throw new scopes.modUtils$exceptions.IllegalArgumentException('IP Address is required');
 	}
 	return RFC_1918_RANGES.test(ipAddress);
 }
@@ -52,7 +52,7 @@ function isInternalIPAddress(ipAddress){
  */
 function getIPVersion(ipAddress){
 	if(!ipAddress){
-		throw new scopes.svyExceptions.IllegalArgumentException('IP Address is required');
+		throw new scopes.modUtils$exceptions.IllegalArgumentException('IP Address is required');
 	}
 	var iNetAddress = java.net.InetAddress.getByName(ipAddress);
 	if(iNetAddress instanceof java.net.Inet6Address){
