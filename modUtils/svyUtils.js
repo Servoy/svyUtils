@@ -17,7 +17,7 @@
  */
 function isValueUnique(foundsetRecordOrDataSource, dataproviderName, value, extraQueryColumns, extraQueryValues) {
 	if (!foundsetRecordOrDataSource || !dataproviderName) {
-		throw new scopes.modUtils$exceptions.IllegalArgumentException("no parameters provided to scopes.svyUtils.isValueUnique(foundsetOrRecord, dataproviderName, value)");
+		throw new scopes.modUtils$exceptions.IllegalArgumentException("no parameters provided to scopes.modUtils.isValueUnique(foundsetOrRecord, dataproviderName, value)");
 	}
 	var dataSource = (foundsetRecordOrDataSource instanceof String) ? foundsetRecordOrDataSource : foundsetRecordOrDataSource.getDataSource();
 	var pkNames = databaseManager.getTable(dataSource).getRowIdentifierColumnNames();
