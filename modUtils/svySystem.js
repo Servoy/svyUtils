@@ -156,7 +156,9 @@ function getSolutionDeepLinkWebClient(solutionName, methodName, args){
 		for(name in args){
 			/** @type {Array<String>} */
 			var values = args[name];
-			params.push(name +'/' + values.join('|'));
+			for(j in values){
+				params.push(name +'/' + values[j]);
+			}
 		}
 	}
 	var link = application.getServerURL() + '/servoy-webclient/ss/s/' + solutionName;
