@@ -89,11 +89,11 @@ function isHostAccessible(hostname, timeout) {
 		// If the timeout occurs, SocketTimeoutException is thrown.
 		socket.connect(sockaddr, timeOut);
 		reachable = true;
-	} catch (e if e.javaException instanceof java.net.UnknownHostException) {
+	} catch (e if e['javaException'] instanceof java.net.UnknownHostException) {
 		application.output('Host "' + hostname + '" cannot be reached, might not exist', LOGGINGLEVEL.DEBUG)
-	} catch (e if e.javaException instanceof java.net.SocketTimeoutException) {
+	} catch (e if e['javaException'] instanceof java.net.SocketTimeoutException) {
 		application.output('Timeout checking host "' + hostname + '"', LOGGINGLEVEL.DEBUG)
-	} catch (e if e.javaException instanceof java.io.IOException) {
+	} catch (e if e['javaException'] instanceof java.io.IOException) {
 		application.output('Network issue checking host "' + hostname + '"', LOGGINGLEVEL.DEBUG)
 	} catch (e) {
 		application.output(e)
