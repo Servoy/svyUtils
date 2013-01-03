@@ -191,27 +191,36 @@ function getUserProperty(name){
 }
 
 /**
+ * Cached form for default user properties persistence implementation
+ * @private 
+ * @type {RuntimeForm<defaultUserPropertyPersistenceImpl>}
+ * @properties={typeid:35,uuid:"0CAD5724-7CE4-49EA-8B42-783BCB68FA5F",variableType:-4}
+ */
+var userPropPersistenceImpl;
+
+/**
  * Gets the service provider implementation for the user property persistence mechanism
  * TODO: This returns only the FIRST subform which is registered and so assumes only ONE custom impl is registered. Can this be improved with some kind of hints?
- * TODO: this impl also doesn't cache the custom impl, which requires a impl. lookup for each get/setUserProperty, which can cause too much overhead
  * 
  * @private 
  * @return {RuntimeForm<defaultUserPropertyPersistenceImpl>}
  * @properties={typeid:24,uuid:"1773B6BA-B1DF-41DA-BADC-5D8D65FE4C4E"}
  */
 function getUserPropertyPersistenceImpl(){
-	var impl = 'defaultUserPropertyPersistenceImpl';
-	var implementations = scopes.modUtils$UI.getJSFormInstances(solutionModel.getForm(impl));
-	if(implementations.length){
-		if(implementations.length > 1){
-			application.output('User Property Persistence SPI: More than one service providers for User Property Persistence. Using first implementation encountered',LOGGINGLEVEL.WARNING);
+	if(!userPropPersistenceImpl){
+		var impl = 'defaultUserPropertyPersistenceImpl';
+		var implementations = scopes.modUtils$UI.getJSFormInstances(solutionModel.getForm(impl));
+		if(implementations.length){
+			if(implementations.length > 1){
+				application.output('User Property Persistence SPI: More than one service providers for User Property Persistence. Using first implementation encountered',LOGGINGLEVEL.WARNING);
+			}
+			impl = implementations[0].name;
 		}
-		impl = implementations[0].name;
+		/** @type {RuntimeForm<defaultUserPropertyPersistenceImpl>} */
+		userPropPersistenceImpl = forms[impl];
+		persistFormInMemory(userPropPersistenceImpl);
 	}
-	/** @type {RuntimeForm<defaultUserPropertyPersistenceImpl>} */
-	var form = forms[impl];
-	persistFormInMemory(form);
-	return form;
+	return userPropPersistenceImpl;
 }
 /**
  * Used by persistFormInMemory()/desistFormInMemory() to store references to forms so they are not automatically unloaded
