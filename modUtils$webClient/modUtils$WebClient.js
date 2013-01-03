@@ -22,6 +22,7 @@
 var MEDIA_URL_PREFIX = 'media:///'
 
 /**
+ * @private
  * @properties={typeid:24,uuid:"9287AC01-F11F-4949-BC4C-1C01F04D41D4"}
  */
 function checkOperationSupported() {
