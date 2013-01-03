@@ -13,7 +13,7 @@
  * @author patrick
  * @since 2012-10-04
  *
- * @properties={typeid:24,uuid:"FDA0FED5-7A26-46BF-B090-8626CA0C665A"}
+ * @properties={typeid:24,uuid:"460E5007-852E-4143-82FD-6840DA430FC0"}
  */
 function isValueUnique(foundsetRecordOrDataSource, dataproviderName, value, extraQueryColumns, extraQueryValues) {
 	if (!foundsetRecordOrDataSource || !dataproviderName) {
@@ -60,7 +60,7 @@ function isValueUnique(foundsetRecordOrDataSource, dataproviderName, value, extr
  * @author patrick
  * @since 2012-10-04
  *
- * @properties={typeid:24,uuid:"1EF0D951-510C-4411-BD58-68E8515728AE"}
+ * @properties={typeid:24,uuid:"7B878A8A-B3D1-4DB7-A135-59B7AFCAF05D"}
  */
 function objectHasValue(object, value) {
 	for (var i in object) {
@@ -82,7 +82,7 @@ function objectHasValue(object, value) {
  * @author patrick
  * @since 2012-10-05
  * 
- * @properties={typeid:24,uuid:"43B8A885-F8BA-46A8-BE47-EF0F0C2E5DDC"}
+ * @properties={typeid:24,uuid:"174F183B-F6C3-4124-A180-94AEEC265BD0"}
  */
 function getTextWidth(font, text) {
 	var fontParts = font.split(",");
@@ -105,7 +105,7 @@ function getTextWidth(font, text) {
  * @author patrick
  * @since 2012-10-05
  * 
- * @properties={typeid:24,uuid:"9CA1941E-51B9-41E8-807A-98BD277051D8"}
+ * @properties={typeid:24,uuid:"33D8A370-DE70-4325-A26B-2EF82207FB09"}
  */
 function getTextHeight(font) {
 	if (!font) {
@@ -128,7 +128,7 @@ function getTextHeight(font) {
  * @author patrick
  * @since 2012-10-05
  *
- * @properties={typeid:24,uuid:"77CDFED0-AB73-4663-A4E3-464917CFF0DE"}
+ * @properties={typeid:24,uuid:"F141DEA3-EC3D-4CF0-A91A-94E6CC182BF1"}
  */
 function StyleParser(styleName) {
 	
@@ -270,7 +270,7 @@ function StyleParser(styleName) {
  * @author patrick
  * @since 2012-10-15
  *
- * @properties={typeid:24,uuid:"512CAE03-E646-4191-A2E5-58620598B2BE"}
+ * @properties={typeid:24,uuid:"0ED064BB-72AF-42A9-BD3A-4E85F278C364"}
  */
 function replaceTagsInWordProcessingDocument(document, record) {
 
@@ -336,7 +336,7 @@ function replaceTagsInWordProcessingDocument(document, record) {
  * @author patrick
  * @date 25.10.2012
  *
- * @properties={typeid:24,uuid:"0786C8EC-B388-485E-8017-2B45A68047A8"}
+ * @properties={typeid:24,uuid:"05C86822-ED67-480C-8269-A29A9536A7C8"}
  */
 function jsonConvertFromObject(displayedValue, dbType) {
 	if (displayedValue instanceof Array) {
@@ -361,7 +361,7 @@ function jsonConvertFromObject(displayedValue, dbType) {
  * @author patrick
  * @since 25.10.2012
  *
- * @properties={typeid:24,uuid:"4842EB94-BB21-4F75-A069-4F42898A0014"}
+ * @properties={typeid:24,uuid:"426197D9-5989-477C-82C8-25A4319907AC"}
  */
 function jsonConvertToObject(databaseValue, dbType) {
 	if (databaseValue == null) return null;
