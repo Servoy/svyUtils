@@ -1,5 +1,5 @@
 encapsulation:60,
-name:"defaultUserPropertyPersistanceImpl",
+name:"defaultUserPropertyPersistenceImpl",
 navigatorID:"-1",
 showInMenu:true,
 styleName:"PlatformSampleImpl",

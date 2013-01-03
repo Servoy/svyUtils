@@ -176,7 +176,7 @@ function getSolutionDeepLinkWebClient(solutionName, methodName, args){
  * @properties={typeid:24,uuid:"F87CEA54-6C6D-4906-90B5-E909E0AD97B7"}
  */
 function setUserProperty(name, value){
-	getUserPropertyPersistanceImpl().setUserProperty(name,value);
+	getUserPropertyPersistenceImpl().setUserProperty(name,value);
 }
 
 /**
@@ -187,7 +187,7 @@ function setUserProperty(name, value){
  * @properties={typeid:24,uuid:"4FA111EE-21DC-4EB1-B2B4-AB17D8C191C1"}
  */
 function getUserProperty(name){
-	return getUserPropertyPersistanceImpl().getUserProperty(name);
+	return getUserPropertyPersistenceImpl().getUserProperty(name);
 }
 
 /**
@@ -195,11 +195,11 @@ function getUserProperty(name){
  * TODO: This returns only the FIRST subform which is registered and so assumes only ONE custom impl is registered. Can this be improved with some kind of hints?
  * 
  * @private 
- * @return {RuntimeForm<defaultUserPropertyPersistanceImpl>}
+ * @return {RuntimeForm<defaultUserPropertyPersistenceImpl>}
  * @properties={typeid:24,uuid:"1773B6BA-B1DF-41DA-BADC-5D8D65FE4C4E"}
  */
-function getUserPropertyPersistanceImpl(){
-	var impl = 'defaultUserPropertyPersistanceImpl';
+function getUserPropertyPersistenceImpl(){
+	var impl = 'defaultUserPropertyPersistenceImpl';
 	var implementations = scopes.modUtils$UI.getJSFormInstances(solutionModel.getForm(impl));
 	if(implementations.length){
 		if(implementations.length > 1){
@@ -207,7 +207,7 @@ function getUserPropertyPersistanceImpl(){
 		}
 		impl = implementations[0].name;
 	}
-	/** @type {RuntimeForm<defaultUserPropertyPersistanceImpl>} */
+	/** @type {RuntimeForm<defaultUserPropertyPersistenceImpl>} */
 	var form = forms[impl];
 	persistFormInMemory(form);
 	return form;
