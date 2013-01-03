@@ -5,7 +5,7 @@
  * @param {JSDataSet} dataset The dataset for which to create a pivoted datatset
  * @return {JSDataSet} a new JSDataSet containing a pivoted copy of the original JSDataSet
  *
- * @properties={typeid:24,uuid:"D532BF51-A347-4DF2-844C-B06CAEA70919"}
+ * @properties={typeid:24,uuid:"FBE240B1-512A-42ED-9B74-994CCBE82EE2"}
  */
 function pivotJSDataSet(dataset) {
 	//Generate column names for the pivoted dataset
@@ -30,7 +30,7 @@ function pivotJSDataSet(dataset) {
  *
  * @return {JSRecord} The requested record. Can be null if not found
  * 
- * @properties={typeid:24,uuid:"A08119C8-7762-49C1-8B00-F9E8E7A65913"}
+ * @properties={typeid:24,uuid:"BD700BE2-5455-4FEF-B155-D7A683B75A5E"}
  */
 function getRecord(datasource, pks) {
 	if (!pks || !datasource) return null
@@ -52,7 +52,7 @@ function getRecord(datasource, pks) {
  * @param {JSFoundSet} foundset
  * @return {Boolean} false when the foundset is empty
  *
- * @properties={typeid:24,uuid:"9A608220-70B3-4953-B9B0-1394ABBF8763"}
+ * @properties={typeid:24,uuid:"6C95A33B-9D08-4AD9-9AE5-27CF1F5AE44F"}
  */
 function selectFirstRecord(foundset) {
 	if (foundset) {
@@ -67,7 +67,7 @@ function selectFirstRecord(foundset) {
  * @param {JSFoundSet} foundset
  * @return {Boolean} false when there is no previous record
  *
- * @properties={typeid:24,uuid:"547E1B75-551C-4583-B976-3ECCF5FCDD67"}
+ * @properties={typeid:24,uuid:"87CFAD5C-8697-441E-86DD-DDD0DA53B24E"}
  */
 function selectPreviousRecord(foundset) {
 	if (foundset && foundset.getSelectedIndex() != 1) {
@@ -82,7 +82,7 @@ function selectPreviousRecord(foundset) {
  * @param {JSFoundSet} foundset
  * @return {Boolean} false when there is no next record
  *
- * @properties={typeid:24,uuid:"CEFC9684-3701-472E-9D3E-606E2984D8FC"}
+ * @properties={typeid:24,uuid:"9EF84149-DEB3-4AFB-B9D3-4F1F3324AD7E"}
  */
 function selectNextRecord(foundset) {
 	if (foundset) {
@@ -98,7 +98,7 @@ function selectNextRecord(foundset) {
  * @param {JSFoundSet} foundset
  * @return {Boolean} false when the foundset is empty
  *
- * @properties={typeid:24,uuid:"ED9BA429-2E44-445E-8229-1FB852E7DA09"}
+ * @properties={typeid:24,uuid:"B645601C-81E3-43A6-AC43-2E18D1019B01"}
  */
 function selectLastRecord(foundset) {
 	//TODO: test
