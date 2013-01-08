@@ -227,6 +227,18 @@ function addOnLoadScript(code, element) {
 }
 
 /**
+ * TODO docs
+ * @param {RuntimeComponent} element
+ *
+ * @properties={typeid:24,uuid:"C42BB2DB-ECAE-4DFE-BD61-FF1A13EE30EB"}
+ */
+function setRendered(element) {
+	if (element instanceof Packages.com.servoy.j2db.ui.IProviderStylePropertyChanges) {
+		element.getStylePropertyChanges().setRendered();
+	}
+}
+
+/**
  * Returns the value of the ID attribute of the element in the browser
  * @param {RuntimeComponent|RuntimeForm} element
  * @return {String}
