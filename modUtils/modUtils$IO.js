@@ -57,8 +57,8 @@ function unzip(fileToUnzip, targetFile) {
 	}
 	
 	try {
-		var zip = new java.util.zip.ZipFile(fileToUnzip.getAbsolutePath());
-		var zipEntries = zip.entries();
+		var zipFile = new java.util.zip.ZipFile(fileToUnzip.getAbsolutePath());
+		var zipEntries = zipFile.entries();
 		
 		while (zipEntries.hasMoreElements()) {
 			/** @type {java.util.zip.ZipEntry} */
@@ -70,13 +70,13 @@ function unzip(fileToUnzip, targetFile) {
 				zipDir.mkdirs();
 				continue;
 			} else {
-				var zipFile = plugins.file.convertToJSFile(targetFile.getAbsolutePath() + fileSeparator + zipEntryName);
-				if (!zipFile.getParentFile().exists()) {
-					zipFile.getParentFile().mkdirs();
+				var jsFile = plugins.file.convertToJSFile(targetFile.getAbsolutePath() + fileSeparator + zipEntryName);
+				if (!jsFile.getParentFile().exists()) {
+					jsFile.getParentFile().mkdirs();
 				}
-				var is = zip.getInputStream(zipEntry);
+				var is = zipFile.getInputStream(zipEntry);
 				/** @type {java.io.OutputStream} */
-				var fos = new java.io.FileOutputStream(zipFile.getAbsolutePath());
+				var fos = new java.io.FileOutputStream(jsFile.getAbsolutePath());
 				
 				/** @type {java.nio.channels.ReadableByteChannel} */
 				var inputChannel = java.nio.channels.Channels.newChannel(is);
