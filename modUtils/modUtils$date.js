@@ -101,19 +101,19 @@ function addUnits(date, amount, units) {
 	if(!units) throw new scopes.modUtils$exceptions.IllegalArgumentException('units cannot be null/undefined', null, null);
 	date = new Date(date.valueOf());
 	switch (units) {
-		case scopes.modUtils$date.UNITS.HOUR:
+		case UNITS.HOUR:
 			date.setHours(date.getHours() + amount);
 			break;
-		case scopes.modUtils$date.UNITS.DAY:
+		case UNITS.DAY:
 			date.setDate(date.getDate()+amount);
 			break;
-		case scopes.modUtils$date.UNITS.WEEK:
+		case UNITS.WEEK:
 			date.setDate(date.getDate()+(amount*7));
 			break;
-		case scopes.modUtils$date.UNITS.MONTH:
+		case UNITS.MONTH:
 			date.setMonth(date.getMonth()+amount);
 			break;
-		case scopes.modUtils$date.UNITS.YEAR:
+		case UNITS.YEAR:
 			date.setFullYear(date.getFullYear()+amount);
 			break;
 		default:
@@ -720,7 +720,7 @@ function DateTime(date) {
 	/**
 	 * Adds the given unit with the given amount to this date
 	 * 
-	 * @param {Number} unit - one of scopes.modUtils$date.UNITS
+	 * @param {Number} unit - one of {@link #UNITS}
 	 * @param {Number} amount
 	 * 
 	 * @throws {scopes.modUtils$exceptions.IllegalArgumentException}
@@ -733,19 +733,19 @@ function DateTime(date) {
 		if(!amount) throw new scopes.modUtils$exceptions.IllegalArgumentException('amount cannot be null/undefined', null, null);
 		if(!unit) throw new scopes.modUtils$exceptions.IllegalArgumentException('units cannot be null/undefined', null, null);
 		switch (unit) {
-			case scopes.modUtils$date.UNITS.HOUR:
+			case UNITS.HOUR:
 				date.setHours(_this.date.getHours() + amount);
 				break;
-			case scopes.modUtils$date.UNITS.DAY:
+			case UNITS.DAY:
 				date.setDate(_this.date.getDate() + amount);
 				break;
-			case scopes.modUtils$date.UNITS.WEEK:
+			case UNITS.WEEK:
 				date.setDate(_this.date.getDate() + (amount * 7));
 				break;
-			case scopes.modUtils$date.UNITS.MONTH:
+			case UNITS.MONTH:
 				date.setMonth(_this.date.getMonth() + amount);
 				break;
-			case scopes.modUtils$date.UNITS.YEAR:
+			case UNITS.YEAR:
 				date.setFullYear(_this.date.getFullYear() + amount);
 				break;
 			default:
