@@ -635,7 +635,7 @@ function DateTime(date) {
 	 * @param {Number} amount
 	 * 
 	 * @throws {scopes.modUtils$exceptions.IllegalArgumentException}
-	 * 
+	 * @this {DateTime}
 	 * @return {DateTime}
 	 */
 	this.addUnits = function(unit, amount) {
@@ -670,7 +670,7 @@ function DateTime(date) {
 	 * Negative number of days will be substracted
 	 *
 	 * @param {Number} days - number of days to add
-	 *
+	 * @this {DateTime}
 	 * @return {DateTime}
 	 */
 	this.addDays = function(days) {
@@ -683,7 +683,7 @@ function DateTime(date) {
 	 * Negative number of hours will be substracted
 	 *
 	 * @param {Number} hours - number of hours to add
-	 *
+	 * @this {DateTime}
 	 * @return {DateTime}
 	 */
 	this.addHours = function(hours) {
@@ -696,7 +696,7 @@ function DateTime(date) {
 	 * Negative number of minutes will be substracted
 	 *
 	 * @param {Number} minutes - number of minutes to add
-	 *
+	 * @this {DateTime}
 	 * @return {DateTime}
 	 */
 	this.addMinutes = function(minutes) {
@@ -709,7 +709,7 @@ function DateTime(date) {
 	 * Negative number of months will be substracted
 	 *
 	 * @param {Number} months - number of months to add
-	 *
+	 * @this {DateTime}
 	 * @return {DateTime}
 	 */
 	this.addMonths = function(months) {
@@ -722,7 +722,7 @@ function DateTime(date) {
 	 * Negative number of seconds will be substracted
 	 *
 	 * @param {Number} seconds - number of seconds to add
-	 *
+	 * @this {DateTime}
 	 * @return {DateTime}
 	 */
 	this.addSeconds = function(seconds) {
@@ -735,7 +735,7 @@ function DateTime(date) {
 	 * Negative number of weeks will be substracted
 	 *
 	 * @param {Number} weeks - number of weeks to add
-	 *
+	 * @this {DateTime}
 	 * @return {DateTime}
 	 */
 	this.addWeeks = function(weeks) {
@@ -748,7 +748,7 @@ function DateTime(date) {
 	 * Negative number of years will be substracted
 	 *
 	 * @param {Number} years - number of years to add
-	 *
+	 * @this {DateTime}
 	 * @return {DateTime}
 	 */
 	this.addYears = function(years) {
@@ -785,7 +785,7 @@ function DateTime(date) {
 	
 	/**
 	 * Sets the time of the given date to 00:00:00.000
-	 * 
+	 * @this {DateTime}
 	 * @return {DateTime}
 	 */
 	this.toStartOfDay = function() {
@@ -795,7 +795,7 @@ function DateTime(date) {
 	
 	/**
 	 * Sets the time of the given date to 23:59:59.999
-	 * 
+	 * @this {DateTime}
 	 * @return {DateTime}
 	 */
 	this.toEndOfDay = function() {
@@ -805,7 +805,7 @@ function DateTime(date) {
 	
 	/**
 	 * Sets this DateTime to the first day of the month
-	 * 
+	 * @this {DateTime}
 	 * @return {DateTime}
 	 *
 	 * @properties={typeid:24,uuid:"7C02ADA9-3E54-4D48-9A36-81D228CDD802"}
@@ -817,7 +817,7 @@ function DateTime(date) {
 	
 	/**
 	 * Sets this DateTime to the first day of the week
-	 * 
+	 * @this {DateTime}
 	 * @return {DateTime}
 	 *
 	 * @properties={typeid:24,uuid:"7C02ADA9-3E54-4D48-9A36-81D228CDD802"}
@@ -829,7 +829,7 @@ function DateTime(date) {
 	
 	/**
 	 * Sets this DateTime to the first day of the year
-	 * 
+	 * @this {DateTime}
 	 * @return {DateTime}
 	 *
 	 * @properties={typeid:24,uuid:"7C02ADA9-3E54-4D48-9A36-81D228CDD802"}
@@ -841,7 +841,7 @@ function DateTime(date) {
 	
 	/**
 	 * Sets this DateTime to the first day of the month
-	 * 
+	 * @this {DateTime}
 	 * @return {DateTime}
 	 *
 	 * @properties={typeid:24,uuid:"7C02ADA9-3E54-4D48-9A36-81D228CDD802"}
@@ -853,7 +853,7 @@ function DateTime(date) {
 	
 	/**
 	 * Sets this DateTime to the last day of the week
-	 * 
+	 * @this {DateTime}
 	 * @return {DateTime}
 	 *
 	 * @properties={typeid:24,uuid:"7C02ADA9-3E54-4D48-9A36-81D228CDD802"}
@@ -865,7 +865,7 @@ function DateTime(date) {
 	
 	/**
 	 * Sets this DateTime to the last day of the year
-	 * 
+	 * @this {DateTime}
 	 * @return {DateTime}
 	 *
 	 * @properties={typeid:24,uuid:"7C02ADA9-3E54-4D48-9A36-81D228CDD802"}
