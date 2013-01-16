@@ -45,8 +45,8 @@ function isInternalIPAddress(ipAddress){
  * Gets the IP version of a given IP Address. Easy to know if it's v6 or v4 
  * @param {String} ipAddress
  * @return {Number} version, on of the constants - IPv4, IPv6
- * @see scopes.modUtils$net.IPv4
- * @see scopes.modUtils$net.IPv6
+ * @see IPv4
+ * @see IPv6
  * @example if(scopes.modUtils$net.getIPVersion(myAddress) == scopes.modUtils$net.IPv6){application.output('Version 6');}
  * @properties={typeid:24,uuid:"0C61EBBD-B390-45E4-831B-F7E987407804"}
  */
