@@ -25,6 +25,19 @@ var UNITS = {
 };
 
 /**
+ * Date format styles used in getDateFormat
+ * @enum
+ * @final
+ * @properties={typeid:35,uuid:"CD475D68-BDAC-436D-B9BB-5D7D9D957F3B",variableType:-4}
+ */
+var DATE_FORMAT = {
+	SHORT: java.text.DateFormat.SHORT,
+	MEDIUM: java.text.DateFormat.MEDIUM,
+	LONG: java.text.DateFormat.LONG,
+	FULL: java.text.DateFormat.FULL
+}
+
+/**
  * Adds the value of the given field to the given date
  * 
  * @private 
@@ -306,6 +319,44 @@ function createDateTimeSearchString(start, end) {
 }
 
 /**
+ * Returns the date format for the default or the given locale using the given style (defaults to MEDIUM)
+ * 
+ * @param {DATE_FORMAT} [style]	- see DATE_FORMAT for possible styles
+ * @param {String} [locale]		- a locale String such as "en"
+ *
+ * @properties={typeid:24,uuid:"37934D5E-1015-422D-A489-84DC659D229F"}
+ */
+function getDateFormat(style, locale) {
+	/** @type {Number} */
+	var jStyle;
+	if (!style) {
+		jStyle = DATE_FORMAT.MEDIUM;
+	} else {
+		jStyle = style;
+	}
+	var jDateFormat;
+	/** @type {java.text.SimpleDateFormat} */
+	var jSimpleDateFormat;
+	if (locale) {
+		var jLocale = new java.util.Locale(locale);
+		jDateFormat = java.text.DateFormat.getDateInstance(jStyle, jLocale);
+		if (jDateFormat instanceof java.text.SimpleDateFormat) {
+			/** @type {java.text.SimpleDateFormat} */
+			jSimpleDateFormat = jDateFormat;
+			return jSimpleDateFormat.toPattern();
+		}
+	} else {
+		jDateFormat = java.text.DateFormat.getDateInstance(jStyle);
+		if (jDateFormat instanceof java.text.SimpleDateFormat) {
+			/** @type {java.text.SimpleDateFormat} */
+			jSimpleDateFormat = jDateFormat;
+			return jSimpleDateFormat.toPattern();
+		}
+	}
+	return null;
+}
+
+/**
  * Returns the number of full days between the two dates
  * 
  * @param {Date} start
@@ -420,6 +471,44 @@ function getShortWeekdayNames(locale) {
 		dfs = new java.text.DateFormatSymbols();
 	}
 	return dfs.getWeekdays();
+}
+
+/**
+ * Returns the date format for the default or the given locale using the given style (defaults to MEDIUM)
+ * 
+ * @param {DATE_FORMAT} [style]	- see DATE_FORMAT for possible styles
+ * @param {String} [locale]		- a locale String such as "en"
+ *
+ * @properties={typeid:24,uuid:"E6077E21-20FF-459F-B494-C76F0A061B4C"}
+ */
+function getTimeFormat(style, locale) {
+	/** @type {Number} */
+	var jStyle;
+	if (!style) {
+		jStyle = DATE_FORMAT.MEDIUM;
+	} else {
+		jStyle = style;
+	}
+	var jDateFormat;
+	/** @type {java.text.SimpleDateFormat} */
+	var jSimpleDateFormat;
+	if (locale) {
+		var jLocale = new java.util.Locale(locale);
+		jDateFormat = java.text.DateFormat.getTimeInstance(jStyle, jLocale);
+		if (jDateFormat instanceof java.text.SimpleDateFormat) {
+			/** @type {java.text.SimpleDateFormat} */
+			jSimpleDateFormat = jDateFormat;
+			return jSimpleDateFormat.toPattern();
+		}
+	} else {
+		jDateFormat = java.text.DateFormat.getTimeInstance(jStyle);
+		if (jDateFormat instanceof java.text.SimpleDateFormat) {
+			/** @type {java.text.SimpleDateFormat} */
+			jSimpleDateFormat = jDateFormat;
+			return jSimpleDateFormat.toPattern();
+		}
+	}
+	return null;
 }
 
 /**
