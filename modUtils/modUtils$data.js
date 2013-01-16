@@ -33,7 +33,7 @@ function pivotJSDataSet(dataset) {
  */
 function concatenateJSDataSets(main, addition) {
 	if (!(main instanceof JSDataSet && addition instanceof JSDataSet)) {
-		throw new scopes.modUtils$exceptions.IllegalArgumentException()
+		throw new scopes.modUtils$exceptions.IllegalArgumentException('Supplied arguments are not both instances of JSDataSet')
 	}
 
 	var newDS = databaseManager.createEmptyDataSet(0, main.getRowAsArray(-1) /*The row containing the ColumnNames*/) //TODO test

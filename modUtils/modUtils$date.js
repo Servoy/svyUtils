@@ -96,9 +96,9 @@ function add(date, years, months, days, hours, minutes, seconds) {
  * @properties={typeid:24,uuid:"93BFF9E9-ADE6-4E9C-9B24-182D177A09D7"}
  */
 function addUnits(date, amount, units) {
-	if(!date) throw new scopes.modUtils$exceptions.IllegalArgumentException('date cannot be null/undefined', null, null);
-	if(!amount) throw new scopes.modUtils$exceptions.IllegalArgumentException('amount cannot be null/undefined', null, null);
-	if(!units) throw new scopes.modUtils$exceptions.IllegalArgumentException('units cannot be null/undefined', null, null);
+	if(!date) throw new scopes.modUtils$exceptions.IllegalArgumentException('date cannot be null/undefined');
+	if(!amount) throw new scopes.modUtils$exceptions.IllegalArgumentException('amount cannot be null/undefined');
+	if(!units) throw new scopes.modUtils$exceptions.IllegalArgumentException('units cannot be null/undefined');
 	date = new Date(date.valueOf());
 	switch (units) {
 		case UNITS.HOUR:
@@ -117,7 +117,7 @@ function addUnits(date, amount, units) {
 			date.setFullYear(date.getFullYear()+amount);
 			break;
 		default:
-			throw new scopes.modUtils$exceptions.IllegalArgumentException('Unsupported value for units', null, null);
+			throw new scopes.modUtils$exceptions.IllegalArgumentException('Unsupported value for units');
 	}
 	return date;
 }
@@ -730,8 +730,8 @@ function DateTime(date) {
 	this.addUnits = function(unit, amount) {
 		/** @type {DateTime} */
 		var _this = this;
-		if(!amount) throw new scopes.modUtils$exceptions.IllegalArgumentException('amount cannot be null/undefined', null, null);
-		if(!unit) throw new scopes.modUtils$exceptions.IllegalArgumentException('units cannot be null/undefined', null, null);
+		if(!amount) throw new scopes.modUtils$exceptions.IllegalArgumentException('amount cannot be null/undefined');
+		if(!unit) throw new scopes.modUtils$exceptions.IllegalArgumentException('units cannot be null/undefined');
 		switch (unit) {
 			case UNITS.HOUR:
 				date.setHours(_this.date.getHours() + amount);
@@ -749,7 +749,7 @@ function DateTime(date) {
 				date.setFullYear(_this.date.getFullYear() + amount);
 				break;
 			default:
-				throw new scopes.modUtils$exceptions.IllegalArgumentException('Unsupported value for units', null, null);
+				throw new scopes.modUtils$exceptions.IllegalArgumentException('Unsupported value for units');
 		}
 		return this;
 	}

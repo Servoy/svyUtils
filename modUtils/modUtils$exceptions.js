@@ -10,18 +10,12 @@
  * Subclassed by specific exceptions
  * 
  * @param {String} errorMessage
- * @param {String} [i18nKey]
- * @param {Array} [i18nArguments]
  * 
  * @constructor 
  *
  * @properties={typeid:24,uuid:"8D4DBBD3-4162-4F23-A61E-5875936E8AAB"}
  */
-function SvyException(errorMessage, i18nKey, i18nArguments) {
-	
-	var message = errorMessage;
-	
-	var localeMessage = i18nKey ? (i18nArguments ? i18n.getI18NMessage(i18nKey, i18nArguments) : i18n.getI18NMessage(i18nKey)) : errorMessage;
+function SvyException(errorMessage) {
 	
 	/**
 	 * Returns the exception message
@@ -29,43 +23,24 @@ function SvyException(errorMessage, i18nKey, i18nArguments) {
 	 * @return {String}
 	 */
 	this.getMessage = function() {
-		return message;
+		return errorMessage;
 	}
-	
+
 	/**
-	 * Returns the i18n translated exception message
-	 * 
-	 * @return {String}
-	 */
-	this.getLocaleMessage = function() {
-		return localeMessage;
-	}
-	
-	/**
-	 * Returns the i18n translated message if an i18n<br>
-	 * key was provided, errorMessage if not
-	 * 
+	 * Returns the exception message
 	 * @override
 	 */
 	this.toString = function(){
-		return localeMessage;
+		return errorMessage;
 	}
 	
 	Object.defineProperty(this, "message", {
 		get: function() {
-			return message;
+			return errorMessage;
 		},
 		set: function(x) {
 		}
 	});
-	
-	Object.defineProperty(this, "localeMessage", {
-		get: function() {
-			return localeMessage;
-		},
-		set: function(x) {
-		}
-	});	
 }
 
 /**
@@ -93,44 +68,41 @@ function NoRelatedRecordException() {
 /**
  * Thrown when an email message could not be sent
  * 
- * @param {String} [lastSendMailExceptionMessage] - usually taken from plugins.mail.getLastSendMailExceptionMsg()
+ * @param {String} [errorMessage] - usually taken from plugins.mail.getLastSendMailExceptionMsg()
  * 
  * @constructor 
  * 
  * @properties={typeid:24,uuid:"73C704EB-7D7D-4B4B-AD05-88068C478184"}
  */
-function SendMailException(lastSendMailExceptionMessage)
+function SendMailException(errorMessage)
 {
-	if (lastSendMailExceptionMessage) {
-		SvyException.call(this, lastSendMailExceptionMessage);
-	}
+	SvyException.call(this, errorMessage);
 }
 
 /**
  * The given file could not be found
- * 
+ *
+ * @param {String} errorMessage
  * @param {plugins.file.JSFile} [file]
- * 
- * @constructor 
+ *
+ * @constructor
  *
  * @properties={typeid:24,uuid:"F452FF14-FB87-4A1B-936D-EBC9DD13D61E"}
  */
-function FileNotFoundException(file) {
+function FileNotFoundException(errorMessage, file) {
 	
 	/**
 	 * The file that could not be found
 	 * @type {plugins.file.JSFile}
 	 */
 	this.file = file;
-	
+	SvyException.call(this, errorMessage);
 }
 
 /**
  * Raised when an argument is not legal
  *
  * @param {String} errorMessage
- * @param {String} [i18nKey]
- * @param {Array} [i18nArguments]
  *
  * @constructor
  *
@@ -138,31 +110,27 @@ function FileNotFoundException(file) {
  *
  * @properties={typeid:24,uuid:"8E3EBB8D-1397-4444-8E0C-3F9D3E036CC7"}
  */
-function IllegalArgumentException(errorMessage, i18nKey, i18nArguments) {
-	SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+function IllegalArgumentException(errorMessage) {
+	SvyException.call(this, errorMessage);
 }
 
 /**
  * Raised when performing an operation that is not supported
  * 
  * @param {String} errorMessage
- * @param {String} [i18nKey]
- * @param {Array} [i18nArguments]
  * 
  * @constructor 
  * 
  * @properties={typeid:24,uuid:"4B19C306-E4D7-40F2-BE89-DF369F489094"}
  */
-function UnsupportedOperationException(errorMessage, i18nKey, i18nArguments){
-	SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+function UnsupportedOperationException(errorMessage){
+	SvyException.call(this, errorMessage);
 }
 
 /**
  * Raised when a runtime state is not legal
  * 
  * @param {String} errorMessage
- * @param {String} [i18nKey]
- * @param {Array} [i18nArguments]
  * 
  * @constructor 
  * 
@@ -170,16 +138,14 @@ function UnsupportedOperationException(errorMessage, i18nKey, i18nArguments){
  * 
  * @properties={typeid:24,uuid:"04C9606C-70C0-4C03-854F-7BE2B09FF44C"}
  */
-function IllegalStateException(errorMessage, i18nKey, i18nArguments){
-	SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+function IllegalStateException(errorMessage){
+	SvyException.call(this, errorMessage);
 }
 
 /**
  * Raised when JSFoundSet.newRecord() failed
  * 
  * @param {String} errorMessage
- * @param {String} [i18nKey]
- * @param {Array} [i18nArguments]
  * @param {JSFoundSet} [foundset]
  * 
  * @constructor 
@@ -188,7 +154,7 @@ function IllegalStateException(errorMessage, i18nKey, i18nArguments){
  * 
  * @properties={typeid:24,uuid:"F169D722-2B2F-41F5-87CF-EA7EF58ADD65"}
  */
-function NewRecordFailedException(errorMessage, i18nKey, i18nArguments, foundset) {
+function NewRecordFailedException(errorMessage, foundset) {
 	
 	/**
 	 * The Foundset that was used to attempt record creation
@@ -197,15 +163,13 @@ function NewRecordFailedException(errorMessage, i18nKey, i18nArguments, foundset
 	 */
 	this.foundset = foundset;
 
-	SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+	SvyException.call(this, errorMessage);
 }
 
 /**
  * Raised when JSFoundSet.find() fails
  * 
  * @param {String} errorMessage
- * @param {String} [i18nKey]
- * @param {Array} [i18nArguments]
  * @param {JSFoundSet} [foundset]
  * 
  * @constructor 
@@ -214,7 +178,7 @@ function NewRecordFailedException(errorMessage, i18nKey, i18nArguments, foundset
  * 
  * @properties={typeid:24,uuid:"530D13F3-440F-4059-B00A-96D3689C92EB"}
  */
-function FindModeFailedException(errorMessage, i18nKey, i18nArguments, foundset){
+function FindModeFailedException(errorMessage, foundset){
 	
 	/**
 	 * The Foundset that was used to attempt to enter find mode
@@ -222,15 +186,13 @@ function FindModeFailedException(errorMessage, i18nKey, i18nArguments, foundset)
 	 */
 	this.foundset = foundset;
 	
-	SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+	SvyException.call(this, errorMessage);
 }
 
 /**
  * Raised when databaseManager.saveData() fails
  * 
  * @param {String} errorMessage
- * @param {String} [i18nKey]
- * @param {Array} [i18nArguments]
  * @param {JSFoundSet|JSRecord} [foundsetOrRecord] saves can be on anything (null), foundset, or record
  * 
  * @constructor 
@@ -239,7 +201,7 @@ function FindModeFailedException(errorMessage, i18nKey, i18nArguments, foundset)
  *
  * @properties={typeid:24,uuid:"4B09EF6B-D100-4BF1-B90B-00BD4D9F814B"}
  */
-function SaveDataFailedException(errorMessage, i18nKey, i18nArguments, foundsetOrRecord){
+function SaveDataFailedException(errorMessage, foundsetOrRecord){
 	
 	/**
 	 * The Foundset that was used to attempt record creation
@@ -247,15 +209,13 @@ function SaveDataFailedException(errorMessage, i18nKey, i18nArguments, foundsetO
 	 */
 	this.foundsetOrRecord = foundsetOrRecord;
 	
-	SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+	SvyException.call(this, errorMessage);
 }
 
 /**
  * Raised when a delete fails
  * 
  * @param {String} errorMessage
- * @param {String} [i18nKey]
- * @param {Array} [i18nArguments]
  * @param {JSFoundSet|JSRecord} [foundsetOrRecord] saves can be on anything (null), foundset, or record
  * 
  * @constructor 
@@ -264,7 +224,7 @@ function SaveDataFailedException(errorMessage, i18nKey, i18nArguments, foundsetO
  *
  * @properties={typeid:24,uuid:"0325165D-2736-4BAE-BE13-F3FE685A98D1"}
  */
-function DeleteRecordFailedException(errorMessage, i18nKey, i18nArguments, foundsetOrRecord){
+function DeleteRecordFailedException(errorMessage, foundsetOrRecord){
 	
 	/**
 	 * The Foundset that was used to attempt record creation
@@ -272,7 +232,7 @@ function DeleteRecordFailedException(errorMessage, i18nKey, i18nArguments, found
 	 */
 	this.foundsetOrRecord = foundsetOrRecord;
 	
-	SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+	SvyException.call(this, errorMessage);
 }
 
 /**
@@ -280,8 +240,6 @@ function DeleteRecordFailedException(errorMessage, i18nKey, i18nArguments, found
  * 
  * @param {JSRecord} record
  * @param {String} dataprovider
- * @param {String} [i18nKey]
- * @param {Array} [i18nArguments]
  * 
  * @constructor 
  * 
@@ -290,7 +248,7 @@ function DeleteRecordFailedException(errorMessage, i18nKey, i18nArguments, found
  *
  * @properties={typeid:24,uuid:"B855809D-DE16-4398-B2C3-0D2324E33FE5"}
  */
-function ValueNotUniqueException(record, dataprovider, i18nKey, i18nArguments) {
+function ValueNotUniqueException(record, dataprovider) {
 
 	/**
 	 * The record that violates a unique constraint
@@ -304,7 +262,7 @@ function ValueNotUniqueException(record, dataprovider, i18nKey, i18nArguments) {
 	 */
 	this.dataprovider = dataprovider;
 	
-	SvyException.call(this, "Value not unique for: " + dataprovider, i18nKey, i18nArguments);
+	SvyException.call(this, "Value not unique for: " + dataprovider);
 	
 }
 
@@ -312,8 +270,6 @@ function ValueNotUniqueException(record, dataprovider, i18nKey, i18nArguments) {
  * Raised when a there is an error in an HTTP operation, most commonly a failed request (status code != SC_OK)
  * 
  * @param {String} errorMessage
- * @param {String} [i18nKey]
- * @param {Array} [i18nArguments]
  * @param {Number} [httpCode]
  * @param {String} [httpResponseBody]
  * 
@@ -323,7 +279,7 @@ function ValueNotUniqueException(record, dataprovider, i18nKey, i18nArguments) {
  *
  * @properties={typeid:24,uuid:"81CF0FE3-F3C4-4203-B934-6936C37BED65"}
  */
-function HTTPException(errorMessage, i18nKey, i18nArguments, httpCode, httpResponseBody) {
+function HTTPException(errorMessage, httpCode, httpResponseBody) {
 
 	/**
 	 * The HTTP Response Code
@@ -337,7 +293,7 @@ function HTTPException(errorMessage, i18nKey, i18nArguments, httpCode, httpRespo
 	 */
 	this.httpResponseBody = httpResponseBody;
 
-	SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+	SvyException.call(this, errorMessage);
 }
 
 /**
