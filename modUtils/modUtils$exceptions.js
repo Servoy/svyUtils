@@ -102,7 +102,7 @@ function NoRelatedRecordException() {
 function SendMailException(lastSendMailExceptionMessage)
 {
 	if (lastSendMailExceptionMessage) {
-		scopes.modUtils$exceptions.SvyException.call(this, lastSendMailExceptionMessage);
+		SvyException.call(this, lastSendMailExceptionMessage);
 	}
 }
 
@@ -139,7 +139,7 @@ function FileNotFoundException(file) {
  * @properties={typeid:24,uuid:"8E3EBB8D-1397-4444-8E0C-3F9D3E036CC7"}
  */
 function IllegalArgumentException(errorMessage, i18nKey, i18nArguments) {
-	scopes.modUtils$exceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+	SvyException.call(this, errorMessage, i18nKey, i18nArguments);
 }
 
 /**
@@ -154,7 +154,7 @@ function IllegalArgumentException(errorMessage, i18nKey, i18nArguments) {
  * @properties={typeid:24,uuid:"4B19C306-E4D7-40F2-BE89-DF369F489094"}
  */
 function UnsupportedOperationException(errorMessage, i18nKey, i18nArguments){
-	scopes.modUtils$exceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+	SvyException.call(this, errorMessage, i18nKey, i18nArguments);
 }
 
 /**
@@ -171,7 +171,7 @@ function UnsupportedOperationException(errorMessage, i18nKey, i18nArguments){
  * @properties={typeid:24,uuid:"04C9606C-70C0-4C03-854F-7BE2B09FF44C"}
  */
 function IllegalStateException(errorMessage, i18nKey, i18nArguments){
-	scopes.modUtils$exceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+	SvyException.call(this, errorMessage, i18nKey, i18nArguments);
 }
 
 /**
@@ -197,7 +197,7 @@ function NewRecordFailedException(errorMessage, i18nKey, i18nArguments, foundset
 	 */
 	this.foundset = foundset;
 
-	scopes.modUtils$exceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+	SvyException.call(this, errorMessage, i18nKey, i18nArguments);
 }
 
 /**
@@ -222,7 +222,7 @@ function FindModeFailedException(errorMessage, i18nKey, i18nArguments, foundset)
 	 */
 	this.foundset = foundset;
 	
-	scopes.modUtils$exceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+	SvyException.call(this, errorMessage, i18nKey, i18nArguments);
 }
 
 /**
@@ -247,7 +247,7 @@ function SaveDataFailedException(errorMessage, i18nKey, i18nArguments, foundsetO
 	 */
 	this.foundsetOrRecord = foundsetOrRecord;
 	
-	scopes.modUtils$exceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+	SvyException.call(this, errorMessage, i18nKey, i18nArguments);
 }
 
 /**
@@ -272,7 +272,7 @@ function DeleteRecordFailedException(errorMessage, i18nKey, i18nArguments, found
 	 */
 	this.foundsetOrRecord = foundsetOrRecord;
 	
-	scopes.modUtils$exceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+	SvyException.call(this, errorMessage, i18nKey, i18nArguments);
 }
 
 /**
@@ -304,7 +304,7 @@ function ValueNotUniqueException(record, dataprovider, i18nKey, i18nArguments) {
 	 */
 	this.dataprovider = dataprovider;
 	
-	scopes.modUtils$exceptions.SvyException.call(this, "Value not unique for: " + dataprovider, i18nKey, i18nArguments);
+	SvyException.call(this, "Value not unique for: " + dataprovider, i18nKey, i18nArguments);
 	
 }
 
@@ -337,7 +337,7 @@ function HTTPException(errorMessage, i18nKey, i18nArguments, httpCode, httpRespo
 	 */
 	this.httpResponseBody = httpResponseBody;
 
-	scopes.modUtils$exceptions.SvyException.call(this, errorMessage, i18nKey, i18nArguments);
+	SvyException.call(this, errorMessage, i18nKey, i18nArguments);
 }
 
 /**
