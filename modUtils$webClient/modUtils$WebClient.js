@@ -234,7 +234,9 @@ function addOnLoadScript(code, element) {
  */
 function setRendered(element) {
 	if (element instanceof Packages.com.servoy.j2db.ui.IProviderStylePropertyChanges) {
-		element.getStylePropertyChanges().setRendered();
+		/** @type {Packages.com.servoy.j2db.ui.IProviderStylePropertyChanges} */
+		var tmp = element
+		tmp.getStylePropertyChanges().setRendered();
 	}
 }
 
