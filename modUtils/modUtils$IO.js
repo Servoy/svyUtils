@@ -14,12 +14,17 @@ function openFileWithDefaultViewer(file) {
 		throw new scopes.modUtils$exceptions.UnsupportedOperationException('Operation only supported in Smart or Runtime Client')
 	}
 	var osName = application.getOSName();
+	/** @type {String} */
+	var filePath = file;
+	if (file instanceof plugins.file.JSFile) {
+		filePath = file.getAbsolutePath();
+	}
 	if (/Windows/.test(osName)) {
-		application.executeProgram('rundll32', 'url.dll, FileProtocolHandler', file);
+		application.executeProgram('rundll32', ['url.dll, FileProtocolHandler', filePath]);
 	} else if (/Linux|Freebsd/.test(osName)) {
-		application.executeProgram('mozilla', file);
+		application.executeProgram('mozilla', [filePath]);
 	} else if (/Mac/.test(osName)) {
-		application.executeProgram('open', file);
+		application.executeProgram('open', [filePath]);
 	}
 	//What if no match?
 }
@@ -330,7 +335,7 @@ function isFileOpen(file) {
 		}
 	} else {
 		//Unix
-		result = application.executeProgram("lsof", file.getAbsolutePath());
+		result = application.executeProgram("lsof", [file.getAbsolutePath()]);
 		if (result && result.length > 0) {
 			return true;
 		} else {

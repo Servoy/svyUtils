@@ -238,7 +238,7 @@ function DeleteRecordFailedException(errorMessage, foundsetOrRecord) {
 /**
  * Raised when the dataprovider needs to be unique
  *
- * @param {JSRecord} record
+ * @param {String|JSRecord|JSFoundSet} foundsetRecordOrDatasource
  * @param {String} dataprovider
  *
  * @constructor
@@ -248,13 +248,18 @@ function DeleteRecordFailedException(errorMessage, foundsetOrRecord) {
  *
  * @properties={typeid:24,uuid:"B855809D-DE16-4398-B2C3-0D2324E33FE5"}
  */
-function ValueNotUniqueException(record, dataprovider) {
+function ValueNotUniqueException(foundsetRecordOrDatasource, dataprovider) {
 
+	var ds = foundsetRecordOrDatasource;
+	if (foundsetRecordOrDatasource instanceof JSRecord || foundsetRecordOrDatasource instanceof JSFoundSet) {
+		ds = foundsetRecordOrDatasource.getDataSource();
+	}
+	
 	/**
-	 * The record that violates a unique constraint
+	 * The datasource where a unique constraint was violated
 	 * @type {JSRecord}
 	 */
-	this.record = record;
+	this.datasource = ds;
 
 	/**
 	 * The dataprovider that is not unique
