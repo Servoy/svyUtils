@@ -28,7 +28,7 @@ function isRuntimeClient() {
  * @properties={typeid:24,uuid:"C7915F79-3B6C-4F99-B898-D1287B6A7D36"}
  */
 function isSwingClient() {
-	return [APPLICATION_TYPES.SMART_CLIENT, APPLICATION_TYPES.RUNTIME_CLIENT].indexOf(application.getApplicationType()) 
+	return [APPLICATION_TYPES.SMART_CLIENT, APPLICATION_TYPES.RUNTIME_CLIENT].indexOf(application.getApplicationType()) >= 0;
 }
 
 //TODO: uncomment in Servoy 7.0
