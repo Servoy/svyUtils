@@ -248,5 +248,5 @@ function restoreSplitPaneDividerPosition(formName, elementName, position) {
 		return;
 	}
 	var pos = scopes.modUtils$system.getUserProperty(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc');
-	forms[formName].elements[elementName]['dividerLocation'] = pos|position;
+	forms[formName].elements[elementName]['dividerLocation'] = pos ? pos : position;
 }
