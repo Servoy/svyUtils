@@ -247,6 +247,8 @@ function restoreSplitPaneDividerPosition(formName, elementName, position) {
 		application.output('svy_utl_setSplitTabDividerPosition called without mandatory params', LOGGINGLEVEL.ERROR);
 		return;
 	}
+	/** @type {String} */
 	var pos = scopes.modUtils$system.getUserProperty(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc');
+	pos = utils.stringToNumber(pos);
 	forms[formName].elements[elementName]['dividerLocation'] = pos ? pos : position;
 }
