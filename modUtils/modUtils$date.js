@@ -983,7 +983,7 @@ function isValueTimeUnit(value){
 		UNITS.QUARTER,
 		UNITS.YEAR
 	];
-	for(i in values){
+	for(var i in values){
 		if(value == values[i]){
 			return true;
 		}
