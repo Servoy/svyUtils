@@ -110,7 +110,7 @@ function isMobilePlatform() {
  * 
  * @param {String} [solutionName]
  * @param {String} [methodName]
- * @param {Object} [args]
+ * @param {Object<Array<String>>} [args]
  * @return {String}
  * @properties={typeid:24,uuid:"4E7BDFBE-B409-4F3D-9D16-EE298EE58DA8"}
  */
@@ -123,8 +123,7 @@ function getSolutionDeepLinkSmartClient(solutionName, methodName, args){
 		params.push('m='+methodName);
 	}
 	if(args){
-		for(name in args){
-			/** @type {Array<String>} */
+		for(var name in args){
 			var values = args[name];
 			params.push(name +'=' + values.join('|'));
 		}
@@ -153,10 +152,10 @@ function getSolutionDeepLinkWebClient(solutionName, methodName, args){
 		params.push('m/'+methodName);
 	}
 	if(args){
-		for(name in args){
+		for(var name in args){
 			/** @type {Array<String>} */
 			var values = args[name];
-			for(j in values){
+			for(var j in values){
 				params.push(name +'/' + values[j]);
 			}
 		}
