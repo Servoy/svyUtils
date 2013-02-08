@@ -13,14 +13,14 @@
 function getCheckBoxValueListItemAdded(oldValue,newValue){
 	var oldItems = (oldValue) ? oldValue.toString().split('\n') : [];
 	var newItems = (newValue) ? newValue.toString().split('\n') : [];
-	if(newItems.length <= oldItems.length) return null;
+	if (newItems.length <= oldItems.length) return null;
 	newItems.sort();
 	oldItems.sort();
-    for(i in oldItems){
-        if(oldItems[i] != newItems[i])
-        	return newItems[i];
-    }
-    return newItems[newItems.length - 1];
+	for (var i in oldItems) {
+		if (oldItems[i] != newItems[i])
+			return newItems[i];
+	}
+	return newItems[newItems.length - 1];
 }
 
 /**
@@ -32,14 +32,14 @@ function getCheckBoxValueListItemAdded(oldValue,newValue){
 function getCheckBoxValueListItemRemoved(oldValue,newValue){
 	var oldItems = (oldValue) ? oldValue.toString().split('\n') : [];
 	var newItems = (newValue) ? newValue.toString().split('\n') : [];
-	if(newItems.length >= oldItems.length) return null;
+	if (newItems.length >= oldItems.length) return null;
 	newItems.sort();
 	oldItems.sort();
-    for(i in newItems){
-        if(newItems[i] != oldItems[i])
-        	return oldItems[i];
-    }
-    return oldItems[oldItems.length - 1];
+	for (var i in newItems) {
+		if (newItems[i] != oldItems[i])
+			return oldItems[i];
+	}
+	return oldItems[oldItems.length - 1];
 }
 
 /**
