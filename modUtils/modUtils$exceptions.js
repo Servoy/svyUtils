@@ -100,6 +100,21 @@ function FileNotFoundException(errorMessage, file) {
 }
 
 /**
+ * Raised for failed or interrupted I/O operations
+ * 
+ * @param {String} [errorMessage]
+ * 
+ * @constructor
+ * 
+ * @author patrick
+ *
+ * @properties={typeid:24,uuid:"06077E24-B9FF-481D-919B-0E6CBD64267B"}
+ */
+function IOException(errorMessage) {
+	SvyException.call(this, errorMessage);
+}
+
+/**
  * Raised when an argument is not legal
  *
  * @param {String} errorMessage
