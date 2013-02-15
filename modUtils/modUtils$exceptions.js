@@ -328,6 +328,7 @@ var init = function() {
 	NoRelatedRecordException.prototype = new SvyException("No related record found");
 	SendMailException.prototype = new SvyException("Failed to send mail");
 	FileNotFoundException.prototype = new SvyException("File not found");
+	IOException.prototype = new SvyException("IO Exception");
 	IllegalArgumentException.prototype = new SvyException("Illegal argument");
 	IllegalStateException.prototype = new SvyException("Illegal state");
 	UnsupportedOperationException.prototype = new SvyException("Unsupported operation");
