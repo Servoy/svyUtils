@@ -169,7 +169,7 @@ function getActionIdx(obj, evt, eventHandler) {
 
 /**
  * Adds a listener
- * FIXME: obj param can be objects that might get unloaded, thus would cause a memory leak
+ * 
  * @param {*|String} obj The object on which to listen for events. Supported are forms, globals and custom scopes
  * @param {String} eventType The event identifier
  * @param {Function|String} eventHandler The listener method to execute upon event firing
@@ -219,6 +219,8 @@ function addListener(obj, eventType, eventHandler) {
 
 /**
  * Removes a listener
+ * 
+ * TODO: add example code
  *
  * @param {*|String} obj The object from which the listener needs to be removed
  * @param {String} eventType The event identifier
@@ -243,6 +245,8 @@ function removeListener(obj, eventType, eventHandler) {
  * Fires the specified event, which will invoke all listeners added for the combination of obj and evt<br>
  * <br>
  * NOTE when the method specified as eventHandler in {@link #addListener()} is a Form method and the form is not loaded when the event is fired, the eventHandler will NOT be invoked
+ *
+ * TODO: add example code
  *
  * @param {*|String} obj The object on which behalf to fire the event
  * @param {String} eventType The event identifier
@@ -272,6 +276,7 @@ function fireEvent(obj, eventType, args) {
 						default:
 							continue
 					}
+					//TODO: support arguments as args here, so devs don't have to convert an arguments object to an array themselves: http://oranlooney.com/javascript-arguments/
 					scope[actionStringParts[2]].apply(scope, args)
 				}
 			}
