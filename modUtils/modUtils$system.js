@@ -134,6 +134,7 @@ function getSolutionDeepLinkSmartClient(solutionName, methodName, args){
 	}
 	return link;
 }
+
 /**
  * Gets the Web Client deep link URL for the specified solution
  * 
@@ -221,6 +222,7 @@ function getUserPropertyPersistenceImpl(){
 	}
 	return userPropPersistenceImpl;
 }
+
 /**
  * Used by persistFormInMemory()/desistFormInMemory() to store references to forms so they are not automatically unloaded
  * @private 
@@ -254,5 +256,3 @@ function desistFormInMemory(form) {
 		persistentForms.splice(idx, 1)
 	}
 }
-
-
