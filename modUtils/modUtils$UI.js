@@ -152,19 +152,17 @@ function getParentFormName(form) {
  * @properties={typeid:24,uuid:"0B4DE5CF-0B58-44F2-B344-3E3B656E549D"}
  */
 function deepCopyJSForm(newFormName, original, prefix) {
-	var clone = solutionModel.cloneForm(newFormName, original)
+	var clone = solutionModel.getForm(newFormName);
+	if (!clone) {
+		clone = solutionModel.cloneForm(newFormName, original)
+	}
 	var tabPanels = clone.getTabPanels()
-	var formName, jsForm;
+	var formName;
 	for (var i = 0; i < tabPanels.length; i++) {
 		var tabs = tabPanels[i].getTabs()
 		for (var j = 0; j < tabs.length; j++) {
 			formName = prefix ? prefix + tabs[j].containsForm.name.replace(original.name, "") : tabs[j].containsForm.name + application.getUUID();
-			jsForm = solutionModel.getForm(formName);
-			if (!jsForm) {
-				tabs[j].containsForm = deepCopyJSForm(formName, tabs[j].containsForm, prefix)
-			} else {
-				tabs[j].containsForm = jsForm;
-			}
+			tabs[j].containsForm = deepCopyJSForm(formName, tabs[j].containsForm, prefix)
 		}
 	}
 	return clone
