@@ -145,27 +145,31 @@ function getParentFormName(form) {
  * 
  * @param {String} newFormName the name to use for the clone
  * @param {JSForm} original the JSForm to clone
- * @param {String} [prefix] Optional prefix to use for the forms 
+ * @param {String} [prefix] Optional prefix to use for the forms
  * 
  * @return {JSForm} The clone
+ * 
+ * @throws {scopes.modUtils$exceptions.UnsupportedOperationException}
  * 
  * @properties={typeid:24,uuid:"0B4DE5CF-0B58-44F2-B344-3E3B656E549D"}
  */
 function deepCopyJSForm(newFormName, original, prefix) {
-	var clone = solutionModel.getForm(newFormName);
-	if (!clone) {
-		clone = solutionModel.cloneForm(newFormName, original)
+	if (solutionModel.getForm(newFormName)) {
+		throw new scopes.modUtils$exceptions.UnsupportedOperationException("Cloning existing form is not supported");
 	}
+	
+	var clone = solutionModel.cloneForm(newFormName, original)
+
 	var tabPanels = clone.getTabPanels()
 	var formName;
 	for (var i = 0; i < tabPanels.length; i++) {
 		var tabs = tabPanels[i].getTabs()
 		for (var j = 0; j < tabs.length; j++) {
 			formName = prefix ? prefix + tabs[j].containsForm.name.replace(original.name, "") : tabs[j].containsForm.name + application.getUUID();
-			tabs[j].containsForm = deepCopyJSForm(formName, tabs[j].containsForm, prefix)
+			tabs[j].containsForm = deepCopyJSForm(formName, tabs[j].containsForm, prefix);
 		}
 	}
-	return clone
+	return clone;
 }
 
 //TODO: create function that loops through all (nested) tabs on a given RuntimeForm, with callback to do something on each form encountered
