@@ -154,12 +154,17 @@ function getParentFormName(form) {
 function deepCopyJSForm(newFormName, original, prefix) {
 	var clone = solutionModel.cloneForm(newFormName, original)
 	var tabPanels = clone.getTabPanels()
-	var formName;
+	var formName, jsForm;
 	for (var i = 0; i < tabPanels.length; i++) {
 		var tabs = tabPanels[i].getTabs()
 		for (var j = 0; j < tabs.length; j++) {
 			formName = prefix ? prefix + tabs[j].containsForm.name.replace(original.name, "") : tabs[j].containsForm.name + application.getUUID();
-			tabs[j].containsForm = deepCopyJSForm(formName, tabs[j].containsForm, prefix)
+			jsForm = solutionModel.getForm(formName);
+			if (!jsForm) {
+				tabs[j].containsForm = deepCopyJSForm(formName, tabs[j].containsForm, prefix)
+			} else {
+				tabs[j].containsForm = jsForm;
+			}
 		}
 	}
 	return clone
