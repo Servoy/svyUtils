@@ -728,25 +728,23 @@ function DateTime(date) {
 	 * @return {DateTime}
 	 */
 	this.addUnits = function(unit, amount) {
-		/** @type {DateTime} */
-		var _this = this;
 		if(!amount) throw new scopes.modUtils$exceptions.IllegalArgumentException('amount cannot be null/undefined');
 		if(!unit) throw new scopes.modUtils$exceptions.IllegalArgumentException('units cannot be null/undefined');
 		switch (unit) {
 			case UNITS.HOUR:
-				date.setHours(_this.date.getHours() + amount);
+				date.setHours(this.date.getHours() + amount);
 				break;
 			case UNITS.DAY:
-				date.setDate(_this.date.getDate() + amount);
+				date.setDate(this.date.getDate() + amount);
 				break;
 			case UNITS.WEEK:
-				date.setDate(_this.date.getDate() + (amount * 7));
+				date.setDate(this.date.getDate() + (amount * 7));
 				break;
 			case UNITS.MONTH:
-				date.setMonth(_this.date.getMonth() + amount);
+				date.setMonth(this.date.getMonth() + amount);
 				break;
 			case UNITS.YEAR:
-				date.setFullYear(_this.date.getFullYear() + amount);
+				date.setFullYear(this.date.getFullYear() + amount);
 				break;
 			default:
 				throw new scopes.modUtils$exceptions.IllegalArgumentException('Unsupported value for units');
