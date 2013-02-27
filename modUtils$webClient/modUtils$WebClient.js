@@ -191,6 +191,8 @@ function addDynamicJavaScript(code, id, element) {
 }
 
 /**
+ * Executes JavaScript right after the DOM is built, before external resources (e.g. images) are loaded.
+ * 
  * TODO: figure out if correctly implemented: every ajax update executed the code again, so no good for init logic like keyboard shortcuts for example
  * @param {String} code
  * @param {RuntimeComponent|RuntimeForm} [element]
@@ -209,6 +211,7 @@ function addOnDOMReadyScript(code, element) {
 }
 
 /**
+ * Executes JavaScript after the entire page is loaded.
  * TODO: figure out if correctly implemented: every ajax update executed the code again, so no good for init logic like keyboard shortcuts for example
  * @param {String} code
  * @param {RuntimeComponent|RuntimeForm} [element]
@@ -227,7 +230,10 @@ function addOnLoadScript(code, element) {
 }
 
 /**
- * TODO docs
+ * Marks an element as rendered, which means that Wicket will disregard any changes made to the element up to this point since the last render cycle when it is time to render the element again<br>
+ * <br>
+ * Can be useful when syncing the element state from the browser to the server and then to prevent Wicket from updating the browser representation of the element again
+ * 
  * @param {RuntimeComponent} element
  *
  * @properties={typeid:24,uuid:"C42BB2DB-ECAE-4DFE-BD61-FF1A13EE30EB"}
