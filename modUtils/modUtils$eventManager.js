@@ -277,7 +277,7 @@ function fireEvent(obj, eventType, args) {
 							continue
 					}
 					//TODO: support arguments as args here, so devs don't have to convert an arguments object to an array themselves: http://oranlooney.com/javascript-arguments/
-					scope[actionStringParts[2]].apply(scope, args)
+					scope[actionStringParts[2]].apply(scope, Array.isArray(args) ? args : [args])
 				}
 			}
 		}
