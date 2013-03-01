@@ -20,7 +20,7 @@ function openFileWithDefaultViewer(file) {
 		filePath = file.getAbsolutePath();
 	}
 	if (/Windows/.test(osName)) {
-		application.executeProgram('rundll32', ['url.dll, FileProtocolHandler', filePath]);
+		application.executeProgram('rundll32', ['url.dll,FileProtocolHandler', filePath]);
 	} else if (/Linux|Freebsd/.test(osName)) {
 		application.executeProgram('mozilla', [filePath]);
 	} else if (/Mac/.test(osName)) {
