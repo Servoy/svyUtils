@@ -154,6 +154,14 @@ function addCSSDependancy(url, element) {
  */
 function convertMediaURL(url, response) { 
 	if (url.substr(0, MEDIA_URL_PREFIX.length) != MEDIA_URL_PREFIX) {
+		//Replace http with https when the Wc is running under https, to prevent mixed content warnings in the browser
+		if (url.substr(0,4) == 'http') {
+			var requiredProtocol = scopes.modUtils$net.parseUrl(application.getServerURL()).protocol
+			var usedProtocol = scopes.modUtils$net.parseUrl(url).protocol
+			if (usedProtocol != requiredProtocol) {
+				return requiredProtocol + url.substr(usedProtocol.length)
+			}
+		}
 		return url
 	}
 	var media = solutionModel.getMedia(url.substr(MEDIA_URL_PREFIX.length))
