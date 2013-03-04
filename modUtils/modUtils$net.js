@@ -7,7 +7,6 @@ var IP_VERSIONS = {
 	IPv4:4
 };
 
-
 /**
  * A Regular Expression to match any IP address which is deemed to be private by the RFC-1918 Standard for IPv4.
  * Uses the following ranges
@@ -22,7 +21,6 @@ var IP_VERSIONS = {
  * @properties={typeid:35,uuid:"628B24C3-F308-4599-9749-AC0FD9EECFA8",variableType:-4}
  */
 var RFC_1918_RANGES = /(^127\.0\.0\.1)|(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)/;
-
 
 /**
  * Tests if a given IP Address matches the most common internal IP patterns. Uses RFC 1918 standard for determination. 
@@ -63,6 +61,7 @@ function getIPVersion(ipAddress){
 	}
 	return null;
 }
+
 /**
  * Tries to connect to the provided hostname. If connection is successful, true is returned, otherwise false. (time)
  * 
