@@ -344,6 +344,26 @@ function isFileOpen(file) {
 	}
 }
 
+/**
+ * The given file could not be found
+ *
+ * @param {String} [errorMessage]
+ * @param {plugins.file.JSFile} [file]
+ *
+ * @constructor
+ * @this {FileNotFoundException}
+ * @properties={typeid:24,uuid:"9C109983-5E2B-4549-9431-E039E7CFACCD"}
+ */
+function FileNotFoundException(errorMessage, file) {
+
+	/**
+	 * The file that could not be found
+	 * @type {plugins.file.JSFile}
+	 */
+	this.file = file;
+	scopes.modUtils$exceptions.SvyException.call(this, errorMessage);
+}
+
 /*
  * TODO: add file writer stuff:
  * - https://www.servoy.com/forum/viewtopic.php?f=22&t=13866&p=72648&hilit=java.io.filewriter#p72637

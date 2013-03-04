@@ -79,25 +79,7 @@ function SendMailException(errorMessage) {
 	SvyException.call(this, errorMessage);
 }
 
-/**
- * The given file could not be found
- *
- * @param {String} [errorMessage]
- * @param {plugins.file.JSFile} [file]
- *
- * @constructor
- *
- * @properties={typeid:24,uuid:"F452FF14-FB87-4A1B-936D-EBC9DD13D61E"}
- */
-function FileNotFoundException(errorMessage, file) {
 
-	/**
-	 * The file that could not be found
-	 * @type {plugins.file.JSFile}
-	 */
-	this.file = file;
-	SvyException.call(this, errorMessage);
-}
 
 /**
  * Raised for failed or interrupted I/O operations
