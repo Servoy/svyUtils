@@ -140,3 +140,247 @@ function selectLastRecord(foundset) {
 //		foundset.setSelectedIndex(foundset.getSize())
 //	}
 }
+
+/**
+ * Raised when JSFoundSet.newRecord() failed
+ *
+ * @param {String} [errorMessage]
+ * @param {JSFoundSet} [source] The source of the new record failure
+ *
+ * @constructor
+ * @this {NewRecordFailedException}
+ * @author Sean
+ *
+ * @properties={typeid:24,uuid:"94CEBEC1-259F-4F61-BF73-465BB450AF0F"}
+ */
+function NewRecordFailedException(errorMessage, source) {
+
+	if(!errorMessage){
+		errorMessage = 'New Record Failed';
+	}
+	
+	SvyDataException.call(this,errorMessage,source);
+}
+
+/**
+ * Raised when JSFoundSet.find() fails
+ *
+ * @param {String} errorMessage
+ * @param {JSFoundSet} [source] The foundset which failed to enter find
+ *
+ * @constructor
+ * @this {FindModeFailedException}
+ * @author Sean
+ *
+ * @properties={typeid:24,uuid:"0344D472-6DAB-47D5-B3AB-9AEEC4E26756"}
+ */
+function FindModeFailedException(errorMessage, source) {
+
+	if(!errorMessage){
+		errorMessage = 'Find Mode Failed';
+	}
+	SvyDataException.call(this,errorMessage,source);
+}
+
+/**
+ * Raised when databaseManager.saveData() fails
+ *
+ * @param {String} errorMessage
+ * @param {JSFoundSet|JSRecord} [source] The source, saves can be on anything (null), foundset, or record
+ *
+ * @this {SaveDataFailedException}
+ * @constructor
+ *
+ * @author Sean
+ *
+ * @properties={typeid:24,uuid:"651BF190-9791-45A8-B9F7-075704A1636B"}
+ */
+function SaveDataFailedException(errorMessage, source) {
+
+	if(!errorMessage){
+		errorMessage = 'Save Data Failed';
+	}
+	SvyDataException.call(this,errorMessage,source);
+}
+
+/**
+ * Raised when a delete fails
+ *
+ * @param {String} errorMessage
+ * @param {JSFoundSet|JSRecord} [source] The source of the failed delete
+ *
+ * @constructor
+ * @this {DeleteRecordFailedException}
+ * 
+ * @author Sean
+ *
+ * @properties={typeid:24,uuid:"0408A31A-2D36-4193-A25C-5C7D388F6432"}
+ */
+function DeleteRecordFailedException(errorMessage, source) {
+
+	if(!errorMessage){
+		errorMessage = 'Delete Record(s) Failed';
+	}
+	SvyDataException.call(this,errorMessage,source);
+}
+
+/**
+ * Raised when the dataprovider needs to be unique
+ *
+ * @param {String} [errorMessage] The desired message
+ * @param {String|JSRecord|JSFoundSet} [source] The data source name, foundset or record (ideally the record if it is known, but it may not exist yet)
+ * @param {String} [dataProviderID] The name of the data provider
+ * @param {Object} [value] the value which was not unique
+ * 
+ * @constructor
+ * @this {ValueNotUniqueException}
+ * 
+ * @author patrick
+ * @since 30.09.2012
+ *
+ * @properties={typeid:24,uuid:"E1DCB83C-CE60-4015-BCE0-F122A09CE180"}
+ */
+function ValueNotUniqueException(errorMessage,source,dataProviderID, value) {
+
+	/**
+	 * Gets the value which caused the exception
+	 * @return {Object} 
+	 */
+	this.getValue = function(){
+		return value;
+	}
+	
+	if(!errorMessage){
+		errorMessage = 'Value not unique';
+	}
+	SvyDataException.call(this,errorMessage,source,dataProviderID)
+}
+
+/**
+ * No record present in foundset
+ *
+ * @param {String} [errorMessage]
+ * @param {JSFoundSet} [source] The source of the exception
+ * 
+ * @constructor
+ * @this {NoRecordException}
+ * @properties={typeid:24,uuid:"875407D4-1174-4FDE-A5C9-025BC1A6B89F"}
+ */
+function NoRecordException(errorMessage, source) {
+	if(!errorMessage){
+		errorMessage = 'Foundset has no records';
+	}
+	SvyDataException.call(this, errorMessage, source);
+}
+
+/**
+ * No related record present on record or foundset
+ * 
+ * @param {String} [errorMessage]
+ * @param {JSFoundSet|JSRecord} [source] The source of the exception
+ * @param {String} [relationNames]
+ * 
+ * @constructor
+ * @this {NoRelatedRecordException}
+ * @properties={typeid:24,uuid:"DCA3AAE0-8B37-4277-B532-714765CE657C"}
+ */
+function NoRelatedRecordException(errorMessage, source, relationNames) {
+	
+	/**
+	 * Gets the name of the relation
+	 * @return {String}
+	 */
+	this.getRelationNames = function(){
+		return relationNames;
+	}
+	
+	if(!errorMessage){
+		errorMessage = 'No related record';
+	}
+	SvyDataException.call(this, errorMessage, source);
+}
+
+/**
+ * General Data Exception
+ * 
+ * @param {String} [errorMessage]
+ * @param {String|JSRecord|JSFoundSet} [source]
+ * @param {String} dataProviderID
+ * 
+ * @constructor
+ * @this {SvyDataException}
+ * @properties={typeid:24,uuid:"5596DB5B-CCCF-46FF-B47E-1567827C66B5"}
+ */
+function SvyDataException(errorMessage, source, dataProviderID){
+	
+	/** @type {JSFoundSet} */
+	var foundset = null;
+	
+	/** @type {JSRecord} */
+	var record = null;
+	
+	/** @type {String} */
+	var dataSource = null;
+	
+	//	check arg type and create instance vars
+	if(source){
+		if(source instanceof JSFoundSet){
+			foundset = source;
+			dataSource = foundset.getDataSource();
+		} else if(source instanceof JSRecord){
+			record = source;
+			foundset = record.foundset
+			dataSource = record.getDataSource();
+		} else if(source instanceof String){
+			dataSource = source;
+		}
+	}
+	
+	/**
+	 * Gets the foundset (if one exists) for this exception
+	 * @return {JSFoundSet}
+	 */
+	this.getFoundSet = function(){
+		return foundset;
+	}
+	
+	/**
+	 * Gets the record (if one exists) for this exception
+	 * @return {JSRecord}
+	 */
+	this.getRecord = function(){
+		return record;
+	}
+	
+	/**
+	 * Gets the data source name (if one exists) for this exception
+	 * @return {String}
+	 */
+	this.getDataSourceName = function(){
+		return dataSource;
+	}
+	
+	/**
+	 * Gets the data source name (if one exists) for this exception
+	 * @return {String}
+	 */
+	this.getDataProviderID = function(){
+		return dataProviderID;
+	}
+	scopes.modUtils$exceptions.SvyException.call(this, errorMessage);
+}
+/**
+ * Point prototypes to superclasses
+ * @protected 
+ *
+ * @properties={typeid:35,uuid:"661B7B5D-659E-43F5-97B7-F07FFB44FF5E",variableType:-4}
+ */
+var init = function() {
+	NoRecordException.prototype = new scopes.modUtils$exceptions.SvyException("No record was given or the foundset is empty");
+	NoRelatedRecordException.prototype = new scopes.modUtils$exceptions.SvyException("No related record found");
+	NewRecordFailedException.prototype = new scopes.modUtils$exceptions.SvyException("Failed to create new record");
+	FindModeFailedException.prototype = new scopes.modUtils$exceptions.SvyException("Failed to enter find mode");
+	SaveDataFailedException.prototype = new scopes.modUtils$exceptions.SvyException("Failed to save data");
+	DeleteRecordFailedException.prototype = new scopes.modUtils$exceptions.SvyException("Failed to delete data");
+	ValueNotUniqueException.prototype = new scopes.modUtils$exceptions.SvyException("Value not unique");
+}()

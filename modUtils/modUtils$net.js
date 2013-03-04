@@ -163,3 +163,58 @@ function parseUrl(url, strictMode) {
 		});
 	return uri;
 }
+
+/**
+ * Raised when a there is an error in an HTTP operation, most commonly a failed request (status code != SC_OK)
+ *
+ * @param {String} errorMessage
+ * @param {Number} [httpCode]
+ * @param {String} [httpResponseBody]
+ *
+ * @constructor
+ *
+ * @author Sean
+ *
+ * @properties={typeid:24,uuid:"1BA6E44B-4467-4057-AE26-7A0F49D9B826"}
+ */
+function HTTPException(errorMessage, httpCode, httpResponseBody) {
+
+	/**
+	 * The HTTP Response Code
+	 * @type {Number}
+	 */
+	this.httpCode = httpCode;
+
+	/**
+	 * The Response of the
+	 * @type {String}
+	 */
+	this.httpResponseBody = httpResponseBody;
+
+	scopes.modUtils$exceptions.SvyException.call(this, errorMessage);
+}
+
+
+/**
+ * Thrown when an email message could not be sent
+ *
+ * @param {String} [errorMessage] - usually taken from plugins.mail.getLastSendMailExceptionMsg()
+ *
+ * @constructor
+ *
+ * @properties={typeid:24,uuid:"73C704EB-7D7D-4B4B-AD05-88068C478184"}
+ */
+function SendMailException(errorMessage) {
+	scopes.modUtils$exceptions.SvyException.call(this, errorMessage);
+}
+
+/**
+ * Point prototypes to superclasses
+ * @protected 
+ *
+ * @properties={typeid:35,uuid:"FF2A5C77-1609-4E22-A3A2-2A40910BC57E",variableType:-4}
+ */
+var init = function() {
+	HTTPException.prototype = new scopes.modUtils$exceptions.SvyException("Error in HTTP operation");
+	SendMailException.prototype = new scopes.modUtils$exceptions.SvyException("Failed to send mail");
+}();

@@ -345,6 +345,21 @@ function isFileOpen(file) {
 }
 
 /**
+ * Raised for failed or interrupted I/O operations
+ * 
+ * @param {String} [errorMessage]
+ * 
+ * @constructor
+ * 
+ * @author patrick
+ *
+ * @properties={typeid:24,uuid:"E0E2B56B-84B6-4A26-940A-A9EBB9F20CC3"}
+ */
+function IOException(errorMessage) {
+	scopes.modUtils$exceptions.SvyException.call(this, errorMessage);
+}
+
+/**
  * The given file could not be found
  *
  * @param {String} [errorMessage]
@@ -361,8 +376,19 @@ function FileNotFoundException(errorMessage, file) {
 	 * @type {plugins.file.JSFile}
 	 */
 	this.file = file;
-	scopes.modUtils$exceptions.SvyException.call(this, errorMessage);
+	IOException.call(this, errorMessage);
 }
+
+/**
+ * Point prototypes to superclasses
+ * @protected 
+ *
+ * @properties={typeid:35,uuid:"DAF325B1-1E2C-46A6-92C8-D4B2631B15E1",variableType:-4}
+ */
+var init = function() {
+	IOException.prototype = new scopes.modUtils$exceptions.SvyException("IO Exception");
+	FileNotFoundException.prototype = new IOException("File not found");
+}()
 
 /*
  * TODO: add file writer stuff:
