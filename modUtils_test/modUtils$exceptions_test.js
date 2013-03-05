@@ -1,7 +1,7 @@
 /**
  * @properties={typeid:24,uuid:"9A19D2B3-0124-4C45-9A13-F8ADC7982B70"}
  */
-function testExceptionHierarchy() {
+function testExceptions() {
 	//for the used technique here, see: http://stackoverflow.com/questions/4152931/javascript-inheritance-call-super-constructor-or-use-prototype-chain
 	var e = new scopes.modUtils$exceptions.IllegalArgumentException('test');
 	jsunit.assertTrue(e instanceof scopes.modUtils$exceptions.SvyException);
