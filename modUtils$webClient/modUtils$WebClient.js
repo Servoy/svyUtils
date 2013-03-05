@@ -113,14 +113,15 @@ function addPlaceHolderText(element, text) {
 /**
  * @param {String} url
  * @param {RuntimeComponent|RuntimeForm} [element]
- * 
+ * @param {Boolean} [disableAutoAdjustProtocol] Disable auto adjustment of http or https protocols in the URL to match the protocol under which the Web cLient runs. Default: false
+ *
  * @properties={typeid:24,uuid:"3FFD6F91-CE66-4337-9E52-2A7CC5ECF295"}
  */
-function addJavaScriptDependancy(url, element) {
+function addJavaScriptDependancy(url, element, disableAutoAdjustProtocol) {
 	checkOperationSupported()
 	var contributor = new Packages.org.apache.wicket.behavior.HeaderContributor(new Packages.org.apache.wicket.markup.html.IHeaderContributor({
 			renderHead: function(/**@type {Packages.org.apache.wicket.markup.html.IHeaderResponse}*/ response) {
-				response.renderJavascriptReference(convertMediaURL(url, response))
+				response.renderJavascriptReference(convertMediaURL(url, disableAutoAdjustProtocol))
 			}
 		})
 	)
@@ -130,14 +131,15 @@ function addJavaScriptDependancy(url, element) {
 /**
  * @param {String} url
  * @param {RuntimeComponent|RuntimeForm} [element]
- * 
+ * @param {Boolean} [disableAutoAdjustProtocol] Disable auto adjustment of http or https protocols in the URL to match the protocol under which the Web cLient runs. Default: false
+ *
  * @properties={typeid:24,uuid:"84B8B212-C873-465F-8F2C-EE74A466CEC6"}
  */
-function addCSSDependancy(url, element) {
+function addCSSDependancy(url, element, disableAutoAdjustProtocol) {
 	checkOperationSupported()
 	var contributor = new Packages.org.apache.wicket.behavior.HeaderContributor(new Packages.org.apache.wicket.markup.html.IHeaderContributor({
 			renderHead: function(/**@type {Packages.org.apache.wicket.markup.html.IHeaderResponse}*/ response) {
-				response.renderCSSReference(convertMediaURL(url, response))
+				response.renderCSSReference(convertMediaURL(url, disableAutoAdjustProtocol))
 			}
 		})
 	)
@@ -147,15 +149,16 @@ function addCSSDependancy(url, element) {
 /**
  * @private 
  * @param {String} url
- * @param {Packages.org.apache.wicket.markup.html.IHeaderResponse} response
+ * @param {Boolean} [disableAutoAdjustProtocol] Disable auto adjustment of http or https protocols in the URL to match the protocol under which the Web cLient runs. Default: false
+ *
  * @return {String}
  *
  * @properties={typeid:24,uuid:"C6EC0C48-2E49-46A7-A630-E162626FB362"}
  */
-function convertMediaURL(url, response) { 
+function convertMediaURL(url, disableAutoAdjustProtocol) { 
 	if (url.substr(0, MEDIA_URL_PREFIX.length) != MEDIA_URL_PREFIX) {
 		//Replace http with https when the Wc is running under https, to prevent mixed content warnings in the browser
-		if (url.substr(0,4) == 'http') {
+		if (!disableAutoAdjustProtocol && url.substr(0,4) == 'http') {
 			var requiredProtocol = scopes.modUtils$net.parseUrl(application.getServerURL()).protocol
 			var usedProtocol = scopes.modUtils$net.parseUrl(url).protocol
 			if (usedProtocol != requiredProtocol) {
