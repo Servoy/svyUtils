@@ -79,6 +79,8 @@ function addClass(component, className) {
 }
 
 /**
+ * Adds a placeholder text to empty fields. Has been surpassed by native support for placeholders on fields in Servoy 7
+ * @deprecated Use native placeholder support on fields in Servoy 7. Will e removed in version 5
  * @param {RuntimeCalendar|RuntimeHtmlArea|RuntimeImageMedia|RuntimePassword|RuntimeRtfArea|RuntimeTextArea|RuntimeTextField} element Reference to an element
  * @param {String} text Placeholder text to be displayed
  *
@@ -121,7 +123,7 @@ function addJavaScriptDependancy(url, element, disableAutoAdjustProtocol) {
 	checkOperationSupported()
 	var contributor = new Packages.org.apache.wicket.behavior.HeaderContributor(new Packages.org.apache.wicket.markup.html.IHeaderContributor({
 			renderHead: function(/**@type {Packages.org.apache.wicket.markup.html.IHeaderResponse}*/ response) {
-				response.renderJavascriptReference(convertMediaURL(url, disableAutoAdjustProtocol))
+				response.renderJavascriptReference(convertToExternalURL(url, disableAutoAdjustProtocol))
 			}
 		})
 	)
@@ -139,11 +141,36 @@ function addCSSDependancy(url, element, disableAutoAdjustProtocol) {
 	checkOperationSupported()
 	var contributor = new Packages.org.apache.wicket.behavior.HeaderContributor(new Packages.org.apache.wicket.markup.html.IHeaderContributor({
 			renderHead: function(/**@type {Packages.org.apache.wicket.markup.html.IHeaderResponse}*/ response) {
-				response.renderCSSReference(convertMediaURL(url, disableAutoAdjustProtocol))
+				response.renderCSSReference(convertToExternalURL(url, disableAutoAdjustProtocol))
 			}
 		})
 	)
 	addBehavior(contributor, element)
+}
+
+/**
+ * Converts Media URL's to relative URL's for usage inside the Web CLient
+ * @param {String} mediaUrl
+ * @return {String}
+ *
+ * @properties={typeid:24,uuid:"B8C949DD-494F-4352-9BC7-1DA7FE0A404E"}
+ */
+function getExternalUrlForMedia(mediaUrl) {
+	if (mediaUrl.substr(0, MEDIA_URL_PREFIX.length) != MEDIA_URL_PREFIX) {
+		return mediaUrl
+	}
+	var media = solutionModel.getMedia(mediaUrl.substr(MEDIA_URL_PREFIX.length))
+	if (media == null) {
+		application.output('Could not locate "' + mediaUrl + '" in the media library for inclusion in the Web Client markup', LOGGINGLEVEL.WARNING)
+		return '#'
+	} 
+	
+	/**@type {java.lang.Object}*/
+	var bytes = media.bytes
+	mediaUrl += '&amp;hc=' + bytes.hashCode()
+	
+	var resourceReference = new Packages.org.apache.wicket.ResourceReference("media");
+	return mediaUrl.replace(MEDIA_URL_PREFIX, Packages.org.apache.wicket.RequestCycle.get().urlFor(resourceReference) + '?s=' + application.getSolutionName() + '&amp;id=')
 }
 
 /**
@@ -155,7 +182,7 @@ function addCSSDependancy(url, element, disableAutoAdjustProtocol) {
  *
  * @properties={typeid:24,uuid:"C6EC0C48-2E49-46A7-A630-E162626FB362"}
  */
-function convertMediaURL(url, disableAutoAdjustProtocol) { 
+function convertToExternalURL(url, disableAutoAdjustProtocol) { 
 	if (url.substr(0, MEDIA_URL_PREFIX.length) != MEDIA_URL_PREFIX) {
 		//Replace http with https when the Wc is running under https, to prevent mixed content warnings in the browser
 		if (!disableAutoAdjustProtocol && url.substr(0,4) == 'http') {
@@ -167,21 +194,11 @@ function convertMediaURL(url, disableAutoAdjustProtocol) {
 		}
 		return url
 	}
-	var media = solutionModel.getMedia(url.substr(MEDIA_URL_PREFIX.length))
-	if (media == null) {
-		application.output('Could not locate "' + url + '" in the media library for inclusion in the Web Client markup',LOGGINGLEVEL.WARNING)
-		return '#'
-	} 
-	
-	/**@type {java.lang.Object}*/
-	var bytes = media.bytes
-	url += '&amp;hc=' + bytes.hashCode()
-	
-	var resourceReference = new Packages.org.apache.wicket.ResourceReference("media");
-	return url.replace(MEDIA_URL_PREFIX, Packages.org.apache.wicket.RequestCycle.get().urlFor(resourceReference) + '?s=' + application.getSolutionName() + '&amp;id=')
+	return getExternalUrlForMedia(url)
 }
 
 /**
+ * @experimental: implementation might change
  * TODO: determine if ID can be optional and then auto generate one
  * TODO: figure out how to generate small unique ID's (how does Servoy do this?)
  * @param {String} code
@@ -202,6 +219,7 @@ function addDynamicJavaScript(code, id, element) {
 }
 
 /**
+ * @experimental: implementation might change
  * Executes JavaScript right after the DOM is built, before external resources (e.g. images) are loaded.
  * 
  * TODO: figure out if correctly implemented: every ajax update executed the code again, so no good for init logic like keyboard shortcuts for example
@@ -222,6 +240,7 @@ function addOnDOMReadyScript(code, element) {
 }
 
 /**
+ * @experimental: implementation might change
  * Executes JavaScript after the entire page is loaded.
  * TODO: figure out if correctly implemented: every ajax update executed the code again, so no good for init logic like keyboard shortcuts for example
  * @param {String} code
