@@ -305,7 +305,7 @@ function NoRelatedRecordException(errorMessage, source, relationNames) {
  * 
  * @param {String} [errorMessage]
  * @param {String|JSRecord|JSFoundSet} [source]
- * @param {String} dataProviderID
+ * @param {String} [dataProviderID]
  * 
  * @constructor
  * @this {SvyDataException}
@@ -376,11 +376,11 @@ function SvyDataException(errorMessage, source, dataProviderID){
  * @properties={typeid:35,uuid:"661B7B5D-659E-43F5-97B7-F07FFB44FF5E",variableType:-4}
  */
 var init = function() {
-	NoRecordException.prototype = new scopes.modUtils$exceptions.SvyException("No record was given or the foundset is empty");
-	NoRelatedRecordException.prototype = new scopes.modUtils$exceptions.SvyException("No related record found");
-	NewRecordFailedException.prototype = new scopes.modUtils$exceptions.SvyException("Failed to create new record");
-	FindModeFailedException.prototype = new scopes.modUtils$exceptions.SvyException("Failed to enter find mode");
-	SaveDataFailedException.prototype = new scopes.modUtils$exceptions.SvyException("Failed to save data");
-	DeleteRecordFailedException.prototype = new scopes.modUtils$exceptions.SvyException("Failed to delete data");
-	ValueNotUniqueException.prototype = new scopes.modUtils$exceptions.SvyException("Value not unique");
+	NoRecordException.prototype = new SvyDataException("No record was given or the foundset is empty");
+	NoRelatedRecordException.prototype = new SvyDataException("No related record found");
+	NewRecordFailedException.prototype = new SvyDataException("Failed to create new record");
+	FindModeFailedException.prototype = new SvyDataException("Failed to enter find mode");
+	SaveDataFailedException.prototype = new SvyDataException("Failed to save data");
+	DeleteRecordFailedException.prototype = new SvyDataException("Failed to delete data");
+	ValueNotUniqueException.prototype = new SvyDataException("Value not unique");
 }()
