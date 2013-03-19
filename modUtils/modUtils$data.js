@@ -36,7 +36,7 @@ function concatenateJSDataSets(main, addition) {
 		throw new scopes.modUtils$exceptions.IllegalArgumentException('Supplied arguments are not both instances of JSDataSet')
 	}
 
-	var newDS = databaseManager.createEmptyDataSet(0, main.getRowAsArray(-1) /*The row containing the ColumnNames*/) //TODO test
+	var newDS = databaseManager.createEmptyDataSet(0, getJSDataSetColumnNames(main));
 	for (var i = 1; i <= main.getMaxRowIndex(); i++) {
 		newDS.addRow(main.getRowAsArray(i))
 	}
@@ -46,6 +46,29 @@ function concatenateJSDataSets(main, addition) {
 	}
 	return newDS
 }
+
+
+/**
+ * Returns an Array with the column names of the specified JSDataSet
+ * 
+ * @param {JSDataSet} dataset
+ * 
+ * @return {Array<String>}
+ *
+ * @properties={typeid:24,uuid:"DEF5A3BA-B9B9-4599-BB49-665AED2DFDB5"}
+ */
+function getJSDataSetColumnNames(dataset) {
+	if (!(dataset instanceof JSDataSet)) {
+		throw new scopes.modUtils$exceptions.IllegalArgumentException('Supplied argument is not an instance of JSDataSet')
+	}
+	
+	var columnNames = []
+	for (var i = 1; i <= dataset.getMaxColumnIndex(); i++) {
+		columnNames.push(dataset.getColumnName(i));
+	}
+	return columnNames;
+}
+
 
 /**
  * Gets a JSRecord with the specified PK from the specified datasource. 
