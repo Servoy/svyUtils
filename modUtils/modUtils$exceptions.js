@@ -16,7 +16,6 @@
  * @properties={typeid:24,uuid:"8D4DBBD3-4162-4F23-A61E-5875936E8AAB"}
  */
 function SvyException(errorMessage) {
-
 	/**
 	 * Returns the exception message
 	 *
@@ -48,6 +47,7 @@ function SvyException(errorMessage) {
  * @param {String} errorMessage
  *
  * @constructor
+ * @extends {SvyException}
  *
  * @author Sean
  *
@@ -63,6 +63,7 @@ function IllegalArgumentException(errorMessage) {
  * @param {String} errorMessage
  *
  * @constructor
+ * @extends {SvyException}
  *
  * @properties={typeid:24,uuid:"4B19C306-E4D7-40F2-BE89-DF369F489094"}
  */
@@ -76,6 +77,7 @@ function UnsupportedOperationException(errorMessage) {
  * @param {String} errorMessage
  *
  * @constructor
+ * @extends {SvyException}
  *
  * @author Sean
  *
