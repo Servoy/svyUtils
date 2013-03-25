@@ -83,7 +83,7 @@ function convertObjectToString(obj) {
 	if (obj instanceof String) {
 		/**@type {Array<String>}*/
 		var objStringParts = obj.split('.')
-		if (objStringParts == 0) {
+		if (objStringParts.length == 0) {
 			return null
 		}
 		
