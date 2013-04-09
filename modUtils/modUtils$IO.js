@@ -345,6 +345,38 @@ function isFileOpen(file) {
 }
 
 /**
+ * Creates a readable file size from the given number of bytes
+ * 
+ * @param {Number} size
+ * @param {Number} [numberOfDigits]
+ * 
+ * @return {String} formattedFileSize
+ *
+ * @properties={typeid:24,uuid:"B6CB0207-DA2E-4EE7-88D7-7F66D39A6D6F"}
+ */
+function humanizeFileSize(size, numberOfDigits) {
+	if (!size || size < 0) {
+		return "0 bytes";
+	}
+	if (!numberOfDigits || numberOfDigits < 0) {
+		numberOfDigits = 1;
+	}
+	if (size >= (1024*1024*1024*1024*1024)) {
+		return utils.numberFormat(size/(1024*1024*1024*1024*1024), numberOfDigits) + " PB";
+	} else if (size >= (1024*1024*1024*1024)) {
+		return utils.numberFormat(size/(1024*1024*1024*1024), numberOfDigits) + " TB";
+	} else if (size >= (1024*1024*1024)) {
+		return utils.numberFormat(size/(1024*1024*1024), numberOfDigits) + " GB";		
+	} else if (size >= (1024*1024)) {
+		return utils.numberFormat(size/(1024*1024), numberOfDigits) + " MB";			
+	} else if (size >= 1024) {
+		return utils.numberFormat(size/1024, numberOfDigits) + " kB";		
+	} else {
+		return size + "bytes";
+	}
+}
+
+/**
  * Raised for failed or interrupted I/O operations
  * 
  * @param {String} [errorMessage]
