@@ -26,7 +26,9 @@ var MEDIA_URL_PREFIX = 'media:///'
  * @properties={typeid:24,uuid:"9287AC01-F11F-4949-BC4C-1C01F04D41D4"}
  */
 function checkOperationSupported() {
-	if (!scopes.modUtils$system.isWebClient()) throw new scopes.modUtils$exceptions.UnsupportedOperationException('Only supported in Web Client')
+	if (!scopes.modUtils$system.isWebClient()) {
+		throw new scopes.modUtils$exceptions.UnsupportedOperationException('Only supported in Web Client')
+	}
 }
 
 /**
@@ -57,7 +59,7 @@ function setComponentVisibility(component, visibility) {
 	var style = visibility ? 'display: block' : 'display: none'
 	var model = Packages.org.apache.wicket.model.Model(style)
 	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('style', model, '')
-	unwrapElement(component).add(behavior)
+	addBehavior(behavior, component)
 }
 
 /**
@@ -73,9 +75,7 @@ function addClass(component, className) {
 	checkOperationSupported()
 	var model = Packages.org.apache.wicket.model.Model(className)
 	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('class', true, model, ' ')
-	
-	var unwrappedComponent = unwrapElement(component)
-	unwrappedComponent.add(behavior)
+	addBehavior(behavior, component)
 }
 
 /**
@@ -91,6 +91,88 @@ function addPlaceHolderText(element, text) {
 	var behavior = new Packages.org.apache.wicket.behavior.SimpleAttributeModifier('placeholder', text)
 	unwrapElement(element).add(behavior)
 }
+
+/**
+ * Overwrites the type attribute of HTML Inputs. Allows to take advantage of the new HTL5 input types<br>
+ * <br>
+ * <b>Note that support in different browsers vary and setting the input type might conflict with Servoy formatting and validation</b><br>
+ * <br>
+ * @see http://html5doctor.com/html5-forms-input-types/
+ * 
+ * @experimental: untested
+ * 
+ * @param {RuntimeTextField} element
+ * @param {String} type See {@link #setFieldHtmlType#TYPES}
+ *
+ * @properties={typeid:24,uuid:"05D360BF-8922-4EF9-B672-80B05AA5BB05"}
+ */
+function setFieldHtmlType(element, type) {
+	checkOperationSupported()
+	var behavior = new Packages.org.apache.wicket.behavior.SimpleAttributeModifier('type', type)
+	unwrapElement(element).add(behavior)
+}
+
+/**
+ * @protected 
+ * @properties={typeid:35,uuid:"A01241DE-FB9B-4CA7-B1AA-E34500EABD34",variableType:-4}
+ */
+var initSetFieldHtmlType = function(){
+	//TODO: this code gets called/added now everytime
+	//TODO: Remove this code after upgrading to newer Wicket version (this "patch is for wicket 1.4))
+	//Override Wicket function to support all HTML5 input types
+	addOnDOMReadyScript("Wicket.Form.serializeInput = function(input) {\
+		var type = input.type.toLowerCase();\
+		switch (type) {\
+			case 'checkbox':\
+			case 'radio':\
+				if (!input.checked) {\
+					return ''\
+				}\
+				//Intentional fallthrough here\
+			case 'text':\
+			case 'password':\
+			case 'hidden':\
+			case 'textarea':\
+			case 'search':\
+			case 'email':\
+			case 'url':\
+			case 'tel':\
+			case 'number':\
+			case 'range':\
+			case 'date':\
+			case 'month':\
+			case 'week':\
+			case 'time':\
+			case 'datetime':\
+			case 'datetime-local':\
+			case 'color':\
+				return Wicket.Form.encode(input.name) + '=' + Wicket.Form.encode(input.value) + '&';\
+				break\
+			default:\
+				return ''\
+		}\
+	}")
+	
+	setFieldHtmlType.TYPES = {
+		TEXT: 'text',
+		PASSWORD: 'password',
+		HIDDEN: 'hidden',
+		TEXTAREA: 'textarea',
+		SEARCH: 'search',
+		EMAIL: 'email',
+		URL: 'url',
+		TEL: 'tel',
+		NUMBER: 'number',
+		RANGE: 'range',
+		DATE: 'date',
+		MONTH: 'month',
+		WEEK: 'week',
+		TIME: 'time',
+		DATETIME: 'datetime',
+		DATETIME_LOCAL: 'datetime-local',
+		COLOR: 'color'
+	}
+}()
 
 ///**
 // * @param element
@@ -198,6 +280,21 @@ function convertToExternalURL(url, disableAutoAdjustProtocol) {
 }
 
 /**
+ * TODO: test if the used way of getting the pageContributer is correct
+ * @param {String} script
+ *
+ * @properties={typeid:24,uuid:"125243AB-90B0-424A-8CFD-338584E0E10A"}
+ */
+function executeClientsideScript(script) {
+	if (!script) return
+	script = utils.stringTrim(script)
+	if (!(script.charAt(-1) == ';')) {
+		script += ';'
+	}
+	getWebClientPluginAccess().getPageContributor().addDynamicJavaScript(script);
+}
+
+/**
  * @experimental: implementation might change
  * TODO: determine if ID can be optional and then auto generate one
  * TODO: figure out how to generate small unique ID's (how does Servoy do this?)
@@ -269,10 +366,11 @@ function addOnLoadScript(code, element) {
  * @properties={typeid:24,uuid:"C42BB2DB-ECAE-4DFE-BD61-FF1A13EE30EB"}
  */
 function setRendered(element) {
-	if (element instanceof Packages.com.servoy.j2db.ui.IProviderStylePropertyChanges) {
+	var tmp = unwrapElement(element)
+	if (tmp instanceof Packages.com.servoy.j2db.ui.IProviderStylePropertyChanges) {
 		/** @type {Packages.com.servoy.j2db.ui.IProviderStylePropertyChanges} */
-		var tmp = element
-		tmp.getStylePropertyChanges().setRendered();
+		var tmp2 = tmp
+		tmp2.getStylePropertyChanges().setRendered();
 	}
 }
 
@@ -376,6 +474,7 @@ function XHTML2Text(XHTML) {
  */
 function getBrowserInfo() {
 	checkOperationSupported()
+	//CHECKME: why is https://support.servoy.com/browse/SVY-1285 using a different class?
 	/** @type {Packages.org.apache.wicket.protocol.http.request.WebClientInfo}*/
 	var clientInfo = Packages.org.apache.wicket.protocol.http.WebRequestCycle.get().getClientInfo();
 	return clientInfo;
@@ -470,7 +569,7 @@ function updateUI(milliseconds) {
 	if (application.getApplicationType() == APPLICATION_TYPES.WEB_CLIENT) {
       c = new Continuation();
       //TODO: convert to not use WebClientUtils plugin
-      plugins.WebClientUtils.executeClientSideJS(plugins.WebClientUtils.generateCallbackScript(updateUIResume));
+      executeClientsideScript(plugins.WebClientUtils.generateCallbackScript(updateUIResume));
       terminator();
    } else {
       application.updateUI(milliseconds)
