@@ -126,9 +126,9 @@ var initSetFieldHtmlType = function(){
 			case 'checkbox':\
 			case 'radio':\
 				if (!input.checked) {\
-					return ''\
-				}\
-				//Intentional fallthrough here\
+					return '';\
+				};\
+				/*Intentional fallthrough here*/\
 			case 'text':\
 			case 'password':\
 			case 'hidden':\
@@ -147,9 +147,9 @@ var initSetFieldHtmlType = function(){
 			case 'datetime-local':\
 			case 'color':\
 				return Wicket.Form.encode(input.name) + '=' + Wicket.Form.encode(input.value) + '&';\
-				break\
+				break;\
 			default:\
-				return ''\
+				return '';\
 		}\
 	}")
 	
