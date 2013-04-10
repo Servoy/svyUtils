@@ -284,55 +284,51 @@ function fireEvent(obj, eventType, args) {
 	}
 }
 
-///**
-// * @param {String} formName
-// * @param {String} elementName
-// * @param {Number} modifiers
-// * @param {Object} source
-// * @param {Number} type
-// * @param {{x: Number, y: Number}} position
-// * @param {Object} data
-// *
-// * @properties={typeid:24,uuid:"0F2D7A99-F669-41EA-9CB9-F84DBCC768DA"}
-// */
-//function newJSEvent(formName, elementName, modifiers, source, type, position, data) {
-//	return new customJSEvent(formName, elementName, modifiers, source, type, position, data)
-//}
-//
-///**
-// * @constructor
-// * @private
-// * @SuppressWarnings(unused)
-// * @properties={typeid:35,uuid:"CF005E81-F845-49E5-A4B3-A2B36F6FF13F",variableType:-4}
-// */
-//var customJSEvent = function(formName, elementName, modifiers, source, type, position, data) {
-//	var time = application.getTimeStamp()
-//
-//	this.getElementName = function() {
-//		return elementName
-//	}
-//	this.getFormName = function() {
-//		return formName
-//	}
-//	this.getModifiers = function() {
-//		return modifiers
-//	}
-//	this.getSource = function() {
-//		return source
-//	}
-//	this.getTimeStamp = function() {
-//		return time
-//	}
-//	this.getType = function() {
-//		return type
-//	}
-//	this.getX = function() {
-//		return position.x
-//	}
-//	this.getY = function() {
-//		return position.y
-//	}
-//
-//	//TODO make this a getter?
-//	this.data = data
-//}
+/**
+ * @constructor 
+ * 
+ * @param {String} type
+ * @param {*} source
+ * @param {Object} [data]
+ *
+ * @properties={typeid:24,uuid:"C72578DE-E6DE-4CBF-B958-6835A203ED3B"}
+ */
+function Event(type, source, data) {
+	this.data = data
+
+	this.getType = function(){
+		return type
+	}
+	
+	this.getSource = function() {
+		return source
+	}
+	
+	this.toString = function (){
+		var props = {
+			type: this.getType(),
+			source: this.getSource()
+		}
+		
+		var instance = this
+		Object.getOwnPropertyNames(this).forEach(function(value, index, array) {
+			if (['getSource', 'getType'].indexOf(value) == -1 && value.substr(0,3) == 'get') {
+				var name = value.substr(3,1).toLowerCase() + value.substring(4)
+				if (instance[value] instanceof Function) {
+					props[name] =  instance[value]()
+				} else {
+					props[name] = instance[value]
+				}
+			}
+		})
+		
+		props.data = this.data
+
+		//TODO: instances of JavaScript objects do not serialize nicely, but result in [object Object]
+		var retval = 'Event('
+		for (var prop in props) {
+			retval += prop + ' : ' + (props[prop] ? props[prop] : 'null') + ', '
+		}
+		return retval.slice(0, -2) + ')'
+	}
+}
