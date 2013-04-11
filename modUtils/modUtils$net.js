@@ -114,7 +114,7 @@ function isHostAccessible(hostname, timeout) {
 /**
  * Function to parse urls and retrieve the different parts of it. Taken from http://blog.stevenlevithan.com/archives/parseuri
  * 
- * FIXME: A queryString with multiple values for the same parameter is not supported. The queryKey only returns the last value: ?x=1&x=2 becomes ...,"queryKey":{"x":"2"}
+ * TODO: A queryString with multiple values for the same parameter is not supported. The queryKey only returns the last value: ?x=1&x=2 becomes ...,"queryKey":{"x":"2"}
  * 
  * @param {String} url
  * @param {Boolean} [strictMode] Default false
