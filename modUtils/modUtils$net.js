@@ -172,6 +172,7 @@ function parseUrl(url, strictMode) {
  * @param {String} [httpResponseBody]
  *
  * @constructor
+ * @extends {scopes.modUtils$exceptions.SvyException}
  *
  * @author Sean
  *
@@ -201,6 +202,7 @@ function HTTPException(errorMessage, httpCode, httpResponseBody) {
  * @param {String} [errorMessage] - usually taken from plugins.mail.getLastSendMailExceptionMsg()
  *
  * @constructor
+ * @extends {scopes.modUtils$exceptions.SvyException}
  *
  * @properties={typeid:24,uuid:"73C704EB-7D7D-4B4B-AD05-88068C478184"}
  */
