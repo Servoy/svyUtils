@@ -1,5 +1,5 @@
 /*
- * TODO: Support Mobile Client where applocable in Servoy >7.0
+ * TODO: Support Mobile Client where applicable in Servoy > 7.0
  */
 
 /**
