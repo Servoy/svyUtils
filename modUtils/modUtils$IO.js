@@ -252,20 +252,47 @@ function channelCopy(src, dest) {
 }
 
 /**
+ * @enum
+ * @properties={typeid:35,uuid:"C217D4B1-1E19-439C-B056-8CE6D4C0C14F",variableType:-4}
+ */
+var CHAR_SETS = {
+	/** Seven-bit ASCII, a.k.a. ISO646-US, a.k.a. the Basic Latin block of the Unicode character set.*/
+	US_ASCII: 'US-ASCII',
+	/**ISO Latin Alphabet No. 1, a.k.a. ISO-LATIN-1.*/
+	ISO_8859_1: 'ISO-8859-1',
+	/**Eight-bit Unicode Transformation Format.*/
+	UTF_8: 'UTF-8',
+	/**Sixteen-bit Unicode Transformation Format, big-endian byte order.*/
+	UTF_16BE: 'UTF-16BE',
+	/**Sixteen-bit Unicode Transformation Format, little-endian byte order.*/
+	UTF_16LE: 'UTF-16LE',
+	/**Sixteen-bit Unicode Transformation Format, byte order specified by a mandatory initial byte-order mark (either order accepted on input, big-endian used on output.)*/	
+	UTF_16: 'UTF-16'
+}
+
+/**
  * Reads the content of a file line by line, without reading the entire file into memory
- * TODO: rethrow exceptions
  * @param {plugins.file.JSFile} file
  * @param {Function} lineCallback function that gets called for each line. Receives the line content as first argument. Return false from the callback to stop further reading
+ * @param {String} [charset] See {@link CHAR_SETS}. Default CHAR_SETS.UTF_8
+ * 
+ * @throws {IOException}
  * 
  * @example <pre>
- * 
+ *  var file = plugins.file.convertToJSFile('C:/myCSVFile.csv')
+ *  readFile(file, function(text) {
+ *  	application.output(text)
+ *  })
  * </pre>
  *
  * @properties={typeid:24,uuid:"B288B4EC-BC90-4ABA-9C2E-E45E600BF7D6"}
  */
-function readFile(file, lineCallback) {
+function readFile(file, lineCallback, charset) {
+	if (!file.exists() || file.isFile()) {
+		throw new FileNotFoundException(null, file)
+	}
     var fis = new Packages.java.io.FileInputStream(file);
-    var isr = new Packages.java.io.InputStreamReader(fis, "UTF8");
+    var isr = new Packages.java.io.InputStreamReader(fis, charset||CHAR_SETS.UTF_8);
     var br = new Packages.java.io.BufferedReader(isr);
     var line;
     try {
@@ -275,7 +302,7 @@ function readFile(file, lineCallback) {
             }
         }
      } catch (e) {
-        application.output('ERROR reading file "' + file.getName() + '": ' + e, LOGGINGLEVEL.ERROR);
+        throw new IOException('ERROR reading file "' + file.getName() + '": ' + e)
      } finally {
         br.close();
      	fis = null;
@@ -286,10 +313,14 @@ function readFile(file, lineCallback) {
 
 /**
  * @param {plugins.file.JSFile} file
+ * @throws {IOException}
  * @return {Number} The number of lines in the file. -1 in case of an issue getting the number of lines in the file
  * @properties={typeid:24,uuid:"EEFD9AA1-68B5-4DD9-8C4D-AE0EE2488F28"}
  */
 function getLineCountForFile(file) {
+	if (!file.exists() || file.isFile()) {
+		throw new FileNotFoundException(null, file)
+	}
 	try {
 		var fr = new Packages.java.io.FileReader(file);
 		var lnr = new Packages.java.io.LineNumberReader(fr)
@@ -316,6 +347,9 @@ function getLineCountForFile(file) {
  * @properties={typeid:24,uuid:"61CAFF50-B7A8-499D-8008-4B8457A3E2F6"}
  */
 function isFileOpen(file) {
+	if (!file.exists() || file.isFile()) {
+		throw new FileNotFoundException(null, file)
+	}
 	var result;
 	if (scopes.modUtils$system.isWindowsPlatform()) {
 		if (!file.canWrite()) {
@@ -382,7 +416,7 @@ function humanizeFileSize(size, numberOfDigits) {
  * @param {String} [errorMessage]
  * 
  * @constructor
- * 
+ * @extends {scopes.modUtils$exceptions.SvyException}
  * @author patrick
  *
  * @properties={typeid:24,uuid:"E0E2B56B-84B6-4A26-940A-A9EBB9F20CC3"}
@@ -398,7 +432,7 @@ function IOException(errorMessage) {
  * @param {plugins.file.JSFile} [file]
  *
  * @constructor
- * @this {FileNotFoundException}
+ * @extends {IOException}
  * @properties={typeid:24,uuid:"9C109983-5E2B-4549-9431-E039E7CFACCD"}
  */
 function FileNotFoundException(errorMessage, file) {
