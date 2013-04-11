@@ -171,7 +171,7 @@ function selectLastRecord(foundset) {
  * @param {JSFoundSet} [source] The source of the new record failure
  *
  * @constructor
- * @this {NewRecordFailedException}
+ * @extends {SvyDataException}
  * @author Sean
  *
  * @properties={typeid:24,uuid:"94CEBEC1-259F-4F61-BF73-465BB450AF0F"}
@@ -182,7 +182,7 @@ function NewRecordFailedException(errorMessage, source) {
 		errorMessage = 'New Record Failed';
 	}
 	
-	SvyDataException.call(this,errorMessage,source);
+	SvyDataException.call(this, errorMessage,source);
 }
 
 /**
@@ -192,7 +192,7 @@ function NewRecordFailedException(errorMessage, source) {
  * @param {JSFoundSet} [source] The foundset which failed to enter find
  *
  * @constructor
- * @this {FindModeFailedException}
+ * @extends {SvyDataException}
  * @author Sean
  *
  * @properties={typeid:24,uuid:"0344D472-6DAB-47D5-B3AB-9AEEC4E26756"}
@@ -211,7 +211,7 @@ function FindModeFailedException(errorMessage, source) {
  * @param {String} errorMessage
  * @param {JSFoundSet|JSRecord} [source] The source, saves can be on anything (null), foundset, or record
  *
- * @this {SaveDataFailedException}
+ * @extends {SvyDataException}
  * @constructor
  *
  * @author Sean
@@ -233,7 +233,7 @@ function SaveDataFailedException(errorMessage, source) {
  * @param {JSFoundSet|JSRecord} [source] The source of the failed delete
  *
  * @constructor
- * @this {DeleteRecordFailedException}
+ * @extends {SvyDataException}
  * 
  * @author Sean
  *
@@ -256,7 +256,7 @@ function DeleteRecordFailedException(errorMessage, source) {
  * @param {Object} [value] the value which was not unique
  * 
  * @constructor
- * @this {ValueNotUniqueException}
+ * @extends {SvyDataException}
  * 
  * @author patrick
  * @since 30.09.2012
@@ -286,7 +286,8 @@ function ValueNotUniqueException(errorMessage,source,dataProviderID, value) {
  * @param {JSFoundSet} [source] The source of the exception
  * 
  * @constructor
- * @this {NoRecordException}
+ * @extends {SvyDataException}
+ * 
  * @properties={typeid:24,uuid:"875407D4-1174-4FDE-A5C9-025BC1A6B89F"}
  */
 function NoRecordException(errorMessage, source) {
@@ -304,7 +305,8 @@ function NoRecordException(errorMessage, source) {
  * @param {String} [relationNames]
  * 
  * @constructor
- * @this {NoRelatedRecordException}
+ * @extends {SvyDataException}
+ * 
  * @properties={typeid:24,uuid:"DCA3AAE0-8B37-4277-B532-714765CE657C"}
  */
 function NoRelatedRecordException(errorMessage, source, relationNames) {
@@ -331,7 +333,8 @@ function NoRelatedRecordException(errorMessage, source, relationNames) {
  * @param {String} [dataProviderID]
  * 
  * @constructor
- * @this {SvyDataException}
+ * @extends {scopes.modUtils$exceptions.SvyException}
+ * 
  * @properties={typeid:24,uuid:"5596DB5B-CCCF-46FF-B47E-1567827C66B5"}
  */
 function SvyDataException(errorMessage, source, dataProviderID){
@@ -406,4 +409,5 @@ var init = function() {
 	SaveDataFailedException.prototype = new SvyDataException("Failed to save data");
 	DeleteRecordFailedException.prototype = new SvyDataException("Failed to delete data");
 	ValueNotUniqueException.prototype = new SvyDataException("Value not unique");
+	SvyDataException.prototype = new scopes.modUtils$exceptions.SvyException('Data related exception')
 }()
