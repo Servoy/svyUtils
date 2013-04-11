@@ -182,7 +182,8 @@ function getActionIdx(obj, evt, eventHandler) {
  * 
  * function onLoad() {
  * 	scopes.modUtils$eventManager.addListener(this, EVENT_TYPES.MY_OWN_EVENT_TYPE, myEventHandler)
- * }	 
+ * }	
+ *  
  * function myEventHandler(booleanValue, numberValue, stringValue) {
  * 	application.output(arguments)
  * }
@@ -191,7 +192,9 @@ function getActionIdx(obj, evt, eventHandler) {
  * 	scopes.modUtils$eventManager.fireEvent(this, EVENT_TYPES.MY_FIRST_EVENT_TYPE, [true, 1, 'Hello world!'])
  * }
  * </pre>
+ * 
  * @example <pre>scopes.modUtils$eventManager.addListener('forms.myForm', 'myEvent', 'scopes.myCustomScope.myEventHandlerMethod')</pre>
+ * 
  * @properties={typeid:24,uuid:"B55D1349-D418-4775-BB05-0451D7438A62"}
  */
 function addListener(obj, eventType, eventHandler) {
@@ -220,7 +223,7 @@ function addListener(obj, eventType, eventHandler) {
 /**
  * Removes a listener
  * 
- * TODO: add example code
+ * @example <pre>scopes.modUtils$eventManager.removeListener('forms.myForm', 'myEvent', 'scopes.myCustomScope.myEventHandlerMethod')</pre>
  *
  * @param {*|String} obj The object from which the listener needs to be removed
  * @param {String} eventType The event identifier
@@ -245,8 +248,14 @@ function removeListener(obj, eventType, eventHandler) {
  * Fires the specified event, which will invoke all listeners added for the combination of obj and evt<br>
  * <br>
  * NOTE when the method specified as eventHandler in {@link #addListener()} is a Form method and the form is not loaded when the event is fired, the eventHandler will NOT be invoked
- *
- * TODO: add example code
+ *  
+ * @example <pre> //Example of using the Event class to fire an Event
+ * var EVENT_TYPES = {
+ * 	MY_OWN_EVENT_TYPE: 'myOwnEventType'
+ * }
+ * var event = new scopes.modUtils$eventManager.Event(myObject, EVENT_TYPES.MY_OWN_EVENT_TYPE, {x: 10, y:20}, {description: 'some text'})
+ * scopes.modUtils$eventManager.fireEvent(id, EVENT_TYPES.MY_OWN_EVENT_TYPE, event)
+ *</pre>
  *
  * @param {*|String} obj The object on which behalf to fire the event
  * @param {String} eventType The event identifier
@@ -276,7 +285,10 @@ function fireEvent(obj, eventType, args) {
 						default:
 							continue
 					}
-					//TODO: support arguments as args here, so devs don't have to convert an arguments object to an array themselves: http://oranlooney.com/javascript-arguments/
+
+					//Would be nice to allow the args param be an arguments object, but haven't found a failsave way to distinguish an arguments object form anything else
+					//Not using something like http://oranlooney.com/javascript-arguments/, as arguments.callee is deprecated in future JavaScript versions and the for loop check doesn't work in Rhino
+					//!!Array.prototype.slice.call(args)['length'] fails for forms and elements objects and other objects that have a length property
 					scope[actionStringParts[2]].apply(scope, Array.isArray(args) ? args : [args])
 				}
 			}
@@ -285,17 +297,54 @@ function fireEvent(obj, eventType, args) {
 }
 
 /**
+ * Convenient base class for Event to send as event parameter when firing a event using fireEvent.<br/>
+ * <br/>
+ * Implementations can extend this base class or use it directly<br/>
+ * <br/>
  * @constructor 
  * 
  * @param {String} type
  * @param {*} source
  * @param {Object} [data]
+ * 
+ * @example <pre> //Example of using the Event class to fire an Event
+ * var EVENT_TYPES = {
+ * 	MY_OWN_EVENT_TYPE: 'myOwnEventType'
+ * }
+ * var event = new scopes.modUtils$eventManager.Event(myObject, EVENT_TYPES.MY_OWN_EVENT_TYPE, {x: 10, y:20}, {description: 'some text'})
+ * scopes.modUtils$eventManager.fireEvent(id, EVENT_TYPES.MY_OWN_EVENT_TYPE, event)
+ *</pre>
+ * 
+ * @example <pre> //Example of extending the base class
+ * &#47;**
+ *  * Extended Event class that also exposes getPosition
+ *  * &#64;private
+ *  * &#64;constructor 
+ *  * &#64;extends {scopes.modUtils$eventManager.Event}
+ *  *
+ *  * @param {String} type
+ *  * @param {*} source
+ *  * @param {{x: Number, y: Number}} [position]
+ *  * @param {Object} [data]
+ *  *&#47;
+ *  function Event(type, source, position, data) {
+ *  	scopes.modUtils$eventManager.Event.call(this, type, source, data); //Applying the arguments to the base class constructor
+ *  	
+ *  	this.getPosition = function() {
+ *  		return position||null;
+ *  	}
+ *  }
+ *  
+ *  var eventSetup = function() {
+ *  	Event.prototype = Object.create(scopes.modUtils$eventManager.Event.prototype); //Set the custom event's prototype to the base class, without invoking the constructor
+ *  }()
+ *</pre>
  *
  * @properties={typeid:24,uuid:"C72578DE-E6DE-4CBF-B958-6835A203ED3B"}
  */
 function Event(type, source, data) {
 	this.data = data
-
+	
 	this.getType = function(){
 		return type
 	}
