@@ -60,6 +60,44 @@ function getJSFormHierarchy(form) {
 }
 
 /**
+ * Returns true if the form is extending the parent form 
+ * 
+ * @param {JSForm|String} form
+ * @param {JSForm|String} parentForm
+ * 
+ * @throws {scopes.modUtils$exceptions.IllegalArgumentException}
+ * 
+ * @return {Boolean}
+ *
+ * @properties={typeid:24,uuid:"ABCE89C0-9151-4CD7-AF58-38D0913BD738"}
+ */
+function isJSFormInstanceOf(form, parentForm) {
+	if (form instanceof String) {
+		form = solutionModel.getForm(form);
+	}
+	if (parentForm instanceof String) {
+		parentForm = solutionModel.getForm(parentForm);
+	}
+	if (!form) {
+		throw new scopes.modUtils$exceptions.IllegalArgumentException("Provide valid form");
+	}
+	if (!parentForm) {
+		throw new scopes.modUtils$exceptions.IllegalArgumentException("Provide valid parentForm");
+	}
+	
+	//Go up the hierarchy until the parentForm is found or until there is no more parent.
+	while (form && form != parentForm) {
+		form = form.extendsForm;
+	}
+	
+	if (form == parentForm) {
+		return true;
+	}
+	
+	return false;
+}
+
+/**
  * Returns all JSForms that are instances of a certain JSForm
  *
  * @param {JSForm} superForm
