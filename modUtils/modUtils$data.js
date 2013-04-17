@@ -148,20 +148,12 @@ function selectNextRecord(foundset) {
  * @properties={typeid:24,uuid:"B645601C-81E3-43A6-AC43-2E18D1019B01"}
  */
 function selectLastRecord(foundset) {
-	//TODO: test
 	var newIdx = databaseManager.getFoundSetCount(foundset)
 	if (!newIdx) return false
 	
 	foundset.getRecord(newIdx)
 	foundset.setSelectedIndex(newIdx);
 	return true
-	
-//	Code below not tested, but taken code above from old method in svy_utils
-//	var curIdx = -1
-//	while (curIdx != foundset.getSelectedIndex()) {
-//		curIdx = foundset.getSelectedIndex()
-//		foundset.setSelectedIndex(foundset.getSize())
-//	}
 }
 
 /**
