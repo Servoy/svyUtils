@@ -114,7 +114,7 @@ function isHostAccessible(hostname, timeout) {
 /**
  * Function to parse urls and retrieve the different parts of it. Taken from http://blog.stevenlevithan.com/archives/parseuri
  * 
- * TODO: A queryString with multiple values for the same parameter is not supported. The queryKey only returns the last value: ?x=1&x=2 becomes ...,"queryKey":{"x":"2"}
+ * TODO: add toString method to get back a url string after updating the parsed results
  * 
  * @param {String} url
  * @param {Boolean} [strictMode] Default false
@@ -159,8 +159,26 @@ function parseUrl(url, strictMode) {
 	while (i--) uri[o.key[i]] = m[i] || "";
 	uri[o.q.name] = { };
 	uri[o.key[12]].replace(o.q.parser, function($0, $1, $2) { 
-			if ($1) uri[o.q.name][$1] = $2;
+			if ($1) {
+				if (uri[o.q.name].hasOwnProperty($1)) {
+					uri[o.q.name][$1].push($2)
+				} else {
+					uri[o.q.name][$1] = [$2]
+				}
+			}
 		});
+
+//Attempt to add a toString function so it becomes easy to alter a parsed url (for example change port) and get the updated URL, but logic is quite complex, see Result List http://stevenlevithan.com/demo/parseuri/js/
+//	uri.toString = function() {
+//		var retval = uri.protocol ? uri.protocol + '://' : ''
+//		if (uri.user) {
+//			retval += retval
+//			if (uri.password) {
+//				retval += ':' + uri.password
+//			}
+//			retval == '@'
+//		}
+//	}
 	return uri;
 }
 
