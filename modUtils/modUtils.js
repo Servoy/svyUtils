@@ -1,4 +1,52 @@
 /**
+ * TODO: add example code, also how to apply this for invocation on the same form
+ * @param {String} qualifiedName
+ * @param {*} [args]
+ * @return {*}
+ * @throws {scopes.modUtils$exceptions.IllegalArgumentException}
+ *
+ * @properties={typeid:24,uuid:"28F6D882-B1B4-4B23-BCC8-71E2DE44F10E"}
+ */
+function callServoyMethod(qualifiedName, args) {
+	if (!qualifiedName) {
+		throw scopes.modUtils$exceptions.IllegalArgumentException('\'qualifiedName\' parameter must be specified')
+	}
+	var methodParts = qualifiedName.split('.')
+	var methodName = methodParts.pop()
+
+	/** @type {Function} */
+	var f
+	var scope
+	if (!methodParts.length || ['forms', 'scopes', 'globals'].indexOf(methodParts[0]) == -1) {
+		scope = this
+	} else {
+		switch (methodParts.shift()) {
+		case 'forms':
+			scope = forms[methodParts.shift()]
+			break;
+		case 'scopes':
+			scope = scopes[methodParts.shift()]
+			break;
+		case 'globals':
+			scope = globals
+			break;
+		default:
+		//Cannot happen
+		}
+
+		while (scope != null && methodParts.length) {
+			scope = scope[methodParts.shift()]
+		}
+	}
+	if (scope) {
+		f = scope[methodName]
+	}
+	if (! (f instanceof Function)) throw scopes.modUtils$exceptions.IllegalArgumentException('\'' + qualifiedName + '\' cannot be resoled to a method')
+
+	return f.apply(scope, args ? Array.isArray(args) ? args : [args] : null)
+}
+
+/**
  * Tests if a given value for the given dataprovider<br>
  * is unique in the table of the given foundset or record
  * 
@@ -262,7 +310,7 @@ function StyleParser(styleName) {
 /**
  * Replaces dataprovider tags such as %%companyname%% in Word, Open Office or Pages documents
  * 
- * @param {plugins.file.JSFile} document
+ * @param {plugins.file.JSFile} file
  * @param {JSRecord} record
  * 
  * @return {Boolean} success
@@ -272,7 +320,7 @@ function StyleParser(styleName) {
  *
  * @properties={typeid:24,uuid:"0ED064BB-72AF-42A9-BD3A-4E85F278C364"}
  */
-function replaceTagsInWordProcessingDocument(document, record) {
+function replaceTagsInWordProcessingDocument(file, record) {
 
 	/**
 	 * @param {plugins.file.JSFile} dir
