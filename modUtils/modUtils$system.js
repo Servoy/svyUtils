@@ -3,6 +3,10 @@
  */
 
 /**
+ * Tests if the current client is web client
+ * 
+ * @return {Boolean}
+ * @public 
  * @properties={typeid:24,uuid:"CA076FBF-D0BE-4C43-8264-0A9B87D52CC0"}
  */
 function isWebClient() {
@@ -10,6 +14,10 @@ function isWebClient() {
 }
 
 /**
+ * Test is the current client is smart client
+ * 
+ * @return {Boolean}
+ * @public 
  * @properties={typeid:24,uuid:"F7529082-605B-4ADC-A010-84936034B364"}
  */
 function isSmartClient() {
@@ -17,29 +25,57 @@ function isSmartClient() {
 }
 
 /**
+ * Test if the current client is runtime client
+ * 
+ * @return {Boolean}
+ * @public 
  * @properties={typeid:24,uuid:"B37DF176-F87D-49EF-8558-BD6D993C1A8F"}
  */
 function isRuntimeClient() {
 	return application.getApplicationType() == APPLICATION_TYPES.RUNTIME_CLIENT
 }
 
+
+/**
+ * Test if the current client is headless client
+ * 
+ * @return {Boolean}
+ * @public 
+ * @properties={typeid:24,uuid:"8848A72B-257F-4D53-8B93-67141285CB18"}
+ */
+function isHeadlessClient(){
+	return application.getApplicationType() == APPLICATION_TYPES.HEADLESS_CLIENT;
+}
+
 /**
  * Returns true if the client is either the Smart or Runtime Client
+ * 
+ * @return {Boolean}
+ * @public 
  * @properties={typeid:24,uuid:"C7915F79-3B6C-4F99-B898-D1287B6A7D36"}
  */
 function isSwingClient() {
 	return [APPLICATION_TYPES.SMART_CLIENT, APPLICATION_TYPES.RUNTIME_CLIENT].indexOf(application.getApplicationType()) >= 0;
 }
 
-//TODO: uncomment in Servoy 7.0
-///**
-// * @properties={typeid:24,uuid:"15818D17-D669-4173-AC74-9F44FD67A168"}
-// */
-//function isMobileClient() {
-//	return application.getApplicationType() == APPLICATION_TYPES.MOBILE_CLIENT
-//}
+/**
+ * Test if the current client is servoy mobile
+ * 
+ * @return {Boolean}
+ * @public 
+ * @properties={typeid:24,uuid:"15818D17-D669-4173-AC74-9F44FD67A168"}
+ */
+function isMobileClient() {
+	
+	//	TODO: Refactor this method when new constant available for 'MOBILE_CLIENT' loose literal
+	return application.getApplicationType() == APPLICATION_TYPES['MOBILE_CLIENT'];
+}
 
 /**
+ * Test if the current client is running Windows OS
+ * 
+ * @return {Boolean}
+ * @public 
  * @properties={typeid:24,uuid:"D7B84F92-ACFB-48F0-9880-30111887DA75"}
  */
 function isWindowsPlatform() {
@@ -47,6 +83,10 @@ function isWindowsPlatform() {
 }
 
 /**
+ * Test if current client is running Mac OS
+ * 
+ * @return {Boolean}
+ * @public 
  * @properties={typeid:24,uuid:"9AFA3C4F-A513-4F5E-A3F7-FD3B370D07F4"}
  */
 function isOSXPlatform() {
@@ -54,6 +94,10 @@ function isOSXPlatform() {
 }
 
 /**
+ * Test if current client is running Linux OS
+ * 
+ * @return {Boolean}
+ * @public 
  * @properties={typeid:24,uuid:"2C7CEF33-6B1A-427D-8DD2-3E98F3926014"}
  */
 function isLinuxPlatform() {
@@ -63,6 +107,9 @@ function isLinuxPlatform() {
 
 /**
  * Tests if the User Agent indicates an iPhone, iPad or iPod device (in Servoy Web Client)
+ * 
+ * @return {Boolean}
+ * @public 
  * @properties={typeid:24,uuid:"00D7B1A3-72BF-4A1A-9994-133C8545DBCC"}
  */
 function isIOSPlatform() {
@@ -77,6 +124,9 @@ function isIOSPlatform() {
 
 /**
  * Tests if the User Agent indicates an Android device (in Servoy Web Client)
+ * 
+ * @return {Boolean}
+ * @public 
  * @properties={typeid:24,uuid:"A3AEA4D4-DA10-4C6B-AC27-35E706C4ED75"}
  */
 function isAndroidPlatform() {
@@ -92,6 +142,9 @@ function isAndroidPlatform() {
 
 /**
  * Tests if the User Agent indicates an Android or iOS device (in Servoy Web Client)
+ * 
+ * @return {Boolean}
+ * @public 
  * @properties={typeid:24,uuid:"3B743FE3-088D-4754-BEDD-1A8FD059121A"}
  */
 function isMobilePlatform() {
@@ -112,6 +165,7 @@ function isMobilePlatform() {
  * @param {String} [methodName]
  * @param {Object<Array<String>>} [args]
  * @return {String}
+ * @public 
  * @properties={typeid:24,uuid:"4E7BDFBE-B409-4F3D-9D16-EE298EE58DA8"}
  */
 function getSolutionDeepLinkSmartClient(solutionName, methodName, args){
@@ -142,6 +196,7 @@ function getSolutionDeepLinkSmartClient(solutionName, methodName, args){
  * @param {String} [methodName]
  * @param {Object} [args]
  * @return {String}
+ * @public 
  * @properties={typeid:24,uuid:"493977A5-FC79-4123-B73A-C64A224E166B"}
  */
 function getSolutionDeepLinkWebClient(solutionName, methodName, args){
@@ -172,7 +227,7 @@ function getSolutionDeepLinkWebClient(solutionName, methodName, args){
  * Sets the value for the defined user property. Setting is persistent. Persistence is implementation-specific
  * @param {String} name
  * @param {String} value
- *
+ * @public 
  * @properties={typeid:24,uuid:"F87CEA54-6C6D-4906-90B5-E909E0AD97B7"}
  */
 function setUserProperty(name, value){
@@ -184,6 +239,7 @@ function setUserProperty(name, value){
  *  
  * @param {String} name
  * @return {String}
+ * @public 
  * @properties={typeid:24,uuid:"4FA111EE-21DC-4EB1-B2B4-AB17D8C191C1"}
  */
 function getUserProperty(name){
@@ -225,6 +281,7 @@ function getUserPropertyPersistenceImpl(){
 
 /**
  * Used by persistFormInMemory()/desistFormInMemory() to store references to forms so they are not automatically unloaded
+ * 
  * @private 
  * @properties={typeid:35,uuid:"CB9D19C2-CD8D-4654-A193-95E83848E4AC",variableType:-4}
  */
@@ -235,6 +292,7 @@ var persistentForms = []
  * @param {RuntimeForm} form
  *
  * @see Also see {@link #desistFormInMemory()}
+ * @public 
  * @properties={typeid:24,uuid:"119B971F-3D85-4EB6-AC32-5AF5511BA701"}
  */
 function persistFormInMemory(form) {
@@ -245,9 +303,10 @@ function persistFormInMemory(form) {
 
 /**
  * Allow a form previously marked to not be automatically unloaded using {@link #persistFormInMemory(form)} to be automatically unloaded again
+ * 
  * @param {RuntimeForm} form
  * @see Also see {@link #persistFormInMemory(form)}
- *
+ * @public 
  * @properties={typeid:24,uuid:"D95CC74A-84B2-4B20-8F19-F56B8964E1E5"}
  */
 function desistFormInMemory(form) {
