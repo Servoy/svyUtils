@@ -311,6 +311,8 @@ function readFile(file, lineCallback, charset) {
      }
 }
 
+//TODO: add readXMLFile(...) according to this: https://www.servoy.com/forum/viewtopic.php?f=12&t=14666&sid=90df09038b66e906882586b6943681f7&p=105766#p105766
+
 /**
  * @param {plugins.file.JSFile} file
  * @throws {IOException}
