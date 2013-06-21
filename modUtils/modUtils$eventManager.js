@@ -32,6 +32,8 @@
  * - don't store function references but Strings, to prevent mem leaks
  * - Removed binding param, as irrelevant within the context of Servoy (Servoy takes care of the binding)
  * - Modified the way arguments are applied when invoking a listener
+ * 
+ * TODO: add support for listeners on FoundSets by creating a JavaClass that allows you to access Servoy's public API on FoundSets to add a listener and load this through the media/bin
  */
 
 /**
