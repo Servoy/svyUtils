@@ -168,17 +168,28 @@ function parseUrl(url, strictMode) {
 			}
 		});
 
-//Attempt to add a toString function so it becomes easy to alter a parsed url (for example change port) and get the updated URL, but logic is quite complex, see Result List http://stevenlevithan.com/demo/parseuri/js/
-//	uri.toString = function() {
-//		var retval = uri.protocol ? uri.protocol + '://' : ''
-//		if (uri.user) {
-//			retval += retval
-//			if (uri.password) {
-//				retval += ':' + uri.password
-//			}
-//			retval == '@'
-//		}
-//	}
+	//Attempt to add a toString function so it becomes easy to alter a parsed url (for example change port) and get the updated URL, but logic is quite complex, see Result List http://stevenlevithan.com/demo/parseuri/js/
+	//TODO: update authority & relative values when setting one of their parts
+	//TODO: support queryParams
+	//TODO: test all variations
+	uri.toString = function() {
+		var retval = uri.protocol ? uri.protocol + '://' : ''
+		if (uri.user) {
+			retval += uri.user
+			if (uri.password) {
+				retval += uri.user.lastIndexOf(':') != uri.user.length ? ':' : ''
+				retval += uri.password
+			}
+			retval += '@'
+		}
+		if (uri.host) retval += uri.host
+		if (uri.port) retval += ':' + uri.port
+		if (uri.directory) retval += uri.directory
+		if (uri.file) retval += uri.file
+		if (uri.query) retval += '?' + uri.query
+		if (uri.anchor) retval += '#' + uri.anchor
+		return retval
+	}
 	return uri;
 }
 
