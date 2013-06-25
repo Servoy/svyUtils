@@ -1,4 +1,21 @@
 /*
+ * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2013 Servoy BV 
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
  * Implementation based on http://www.josh-davis.org/node/4, http://www.josh-davis.org/files/uploads/2007/05/custom-event-listeners.js
  * ---------------------------------------------------------------------------------------------------------
  * Copyright (c) 2007 	Josh Davis ( http://joshdavis.wordpress.com )
@@ -175,9 +192,7 @@ function getActionIdx(obj, evt, eventHandler) {
  * @param {*|String} obj The object on which to listen for events. Supported are forms, globals and custom scopes
  * @param {String} eventType The event identifier
  * @param {Function|String} eventHandler The listener method to execute upon event firing
- * 
- * @return {Boolean} Returns true if adding the listener succeeded, false otherwise.
- * 
+
  * @example <pre>var EVENT_TYPES = {
  * 	MY_OWN_EVENT_TYPE: 'myOwnEventType'
  * }
@@ -195,14 +210,21 @@ function getActionIdx(obj, evt, eventHandler) {
  * }
  * </pre>
  * 
+ * @public
  * @example <pre>scopes.modUtils$eventManager.addListener('forms.myForm', 'myEvent', 'scopes.myCustomScope.myEventHandlerMethod')</pre>
+ * @throws {scopes.modUtils$exceptions.IllegalArgumentException} When the target or listener could not be resolved to a node path in the solution model
  * 
  * @properties={typeid:24,uuid:"B55D1349-D418-4775-BB05-0451D7438A62"}
  */
 function addListener(obj, eventType, eventHandler) {
-	var objectString = convertObjectToString(obj)
-	var actionString = convertObjectToString(eventHandler)
-	if (!actionString) return false
+	var objectString = convertObjectToString(obj);
+	if(!objectString){
+		throw new scopes.modUtils$exceptions.IllegalArgumentException('Target could not be resolved to a node path in soution model');
+	}
+	var actionString = convertObjectToString(eventHandler);
+	if (!actionString){
+		throw new scopes.modUtils$exceptions.IllegalArgumentException('Event handler could not be resolved to a node path in soution model');
+	}
 
 	if (events[objectString]) {
 		if (events[objectString][eventType]) {
@@ -219,7 +241,6 @@ function addListener(obj, eventType, eventHandler) {
 		events[objectString][eventType] = [];
 		events[objectString][eventType][0] = actionString;
 	}
-	return true
 }
 
 /**
@@ -231,6 +252,8 @@ function addListener(obj, eventType, eventHandler) {
  * @param {String} eventType The event identifier
  * @param {Function|String} eventHandler The listener to remove
  *
+ * @public
+ *  
  * @properties={typeid:24,uuid:"999BAC85-4450-4FF1-8252-BDC403778E06"}
  */
 function removeListener(obj, eventType, eventHandler) {
@@ -263,6 +286,8 @@ function removeListener(obj, eventType, eventHandler) {
  * @param {String} eventType The event identifier
  * @param {*|Array<*>} [args] An value or Array of values to apply as arguments to the eventHandler invocation
  *
+ * @public
+ * 
  * @properties={typeid:24,uuid:"06FDBBB0-D4AF-48E1-BE0F-858BC089D977"}
  */
 function fireEvent(obj, eventType, args) {
@@ -342,19 +367,36 @@ function fireEvent(obj, eventType, args) {
  *  }()
  *</pre>
  *
+ * @public
+ *  
  * @properties={typeid:24,uuid:"C72578DE-E6DE-4CBF-B958-6835A203ED3B"}
  */
 function Event(type, source, data) {
 	this.data = data
 	
+	/**
+	 * Gets the event type
+	 * @return {String}
+	 * @public 
+	 */
 	this.getType = function(){
 		return type
 	}
 	
+	/**
+	 * Gets the event source, can be anything
+	 * @return {Object}
+	 * @public 
+	 */
 	this.getSource = function() {
 		return source
 	}
 	
+	/**
+	 * Gets a string representation of the Object
+	 * @return {String}
+	 * @override 
+	 */
 	this.toString = function (){
 		var props = {
 			type: this.getType(),
