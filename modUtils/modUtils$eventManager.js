@@ -90,6 +90,7 @@ function convertFunctionToString(action) {
 }
 
 /**
+ * TODO: add full support for "Named elements/variables/methods of RuntimeForms". Currently works when passed as a string, but not as an object
  * @private 
  * @param {*} obj
  *
@@ -119,8 +120,7 @@ function convertObjectToString(obj) {
 				} else if (objStringParts.length == 2) {
 					return obj
 				} else if ( (objStringParts[1] in forms && forms[objStringParts[1]][objStringParts[2]]) ||
-						    (solutionModel.getForm(objStringParts[1]).getComponent(objStringParts[2] || 
-						     solutionModel.getForm(objStringParts[1]).getBean(objStringParts[2]) || 
+						    ((objStringParts[2] == 'elements' && (solutionModel.getForm(objStringParts[1]).getComponent(objStringParts[2] || solutionModel.getForm(objStringParts[1]).getBean(objStringParts[2]))) || 
 							 solutionModel.getForm(objStringParts[1]).getMethod(objStringParts[2]) ||
 							 solutionModel.getForm(objStringParts[1]).getVariable(objStringParts[2])))) {
 					return obj
@@ -186,13 +186,18 @@ function getActionIdx(obj, evt, eventHandler) {
 	return -1;
 }
 
+//TODO: add full support for "Named elements/variables/methods of RuntimeForms," to the obj param: 
 /**
- * Adds a listener
+ * Adds a Servoy method as listener for the specified eventType on the specified object
  * 
- * @param {*|String} obj The object on which to listen for events. Supported are forms, globals and custom scopes
+ * @public
+ * 
+ * @param {*|String} obj The object on which to listen for events. Supported are RuntimeForms, scopes or custom String identifiers ('.' not allowed in the custom String identifier)
  * @param {String} eventType The event identifier
- * @param {Function|String} eventHandler The listener method to execute upon event firing
-
+ * @param {Function|String} eventHandler The Servoy method to execute upon event firing
+ * 
+ * @throws {scopes.modUtils$exceptions.IllegalArgumentException} When the obj or eventHandler could not be resolved to a node in the Servoy Object Model
+ * 
  * @example <pre>var EVENT_TYPES = {
  * 	MY_OWN_EVENT_TYPE: 'myOwnEventType'
  * }
@@ -210,20 +215,18 @@ function getActionIdx(obj, evt, eventHandler) {
  * }
  * </pre>
  * 
- * @public
  * @example <pre>scopes.modUtils$eventManager.addListener('forms.myForm', 'myEvent', 'scopes.myCustomScope.myEventHandlerMethod')</pre>
- * @throws {scopes.modUtils$exceptions.IllegalArgumentException} When the target or listener could not be resolved to a node path in the solution model
  * 
  * @properties={typeid:24,uuid:"B55D1349-D418-4775-BB05-0451D7438A62"}
  */
 function addListener(obj, eventType, eventHandler) {
 	var objectString = convertObjectToString(obj);
 	if(!objectString){
-		throw new scopes.modUtils$exceptions.IllegalArgumentException('Target could not be resolved to a node path in soution model');
+		throw new scopes.modUtils$exceptions.IllegalArgumentException('obj parameter could not be resolved to a node path in the Servoy Object Model');
 	}
 	var actionString = convertObjectToString(eventHandler);
 	if (!actionString){
-		throw new scopes.modUtils$exceptions.IllegalArgumentException('Event handler could not be resolved to a node path in soution model');
+		throw new scopes.modUtils$exceptions.IllegalArgumentException('eventHandler parameter could not be resolved to a Servoy method');
 	}
 
 	if (events[objectString]) {
@@ -328,7 +331,8 @@ function fireEvent(obj, eventType, args) {
  * <br/>
  * Implementations can extend this base class or use it directly<br/>
  * <br/>
- * @constructor 
+ * @constructor
+ * @public
  * 
  * @param {String} type
  * @param {*} source
@@ -366,8 +370,6 @@ function fireEvent(obj, eventType, args) {
  *  	Event.prototype = Object.create(scopes.modUtils$eventManager.Event.prototype); //Set the custom event's prototype to the base class, without invoking the constructor
  *  }()
  *</pre>
- *
- * @public
  *  
  * @properties={typeid:24,uuid:"C72578DE-E6DE-4CBF-B958-6835A203ED3B"}
  */
@@ -385,8 +387,8 @@ function Event(type, source, data) {
 	
 	/**
 	 * Gets the event source, can be anything
-	 * @return {Object}
 	 * @public 
+	 * @return {*}
 	 */
 	this.getSource = function() {
 		return source
