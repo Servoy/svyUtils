@@ -256,7 +256,7 @@ function addSeconds(date, seconds) {
  * @properties={typeid:24,uuid:"A5EA88C3-4089-4B27-848A-12F4B91CACBD"}
  */
 function addMilliseconds(date, milliseconds) {
-	return addToDate(date, java.util.Calendar.MILLISECOND, seconds);
+	return addToDate(date, java.util.Calendar.MILLISECOND, milliseconds);
 }
 
 /**
