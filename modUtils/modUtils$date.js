@@ -245,6 +245,21 @@ function addSeconds(date, seconds) {
 }
 
 /**
+ * Adds the given number of milliseconds to the given date and returns a new dat<br>
+ * Negative number of milliseconds will be substracted
+ * 
+ * @param {Date} date - the date to add to
+ * @param {Number} milliseconds - number of seconds to add
+ * 
+ * @return {Date} result
+ *
+ * @properties={typeid:24,uuid:"A5EA88C3-4089-4B27-848A-12F4B91CACBD"}
+ */
+function addMilliseconds(date, milliseconds) {
+	return addToDate(date, java.util.Calendar.MILLISECOND, seconds);
+}
+
+/**
  * Sets the time of the given date to 00:00:00.000
  * 
  * @param {Date} date
