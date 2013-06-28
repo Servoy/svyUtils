@@ -3,7 +3,6 @@
 	<name>modUtils</name>
 	<comment></comment>
 	<projects>
-		<project>resources</project>
 		<project>servoy_localhost_resources</project>
 	</projects>
 	<buildSpec>
