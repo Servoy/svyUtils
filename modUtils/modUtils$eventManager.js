@@ -277,6 +277,12 @@ function removeListener(obj, eventType, eventHandler) {
  * <br>
  * NOTE when the method specified as eventHandler in {@link #addListener()} is a Form method and the form is not loaded when the event is fired, the eventHandler will NOT be invoked
  *  
+ * @public
+ * 
+ * @param {*|String} obj The object on which behalf to fire the event
+ * @param {String} eventType The event identifier
+ * @param {*|Array<*>} [args] An value or Array of values to apply as arguments to the eventHandler invocation
+ *
  * @example <pre> //Example of using the Event class to fire an Event
  * var EVENT_TYPES = {
  * 	MY_OWN_EVENT_TYPE: 'myOwnEventType'
@@ -285,12 +291,6 @@ function removeListener(obj, eventType, eventHandler) {
  * scopes.modUtils$eventManager.fireEvent(id, EVENT_TYPES.MY_OWN_EVENT_TYPE, event)
  *</pre>
  *
- * @param {*|String} obj The object on which behalf to fire the event
- * @param {String} eventType The event identifier
- * @param {*|Array<*>} [args] An value or Array of values to apply as arguments to the eventHandler invocation
- *
- * @public
- * 
  * @properties={typeid:24,uuid:"06FDBBB0-D4AF-48E1-BE0F-858BC089D977"}
  */
 function fireEvent(obj, eventType, args) {
