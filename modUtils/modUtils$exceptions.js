@@ -105,6 +105,20 @@ function IllegalStateException(errorMessage) {
 }
 
 /**
+ * Raised when a method marked as @abstract is called
+ *
+ * @param {String} errorMessage
+ *
+ * @constructor
+ * @extends {IllegalStateException}
+ *
+ * @properties={typeid:24,uuid:"1B51ABB6-289A-4CCB-A029-73B7D7B9660E"}
+ */
+function AbstractMethodInvocationException(errorMessage) {
+	SvyException.call(this, errorMessage);
+}
+
+/**
  * Set all prototypes to super class
  *
  * @protected
