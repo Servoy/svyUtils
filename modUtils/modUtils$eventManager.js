@@ -51,6 +51,8 @@
  * - Modified the way arguments are applied when invoking a listener
  * 
  * TODO: add support for listeners on FoundSets by creating a JavaClass that allows you to access Servoy's public API on FoundSets to add a listener and load this through the media/bin
+ * TODO: allow classes to instantiate their own eventManager, with a local store of events, to improve performance
+ * 
  */
 
 /**
@@ -300,7 +302,7 @@ function fireEvent(obj, eventType, args) {
 		if (evtel) {
 			var curel = evtel[eventType];
 			if (curel) {
-				for (var act in curel) {
+				for (var act in curel) { //Is this a save loop? what if on fireEvent a listener removes itself or another one?
 					if (!curel[act]) continue
 					var actionStringParts = curel[act].split('.');
 					var scope
