@@ -15,15 +15,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+
 /**
- * DatasetGrid constructor<p>
+ * Creates a DatasetGrid object that creates a table view form from a dataset that can be added to a tab panel
  * 
- * A DatasetGrid object takes a dataset and creates a table view form that can be added to a tab panel
+ * @public
  * 
+ * @version 5.0
+ * @since 
+ * @author patrick
+ * 
+ * @param {JSDataSet} dataset
+ * @param {Array<String>} [columnHeaders]
+ * @param {Array<String>} [dataproviders]
+ * @param {Array<Number>} [columnTypes]
+ *
  * @example <pre>
  * var query = "select companyname, contactname, address, city, postalcode FROM customers";
  * var dataset = databaseManager.getDataSetByQuery("example_data", query, null, -1);
- * var grid = new scopes.modUtils$datasetGrid.DatasetGrid(dataset, ["Company", "Contact", "Address", "City", "Postal code"]);
+ * var grid = scopes.modUtils$datasetGrid.createDatasetGrid(dataset, ["Company", "Contact", "Address", "City", "Postal code"]);
  * 
  * // set styling
  * grid.style = "pv";
@@ -45,16 +55,25 @@
  * 
  * // Add the grid to a tab panel
  * grid.addToPanel(elements.tabless,"customerTable");</pre>
+ *
+ * @properties={typeid:24,uuid:"1FE0935A-0825-4BE5-AE50-DA22C3CA5AD0"}
+ */
+function createDatasetGrid(dataset, columnHeaders, dataproviders, columnTypes) {
+	return new DatasetGrid(dataset, columnHeaders, dataproviders, columnTypes);
+}
+
+/**
+ * DatasetGrid constructor<p>
  * 
- * @param {JSDataSet} dataset
- * @param {Array<String>} [columnHeaders]
- * @param {Array<String>} [dataproviders]
+ * A DatasetGrid object takes a dataset and creates a table view form that can be added to a tab panel
+ * 
+ * 
  * 
  * @constructor 
  *
  * @properties={typeid:24,uuid:"5738DD1A-37EE-4EE1-B6A7-1E5DCB3BF17D"}
  */
-function DatasetGrid(dataset, columnHeaders, dataproviders) {
+function DatasetGrid(dataset, columnHeaders, dataproviders, columnTypes) {
 	
 	/** 
 	 * Array of GridColumns to show
@@ -361,6 +380,32 @@ function DatasetGrid(dataset, columnHeaders, dataproviders) {
 		this.onDataChange = null;
 		
 		/**
+		 * The horizontal alignment of the column
+		 * @type {Number}
+		 */
+		this.horizontalAlignment = SM_ALIGNMENT.LEFT;
+		
+		/**
+		 * The horizontal alignment of the column header label
+		 * @type {Number}
+		 */
+		this.headerHorizontalAlignment = SM_ALIGNMENT.LEFT;
+		
+		/**
+		 * The vertical alignment of the column<p>
+		 * 
+		 * This is only applied to labels
+		 * @type {Number}
+		 */
+		this.verticalAlignment = null;
+		
+		/**
+		 * The vertical alignment of the column header
+		 * @type {Number}
+		 */
+		this.headerVerticalAlignment = null;
+		
+		/**
 		 * Sets the width of the column
 		 * @param {Number} width
 		 */
@@ -422,6 +467,42 @@ function DatasetGrid(dataset, columnHeaders, dataproviders) {
 			this.headerText = headerText;
 			return this;			
 		}
+		
+		/**
+		 * Sets the horizontal alignment for this column
+		 * @param {Number} horizontalAlignment
+		 */
+		this.setHorizontalAlignment = function(horizontalAlignment) {
+			this.horizontalAlignment = horizontalAlignment;
+			return this;			
+		}	
+		
+		/**
+		 * Sets the vertical alignment for this column
+		 * @param {Number} verticalAlignment
+		 */
+		this.setVerticalAlignment = function(verticalAlignment) {
+			this.verticalAlignment = verticalAlignment;
+			return this;			
+		}	
+		
+		/**
+		 * Sets the horizontal alignment for this column's header
+		 * @param {Number} horizontalAlignment
+		 */
+		this.setHeaderHorizontalAlignment = function(horizontalAlignment) {
+			this.headerHorizontalAlignment = horizontalAlignment;
+			return this;			
+		}	
+		
+		/**
+		 * Sets the vertical alignment for this column
+		 * @param {Number} verticalAlignment
+		 */
+		this.setHeaderVerticalAlignment = function(verticalAlignment) {
+			this.headerVerticalAlignment = verticalAlignment;
+			return this;			
+		}		
 		
 		/**
 		 * Sets the style class of this column, overriding the rowStyleClass property of the grid
@@ -499,8 +580,6 @@ function DatasetGrid(dataset, columnHeaders, dataproviders) {
 		}
 	}
 	
-	
-	
 	var useHeaders;
 	if (!dataproviders) {
 		useHeaders = false;
@@ -517,7 +596,7 @@ function DatasetGrid(dataset, columnHeaders, dataproviders) {
 		}
 	} else {
 		useHeaders = false;
-		if (columnHeaders && columnHeaders.length == dataproviders.length) {
+		if (columnHeaders && columnHeaders.length >= dataproviders.length) {
 			useHeaders = true;
 		}
 		for (var i = 0; i < dataproviders.length; i++) {
@@ -534,7 +613,7 @@ function DatasetGrid(dataset, columnHeaders, dataproviders) {
 	 * 
 	 * @this {DatasetGrid}
 	 * 
-	 * @param {String} formName the name of the form to be created
+	 * @param {String} [formName] the name of the form to be created
 	 * 
 	 * @return {RuntimeForm}
 	 */
@@ -545,7 +624,12 @@ function DatasetGrid(dataset, columnHeaders, dataproviders) {
 		}
 		this.formName = formName;
 		
-		var datasource = this.data.createDataSource(formName + "_datasource");
+		var datasource;
+		if (columnTypes) {
+			datasource = this.data.createDataSource(formName + "_datasource", columnTypes);
+		} else {
+			datasource = this.data.createDataSource(formName + "_datasource");
+		}
 		
 		history.removeForm(formName);
 		solutionModel.removeForm(formName);
@@ -605,6 +689,9 @@ function DatasetGrid(dataset, columnHeaders, dataproviders) {
 				jsComponent.anchors = gridColumn.anchors;
 				jsComponent.styleClass = gridColumn.styleClass ? gridColumn.styleClass : this.rowStyleClass;
 				jsComponent.format = gridColumn.format;
+				
+				jsComponent.horizontalAlignment = gridColumn.horizontalAlignment;
+				
 				if (!gridColumn.isLabel) {
 					jsComponent.editable = gridColumn.editable;
 					if (gridColumn.valueListName) {
@@ -621,6 +708,9 @@ function DatasetGrid(dataset, columnHeaders, dataproviders) {
 					} else if (gridColumn.onDoubleClick) {
 						jsComponent.onDoubleClick = createFunctionCallMethod(jsForm, gridColumn.onDoubleClick);
 					}
+					if (gridColumn.verticalAlignment) {
+						jsComponent.verticalAlignment = gridColumn.verticalAlignment;
+					}
 				}
 				if (onActionMethod && !gridColumn.onAction) {
 					jsComponent.onAction = onActionMethod;
@@ -634,6 +724,8 @@ function DatasetGrid(dataset, columnHeaders, dataproviders) {
 				if (!jsHeaderLabel.styleClass) {
 					jsHeaderLabel.transparent = true;
 				}
+				jsHeaderLabel.horizontalAlignment = gridColumn.headerHorizontalAlignment;
+				jsHeaderLabel.verticalAlignment = gridColumn.headerVerticalAlignment;
 				jsHeaderLabel.labelFor = jsComponent.name;
 				
 				startX += gridColumn.width;
@@ -648,21 +740,24 @@ function DatasetGrid(dataset, columnHeaders, dataproviders) {
 	 * Adds the grid to the given tab panel
 	 * 
 	 * @param {RuntimeTabPanel} panel
-	 * @param {String} formName
+	 * @param {String} [formName]
 	 * @param {String} [tabText]
 	 * @param {Number} [index]
 	 * 
 	 * @return {RuntimeForm}
 	 */
 	this.addToPanel = function(panel, formName, tabText, index) {
-		if (panel.getMaxTabIndex()) {
-			for (var t = 1; t <= panel.getMaxTabIndex(); t++) {
-				if (panel.getTabFormNameAt(t) == formName) {
-					panel.removeTabAt(t);
-					if (!index) {
-						index = t;
+		if (formName) {
+			// try to remove form from panel
+			if (panel.getMaxTabIndex()) {
+				for (var t = 1; t <= panel.getMaxTabIndex(); t++) {
+					if (panel.getTabFormNameAt(t) == formName) {
+						panel.removeTabAt(t);
+						if (!index) {
+							index = t;
+						}
+						break;
 					}
-					break;
 				}
 			}
 		}
