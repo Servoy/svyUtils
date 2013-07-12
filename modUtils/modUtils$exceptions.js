@@ -115,7 +115,7 @@ function IllegalStateException(errorMessage) {
  * @properties={typeid:24,uuid:"1B51ABB6-289A-4CCB-A029-73B7D7B9660E"}
  */
 function AbstractMethodInvocationException(errorMessage) {
-	SvyException.call(this, errorMessage);
+	IllegalStateException.call(this, errorMessage);
 }
 
 /**
@@ -126,9 +126,8 @@ function AbstractMethodInvocationException(errorMessage) {
  * @properties={typeid:35,uuid:"36364157-A05A-4806-B13E-DA08DD8C27D6",variableType:-4}
  */
 var init = function() {
-
 	IllegalArgumentException.prototype = new SvyException("Illegal argument");
 	IllegalStateException.prototype = new SvyException("Illegal state");
 	UnsupportedOperationException.prototype = new SvyException("Unsupported operation");
-
+	AbstractMethodInvocationException.prototype = new IllegalStateException("Abstract method called");
 }()
