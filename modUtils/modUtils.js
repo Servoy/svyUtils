@@ -152,7 +152,7 @@ function objectHasValue(object, value) {
 function getTextWidth(font, text) {
 	var fontParts = font.split(",");
 	var javaFont = new java.awt.Font(fontParts[0], fontParts[1], fontParts[2]);
-	var tlkt = Packages.java.awt.Toolkit.getDefaultToolkit(); 
+	var tlkt = java.awt.Toolkit.getDefaultToolkit(); 
 	var metrics = tlkt.getFontMetrics(javaFont);
 	if (text.substr(0,5) == "i18n:") {
 		text = i18n.getI18NMessage(text);
@@ -178,7 +178,7 @@ function getTextHeight(font) {
 	}
 	var fontParts = font.split(",");
 	var javaFont = new java.awt.Font(fontParts[0], fontParts[1], fontParts[2]);
-	var tlkt = Packages.java.awt.Toolkit.getDefaultToolkit(); 
+	var tlkt = java.awt.Toolkit.getDefaultToolkit(); 
 	var metrics = tlkt.getFontMetrics(javaFont);
 	return metrics.getHeight();
 }
@@ -432,3 +432,36 @@ function jsonConvertToObject(databaseValue, dbType) {
 	if (databaseValue == null) return null;
 	return JSON.parse(databaseValue)
 }
+
+/*Attempt to replace globals.svy_utl_getTypeOf, but doesn't work that well (yet)
+ * =>scopes.modUtils.getType(undefined)
+ * global
+ * =>scopes.modUtils.getType(null)
+ * global
+ * =>var x = databaseManager.createEmptyDataSet()
+ * =>scopes.modUtils.getType(x)
+ * jsdataset
+ * =>scopes.modUtils.getType(databaseManager.getFoundSet('db:/svy_framework/log'))
+ * foundset
+ * =>scopes.modUtils.getType(solutionModel.getForm('AbstractModuleDef'))
+ * javaobject
+ * =>scopes.modUtils.getType(plugins)
+ * pluginscope
+ * =>scopes.modUtils.getType(forms)
+ * creationalprototype
+ * =>scopes.modUtils.getType(forms.AbstractModuleDef.controller)
+ * javaobject
+ * =>scopes.modUtils.getType(forms.AbstractModuleDef.getId())
+ * global
+ * =>scopes.modUtils.getType(forms.AbstractModuleDef.getId)
+ * function
+ */
+///**
+// * based on http://javascriptweblog.wordpress.com/2011/08/08/fixing-the-javascript-typeof-operator
+// * @param {*} object
+// *
+// * @properties={typeid:24,uuid:"05736CB2-5541-4656-833F-CDCF1B879462"}
+// */
+//function getType(object) {
+//	return {}.toString.call(object).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
+//}
