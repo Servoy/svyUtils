@@ -29,10 +29,13 @@
  * @param {String} errorMessage
  *
  * @constructor
+ * @extends {Error}
  *
  * @properties={typeid:24,uuid:"8D4DBBD3-4162-4F23-A61E-5875936E8AAB"}
  */
 function SvyException(errorMessage) {
+	Error.call(this, errorMessage)
+	
 	/**
 	 * Returns the exception message
 	 *
@@ -53,8 +56,7 @@ function SvyException(errorMessage) {
 	Object.defineProperty(this, "message", {
 		get: function() {
 			return errorMessage;
-		},
-		set: function(x) {}
+		}
 	});
 }
 
@@ -119,13 +121,11 @@ function AbstractMethodInvocationException(errorMessage) {
 }
 
 /**
- * Set all prototypes to super class
- *
- * @protected
- *
- * @properties={typeid:35,uuid:"36364157-A05A-4806-B13E-DA08DD8C27D6",variableType:-4}
- */
+  * @properties={typeid:35,uuid:"36364157-A05A-4806-B13E-DA08DD8C27D6",variableType:-4}
+  */
 var init = function() {
+	SvyException.prototype = new Error()
+	SvyException.prototype.constructor = SvyException
 	IllegalArgumentException.prototype = new SvyException("Illegal argument");
 	IllegalStateException.prototype = new SvyException("Illegal state");
 	UnsupportedOperationException.prototype = new SvyException("Unsupported operation");
