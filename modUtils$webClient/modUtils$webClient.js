@@ -280,19 +280,31 @@ function convertToExternalURL(url, disableAutoAdjustProtocol) {
 }
 
 /**
- * TODO: test if the used way of getting the pageContributer is correct
+ * Executes the supplied JavaScript code string in the browser on the next render cycle
  * @param {String} script
+ * @param {JSWindow|String} [window]
  *
  * @properties={typeid:24,uuid:"125243AB-90B0-424A-8CFD-338584E0E10A"}
  */
-function executeClientsideScript(script) {
+function executeClientsideScript(script, window) {
+	checkOperationSupported()
 	if (!script) return
 	script = utils.stringTrim(script)
-	if (!(script.charAt(-1) == ';')) {
+	if (script.charAt(-1) != ';') {
 		script += ';'
 	}
-	getWebClientPluginAccess().getPageContributor().addDynamicJavaScript(script);
+	if (window) {
+		var windowName = window instanceof JSWindow ? window.getName() : window === 'null' ? null : window
+		/** @type {Packages.com.servoy.j2db.FormManager} */
+		var fm = getWebClientPluginAccess().getFormManager()
+		/** @type {Packages.com.servoy.j2db.server.headlessclient.MainPage} */
+		var mp = fm.getMainContainer(windowName)
+		mp.getPageContributor().addDynamicJavaScript(script)
+	} else {
+		getWebClientPluginAccess().getPageContributor().addDynamicJavaScript(script);
+	}
 }
+
 
 /**
  * @experimental: implementation might change
