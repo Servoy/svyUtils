@@ -224,7 +224,7 @@ function getActionIdx(obj, evt, eventHandler) {
 function addListener(obj, eventType, eventHandler) {
 	var objectString = convertObjectToString(obj);
 	if(!objectString){
-		throw new scopes.modUtils$exceptions.IllegalArgumentException('obj parameter could not be resolved to a node path in the Servoy Object Model');
+		throw new scopes.modUtils$exceptions.IllegalArgumentException('obj parameter could not be resolved to a node path in the Servoy Object Model: ' + obj);
 	}
 	var actionString = convertObjectToString(eventHandler);
 	if (!actionString){
