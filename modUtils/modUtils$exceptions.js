@@ -58,8 +58,6 @@ function SvyException(errorMessage) {
 	});
 }
 
-
-
 /**
  * Raised when an argument is not legal
  *
