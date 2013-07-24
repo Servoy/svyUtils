@@ -34,8 +34,6 @@
  * @properties={typeid:24,uuid:"8D4DBBD3-4162-4F23-A61E-5875936E8AAB"}
  */
 function SvyException(errorMessage) {
-	Error.call(this, errorMessage)
-	
 	/**
 	 * Returns the exception message
 	 *
@@ -59,6 +57,8 @@ function SvyException(errorMessage) {
 		}
 	});
 }
+
+
 
 /**
  * Raised when an argument is not legal
