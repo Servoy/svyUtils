@@ -64,7 +64,6 @@ function concatenateJSDataSets(main, addition) {
 	return newDS
 }
 
-
 /**
  * Returns an Array with the column names of the specified JSDataSet
  * 
@@ -86,6 +85,72 @@ function getJSDataSetColumnNames(dataset) {
 	return columnNames;
 }
 
+/**
+ * Executes a query in the background, returning the resulting JSDataSet through the onSuccess callback<br>
+ * In case and exception occurs, the onError callback will be called, with the exception that occurred as parameter<br>
+ * <br>
+ * Note: the callback do not execute in the scope in which they are defined, thus references to other scope members need to be specified with a fully qualified path<br>
+ * <br>
+ * @example <pre>
+ * 	//TODO
+ * <pre>
+ *
+ * @param {QBSelect} query
+ * @param {Number} maxReturnedRows
+ * @param {function(JSDataSet):*} onSuccess
+ * @param {function(ServoyException):*} onError
+ *
+ * @properties={typeid:24,uuid:"07670497-63A0-45A4-A20D-F0189157F300"}
+ */
+function getJSDataSetByQueryAsync(query, maxReturnedRows, onSuccess, onError) {
+	var r = new java.lang.Runnable({ 
+		run: function () { 
+			try {
+				var ds = databaseManager.getDataSetByQuery(query, maxReturnedRows)
+				Packages.javax.swing.SwingUtilities.invokeLater(new java.lang.Runnable({
+					run: function(){
+						onSuccess.call(null, ds)
+					}
+				}))
+			} catch (e) {
+				Packages.javax.swing.SwingUtilities.invokeLater(new java.lang.Runnable({
+					run: function(){
+						onError.call(null, e)
+					}
+				}))
+
+			}
+		}
+	});
+	new java.lang.Thread(r).start()
+}
+
+/**
+ * Converts a byte[] to String<br>
+ * <br>
+ * @param {byte[]} bytes
+ * @param {String} [encoding] Optional param to specify the encoding/chartset to use. See {@link scopes#modUtils$IO#CHAR_SETS} for possible values. Default: scopes.modUtils$IO.CHAR_SETS.UTF_8
+ * @return {String}
+ * 
+ * @properties={typeid:24,uuid:"62FDE25B-B38E-4799-8DFD-9A151FB3DC7E"}
+ */
+function ByteArrayToString(bytes, encoding) {
+	encoding = encoding|scopes.modUtils$IO.CHAR_SETS.UTF_8
+	return new java.lang.String(bytes, encoding).toString()
+}
+
+/**
+ * Converts a String to byte[]<br>
+ * <br>
+ * @param {String} string
+ * @param {String} [encoding] Optional param to specify the encoding/chartset to use. See {@link scopes#modUtils$IO#CHAR_SETS} for possible values. Default: scopes.modUtils$IO.CHAR_SETS.UTF_8
+ *
+ * @properties={typeid:24,uuid:"C3081002-0792-4375-8C25-D2F52751844A"}
+ */
+function StringToByteArray(string, encoding) {
+	encoding = encoding|scopes.modUtils$IO.CHAR_SETS.UTF_8
+	return new java.lang.String(string, encoding).getBytes()
+}
 
 /**
  * Gets a JSRecord with the specified PK from the specified datasource. 
