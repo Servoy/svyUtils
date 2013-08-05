@@ -285,7 +285,9 @@ function removeListener(obj, eventType, eventHandler) {
  * @param {*|String} obj The object on which behalf to fire the event
  * @param {String} eventType The event identifier
  * @param {*|Array<*>} [args] An value or Array of values to apply as arguments to the eventHandler invocation
- * @return {Boolean} True unless the event was vetoed by a listener, in which case all subsequent listeners will not be notified and the caller of this method has an opportunity to veto a change
+ * @param {Boolean} [isVetoable] Optionally specify if an event can be vetoed. A listener may veto an event by returning false. Subsequent propagation of the event is then cancelled
+ * 
+ * @return {Boolean} True unless the event was vetoable and vetoed by a listener, in which case all subsequent listeners will not be notified and the caller of this method has an opportunity to veto a change
  *
  * @example <pre> //Example of using the Event class to fire an Event
  * var EVENT_TYPES = {
@@ -297,7 +299,7 @@ function removeListener(obj, eventType, eventHandler) {
  *
  * @properties={typeid:24,uuid:"06FDBBB0-D4AF-48E1-BE0F-858BC089D977"}
  */
-function fireEvent(obj, eventType, args) {
+function fireEvent(obj, eventType, args, isVetoable) {
 	var objectString = convertObjectToString(obj)
 	if (objectString && events) {
 		var evtel = events[objectString];
@@ -324,7 +326,7 @@ function fireEvent(obj, eventType, args) {
 					//Not using something like http://oranlooney.com/javascript-arguments/, as arguments.callee is deprecated in future JavaScript versions and the for loop check doesn't work in Rhino
 					//!!Array.prototype.slice.call(args)['length'] fails for forms and elements objects and other objects that have a length property
 					var result = scope[actionStringParts[2]].apply(scope, Array.isArray(args) ? args : [args]);
-					if(result == false){
+					if(isVetoable && result == false){
 						return false;	// terminate event propagation and (possibly) veto change (This is implementation-specific)
 					}
 				}
