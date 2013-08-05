@@ -278,12 +278,14 @@ function removeListener(obj, eventType, eventHandler) {
  * Fires the specified event, which will invoke all listeners added for the combination of obj and evt<br>
  * <br>
  * NOTE when the method specified as eventHandler in {@link #addListener()} is a Form method and the form is not loaded when the event is fired, the eventHandler will NOT be invoked
- *  
+ * TODO Should we add a boolean property isVetoable to this method or implicitly allow events to be vetoed by listeners
+ * 
  * @public
  * 
  * @param {*|String} obj The object on which behalf to fire the event
  * @param {String} eventType The event identifier
  * @param {*|Array<*>} [args] An value or Array of values to apply as arguments to the eventHandler invocation
+ * @return {Boolean} True unless the event was vetoed by a listener, in which case all subsequent listeners will not be notified and the caller of this method has an opportunity to veto a change
  *
  * @example <pre> //Example of using the Event class to fire an Event
  * var EVENT_TYPES = {
@@ -321,11 +323,15 @@ function fireEvent(obj, eventType, args) {
 					//Would be nice to allow the args param be an arguments object, but haven't found a failsave way to distinguish an arguments object form anything else
 					//Not using something like http://oranlooney.com/javascript-arguments/, as arguments.callee is deprecated in future JavaScript versions and the for loop check doesn't work in Rhino
 					//!!Array.prototype.slice.call(args)['length'] fails for forms and elements objects and other objects that have a length property
-					scope[actionStringParts[2]].apply(scope, Array.isArray(args) ? args : [args])
+					var result = scope[actionStringParts[2]].apply(scope, Array.isArray(args) ? args : [args]);
+					if(result == false){
+						return false;	// terminate event propagation and (possibly) veto change (This is implementation-specific)
+					}
 				}
 			}
 		}
 	}
+	return true;
 }
 
 /**
