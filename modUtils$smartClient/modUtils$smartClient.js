@@ -29,25 +29,3 @@ function getSmartClientPluginAccess() {
 	//Same for the WebClient impl.
 	return unwrapElement(plugins.window)['getClientPluginAccess']()
 }
-
-/**
- * @private 
- * @properties={typeid:35,uuid:"801E0E41-88B1-46D5-A4EC-360483BDA367",variableType:-4}
- */
-var mediaBinAddedToClassPath = false
-
-/**
- * TODO: write unit test, as this uses non-public API
- * TODO: move to modUtils generic scope, as this is not SC only
- * Adding the bin directory of the media library to the classpath, in order to load & instantiate Java classes stored in the media library.
- *
- * Note: also tried using custom URLClassLoaders, but while that works, you end up with a class object of type java.lang.Class (http://comments.gmane.org/gmane.comp.mozilla.devel.jseng.rhino/467)
- * @properties={typeid:24,uuid:"0810F655-72E3-4357-A541-59C402FFF2AA"}
- */
-function addMediaBinDirectoryToClassPath() {
-	if (mediaBinAddedToClassPath) {return}
-	
-	/** @type {Packages.com.servoy.j2db.util.ExtendableURLClassLoader} */
-	var cl = getSmartClientPluginAccess().getBeanManager().getClassLoader()
-	cl.addURL(new java.net.URL("media:///bin/"))
-}
