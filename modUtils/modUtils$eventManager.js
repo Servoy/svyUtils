@@ -64,34 +64,6 @@
 var events = {}
 
 /**
- * TODO: externalize to utility scope, so it can be used wider
- * Converts function references to string representations
- * @private
- * @param {Function|String} action
- * @return {String}
- * 
- * @properties={typeid:24,uuid:"0C9921E3-237F-4E85-B0A3-D2EB2E99A78E"}
- */
-function convertFunctionToString(action) {
-	if (action instanceof Function) {
-		try {
-			var fd = new Packages.com.servoy.j2db.scripting.FunctionDefinition(action)
-			if (fd.getFormName()) {
-				return 'forms.' + fd.getFormName() + '.' + fd.getMethodName()
-			} else if (fd.getScopeName()) {
-				return 'scopes.' + fd.getScopeName() + '.' + fd.getMethodName()
-			} else { //TODO: got all variations covered with the above logic?
-				return null
-			}
-		} catch (e) {
-			application.output(e, LOGGINGLEVEL.ERROR)
-			return null
-		}
-	}
-	return action
-}
-
-/**
  * TODO: add full support for "Named elements/variables/methods of RuntimeForms". Currently works when passed as a string, but not as an object
  * @private 
  * @param {*} obj
@@ -100,7 +72,7 @@ function convertFunctionToString(action) {
  */
 function convertObjectToString(obj) {
 	if (obj instanceof Function) {
-		return convertFunctionToString(obj)
+		return scopes.modUtils.convertFunctionToString(obj);
 	}
 	if (obj instanceof String) {
 		/**@type {Array<String>}*/

@@ -64,6 +64,40 @@ function callServoyMethod(qualifiedName, args) {
 }
 
 /**
+ * Converts a method reference to a String
+ * 
+ * @public
+ * 
+ * @version 5.0
+ * @since 18.07.2013
+ * @author patrick
+ *
+ * @param {Function} functionToConvert
+ * 
+ * @return {String} methodString
+ *
+ * @properties={typeid:24,uuid:"05B65961-68C6-42BA-9FB9-12BE068892AD"}
+ */
+function convertFunctionToString(functionToConvert) {
+	if (functionToConvert instanceof Function) {
+		try {
+			var fd = new Packages.com.servoy.j2db.scripting.FunctionDefinition(functionToConvert)
+			if (fd.getFormName()) {
+				return 'forms.' + fd.getFormName() + '.' + fd.getMethodName()
+			} else if (fd.getScopeName()) {
+				return 'scopes.' + fd.getScopeName() + '.' + fd.getMethodName()
+			} else { //TODO: got all variations covered with the above logic?
+				return null
+			}
+		} catch (e) {
+			application.output(e.message, LOGGINGLEVEL.ERROR)
+			return null;
+		}
+	}
+	return null;
+}
+
+/**
  * Tests if a given value for the given dataprovider<br>
  * is unique in the table of the given foundset or record
  * 
