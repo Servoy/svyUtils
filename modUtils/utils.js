@@ -31,11 +31,6 @@ var UI = scopes.modUtils$UI
 var data = scopes.modUtils$data
 
 /**
- * @properties={typeid:35,uuid:"13581C74-8F11-49CA-9727-AAFC4A80B574",variableType:-4}
- */
-var datasetGrid = scopes.modUtils$datasetGrid
-
-/**
  * @properties={typeid:35,uuid:"59B75D47-8C66-41A8-9D15-77F88CC81029",variableType:-4}
  */
 var date = scopes.modUtils$date
