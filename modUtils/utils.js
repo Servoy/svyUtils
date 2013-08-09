@@ -1,3 +1,20 @@
+/*
+  * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2013 Servoy BV 
+  * 
+  * This program is free software: you can redistribute it and/or modify
+  * it under the terms of the GNU Lesser General Public License as published by
+  * the Free Software Foundation, either version 3 of the License, or
+  * (at your option) any later version.
+  * 
+  * This program is distributed in the hope that it will be useful,
+  * but WITHOUT ANY WARRANTY; without even the implied warranty of
+  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  * GNU Lesser General Public License for more details.
+  * 
+  * You should have received a copy of the GNU Lesser General Public License
+  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+
 /**
  * @properties={typeid:35,uuid:"42514F5F-F934-4CDE-9A3C-DBDA4FD571AF",variableType:-4}
  */
@@ -42,3 +59,8 @@ var net = scopes.modUtils$net
  * @properties={typeid:35,uuid:"E18CFE94-4718-41EA-B4A4-9C7F441B6EC4",variableType:-4}
  */
 var system = scopes.modUtils$system
+
+/**
+ * @properties={typeid:35,uuid:"40EE4F64-6875-48BD-AC4F-DECFAC279295",variableType:-4}
+ */
+var log = scopes.modUtils$log
