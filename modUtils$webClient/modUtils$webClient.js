@@ -80,7 +80,7 @@ function addClass(component, className) {
 
 /**
  * Adds a placeholder text to empty fields. Has been surpassed by native support for placeholders on fields in Servoy 7
- * @deprecated Use native placeholder support on fields in Servoy 7. Will e removed in version 5
+ * @deprecated Use native placeholder support on fields in Servoy 7. Will be removed in version 5
  * @param {RuntimeCalendar|RuntimeHtmlArea|RuntimeImageMedia|RuntimePassword|RuntimeRtfArea|RuntimeTextArea|RuntimeTextField} element Reference to an element
  * @param {String} text Placeholder text to be displayed
  *
