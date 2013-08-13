@@ -98,7 +98,7 @@ function getJSDataSetColumnNames(dataset) {
  * @param {QBSelect} query
  * @param {Number} maxReturnedRows
  * @param {function(JSDataSet):*} onSuccess
- * @param {function(ServoyException):*} onError
+ * @param {function(ServoyException|Error):*} onError
  *
  * @properties={typeid:24,uuid:"07670497-63A0-45A4-A20D-F0189157F300"}
  */
