@@ -207,7 +207,7 @@ var emptyFunction = function() {};
  * @private
  * @type {String}
  *
- * @properties={typeid:35,uuid:"5602CF86-2F00-4887-B2FA-F6A298DCD168"}
+ * @properties={typeid:35,uuid:"D2ADB9F2-5BC8-45E8-BCFF-A9A2F653903C"}
  */
 var newLine = "\r\n";
 
@@ -569,6 +569,7 @@ var logLog = {
 
 /**
  * @private
+ * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"3773B2A6-00D3-43EC-82E4-6EEB055CFEC3",variableType:-4}
  */
 var initEventTypes = (function() {
@@ -672,6 +673,7 @@ var Level = function(level, name) {
 
 /**
  * @private
+ * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"8CB2F193-D26E-47E7-AF91-28574067D667",variableType:-4}
  */
 var levelInit = (function() {
@@ -715,6 +717,7 @@ function Timer(name, level) {
 
 /**
  * @private
+ * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"81F57DBB-3F07-4206-AF8A-ED1C95095C71",variableType:-4}
  */
 var timerInit = (function() {
@@ -881,6 +884,7 @@ function Logger(name) {
 	this.log = function(level, params) {
 		if (enabled && level.isGreaterOrEqual(this.getEffectiveLevel())) {
 			// Check whether last param is an exception
+			/** @type {Error} */
 			var exception;
 			var finalParamIndex = params.length - 1;
 			var lastParam = params[finalParamIndex];
@@ -1234,7 +1238,7 @@ var loggerNames = [];
 * @private
 * @type {String}
 *
-* @properties={typeid:35,uuid:"600C0CA1-8C3E-4A47-A685-63B7A34FFE32"}
+* @properties={typeid:35,uuid:"6D1F7437-DD22-46E8-848A-5B5BE3F0D418"}
 */
 var anonymousLoggerName = "[anonymous]"
 	
@@ -1242,7 +1246,7 @@ var anonymousLoggerName = "[anonymous]"
 * @private
 * @type {String}
 *
-* @properties={typeid:35,uuid:"CC47E28D-D37D-458B-9B71-119158C7EBD5"}
+* @properties={typeid:35,uuid:"40694F9C-3469-48F4-85DE-AD3E6C0BD66E"}
 */
 var defaultLoggerName = "[default]"
 	
@@ -1250,7 +1254,7 @@ var defaultLoggerName = "[default]"
 * @private
 * @type {String}
 *
-* @properties={typeid:35,uuid:"65C38C71-7A20-483B-815F-2DEDC410C272"}
+* @properties={typeid:35,uuid:"7448E46E-B6A7-404D-9F36-31407CBDB9BF"}
 */
 var nullLoggerName = "[null]"
 	
@@ -1258,7 +1262,7 @@ var nullLoggerName = "[null]"
 * @private
 * @type {String}
 *
-* @properties={typeid:35,uuid:"66160C7A-9F05-4E27-9D83-C29E6B9E83EF"}
+* @properties={typeid:35,uuid:"D1C8E18C-4D94-4CD3-B92F-DF0CA36C9E36"}
 */
 var rootLoggerName = "root"
 	
@@ -1380,7 +1384,7 @@ function getNullLogger() {
  * @properties={typeid:24,uuid:"A38B73EE-4752-4909-9D61-CF4DB620CC3D"}
  */
 function resetConfiguration() {
-	getrootLogger().setLevel(ROOT_LOGGER_DEFAULT_LEVEL);
+	getRootLogger().setLevel(ROOT_LOGGER_DEFAULT_LEVEL);
 	loggers = {};
 }
 
@@ -1394,7 +1398,7 @@ function resetConfiguration() {
  * @param {Logger} logger
  * @param {Date} timeStamp
  * @param {Level} level
- * @param {String} messages
+ * @param {Array<String>} messages
  * @param {Error} exception
  *
  * @properties={typeid:24,uuid:"40428863-BCA7-42D5-9B8D-D276C1A00B5F"}
@@ -1412,6 +1416,7 @@ function LoggingEvent(logger, timeStamp, level, messages, exception) {
 
 /**
  * @private
+ * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"6BE6F430-807C-4673-85CC-055DFE1DD45F",variableType:-4}
  */
 var loggingEventInit = (function() {
@@ -1529,6 +1534,15 @@ function LayoutImpl() {
 		return dataValues;
 	}
 	
+	/**
+	 * @param {Object} [loggerKey]
+	 * @param {Object} [timeStampKey]
+	 * @param {Object} [levelKey]
+	 * @param {Object} [messageKey]
+	 * @param {Object} [exceptionKey]
+	 * @param {Object} [urlKey]
+	 * @param {Object} [millisecondsKey]
+	 */
 	this.setKeys = function(loggerKey, timeStampKey, levelKey, messageKey,exceptionKey, urlKey, millisecondsKey) {
 		this.loggerKey = extractStringFromParam(loggerKey, this.defaults.loggerKey);
 		this.timeStampKey = extractStringFromParam(timeStampKey, this.defaults.timeStampKey);
@@ -1563,7 +1577,7 @@ function LayoutImpl() {
 
 /**
  * @private 
- *
+ * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"994AF0DE-AA41-453A-B2E0-61047DBFC751",variableType:-4}
  */
 var layoutInit = (function(){
@@ -1739,7 +1753,8 @@ function ApplicationOutputAppender() {
 }
 
 /**
- * @private 
+ * @private
+ * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"CCE870E3-C277-473F-9332-5B2EC5597282",variableType:-4}
  */
 var initServoyAppender = (function(){
@@ -1762,6 +1777,7 @@ function SimpleLayout() {
 
 /**
  * @private
+ * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"0427BB0C-1835-4CFC-8477-5F56A5DD8387",variableType:-4}
  */
 var simpleLayoutInit = (function() {
@@ -1795,6 +1811,7 @@ function NullLayout() {
 
 /**
  * @private
+ * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"BEF97D79-9D62-4B12-87B3-ABE53EA0C738",variableType:-4}
  */
 var nullLayoutInit = (function() {
@@ -1830,6 +1847,7 @@ function XmlLayout(combineMessages) {
 
 /**
  * @private
+ * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"5A02CFFB-582D-4B3F-92AD-B4DEA07071F2",variableType:-4}
  */
 var xmlLayoutInit = (function() {
@@ -1930,6 +1948,7 @@ function JsonLayout(readable, combineMessages) {
 
 /**
  * @private
+ * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"3350BBD8-3E6C-4E29-AEBA-FE90AEB1D0A8",variableType:-4}
  */
 var jsonLayoutInit = (function() {
@@ -1959,10 +1978,10 @@ var jsonLayoutInit = (function() {
 					formattedValue = String(val.getTime());
 				} else if (expand && (val instanceof Array)) {
 					formattedValue = "[" + layout.lineBreak;
-					for (var i = 0, len = val.length; i < len; i++) {
+					for (var j = 0, len = val.length; j < len; j++) {
 						var childPrefix = prefix + layout.tab;
-						formattedValue += childPrefix + formatValue(val[i], childPrefix, false);
-						if (i < val.length - 1) {
+						formattedValue += childPrefix + formatValue(val[j], childPrefix, false);
+						if (j < val.length - 1) {
 							formattedValue += ",";
 						}
 						formattedValue += layout.lineBreak;
@@ -2017,6 +2036,7 @@ function HttpPostDataLayout() {
 
 /**
  * @private
+ * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"BB86A214-5807-443C-A4F0-934F4671552D",variableType:-4}
  */
 var httpPostdataLayoutInit = (function() {
@@ -2061,7 +2081,7 @@ function formatObjectExpansion(obj, depth, indentation) {
 	var objectsExpanded = [];
 
 	function doFormat(obj, depth, indentation) {
-		var i, j, len, childDepth, childIndentation, childLines, expansion,
+		var i, len, childDepth, childIndentation, childLines, expansion,
 			childExpansion;
 
 		if (!indentation) {
@@ -2202,7 +2222,7 @@ var DateUtils = new function() {
 
 	this.getWeekInYear = function(date, minimalDaysInFirstWeek) {
 		if (isUndefined(this.minimalDaysInFirstWeek)) {
-			minimalDaysInFirstWeek = DEFAULT_MINIMAL_DAYS_IN_FIRST_WEEK;
+			minimalDaysInFirstWeek = this.DEFAULT_MINIMAL_DAYS_IN_FIRST_WEEK;
 		}
 		var previousSunday = this.getPreviousSunday(date);
 		var startOfYear = newDateAtMidnight(date.getFullYear(), 0, 1);
@@ -2217,7 +2237,7 @@ var DateUtils = new function() {
 
 	this.getWeekInMonth = function(date, minimalDaysInFirstWeek) {
 		if (isUndefined(date.minimalDaysInFirstWeek)) {
-			minimalDaysInFirstWeek = DEFAULT_MINIMAL_DAYS_IN_FIRST_WEEK;
+			minimalDaysInFirstWeek = this.DEFAULT_MINIMAL_DAYS_IN_FIRST_WEEK;
 		}
 		var previousSunday = this.getPreviousSunday(date);
 		var startOfMonth = newDateAtMidnight(date.getFullYear(), date.getMonth(), 1);
@@ -2250,6 +2270,7 @@ function SimpleDateFormat(formatString) {
 
 /**
  * @private
+ * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"EB1F8FE2-6378-482A-8DCC-9EC84E798327",variableType:-4}
  */
 var simpleDateFormatInit = (function() {
@@ -2442,6 +2463,7 @@ function PatternLayout(pattern) {
 
 /**
  * @private
+ * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"DEC0D9CB-1760-41E1-9408-5310708D3DC6",variableType:-4}
  */
 var patternLayoutInit = (function() {
@@ -2462,9 +2484,11 @@ var patternLayoutInit = (function() {
 			// Cannot use regex global flag since it doesn't work with exec in IE5
 			while ( (result = regex.exec(searchString))) {
 				var matchedString = result[0];
+				/** @type {String} */
 				var padding = result[1];
 				var truncation = result[2];
 				var conversionCharacter = result[3];
+				/** @type {String} */
 				var specifier = result[5];
 				var text = result[6];
 
@@ -2545,7 +2569,9 @@ var patternLayoutInit = (function() {
 								}
 								var val = this.customFields[fieldIndex].value;
 								if (typeof val == "function") {
-									val = val(this, loggingEvent);
+									/** @type {Function} */
+									var tmp = val
+									val = tmp(this, loggingEvent);
 								}
 								replacement = val;
 							}
@@ -2613,7 +2639,7 @@ var patternLayoutInit = (function() {
 
 /**
  * @private
- *
+ * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"2069232D-0928-41BD-AAED-86BFD85B3EAF",variableType:-4}
  */
 var initScope = (function () {
