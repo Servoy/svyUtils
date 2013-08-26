@@ -1,15 +1,100 @@
 /**
+ * Tests inheritance
+ *
+ * @param {String} errorMessage
+ * @param {Number} code
+ *
+ * @constructor
+ * @extends {scopes.modUtils$exceptions.IllegalArgumentException}
+ *
+ *
+ * @properties={typeid:24,uuid:"36352A57-C0A7-491F-B614-03A1CF75D58C"}
+ */
+function TestException(errorMessage, code) {
+	this.code = code
+	scopes.modUtils$exceptions.IllegalArgumentException.call(this, errorMessage);
+}
+
+/**
+ * Tests inheritance
+ *
+ * @param {String} errorMessage
+ * @param {Number} code
+ *
+ * @constructor
+ * @extends {TestException}
+ *
+ *
+ * @properties={typeid:24,uuid:"042CCEAC-4579-43AC-9B4F-969D4EF0B376"}
+ */
+function ExtendedTestException(errorMessage, code) {
+	TestException.call(this, errorMessage, code);
+}
+
+/**
+ * @properties={typeid:35,uuid:"E21D3998-7FF8-4A87-8773-15F6B3C41094",variableType:-4}
+ */
+var initTestExceptions = (function(){
+	TestException.prototype = Object.create(scopes.modUtils$exceptions.IllegalArgumentException.prototype);
+	TestException.prototype.constructor = scopes.modUtils$exceptions.IllegalArgumentException
+	ExtendedTestException.prototype = Object.create(TestException.prototype);
+	ExtendedTestException.prototype.constructor = ExtendedTestException
+}())
+
+/**
  * @properties={typeid:24,uuid:"9A19D2B3-0124-4C45-9A13-F8ADC7982B70"}
  */
 function testExceptions() {
 	//for the used technique here, see: http://stackoverflow.com/questions/4152931/javascript-inheritance-call-super-constructor-or-use-prototype-chain
 	var e = new scopes.modUtils$exceptions.IllegalArgumentException('test');
 	jsunit.assertTrue(e instanceof scopes.modUtils$exceptions.SvyException);
-	jsunit.assertEquals(e.getMessage(),'test'); // TODO: This warning should be fixed in Svy 7.0
+	jsunit.assertEquals('test', e.getMessage()); 
+	
 	e = new scopes.modUtils$exceptions.IllegalStateException('test');
 	jsunit.assertTrue(e instanceof scopes.modUtils$exceptions.SvyException);
-	jsunit.assertEquals(e.getMessage(),'test'); // TODO: This warning should be fixed in Svy 7.0
+	jsunit.assertEquals('test', e.getMessage()); 
+	
 	e = new scopes.modUtils$exceptions.UnsupportedOperationException('test');
 	jsunit.assertTrue(e instanceof scopes.modUtils$exceptions.SvyException);
-	jsunit.assertEquals(e.getMessage(),'test'); // TODO: This warning should be fixed in Svy 7.0
+	jsunit.assertEquals('test', e.getMessage()); 
+	
+	e = new TestException('test', 1);
+	jsunit.assertTrue(e instanceof scopes.modUtils$exceptions.SvyException);
+	jsunit.assertTrue(e instanceof scopes.modUtils$exceptions.IllegalArgumentException);
+	jsunit.assertTrue(e instanceof TestException);
+	jsunit.assertEquals('test', e.getMessage()); 
+	jsunit.assertEquals(1, e.code); 
+
+	e = new ExtendedTestException('test', 1);
+	jsunit.assertTrue(e instanceof scopes.modUtils$exceptions.SvyException);
+	jsunit.assertTrue(e instanceof scopes.modUtils$exceptions.IllegalArgumentException);
+	jsunit.assertTrue(e instanceof TestException);
+	jsunit.assertEquals('test', e.getMessage()); 
+	jsunit.assertEquals(1, e.code); 
+	jsunit.assertEquals('ExtendedTestException', e.constructor.name); 
+	
+	try {
+		throw e;
+	} catch (ex) {
+		jsunit.assertEquals('ExtendedTestException: test', ex.toString())
+		jsunit.assertTrue('Stack property filled',ex.stack !== null)
+		var stack = ex.stack.split(' ')
+		jsunit.assertEquals('\tat', stack[0]);
+
+		/** @type {String} */
+		var path = stack[1]
+		var i = path.indexOf('modUtils$exceptions_test.js:')
+		jsunit.assertTrue(i != -1)
+		jsunit.assertEquals(path.substring(i + 28), parseInt(path.substring(i + 28)).toString())
+		jsunit.assertEquals('(testExceptions)\r\n\tat', stack[2])
+		
+		jsunit.assertEquals('ExtendedTestException', e.name); 
+		jsunit.assertEquals('test', e.getMessage()); 
+		jsunit.assertEquals('test', e.message); 
+		jsunit.assertEquals(1, e.code); 
+		
+//		application.output(ex.fileName)
+//		application.output(ex.lineNumber)
+//		application.output(ex.columnNumber)
+	}
 }
