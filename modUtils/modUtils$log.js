@@ -207,7 +207,7 @@ var emptyFunction = function() {};
  * @private
  * @type {String}
  *
- * @properties={typeid:35,uuid:"D2ADB9F2-5BC8-45E8-BCFF-A9A2F653903C"}
+ * @properties={typeid:35,uuid:"282E129E-AEB0-4B2F-8ABB-5DDF5F0C09DC"}
  */
 var newLine = "\r\n";
 
@@ -1087,7 +1087,7 @@ function LoggerImpl() {
 	 * Logs a message and optionally an error at level DEBUG<br>
 	 * <br>
 	 * @public
-	 * @param {Object} message
+	 * @param {*} message
 	 * @param {Error} [exception]
 	 */
 	this.debug = function(message, exception) {
@@ -1098,7 +1098,7 @@ function LoggerImpl() {
 	 * Logs a message and optionally an error at level INFO<br>
 	 * <br>
 	 * @public
-	 * @param {Object} message
+	 * @param {*} message
 	 * @param {Error} [exception]
 	 */
 	this.info = function(message, exception) {
@@ -1109,7 +1109,7 @@ function LoggerImpl() {
 	 * Logs a message and optionally an error at level WARN<br>
 	 * <br>
 	 * @public
-	 * @param {String} message
+	 * @param {*} message
 	 * @param {Error} [exception]
 	  */
 	this.warn = function(message, exception) {
@@ -1120,7 +1120,7 @@ function LoggerImpl() {
 	 * Logs a message and optionally an error at level ERROR<br>
 	 * <br>
 	 * @public
-	 * @param {Object} message
+	 * @param {*} message
 	 * @param {Error} [exception]
 	 */
 	this.error = function(message, exception) {
@@ -1131,7 +1131,7 @@ function LoggerImpl() {
 	 * Logs a message and optionally an error at level FATAL<br>
 	 * <br>
 	 * @public
-	 * @param {Object} message
+	 * @param {*} message
 	 * @param {Error} [exception]
 	 */
 	this.fatal = function(message, exception) {
@@ -1238,7 +1238,7 @@ var loggerNames = [];
 * @private
 * @type {String}
 *
-* @properties={typeid:35,uuid:"6D1F7437-DD22-46E8-848A-5B5BE3F0D418"}
+* @properties={typeid:35,uuid:"1EBE1C89-753E-4EE9-9ECD-0FE555BB9F04"}
 */
 var anonymousLoggerName = "[anonymous]"
 	
@@ -1246,7 +1246,7 @@ var anonymousLoggerName = "[anonymous]"
 * @private
 * @type {String}
 *
-* @properties={typeid:35,uuid:"40694F9C-3469-48F4-85DE-AD3E6C0BD66E"}
+* @properties={typeid:35,uuid:"EF504D22-5CB9-429E-A91B-D6E9D76EC73F"}
 */
 var defaultLoggerName = "[default]"
 	
@@ -1254,7 +1254,7 @@ var defaultLoggerName = "[default]"
 * @private
 * @type {String}
 *
-* @properties={typeid:35,uuid:"7448E46E-B6A7-404D-9F36-31407CBDB9BF"}
+* @properties={typeid:35,uuid:"4CA4210A-3348-4895-87BA-4343B3F7A8C3"}
 */
 var nullLoggerName = "[null]"
 	
@@ -1262,7 +1262,7 @@ var nullLoggerName = "[null]"
 * @private
 * @type {String}
 *
-* @properties={typeid:35,uuid:"D1C8E18C-4D94-4CD3-B92F-DF0CA36C9E36"}
+* @properties={typeid:35,uuid:"7AA018E7-ACA9-4215-9117-597DF91D7D16"}
 */
 var rootLoggerName = "root"
 	
