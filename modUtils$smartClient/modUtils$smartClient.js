@@ -43,6 +43,6 @@ function unwrapElement(element) {
  */
 function getSmartClientPluginAccess() {
 	//TODO: make this saver, in case the window plugin is not installed. Either just try the first plugin available or the plugins node itself or some other way and in all else fails, raise warnings
-	//Same for the WebClient impl.
-	return unwrapElement(plugins.window)['getClientPluginAccess']()
+	var x = new Packages.org.mozilla.javascript.NativeJavaObject(globals, plugins.window, new Packages.org.mozilla.javascript.JavaMembers(globals, Packages.com.servoy.extensions.plugins.window.WindowProvider));
+	return x['getClientPluginAccess']();
 }
