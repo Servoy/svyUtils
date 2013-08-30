@@ -238,7 +238,7 @@ function HTTPException(errorMessage, httpCode, httpResponseBody) {
 	 */
 	this.httpResponseBody = httpResponseBody;
 
-	scopes.modUtils$exceptions.SvyException.call(this, errorMessage);
+	scopes.modUtils$exceptions.SvyException.call(this, errorMessage||'Error in HTTP operation');
 }
 
 
@@ -253,7 +253,7 @@ function HTTPException(errorMessage, httpCode, httpResponseBody) {
  * @properties={typeid:24,uuid:"73C704EB-7D7D-4B4B-AD05-88068C478184"}
  */
 function SendMailException(errorMessage) {
-	scopes.modUtils$exceptions.SvyException.call(this, errorMessage);
+	scopes.modUtils$exceptions.SvyException.call(this, errorMessage||'Failed to send mail');
 }
 
 /**
@@ -263,6 +263,9 @@ function SendMailException(errorMessage) {
  * @properties={typeid:35,uuid:"FF2A5C77-1609-4E22-A3A2-2A40910BC57E",variableType:-4}
  */
 var init = function() {
-	HTTPException.prototype = new scopes.modUtils$exceptions.SvyException("Error in HTTP operation");
-	SendMailException.prototype = new scopes.modUtils$exceptions.SvyException("Failed to send mail");
+	HTTPException.prototype = Object.create(scopes.modUtils$exceptions.SvyException.prototype);
+	HTTPException.prototype.constructor = HTTPException
+
+	SendMailException.prototype =  Object.create(scopes.modUtils$exceptions.SvyException.prototype);
+	SendMailException.prototype.constructor = SendMailException
 }();

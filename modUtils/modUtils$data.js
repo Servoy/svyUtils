@@ -473,12 +473,27 @@ function SvyDataException(errorMessage, source, dataProviderID){
  * @properties={typeid:35,uuid:"661B7B5D-659E-43F5-97B7-F07FFB44FF5E",variableType:-4}
  */
 var init = function() {
-	NoRecordException.prototype = new SvyDataException("No record was given or the foundset is empty");
-	NoRelatedRecordException.prototype = new SvyDataException("No related record found");
-	NewRecordFailedException.prototype = new SvyDataException("Failed to create new record");
-	FindModeFailedException.prototype = new SvyDataException("Failed to enter find mode");
-	SaveDataFailedException.prototype = new SvyDataException("Failed to save data");
-	DeleteRecordFailedException.prototype = new SvyDataException("Failed to delete data");
-	ValueNotUniqueException.prototype = new SvyDataException("Value not unique");
-	SvyDataException.prototype = new scopes.modUtils$exceptions.SvyException('Data related exception')
+	NoRecordException.prototype = Object.create(SvyDataException.prototype);
+	NoRecordException.prototype.constructor = NoRecordException
+		
+	NoRelatedRecordException.prototype = Object.create(SvyDataException.prototype);
+	NoRelatedRecordException.prototype.constructor = NoRelatedRecordException
+	
+	NewRecordFailedException.prototype = Object.create(SvyDataException.prototype);
+	NewRecordFailedException.prototype.constructor = NewRecordFailedException
+	
+	FindModeFailedException.prototype = Object.create(SvyDataException.prototype);
+	FindModeFailedException.prototype.constructor = FindModeFailedException
+	
+	SaveDataFailedException.prototype = Object.create(SvyDataException.prototype);
+	SaveDataFailedException.prototype.constructor = SaveDataFailedException
+	
+	DeleteRecordFailedException.prototype = Object.create(SvyDataException.prototype);
+	DeleteRecordFailedException.prototype.constructor = DeleteRecordFailedException
+	
+	ValueNotUniqueException.prototype = Object.create(SvyDataException.prototype);
+	ValueNotUniqueException.prototype.constructor = ValueNotUniqueException
+	
+	SvyDataException.prototype = Object.create(scopes.modUtils$exceptions.SvyException.prototype);
+	SvyDataException.prototype.constructor = SvyDataException
 }()

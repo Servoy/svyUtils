@@ -19,6 +19,8 @@
  * Scope with base exceptions.
  *
  * Note: when adding new exceptions, also set the prototype accordingly through the init function
+ * Also always call the super constructor from within the sub-class constructor: http://www.bennadel.com/blog/1566-Using-Super-Constructors-Is-Critical-In-Prototypal-Inheritance-In-Javascript.htm
+ * 
  */
 
 /**
@@ -34,20 +36,18 @@
  * @properties={typeid:24,uuid:"8D4DBBD3-4162-4F23-A61E-5875936E8AAB"}
  */
 function SvyException(errorMessage) {
+	Object.defineProperty(this, "name", {
+		get: function() {
+			return this.constructor.name 
+		}
+	});
+
 	/**
 	 * Returns the exception message
 	 *
 	 * @return {String}
 	 */
 	this.getMessage = function() {
-		return errorMessage;
-	}
-
-	/**
-	 * Returns the exception message
-	 * @override
-	 */
-	this.toString = function() {
 		return errorMessage;
 	}
 
@@ -122,10 +122,18 @@ function AbstractMethodInvocationException(errorMessage) {
   * @properties={typeid:35,uuid:"36364157-A05A-4806-B13E-DA08DD8C27D6",variableType:-4}
   */
 var init = function() {
-	SvyException.prototype = new Error()
+	SvyException.prototype = Object.create(Error.prototype);
 	SvyException.prototype.constructor = SvyException
-	IllegalArgumentException.prototype = new SvyException("Illegal argument");
-	IllegalStateException.prototype = new SvyException("Illegal state");
-	UnsupportedOperationException.prototype = new SvyException("Unsupported operation");
-	AbstractMethodInvocationException.prototype = new IllegalStateException("Abstract method called");
+	
+	IllegalArgumentException.prototype = Object.create(SvyException.prototype);
+	IllegalArgumentException.prototype.constructor = IllegalArgumentException
+	
+	IllegalStateException.prototype = Object.create(SvyException.prototype);
+	IllegalStateException.prototype.constructor = IllegalStateException
+		
+	UnsupportedOperationException.prototype = Object.create(SvyException.prototype);
+	UnsupportedOperationException.prototype.constructor = UnsupportedOperationException
+		
+	AbstractMethodInvocationException.prototype = Object.create(IllegalStateException.prototype);
+	AbstractMethodInvocationException.prototype.constructor = AbstractMethodInvocationException
 }()
