@@ -1,4 +1,21 @@
 /*
+ * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2013 Servoy BV 
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+/*
  * All kind of utilities when running the Web Client.
  * Note that these utilities do not necessarily check if they are being called in a Web Client!
  * 
@@ -8,16 +25,26 @@
  * - http://www.codesmell.org/blog/2010/01/playing-with-wickets-templates/
  * - http://karthikg.wordpress.com/2008/01/24/developing-a-custom-apache-wicket-component/
  * 
- * TODO: document the exact behavior of the different ways to include some custom JS (when fired, how often)
+ * TODO: document the exact behavior of the different ways to include some custom JS (when fired, how often) and remove @experimental tags when done
  * TODO: support Arrays of elements/components besides single elements/components to attach certain behaviors to.
  * TODO: callback behaviors
+ * TODO: add methods to remove stuff that was added 
  */
+
+/**
+ * @type {scopes.modUtils$log.Logger}
+ * @private
+ * @properties={typeid:35,uuid:"ED9695A7-D5AD-4EC0-9F5D-9F85C9A3FC19",variableType:-4}
+ */
+var logger = (function(){
+	scopes.modUtils$log.getLogger('com.servoy.bap.utils.webclient')
+}())
 
 /**
  * @private
  * @type {String}
  *
- * @properties={typeid:35,uuid:"C3ADC3E6-A4EC-42E3-B9DC-4B1D9637B6F9"}
+ * @properties={typeid:35,uuid:"F34BB5F4-0E95-4F6B-9C42-3B1DC2B4DC95"}
  */
 var MEDIA_URL_PREFIX = 'media:///'
 
@@ -45,6 +72,7 @@ function centerPanel(element) {
 	unwrapElement(element).add(behavior)
 }
 
+//TODO: see if we can make a better implementation like setAlwaysRenderMarkup() so visibility is still controlled by RuntimeComponent.visible
 /**
  * Sets the visibility of components in the browser. This means that all the markup is included, but is also hidden.
  * Note: uses the CSS display property and not the CSS visibility property, as Servoy uses the visibility property internally
@@ -79,20 +107,6 @@ function addClass(component, className) {
 }
 
 /**
- * Adds a placeholder text to empty fields. Has been surpassed by native support for placeholders on fields in Servoy 7
- * @deprecated Use native placeholder support on fields in Servoy 7. Will be removed in version 5
- * @param {RuntimeCalendar|RuntimeHtmlArea|RuntimeImageMedia|RuntimePassword|RuntimeRtfArea|RuntimeTextArea|RuntimeTextField} element Reference to an element
- * @param {String} text Placeholder text to be displayed
- *
- * @properties={typeid:24,uuid:"26E18BFD-0456-429D-8C64-54DB1162B13D"}
- */
-function addPlaceHolderText(element, text) {
-	checkOperationSupported()
-	var behavior = new Packages.org.apache.wicket.behavior.SimpleAttributeModifier('placeholder', text)
-	unwrapElement(element).add(behavior)
-}
-
-/**
  * Overwrites the type attribute of HTML Inputs. Allows to take advantage of the new HTL5 input types<br>
  * <br>
  * <b>Note that support in different browsers vary and setting the input type might conflict with Servoy formatting and validation</b><br>
@@ -117,7 +131,8 @@ function setFieldHtmlType(element, type) {
  * @properties={typeid:35,uuid:"A01241DE-FB9B-4CA7-B1AA-E34500EABD34",variableType:-4}
  */
 var initSetFieldHtmlType = function(){
-	//TODO: this code gets called/added now everytime
+	if (!scopes.modUtils$system.isWebClient()) return;
+	//FIXME: this code gets called/added now everytime
 	//TODO: Remove this code after upgrading to newer Wicket version (this "patch is for wicket 1.4))
 	//Override Wicket function to support all HTML5 input types
 	addOnDOMReadyScript("Wicket.Form.serializeInput = function(input) {\
@@ -187,29 +202,15 @@ var initSetFieldHtmlType = function(){
 //	unwrapElement(element).add(behavior)
 //}
 
-/*
- * WARNING Methods below use getPageContributer through the PluginAccess to add global dependancies in such a way that it'll work in the onOpen event handler of a solutions
- * Note that the implementation is flawed as the resource is added to only the current Wicket page, which related to one JSWindow
- * As a result, the resource is not available in dialogs or additional tabs.
- * See https://support.servoy.com/browse/SVY-3192 to get this fixed
- */
-
 /**
  * @param {String} url
  * @param {RuntimeComponent|RuntimeForm} [element]
- * @param {Boolean} [disableAutoAdjustProtocol] Disable auto adjustment of http or https protocols in the URL to match the protocol under which the Web cLient runs. Default: false
+ * @param {Boolean} [disableAutoAdjustProtocol] Disable auto adjustment of http or https protocols in the URL to match the protocol under which the Web Client runs. Default: false
  *
  * @properties={typeid:24,uuid:"3FFD6F91-CE66-4337-9E52-2A7CC5ECF295"}
  */
 function addJavaScriptDependancy(url, element, disableAutoAdjustProtocol) {
-	checkOperationSupported()
-	var contributor = new Packages.org.apache.wicket.behavior.HeaderContributor(new Packages.org.apache.wicket.markup.html.IHeaderContributor({
-			renderHead: function(/**@type {Packages.org.apache.wicket.markup.html.IHeaderResponse}*/ response) {
-				response.renderJavascriptReference(convertToExternalURL(url, disableAutoAdjustProtocol))
-			}
-		})
-	)
-	addBehavior(contributor, element)
+	addResourceDependancy(url, element, disableAutoAdjustProtocol, true)
 }
 
 /**
@@ -220,14 +221,75 @@ function addJavaScriptDependancy(url, element, disableAutoAdjustProtocol) {
  * @properties={typeid:24,uuid:"84B8B212-C873-465F-8F2C-EE74A466CEC6"}
  */
 function addCSSDependancy(url, element, disableAutoAdjustProtocol) {
+	addResourceDependancy(url, element, disableAutoAdjustProtocol, false)
+}
+
+//function removeCSSDependancy(url, element) {
+//	checkOperationSupported()
+//
+//	//branching based on existence of addGlobalResourceReference on the page contributor to inject resources globally or on the current pageContributor
+//	if (!element && getWebClientPluginAccess().getPageContributor().addGlobalJSResourceReference) {
+//		if (url.indexOf(MEDIA_URL_PREFIX) != 0) {
+//			url = convertToExternalURL(url, disableAutoAdjustProtocol)
+//		}
+//		getWebClientPluginAccess().getPageContributor().removeGlobalResourceReference(url)
+//	} else {	
+//		var contributor = new Packages.org.apache.wicket.behavior.HeaderContributor(new Packages.org.apache.wicket.markup.html.IHeaderContributor({
+//				renderHead: function(/**@type {Packages.org.apache.wicket.markup.html.IHeaderResponse}*/ response) {
+//					if (isJSResource) {
+//						response.renderJavascriptReference(convertToExternalURL(url, disableAutoAdjustProtocol))
+//					} else {
+//						response.renderCSSReference(convertToExternalURL(url, disableAutoAdjustProtocol))
+//					}
+//				}
+//			})
+//		)
+//		
+//		/**@type {Packages.org.apache.wicket.Component}*/
+//		var target = element ? unwrapElement(element) : getWebClientPluginAccess().getPageContributor()
+//		target.getBehaviors()
+//		target.removeBehavior(arg0)
+//	}	
+//}
+
+/**
+ * @private
+ * @param {String} url
+ * @param {RuntimeComponent|RuntimeForm} element
+ * @param {Boolean} disableAutoAdjustProtocol
+ * @param {Boolean} isJSResource
+ * 
+ * @properties={typeid:24,uuid:"7E5B794B-3BDD-4A17-86E7-7E14BCC6D94A"}
+ */
+function addResourceDependancy(url, element, disableAutoAdjustProtocol, isJSResource) {
 	checkOperationSupported()
-	var contributor = new Packages.org.apache.wicket.behavior.HeaderContributor(new Packages.org.apache.wicket.markup.html.IHeaderContributor({
-			renderHead: function(/**@type {Packages.org.apache.wicket.markup.html.IHeaderResponse}*/ response) {
-				response.renderCSSReference(convertToExternalURL(url, disableAutoAdjustProtocol))
-			}
-		})
-	)
-	addBehavior(contributor, element)
+	
+	//branching based on existence of addGlobalResourceReference on the page contributor to inject resources globally or on the current pageContributor
+	if (!element && getWebClientPluginAccess().getPageContributor().addGlobalJSResourceReference) {
+		if (url.indexOf(MEDIA_URL_PREFIX) != 0) {
+			url = convertToExternalURL(url, disableAutoAdjustProtocol)
+		}
+		if (isJSResource) {
+			getWebClientPluginAccess().getPageContributor().addGlobalJSResourceReference(url)
+		} else {
+			getWebClientPluginAccess().getPageContributor().addGlobalCSSResourceReference(url)
+		}
+	} else {	
+		if (!element) {
+			logger.warn('Resource "' + url + '" is added to the current JSWindow only. Requires Servoy 7.3 to add the resource to all current and future JSWindows')
+		}
+		var contributor = new Packages.org.apache.wicket.behavior.HeaderContributor(new Packages.org.apache.wicket.markup.html.IHeaderContributor({
+				renderHead: function(/**@type {Packages.org.apache.wicket.markup.html.IHeaderResponse}*/ response) {
+					if (isJSResource) {
+						response.renderJavascriptReference(convertToExternalURL(url, disableAutoAdjustProtocol))
+					} else {
+						response.renderCSSReference(convertToExternalURL(url, disableAutoAdjustProtocol))
+					}
+				}
+			})
+		)
+		addBehavior(contributor, element)
+	}
 }
 
 /**
@@ -238,12 +300,12 @@ function addCSSDependancy(url, element, disableAutoAdjustProtocol) {
  * @properties={typeid:24,uuid:"B8C949DD-494F-4352-9BC7-1DA7FE0A404E"}
  */
 function getExternalUrlForMedia(mediaUrl) {
-	if (mediaUrl.substr(0, MEDIA_URL_PREFIX.length) != MEDIA_URL_PREFIX) {
+	if (mediaUrl.indexOf(MEDIA_URL_PREFIX) != 0) {
 		return mediaUrl
 	}
 	var media = solutionModel.getMedia(mediaUrl.substr(MEDIA_URL_PREFIX.length))
 	if (media == null) {
-		application.output('Could not locate "' + mediaUrl + '" in the media library for inclusion in the Web Client markup', LOGGINGLEVEL.WARNING)
+		logger.warn('Could not locate "' + mediaUrl + '" in the media library for inclusion in the Web Client markup')
 		return '#'
 	} 
 	
@@ -265,8 +327,8 @@ function getExternalUrlForMedia(mediaUrl) {
  * @properties={typeid:24,uuid:"C6EC0C48-2E49-46A7-A630-E162626FB362"}
  */
 function convertToExternalURL(url, disableAutoAdjustProtocol) { 
-	if (url.substr(0, MEDIA_URL_PREFIX.length) != MEDIA_URL_PREFIX) {
-		//Replace http with https when the Wc is running under https, to prevent mixed content warnings in the browser
+	if (url.indexOf(MEDIA_URL_PREFIX) != 0) {
+		//Replace http with https when the WC is running under https, to prevent mixed content warnings in the browser
 		if (!disableAutoAdjustProtocol && url.substr(0,4) == 'http') {
 			var requiredProtocol = scopes.modUtils$net.parseUrl(application.getServerURL()).protocol
 			var usedProtocol = scopes.modUtils$net.parseUrl(url).protocol
@@ -282,7 +344,7 @@ function convertToExternalURL(url, disableAutoAdjustProtocol) {
 /**
  * Executes the supplied JavaScript code string in the browser on the next render cycle
  * @param {String} script
- * @param {JSWindow|String} [window]
+ * @param {JSWindow|String} [window] The specific JSWindow to execute the code in
  *
  * @properties={typeid:24,uuid:"125243AB-90B0-424A-8CFD-338584E0E10A"}
  */
@@ -293,7 +355,9 @@ function executeClientsideScript(script, window) {
 	if (script.charAt(-1) != ';') {
 		script += ';'
 	}
-	if (window) {
+	//TODO: test passing null value for main window
+	//TODO: write unittest for non-public API usage
+	if (typeof window !== 'undefined') {
 		var windowName = window instanceof JSWindow ? window.getName() : window === 'null' ? null : window
 		/** @type {Packages.com.servoy.j2db.FormManager} */
 		var fm = getWebClientPluginAccess().getFormManager()
@@ -304,7 +368,6 @@ function executeClientsideScript(script, window) {
 		getWebClientPluginAccess().getPageContributor().addDynamicJavaScript(script);
 	}
 }
-
 
 /**
  * @experimental: implementation might change
@@ -415,6 +478,283 @@ function getFormName(element) {
 	return null
 }
 
+/* http://stackoverflow.com/questions/162911/how-do-i-call-java-code-from-javascript-code-in-wicket
+ * 
+ */
+/**
+ * Store containing FunctionDefinitions by their HashCode. Used by the getCallbackUrl/getCallbackScript methods
+ * @private 
+ * @type {Object<{fd: Packages.com.servoy.j2db.scripting.FunctionDefinition, options: callbackOptionsType}>}
+ * @properties={typeid:35,uuid:"6CB64EFA-4E5B-4D7F-968C-042F29AE9220",variableType:-4}
+ */
+var callbackFunctionDefinitions = {}
+
+/**
+ * Generates the a URL that can be used from within the browser in a Web Client to invoke a method in the serverside part of the same Web Client<br/>
+ * <br/>
+ * The generated URL can be used for example using JQuery's Ajax API to call a method on the server and get the returnValue from the invoked method back as response<br>
+ * <br>
+ * This method is low level, allowing a lot of control. For a more straightforward callback, see {@link #getCallbackScript}<br/>
+ * @param {function(String, Object<Array<String>>, Array<String>):String|{bodyContent: String, headers: Object<String>=, statusCode: Number=}} callback
+ * @param {String} [id]
+ * 
+ * @example <pre>
+ * \/\/On the Server
+ * var url = scopes.modUtils@webClient.getCallbackUrl()
+ * 
+ * \/\/On the client
+ * $.ajax({
+ *   type: "POST",
+ *   url: callbackUrl,
+ *   data: 'hello',
+ *   success: function(data, textStatus,  jqXHR) {
+ * 	  alert(data)
+ *   }
+ * });
+ * </pre
+ * 
+ * @properties={typeid:24,uuid:"958C4A78-CE1A-479C-B9BE-711B1AACAD5D"}
+ */
+function getCallbackUrl(callback, id) {
+	checkOperationSupported()
+	var callback = generateCallback(callback, null, {returnCallbackReturnValue: true, supplyAllArguments: true})
+	return callback.url + "&" + callback.methodHash
+
+	/*
+	 * Needs serialization of XML or JavaScript objects to Strings
+	 */
+}
+
+/**
+ * Generates a JavaScript code snippet that ....
+ * @param {Function} callback
+ * @param {Array} [args] 
+ * @param {Boolean} [options.showLoading]
+ * @param {String} [options.mimeType]
+ * @param {String} [options.id]
+ *
+ * @properties={typeid:24,uuid:"A16EEE7F-85BE-4649-8E84-1CE50E9C96A6"}
+ */
+function getCallbackScript(callback, args, options) {
+	checkOperationSupported()
+	options = options||{}
+	options.returnRetval = false
+	
+	//using POST because the final callback might contain more data than the URL size limit
+	//wicketAjaxPost(url, body, successHandler, failureHandler, preCondition, channel)
+	var callback = generateCallback(callback, args, options)
+	var script = "wicketAjaxPost('" + callback.url + "','" + callback.methodHash + "'" + callback.parameterCode
+	if (options.showLoading) {
+		var handler = ', function(){Wicket.hideIncrementally(\'indicator\')}'
+		script += handler + handler + ',' + 'function(){Wicket.showIncrementally(\'indicator\');return true}'
+	}
+	return script + ')'
+}
+
+/**
+ * @type {Packages.org.apache.wicket.behavior.AbstractAjaxBehavior}
+ *
+ * @properties={typeid:35,uuid:"12E48C24-04C6-4B95-B07F-4E3174AC0045",variableType:-4}
+ */
+var CallBackBehavior
+
+/**
+ * @typedef {{
+ * 	mimeType: String=,
+ *  id: String=,
+ *  disableImmediateUpdate: Boolean=,
+ *  returnCallbackReturnValue: Boolean=
+ * }}
+ * @properties={typeid:35,uuid:"3EEA98B7-61C8-4F47-A653-5E5D1A3EA754",variableType:-4}
+ */
+var callbackOptionsType
+
+/**
+ * Utility to create callback code for both getCallbackScript and getCallbackUrl. Maybe should be inlined, as too many code branches based on usage
+ * @private 
+ *
+ * @param {function(String, Array<String>):*} callback First argument is the bodyContent, second argument the requestParams
+ * @param {Array} [args] String values are considered references to browser-side properties. To pass hardcoded String literals the String value needs to be double quoted: '"myvalue"'
+ * @param {callbackOptionsType} options
+ * @properties={typeid:24,uuid:"45739F09-DBC5-40FA-BC3C-03D01FC5B3DD"}
+ */
+function generateCallback(callback, args, options) {
+	options = options||{}
+	var fd
+	if (callback && callback instanceof Function) {
+		try {
+			fd = new Packages.com.servoy.j2db.scripting.FunctionDefinition(callback)
+		} catch (e) {}
+	}
+
+	if (!fd || fd.exists(getWebClientPluginAccess()) !== Packages.com.servoy.j2db.scripting.FunctionDefinition.Exist.METHOD_FOUND) {
+		throw scopes.modUtils$exceptions.IllegalArgumentException('Callback param must be a Servoy defined method')
+	}
+	
+	callbackFunctionDefinitions[fd.hashCode()] = {
+		fd: fd,
+		options: options
+	}
+	
+	var AbstractAjaxBehaviorImpl = {
+		getUrlForCallback: function(fd, args, options) {
+			var paramString = '';
+			if (args != null) {
+				if (Array.isArray(args)) {
+					for (var index = 0; index < args.length; index++) {
+						/** @type {Object}*/
+						var value = args[index]
+						if (value != null) {
+							try {
+								//TODO: don't need to send hardcoded values to the client and back: can keep them stored on the server against the hashcode
+								var v = utils.stringTrim(value.toString());
+								if (v.slice(0, 1) == v.slice(-1) && ["'",'"'].indexOf(v.slice(0,1)) != -1) {
+									paramString += "+\'&p=" + encodeURIComponent(v.slice(1,-1)) + '\'';
+								} else if ('string' !== typeof value) {
+									paramString += "+\'&p=" + encodeURIComponent(v) + '\'';
+								} else {
+									paramString += "+\'&p='+encodeURIComponent(" + v + ")"; 
+								}
+							} catch (ex) {
+								logger.debug(ex);
+							}
+						}
+					}
+				} else {
+					//TODO: support for passing an object as argument
+				}
+			}
+
+			//** @type {Packages.org.apache.wicket.protocol.http.WebRequest} */
+			var request = Packages.org.apache.wicket.RequestCycle.get().getRequest();
+			
+			var requestParameters = request.getRequestParameters();
+			var urlDept = requestParameters.getUrlDepth();
+			try {
+				// set the url dept to 0, it should always just be ?xxx without ../../
+				requestParameters.setUrlDepth(0);
+				if (request instanceof Packages.org.apache.wicket.protocol.http.servlet.ServletWebRequest) {
+					request['setWicketRedirectUrl'](""); //TODO: use inline typing if available
+				}
+				return {
+					url: this.getComponent().urlFor(this, Packages.com.servoy.j2db.server.headlessclient.AlwaysLastPageVersionRequestListenerInterface.INTERFACE),
+					methodHash: 'm=' + fd.hashCode(),
+					parameterCode: paramString 
+				}
+			} finally {
+				requestParameters.setUrlDepth(urlDept);
+			}
+		},
+		onRequest: function() {
+			//TODO: raise proper exceptions
+			var requestCycle = Packages.org.apache.wicket.RequestCycle.get();
+			var request = requestCycle.getRequest();
+
+			var param = request.getParameter("m");  
+			if(param == null){
+				throw scopes.utils.exceptions.IllegalStateException('Invalid callback url');
+			}
+			
+			var callbackInfo = callbackFunctionDefinitions[param]
+			if (callbackInfo == null) {
+				throw scopes.utils.exceptions.IllegalStateException('Could not find function!');
+			}
+			
+			var requestArgs
+			if (callbackInfo.options.supplyAllArguments) {
+				var map = request.getParameterMap()
+				map.remove("m")
+				var mapArray = map.keySet().toArray()
+				var objs = {}
+				for (var i = 0; i < mapArray.length; i++) {
+					/** @type {Array<String>} */
+					var value = map.get(mapArray[i]);
+					if (value != null) {
+						objs[mapArray[i]] = Array.prototype.slice.call(value);
+					}
+				}
+				requestArgs = [objs]; //null;
+			} else {
+				requestArgs = request.getParameters("p")
+			}
+			
+			//TODO: see getObjectParametersFromMap() in JSONBEhavior
+
+			//TODO: how to deal with this, returning the body
+//			/** @type {javax.servlet.http.HttpServletRequest} */
+//			var hsr = request.getHttpServletRequest(); 
+//			//if (hsr.getMethod() == 'POST') {}  //CHECKME: Where did this bit of code come from in the first place and what should it do?
+//			try { 
+//				var br = hsr.getReader(); 
+//				var tmp = null;
+//				var theString = ""; 
+//				while ((tmp = br.readLine()) != null) {
+//					theString += tmp + "\n";
+//				}
+//
+//				if (theString != null) { 
+//					if (obj == null) {
+//						requestArgs = [theString];
+//					} else {
+//						requestArgs = [theString, obj];
+//					}
+//				} 
+//
+//			} catch (ex) { 
+//				logger.debug(ex); 
+//			}
+			
+			var o = callbackInfo.fd.execute(getWebClientPluginAccess(), requestArgs||[], false)||'';
+			var target
+			if (callbackInfo.options.returnCallbackReturnValue === true) {
+				var retval
+				target = new Packages.org.apache.wicket.request.target.basic.StringRequestTarget(options.mimeType||'application/text', "utf-8", o instanceof XML ? o.toXMLString() : JSON.stringify(o))
+				requestCycle.setRequestTarget(target);
+			} else {
+				var app = this.getComponent().getApplication();
+				target = app.newAjaxRequestTarget(this.getComponent().getPage());
+				requestCycle.setRequestTarget(target);
+				
+				if (callbackInfo.options.disableImmediateUpdate !== true) {
+					// update client state
+					Packages.com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor.generateResponse(target, target.getPage());
+				}
+			}
+		}
+	}
+	
+	CallBackBehavior = CallBackBehavior || new Packages.org.apache.wicket.behavior.AbstractAjaxBehavior(AbstractAjaxBehaviorImpl)
+
+	getWebClientPluginAccess().getPageContributor().addBehavior('com.servoy.bap.callbackBehavior', CallBackBehavior)
+	return CallBackBehavior.getUrlForCallback(fd, args, options)
+}
+
+/**
+ * TODO: implement, desciption, samplecode
+ * TODO: Make more generic, allowing removing any behavior?
+ * @param {String} name
+ * @param {RuntimeForm|RuntimeComponent} component
+ *
+ * @properties={typeid:24,uuid:"0989AFB8-AD50-4D22-BA3E-9238599E134F"}
+ */
+function removeCallback(name, component) {
+	//Maybe use Wicket.component.getBehaviors & wicket.component.remove. That does make it impossible to make it more generic and allow removing any behavior
+}
+
+/**
+ * @private
+ * @SuppressWarnings(unused)
+ * @properties={typeid:35,uuid:"C678DA5D-2572-447B-9C40-D16CDFDF7EF2",variableType:-4}
+ */
+var initGetCallbackScript = function(){
+	getCallbackScript.MIME_TYPES = {
+		TEXT: 'application/text',
+		JSON: 'application/json',
+		XML: 'application/xml'
+		//BINARY: 'application.binary' TODO: check , implement and add
+	}
+}()
+
 /**
  * Utility method to get PluginAccess
  * @private
@@ -423,7 +763,8 @@ function getFormName(element) {
  * @properties={typeid:24,uuid:"AF74EA3D-B2EB-41EC-A333-D806D7972FA5"}
  */
 function getWebClientPluginAccess() {
-	return unwrapElement(plugins.window)['getClientPluginAccess']()
+	var x = new Packages.org.mozilla.javascript.NativeJavaObject(globals, plugins.window, new Packages.org.mozilla.javascript.JavaMembers(globals, Packages.com.servoy.extensions.plugins.window.WindowProvider));
+	return x['getClientPluginAccess']();
 }
 
 /**
@@ -580,7 +921,7 @@ function updateUI(milliseconds) {
 	checkOperationSupported()
 	if (application.getApplicationType() == APPLICATION_TYPES.WEB_CLIENT) {
       c = new Continuation();
-      //TODO: convert to not use WebClientUtils plugin
+      //FIXME: convert to not use WebClientUtils plugin
       executeClientsideScript(plugins.WebClientUtils.generateCallbackScript(updateUIResume));
       terminator();
    } else {
