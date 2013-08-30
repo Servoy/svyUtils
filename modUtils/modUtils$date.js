@@ -1,5 +1,4 @@
 /*
-/*
  * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2013 Servoy BV 
  * 
  * This program is free software: you can redistribute it and/or modify
@@ -18,7 +17,9 @@
 
 /* 
  * Date helper methods
+ * TODO: methos that take a Date as param shoudl also allow taking a DateTime object as param
  */
+
 
 /**
  * A java.util.Calendar instance used to do the math
