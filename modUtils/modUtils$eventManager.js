@@ -72,7 +72,7 @@ var events = {}
  */
 function convertObjectToString(obj) {
 	if (obj instanceof Function) {
-		return scopes.modUtils.convertFunctionToString(obj);
+		return scopes.modUtils.convertServoyMethodToQualifiedName(obj);
 	}
 	if (obj instanceof String) {
 		/**@type {Array<String>}*/

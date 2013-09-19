@@ -16,15 +16,20 @@
  */
 
 /**
+ * Calls a method based on a qualified name String.
  * TODO: add example code, also how to apply this for invocation on the same form
+ * @public
+ * 
  * @param {String} qualifiedName
  * @param {*} [args]
  * @return {*}
  * @throws {scopes.modUtils$exceptions.IllegalArgumentException}
  *
+ * @see For getting a qualified name String for a Servoy method: {@link convertServoyMethodToQualifiedName}
+ *
  * @properties={typeid:24,uuid:"28F6D882-B1B4-4B23-BCC8-71E2DE44F10E"}
  */
-function callServoyMethod(qualifiedName, args) {
+function callMethod(qualifiedName, args) {
 	if (!qualifiedName) {
 		throw scopes.modUtils$exceptions.IllegalArgumentException('\'qualifiedName\' parameter must be specified')
 	}
@@ -64,7 +69,7 @@ function callServoyMethod(qualifiedName, args) {
 }
 
 /**
- * Converts a method reference to a String
+ * Converts a Servoy method reference to a qualified name String
  * 
  * @public
  * 
@@ -72,16 +77,18 @@ function callServoyMethod(qualifiedName, args) {
  * @since 18.07.2013
  * @author patrick
  *
- * @param {Function} functionToConvert
+ * @param {Function} method
  * 
  * @return {String} methodString
+ * 
+ * @see For calling a Servoy method based on a qualified name String: {@link callMethod}
  *
  * @properties={typeid:24,uuid:"05B65961-68C6-42BA-9FB9-12BE068892AD"}
  */
-function convertFunctionToString(functionToConvert) {
-	if (functionToConvert instanceof Function) {
+function convertServoyMethodToQualifiedName(method) {
+	if (method instanceof Function) {
 		try {
-			var fd = new Packages.com.servoy.j2db.scripting.FunctionDefinition(functionToConvert)
+			var fd = new Packages.com.servoy.j2db.scripting.FunctionDefinition(method)
 			if (fd.getFormName()) {
 				return 'forms.' + fd.getFormName() + '.' + fd.getMethodName()
 			} else if (fd.getScopeName()) {

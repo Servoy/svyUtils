@@ -66,6 +66,7 @@ function concatenateJSDataSets(main, addition) {
 
 /**
  * Returns an Array with the column names of the specified JSDataSet
+ * @deprecated Use {@link JSDataSet#getColumnNames} instead. Will be removed in version 6
  * 
  * @param {JSDataSet} dataset
  * 
