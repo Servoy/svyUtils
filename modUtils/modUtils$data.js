@@ -46,6 +46,7 @@ function pivotJSDataSet(dataset) {
  * @param {JSDataSet} addition
  * @return {JSDataSet} New JSDataSet containing all rowns from main joined with all rows from addition.
  *
+ * @SuppressWarnings(deprecated)
  * @properties={typeid:24,uuid:"72E868A3-A03C-417C-BBC8-2980A55E5116"}
  */
 function concatenateJSDataSets(main, addition) {
@@ -53,7 +54,7 @@ function concatenateJSDataSets(main, addition) {
 		throw new scopes.modUtils$exceptions.IllegalArgumentException('Supplied arguments are not both instances of JSDataSet')
 	}
 
-	var newDS = databaseManager.createEmptyDataSet(0, getJSDataSetColumnNames(main));
+	var newDS = databaseManager.createEmptyDataSet(0, getJSDataSetColumnNames(main)); //TODO: refactor to use JSDataSet.getColumnNames in version 6.0
 	for (var i = 1; i <= main.getMaxRowIndex(); i++) {
 		newDS.addRow(main.getRowAsArray(i))
 	}
