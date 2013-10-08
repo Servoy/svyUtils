@@ -348,7 +348,9 @@ function getValueListDisplayValue(valueListName, realValue, record) {
 			query.where.add(query.getColumn(returnValues[0]).eq(realValue));
 			var dataset = databaseManager.getDataSetByQuery(query, 1);
 			result = dataset.getRowAsArray(1);
-			result = result.join(jsValueList.separator);
+			if (result && result.length > 0) {
+				result = result.join(jsValueList.separator);
+			}
 		}
 	}
 	
