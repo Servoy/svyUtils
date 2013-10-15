@@ -405,7 +405,7 @@ function getDayDifference(start, end) {
 
 /**
  * Returns an array containing the names of the months for either the current or the given Locale
- * 
+ * FIXME: java method returns array with 13 elements instead of 12: [jan, ..., dec, ]
  * @param {String} [locale] - the optional Locale
  * 
  * @return {String[]} monthNames
@@ -427,7 +427,7 @@ function getMonthNames(locale) {
  * Returns an array containing the short names of the months for either the current or the given Locale
  * 
  * @param {String} [locale] - the optional Locale
- * 
+ * FIXME: java method returns array with 13 elements instead of 12: [jan, ..., dec, ]
  * @return {String[]} shortMonthNames
  *
  * @properties={typeid:24,uuid:"7592A33A-09E1-4594-BC8A-A048532E11F0"}
@@ -445,7 +445,7 @@ function getShortMonthNames(locale) {
 
 /**
  * Returns an array containing the names of the weekdays for either the current or the given Locale
- * 
+ * FIXME: java method returns array 1-based: [ ,Sunday , Monday etc..] instead of 0-based [Sunday, Monday etc..]
  * @param {String} [locale] - the optional Locale
  * 
  * @return {String[]} weekdayNames
@@ -459,7 +459,7 @@ function getWeekdayNames(locale) {
 	var dfs;
 	if (locale) {
 		var l = new java.util.Locale(locale);
-		dfs = new java.text.DateFormatSymbols(l);		
+		dfs = new java.text.DateFormatSymbols(l);	
 	} else {
 		dfs = new java.text.DateFormatSymbols();
 	}
@@ -489,7 +489,7 @@ function getWeekOfYear(date) {
  * @param {String} [locale] - the optional Locale
  * 
  * @return {String[]} shortWeekdayNames
- * 
+ * FIXME: java method returns array 1-based: [ ,Sunday , Monday etc..] instead of 0-based [Sunday, Monday etc..]
  * @example // returns an array of all the short names of the week days in French<br>
  * var dayNames = scopes.modUtils$date.getShortWeekdayNames("fr");
  *
