@@ -77,6 +77,8 @@ function addToDate(date, dateField, value) {
 /**
  * Adds the number of years, months, days, hours, minutes and seconds to the given date and returns a new date
  * 
+ * @public
+ * 
  * @param {Date} date
  * @param {Number} years
  * @param {Number} months
@@ -102,6 +104,8 @@ function add(date, years, months, days, hours, minutes, seconds) {
 
 /**
  * Transposes a date object by the amount specified and returns a new date object
+ * 
+ * @public
  * 
  * @param {Date} date
  * @param {Number} amount
@@ -144,6 +148,8 @@ function addUnits(date, amount, units) {
  * Adds the given number of years to the given date and returns a new date<br>
  * Negative number of years will be substracted
  * 
+ * @public
+ * 
  * @param {Date} date - the date to add to
  * @param {Number} years - number of years to add
  * 
@@ -158,6 +164,8 @@ function addYears(date, years) {
 /**
  * Adds the given number of months to the given date and returns a new dat<br>
  * Negative number of months will be substracted
+ * 
+ * @public
  * 
  * @param {Date} date - the date to add to
  * @param {Number} months - number of months to add
@@ -174,6 +182,8 @@ function addMonths(date, months) {
  * Adds the given number of weeks to the given date and returns a new dat<br>
  * Negative number of weeks will be substracted
  * 
+ * @public
+ * 
  * @param {Date} date - the date to add to
  * @param {Number} weeks - number of weeks to add
  * 
@@ -188,6 +198,8 @@ function addWeeks(date, weeks) {
 /**
  * Adds the given number of days to the given date and returns a new dat<br>
  * Negative number of days will be substracted
+ * 
+ * @public
  * 
  * @param {Date} date - the date to add to
  * @param {Number} days - number of days to add
@@ -204,6 +216,8 @@ function addDays(date, days) {
  * Adds the given number of hours to the given date and returns a new dat<br>
  * Negative number of hours will be substracted
  * 
+ * @public
+ * 
  * @param {Date} date - the date to add to
  * @param {Number} hours - number of hours to add
  * 
@@ -218,6 +232,8 @@ function addHours(date, hours) {
 /**
  * Adds the given number of minutes to the given date and returns a new dat<br>
  * Negative number of minutes will be substracted
+ * 
+ * @public
  * 
  * @param {Date} date - the date to add to
  * @param {Number} minutes - number of minutes to add
@@ -234,6 +250,8 @@ function addMinutes(date, minutes) {
  * Adds the given number of seconds to the given date and returns a new dat<br>
  * Negative number of seconds will be substracted
  * 
+ * @public
+ * 
  * @param {Date} date - the date to add to
  * @param {Number} seconds - number of seconds to add
  * 
@@ -249,6 +267,8 @@ function addSeconds(date, seconds) {
  * Adds the given number of milliseconds to the given date and returns a new dat<br>
  * Negative number of milliseconds will be substracted
  * 
+ * @public
+ * 
  * @param {Date} date - the date to add to
  * @param {Number} milliseconds - number of seconds to add
  * 
@@ -263,6 +283,8 @@ function addMilliseconds(date, milliseconds) {
 /**
  * Sets the time of the given date to 00:00:00.000
  * 
+ * @public
+ * 
  * @param {Date} date
  * 
  * @return {Date} result
@@ -276,6 +298,8 @@ function toStartOfDay(date) {
 
 /**
  * Sets the time of the given date to 00:00:00
+ * 
+ * @public
  * 
  * @param {Date} date
  * 
@@ -293,6 +317,8 @@ function toEndOfDay(date) {
  * 
  * The range starts at the given start date at 00:00:00 and<br>
  * ends at the given end date at 23:59:59<br>
+ * 
+ * @public
  * 
  * @see createDateTimeSearchString(start,end) if exact datetime search is needed
  * 
@@ -318,6 +344,8 @@ function createDateSearchString(start, end) {
  * Note that the week of year depends on the current Locale in what is 
  * considered the first day of week and the minimal number of days in the first week.
  * 
+ * @public
+ * 
  * @param {Number} year
  * @param {Number} week
  * 
@@ -341,6 +369,8 @@ function createDateFromWeekNumber(year, week) {
  * @param {Date} end
  * 
  * @return {String} searchString
+ * 
+ * @public
  *
  * @properties={typeid:24,uuid:"8B6608CF-4DF5-461F-88F5-A4B949820E16"}
  */
@@ -356,6 +386,8 @@ function createDateTimeSearchString(start, end) {
  * 
  * @param {DATE_FORMAT} [style]	- see DATE_FORMAT for possible styles
  * @param {String} [locale]		- a locale String such as "en"
+ * 
+ * @public
  *
  * @properties={typeid:24,uuid:"37934D5E-1015-422D-A489-84DC659D229F"}
  */
@@ -396,6 +428,8 @@ function getDateFormat(style, locale) {
  * @param {Date} end
  * 
  * @return {Number} fullDaysBetween
+ * 
+ * @public
  *
  * @properties={typeid:24,uuid:"D9F78345-D31D-4A79-8C28-230F7BC467B4"}
  */
@@ -404,8 +438,29 @@ function getDayDifference(start, end) {
 }
 
 /**
+ * Gets what the minimal days required in the first week of the year are; e.g., if the first week is defined 
+ * as one that contains the first day of the first month of a year, this method returns 1. If the minimal days 
+ * required must be a full week, this method returns 7.
+ * 
+ * @public 
+ * 
+ * @return {Number} the minimal days required in the first week of the year
+ * 
+ * @version 5.0
+ * @since 16.10.2013
+ * @author patrick
+ *
+ * @properties={typeid:24,uuid:"EE43B7A9-5072-445A-ABBD-32DB08387D33"}
+ */
+function getMinimalDaysInFirstWeek() {
+	return calendar.getMinimalDaysInFirstWeek();
+}
+
+/**
  * Returns an array containing the names of the months for either the current or the given Locale
- * FIXME: java method returns array with 13 elements instead of 12: [jan, ..., dec, ]
+ * 
+ * @public
+ * 
  * @param {String} [locale] - the optional Locale
  * 
  * @return {String[]} monthNames
@@ -420,14 +475,18 @@ function getMonthNames(locale) {
 	} else {
 		dfs = new java.text.DateFormatSymbols();
 	}
-	return dfs.getMonths();
+	var monthNames = dfs.getMonths();
+	monthNames.pop();
+	return monthNames;
 }
 
 /**
  * Returns an array containing the short names of the months for either the current or the given Locale
  * 
+ * @public
+ * 
  * @param {String} [locale] - the optional Locale
- * FIXME: java method returns array with 13 elements instead of 12: [jan, ..., dec, ]
+ * 
  * @return {String[]} shortMonthNames
  *
  * @properties={typeid:24,uuid:"7592A33A-09E1-4594-BC8A-A048532E11F0"}
@@ -440,12 +499,16 @@ function getShortMonthNames(locale) {
 	} else {
 		dfs = new java.text.DateFormatSymbols();
 	}
-	return dfs.getShortMonths();
+	var monthNames = dfs.getShortMonths();
+	monthNames.pop();
+	return monthNames;
 }
 
 /**
  * Returns an array containing the names of the weekdays for either the current or the given Locale
- * FIXME: java method returns array 1-based: [ ,Sunday , Monday etc..] instead of 0-based [Sunday, Monday etc..]
+ * 
+ * @public
+ * 
  * @param {String} [locale] - the optional Locale
  * 
  * @return {String[]} weekdayNames
@@ -463,7 +526,9 @@ function getWeekdayNames(locale) {
 	} else {
 		dfs = new java.text.DateFormatSymbols();
 	}
-	return dfs.getWeekdays();
+	var weekdays = dfs.getWeekdays();
+	weekdays.shift();
+	return weekdays;
 }
 
 /**
@@ -471,6 +536,8 @@ function getWeekdayNames(locale) {
  * 
  * Note that the week of year depends on the current Locale in what is 
  * considered the first day of week and the minimal number of days in the first week.
+ * 
+ * @public
  * 
  * @param date
  * 
@@ -486,10 +553,12 @@ function getWeekOfYear(date) {
 /**
  * Returns an array containing the short names of the weekdays for either the current or the given Locale
  * 
+ * @public
+ * 
  * @param {String} [locale] - the optional Locale
  * 
  * @return {String[]} shortWeekdayNames
- * FIXME: java method returns array 1-based: [ ,Sunday , Monday etc..] instead of 0-based [Sunday, Monday etc..]
+ * 
  * @example // returns an array of all the short names of the week days in French<br>
  * var dayNames = scopes.modUtils$date.getShortWeekdayNames("fr");
  *
@@ -503,11 +572,15 @@ function getShortWeekdayNames(locale) {
 	} else {
 		dfs = new java.text.DateFormatSymbols();
 	}
-	return dfs.getWeekdays();
+	var weekdays = dfs.getShortWeekdays();
+	weekdays.shift();
+	return weekdays;
 }
 
 /**
  * Returns the date format for the default or the given locale using the given style (defaults to MEDIUM)
+ * 
+ * @public
  * 
  * @param {DATE_FORMAT} [style]	- see DATE_FORMAT for possible styles
  * @param {String} [locale]		- a locale String such as "en"
@@ -547,6 +620,8 @@ function getTimeFormat(style, locale) {
 /**
  * Returns true if the given year is a leap year
  * 
+ * @public
+ * 
  * @param {Number} year
  * 
  * @return {Boolean} isLeapYear
@@ -560,6 +635,8 @@ function isLeapYear(year) {
 
 /**
  * Returns the day of the week
+ * 
+ * @public
  * 
  * @param {Date} date
  *
@@ -575,6 +652,8 @@ function getDayOfWeek(date) {
 /**
  * Returns the day of the year
  * 
+ * @public
+ * 
  * @param {Date} date
  *
  * @return {Number} dayOfYear
@@ -588,6 +667,8 @@ function getDayOfYear(date) {
 
 /**
  * Returns a new date of the first day of the week of the given date
+ * 
+ * @public
  * 
  * @param {Date} date
  * 
@@ -608,6 +689,8 @@ function getFirstDayOfWeek(date) {
 /**
  * Returns a new date of the first day of the month of the given date
  * 
+ * @public
+ * 
  * @param {Date} date
  * 
  * @return {Date} firstDayOfMonth
@@ -621,6 +704,8 @@ function getFirstDayOfMonth(date) {
 /**
  * Returns a new date of the first day of the month of the given date
  * 
+ * @public
+ * 
  * @param {Date} date
  * 
  * @return {Date} firstDayOfMonth
@@ -632,7 +717,28 @@ function getFirstDayOfYear(date) {
 }
 
 /**
+ * Gets what the minimal days required in the first week of the year are; e.g., if the first week is 
+ * defined as one that contains the first day of the first month of a year, this method returns 1. 
+ * If the minimal days required must be a full week, this method returns 7.
+ * 
+ * @public 
+ * 
+ * @return {Number} the minimal days required in the first week of the year
+ * 
+ * @version 5.0
+ * @since 16.10.2013
+ * @author patrick
+ *
+ * @properties={typeid:24,uuid:"3A12D23A-D9C7-4257-A476-3B8E98717377"}
+ */
+function getFirstWeekDayNumber() {
+	return calendar.getFirstDayOfWeek();
+}
+
+/**
  * Returns a new date of the last day of the week of the given date
+ * 
+ * @public
  * 
  * @param {Date} date
  * 
@@ -654,6 +760,8 @@ function getLastDayOfWeek(date) {
 /**
  * Returns a new date of the last day of the year of the given date
  * 
+ * @public
+ * 
  * @param {Date} date
  * 
  * @return {Date} lastDayOfYear
@@ -672,6 +780,8 @@ function getLastDayOfYear(date) {
 /**
  * Returns a ISO 8601 formatted String of the given Date
  * 
+ * @public
+ * 
  * @param {Date} date
  *
  * @properties={typeid:24,uuid:"7F519BC0-F9BF-4162-B243-FD1AB2CE3581"}
@@ -682,6 +792,8 @@ function getISODateTime(date) {
 
 /**
  * Returns a ISO 8601 date only formatted String of the given Date
+ * 
+ * @public
  * 
  * @param {Date} date
  *
@@ -694,6 +806,8 @@ function getISODate(date) {
 /**
  * Returns a ISO 8601 time only formatted String of the given Date
  * 
+ * @public
+ * 
  * @param {Date} date
  *
  * @properties={typeid:24,uuid:"78F71D31-063E-4341-B5C1-579C0B2E93C6"}
@@ -704,6 +818,8 @@ function getISOTime(date) {
 
 /**
  * Returns a new date of the last day of the month of the given date
+ * 
+ * @public
  * 
  * @param {Date} date
  * 
@@ -724,6 +840,8 @@ function getLastDayOfMonth(date) {
 /**
  * Takes the time of the given date and returns the hours as a decimal value
  * 
+ * @public
+ * 
  * @param {Date} date
  *
  * @properties={typeid:24,uuid:"E4550770-C64A-4CEA-8659-3DD6ADCEFE29"}
@@ -738,7 +856,10 @@ function getDecimalHours(date) {
  * Creates a DateTime object that can be used to chain methods of this class<br>
  * as for example <code>dateTimeObject.addDays(5).toStartOfDay().date</code>
  * 
+ * @public
+ * 
  * @constructor 
+ * 
  * @param {Date} [date]
  *
  * @properties={typeid:24,uuid:"55DB0D7E-712A-47B8-8A54-4689C658FF08"}
@@ -998,8 +1119,13 @@ function DateTime(date) {
 
 /**
  * Checks if a value is one of the defined time units
+ * 
+ * @public
+ * 
  * @param {Number} value
+ * 
  * @return {Boolean}
+ * 
  * @properties={typeid:24,uuid:"99754644-EE04-407C-B132-734F4BC54E0E"}
  */
 function isValueTimeUnit(value){
