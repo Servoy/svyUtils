@@ -866,6 +866,11 @@ function getDecimalHours(date) {
  */
 function DateTime(date) {
 	
+	if (!(this instanceof DateTime)) {
+		application.output("scopes.modUtils$date.DateTime: Constructor functions should be called with the \"new\" keyword!", LOGGINGLEVEL.WARNING);
+		return new DateTime(date)
+	}
+	
 	/**
 	 * The Date object of this DateTime
 	 */
@@ -1114,7 +1119,9 @@ function DateTime(date) {
 	this.toLastDayOfYear = function() {
 		this.date = getLastDayOfWeek(this.date);
 		return this;
-	}		
+	}
+	
+	return this;
 }
 
 /**
