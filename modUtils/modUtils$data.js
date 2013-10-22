@@ -346,9 +346,10 @@ function ValueNotUniqueException(errorMessage,source,dataProviderID, value) {
 		return value;
 	}
 	
-	if(!errorMessage){
-		errorMessage = 'Value not unique';
+	if (!errorMessage) {
+		errorMessage = "The value \"" + value + "\" is not unique for dataprovider \"" + dataProviderID + "\"";
 	}
+	
 	SvyDataException.call(this,errorMessage,source,dataProviderID)
 }
 
