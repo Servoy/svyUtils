@@ -105,6 +105,7 @@ function getJSDataSetColumnNames(dataset) {
  * @properties={typeid:24,uuid:"07670497-63A0-45A4-A20D-F0189157F300"}
  */
 function getJSDataSetByQueryAsync(query, maxReturnedRows, onSuccess, onError) {
+	//TODO: should use Servoy's public API to get a pooled Thread for execution: "IClientPluginAccess".getExecutor().execute(runnable);
 	var r = new java.lang.Runnable({ 
 		run: function () { 
 			try {
@@ -346,10 +347,9 @@ function ValueNotUniqueException(errorMessage,source,dataProviderID, value) {
 		return value;
 	}
 	
-	if (!errorMessage) {
+	if(!errorMessage){
 		errorMessage = "The value \"" + value + "\" is not unique for dataprovider \"" + dataProviderID + "\"";
 	}
-	
 	SvyDataException.call(this,errorMessage,source,dataProviderID)
 }
 
