@@ -52,7 +52,6 @@ function isRuntimeClient() {
 	return application.getApplicationType() == APPLICATION_TYPES.RUNTIME_CLIENT
 }
 
-
 /**
  * Test if the current client is headless client
  * 
@@ -75,18 +74,16 @@ function isSwingClient() {
 	return [APPLICATION_TYPES.SMART_CLIENT, APPLICATION_TYPES.RUNTIME_CLIENT].indexOf(application.getApplicationType()) >= 0;
 }
 
-//	TODO Uncomment when new constant is available
-///**
-// * Test if the current client is servoy mobile
-// * 
-// * @return {Boolean}
-// * @public 
-// * @properties={typeid:24,uuid:"15818D17-D669-4173-AC74-9F44FD67A168"}
-// */
-//function isMobileClient() {
-//	
-//	return application.getApplicationType() == APPLICATION_TYPES.MOBILE_CLIENT;
-//}
+/**
+ * Test if the current client is servoy mobile
+ * 
+ * @return {Boolean}
+ * @public 
+ * @properties={typeid:24,uuid:"15818D17-D669-4173-AC74-9F44FD67A168"}
+ */
+function isMobileClient() {
+	return application.getApplicationType() == APPLICATION_TYPES.MOBILE_CLIENT;
+}
 
 /**
  * Test if the current client is running Windows OS
