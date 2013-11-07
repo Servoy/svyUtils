@@ -16,12 +16,56 @@
  */
 
 /**
+ * @properties={typeid:35,uuid:"7EBC4113-8B59-4A6D-9F4E-D717DFE5F374",variableType:-4}
+ */
+var log = scopes.utils.log.getLogger('com.servoy.bap.utils')
+
+/**
+ * @param {String} qualifiedName
+ * @param {*} [context]
+ * @return {*}
+ *
+ * @properties={typeid:24,uuid:"11E5F873-B2AC-4644-9032-0382FE9F483C"}
+ */
+function getObject(qualifiedName, context) {
+	if (!qualifiedName) {
+		throw scopes.modUtils$exceptions.IllegalArgumentException('\'qualifiedName\' parameter must be specified')
+	}
+	var bits = qualifiedName.split('.')
+	var scope = context
+	if (!scope || !scope[bits[0]]) {
+		switch (bits[0]) {
+			case 'forms':
+				bits.shift()
+				scope = forms[bits.shift()]
+				break;
+			case 'scopes':
+				bits.shift()
+				scope = scopes[bits.shift()]
+				break;
+			case 'globals':
+				bits.shift()
+				scope = globals
+				break;
+			default:
+				scope = null
+		}
+	}
+	while (scope != null && bits.length) {
+		scope = scope[bits.shift()]
+	}
+	return scope
+}
+
+/**
  * Calls a method based on a qualified name String.
  * TODO: add example code, also how to apply this for invocation on the same form
  * @public
- * 
+ *
  * @param {String} qualifiedName
  * @param {*} [args]
+ * @param {*} [context] Optional context from where to start evaluating the qualifiedName
+ * 
  * @return {*}
  * @throws {scopes.modUtils$exceptions.IllegalArgumentException}
  *
@@ -29,43 +73,15 @@
  *
  * @properties={typeid:24,uuid:"28F6D882-B1B4-4B23-BCC8-71E2DE44F10E"}
  */
-function callMethod(qualifiedName, args) {
-	if (!qualifiedName) {
-		throw scopes.modUtils$exceptions.IllegalArgumentException('\'qualifiedName\' parameter must be specified')
+function callMethod(qualifiedName, args, context) {
+	var bits = qualifiedName.split('.')
+	var methodName = bits.pop()
+	var scope = getObject(bits.join('.'), context)
+	
+	if (!scope || !(scope[methodName] instanceof Function)) {
+		throw scopes.modUtils$exceptions.IllegalArgumentException('\'' + qualifiedName + '\' cannot be resolved to a method')
 	}
-	var methodParts = qualifiedName.split('.')
-	var methodName = methodParts.pop()
-
-	/** @type {Function} */
-	var f
-	var scope
-	if (!methodParts.length || ['forms', 'scopes', 'globals'].indexOf(methodParts[0]) == -1) {
-		scope = this
-	} else {
-		switch (methodParts.shift()) {
-		case 'forms':
-			scope = forms[methodParts.shift()]
-			break;
-		case 'scopes':
-			scope = scopes[methodParts.shift()]
-			break;
-		case 'globals':
-			scope = globals
-			break;
-		default:
-		//Cannot happen
-		}
-
-		while (scope != null && methodParts.length) {
-			scope = scope[methodParts.shift()]
-		}
-	}
-	if (scope) {
-		f = scope[methodName]
-	}
-	if (! (f instanceof Function)) throw scopes.modUtils$exceptions.IllegalArgumentException('\'' + qualifiedName + '\' cannot be resoled to a method')
-
-	return f.apply(scope, args ? Array.isArray(args) ? args : [args] : null)
+	return scope[methodName].apply(scope, args ? Array.isArray(args) ? args : [args] : null)
 }
 
 /**
@@ -79,7 +95,7 @@ function callMethod(qualifiedName, args) {
  *
  * @param {Function} method
  * 
- * @return {String} methodString
+ * @return {String} The qualified name for the provided method. Returns null if the provided method was not a function or not a Servoy method
  * 
  * @see For calling a Servoy method based on a qualified name String: {@link callMethod}
  *
@@ -97,7 +113,7 @@ function convertServoyMethodToQualifiedName(method) {
 				return null
 			}
 		} catch (e) {
-			application.output(e.message, LOGGINGLEVEL.ERROR)
+			log.warn(e.message)
 			return null;
 		}
 	}
@@ -287,6 +303,7 @@ function jsonConvertToObject(databaseValue, dbType) {
 }
 
 /**
+ * TODO: Shouldn't this go into modUtils$data?
  * Retrieve a valuelist display-value for a real-value.<p>
  * 
  * This method will also find values from type ahead value<br>
