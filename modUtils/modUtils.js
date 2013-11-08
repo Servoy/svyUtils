@@ -141,6 +141,7 @@ function isValueUnique(foundsetRecordOrDataSource, dataproviderName, value, extr
 	if (!foundsetRecordOrDataSource || !dataproviderName) {
 		throw new scopes.modUtils$exceptions.IllegalArgumentException("no parameters provided to scopes.modUtils.isValueUnique(foundsetOrRecord, dataproviderName, value)");
 	}
+	/** @type {String} */
 	var dataSource = (foundsetRecordOrDataSource instanceof String) ? foundsetRecordOrDataSource : foundsetRecordOrDataSource.getDataSource();
 	var pkNames = databaseManager.getTable(dataSource).getRowIdentifierColumnNames();
 	var query = databaseManager.createSelect(dataSource);
