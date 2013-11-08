@@ -36,9 +36,7 @@
  * @private
  * @properties={typeid:35,uuid:"ED9695A7-D5AD-4EC0-9F5D-9F85C9A3FC19",variableType:-4}
  */
-var logger = (function(){
-	scopes.modUtils$log.getLogger('com.servoy.bap.utils.webclient')
-}())
+var logger = scopes.modUtils$log.getLogger('com.servoy.bap.utils.webclient')
 
 /**
  * @private
@@ -91,8 +89,7 @@ function setComponentVisibility(component, visibility) {
 }
 
 /**
- * Sets the visibility of components in the browser. This means that all the markup is included, but is also hidden.
- * Differs from plugins.WebClientUtils impl., as that does it by changing the value for the CSS display property, while this impl. does it through the CSS visibility property
+ * Adds a CSS className to the component
  * 
  * @param {RuntimeComponent|RuntimeForm} component
  * @param {String} className
@@ -327,6 +324,7 @@ function getExternalUrlForMedia(mediaUrl) {
  * @properties={typeid:24,uuid:"C6EC0C48-2E49-46A7-A630-E162626FB362"}
  */
 function convertToExternalURL(url, disableAutoAdjustProtocol) { 
+	//Maybe instead we should use protocol-less URLS, like mentioned here: http://stackoverflow.com/questions/12069156/protocol-less-urls
 	if (url.indexOf(MEDIA_URL_PREFIX) != 0) {
 		//Replace http with https when the WC is running under https, to prevent mixed content warnings in the browser
 		if (!disableAutoAdjustProtocol && url.substr(0,4) == 'http') {
@@ -358,6 +356,7 @@ function executeClientsideScript(script, window) {
 	//TODO: test passing null value for main window
 	//TODO: write unittest for non-public API usage
 	if (typeof window !== 'undefined') {
+		/** @type {String} */
 		var windowName = window instanceof JSWindow ? window.getName() : window === 'null' ? null : window
 		/** @type {Packages.com.servoy.j2db.FormManager} */
 		var fm = getWebClientPluginAccess().getFormManager()
@@ -478,8 +477,16 @@ function getFormName(element) {
 	return null
 }
 
-/* http://stackoverflow.com/questions/162911/how-do-i-call-java-code-from-javascript-code-in-wicket
+/* 
+ * Goal of the callbacks:
+ * - don't rely on WCUtils plugin
+ * - Don't expose values set serverside to be included in the callback on the clientside
+ * - allow adding/removing
+ * - support any possible value in the queryString
+ * - Support returning values back to the client
+ * - Allow developers to control every aspect of the response
  * 
+ * http://stackoverflow.com/questions/162911/how-do-i-call-java-code-from-javascript-code-in-wicket
  */
 /**
  * Store containing FunctionDefinitions by their HashCode. Used by the getCallbackUrl/getCallbackScript methods
@@ -490,12 +497,12 @@ function getFormName(element) {
 var callbackFunctionDefinitions = {}
 
 /**
- * Generates the a URL that can be used from within the browser in a Web Client to invoke a method in the serverside part of the same Web Client<br/>
+ * Generates a URL that can be used from within the browser in a Web Client to invoke a method in the serverside part of the same Web Client<br/>
  * <br/>
  * The generated URL can be used for example using JQuery's Ajax API to call a method on the server and get the returnValue from the invoked method back as response<br>
  * <br>
  * This method is low level, allowing a lot of control. For a more straightforward callback, see {@link #getCallbackScript}<br/>
- * @param {function(String, Object<Array<String>>, Array<String>):String|{bodyContent: String, headers: Object<String>=, statusCode: Number=}} callback
+ * @param {function(String, Array<String>):*|String} callback Either a Servoy method or a qualifiedName string pointing to a method. Method's first argument receives the bodyContent, second argument the requestParams
  * @param {String} [id]
  * 
  * @example <pre>
@@ -517,8 +524,8 @@ var callbackFunctionDefinitions = {}
  */
 function getCallbackUrl(callback, id) {
 	checkOperationSupported()
-	var callback = generateCallback(callback, null, {returnCallbackReturnValue: true, supplyAllArguments: true})
-	return callback.url + "&" + callback.methodHash
+	var callbackObject = generateCallback(callback, null, {returnCallbackReturnValue: true, supplyAllArguments: true})
+	return callbackObject.url + "&" + callbackObject.methodHash
 
 	/*
 	 * Needs serialization of XML or JavaScript objects to Strings
@@ -527,7 +534,7 @@ function getCallbackUrl(callback, id) {
 
 /**
  * Generates a JavaScript code snippet that ....
- * @param {Function} callback
+ * @param {function(String, Array<String>):*|String} callback Either a Servoy method or a qualifiedName string pointing to a method. Method's first argument receives the bodyContent, second argument the requestParams
  * @param {Array} [args] 
  * @param {Boolean} [options.showLoading]
  * @param {String} [options.mimeType]
@@ -542,8 +549,8 @@ function getCallbackScript(callback, args, options) {
 	
 	//using POST because the final callback might contain more data than the URL size limit
 	//wicketAjaxPost(url, body, successHandler, failureHandler, preCondition, channel)
-	var callback = generateCallback(callback, args, options)
-	var script = "wicketAjaxPost('" + callback.url + "','" + callback.methodHash + "'" + callback.parameterCode
+	var callbackParts = generateCallback(callback, args, options)
+	var script = "wicketAjaxPost('" + callbackParts.url + "','" + callbackParts.methodHash + "'" + callbackParts.parameterCode
 	if (options.showLoading) {
 		var handler = ', function(){Wicket.hideIncrementally(\'indicator\')}'
 		script += handler + handler + ',' + 'function(){Wicket.showIncrementally(\'indicator\');return true}'
@@ -563,7 +570,8 @@ var CallBackBehavior
  * 	mimeType: String=,
  *  id: String=,
  *  disableImmediateUpdate: Boolean=,
- *  returnCallbackReturnValue: Boolean=
+ *  returnCallbackReturnValue: Boolean=,
+ *  supplyAllArguments: Boolean=
  * }}
  * @properties={typeid:35,uuid:"3EEA98B7-61C8-4F47-A653-5E5D1A3EA754",variableType:-4}
  */
@@ -573,31 +581,52 @@ var callbackOptionsType
  * Utility to create callback code for both getCallbackScript and getCallbackUrl. Maybe should be inlined, as too many code branches based on usage
  * @private 
  *
- * @param {function(String, Array<String>):*} callback First argument is the bodyContent, second argument the requestParams
- * @param {Array} [args] String values are considered references to browser-side properties. To pass hardcoded String literals the String value needs to be double quoted: '"myvalue"'
+ * @param {function(String, Array<String>):*|String} callback Either a Servoy method or a qualifiedName string pointing to a method. Method's first argument receives the bodyContent, second argument the requestParams
+ * @param {Array} [args] String values are considered references to browser-side properties. To pass hardcoded String literals the String value needs to be double quoted: '"myvalue"' or "'myValue'"
  * @param {callbackOptionsType} options
+ * 
+ * @return {{
+ * 	url: String,
+ * 	methodHash: String,
+ *  parameterCode: String
+ * }}
  * @properties={typeid:24,uuid:"45739F09-DBC5-40FA-BC3C-03D01FC5B3DD"}
  */
 function generateCallback(callback, args, options) {
 	options = options||{}
-	var fd
-	if (callback && callback instanceof Function) {
+	//TODO: support qualifiedNameas well to find the function
+	var hash
+	if (typeof callback == 'function') {
+		var fd
 		try {
 			fd = new Packages.com.servoy.j2db.scripting.FunctionDefinition(callback)
-		} catch (e) {}
+		} catch (e) {
+		}
+		
+		if (!fd || fd.exists(getWebClientPluginAccess()) !== Packages.com.servoy.j2db.scripting.FunctionDefinition.Exist.METHOD_FOUND) {
+			throw scopes.modUtils$exceptions.IllegalArgumentException('Callback param must be a Servoy defined method')
+		}
+		hash = fd.hashCode()
+		callbackFunctionDefinitions[hash] = {
+			fd: fd,
+			options: options
+		}
+	} else if (typeof callback == 'string') {
+		hash = application.getUUID().toString()
+		callbackFunctionDefinitions[hash] = {
+			qualifiedName: callback,
+			options: options
+		}
+	} else {
+		throw new scopes.modUtils$exceptions.IllegalArgumentException('Invalid value for calback parameter: ' + callback)
 	}
 
-	if (!fd || fd.exists(getWebClientPluginAccess()) !== Packages.com.servoy.j2db.scripting.FunctionDefinition.Exist.METHOD_FOUND) {
-		throw scopes.modUtils$exceptions.IllegalArgumentException('Callback param must be a Servoy defined method')
-	}
-	
-	callbackFunctionDefinitions[fd.hashCode()] = {
-		fd: fd,
-		options: options
-	}
-	
 	var AbstractAjaxBehaviorImpl = {
-		getUrlForCallback: function(fd, args, options) {
+		getUrlForCallback: function(hash, args, options) {
+			//TODO: To make the callback completely standalon, w/o serverside backed map, all info can be encoded into the URL. See WebDataHtmlView.getCalllbackUrl for usage:
+			//ICrypt urlCrypt = Application.get().getSecuritySettings().getCryptFactory().newCrypt();
+			//asb.append(WicketURLEncoder.QUERY_INSTANCE.encode(urlCrypt.encryptUrlSafe(escapedScriptName)));
+			
 			var paramString = '';
 			if (args != null) {
 				if (Array.isArray(args)) {
@@ -606,6 +635,7 @@ function generateCallback(callback, args, options) {
 						var value = args[index]
 						if (value != null) {
 							try {
+								//CHECKME: Test the different different ways of handling parameters. Just looking at the code makes me wonder if it works
 								//TODO: don't need to send hardcoded values to the client and back: can keep them stored on the server against the hashcode
 								var v = utils.stringTrim(value.toString());
 								if (v.slice(0, 1) == v.slice(-1) && ["'",'"'].indexOf(v.slice(0,1)) != -1) {
@@ -638,7 +668,7 @@ function generateCallback(callback, args, options) {
 				}
 				return {
 					url: this.getComponent().urlFor(this, Packages.com.servoy.j2db.server.headlessclient.AlwaysLastPageVersionRequestListenerInterface.INTERFACE),
-					methodHash: 'm=' + fd.hashCode(),
+					methodHash: 'm=' + hash,
 					parameterCode: paramString 
 				}
 			} finally {
@@ -703,12 +733,27 @@ function generateCallback(callback, args, options) {
 //			} catch (ex) { 
 //				logger.debug(ex); 
 //			}
-			
-			var o = callbackInfo.fd.execute(getWebClientPluginAccess(), requestArgs||[], false)||'';
+			var o
+			if (callbackInfo.hasOwnProperty('fd')) {
+				o = callbackInfo.fd.execute(getWebClientPluginAccess(), requestArgs||[], false)||'';
+			} else {
+				o = scopes.modUtils.callMethod(callbackInfo.qualifiedName, requestArgs||[])
+			}
 			var target
 			if (callbackInfo.options.returnCallbackReturnValue === true) {
 				var retval
-				target = new Packages.org.apache.wicket.request.target.basic.StringRequestTarget(options.mimeType||'application/text', "utf-8", o instanceof XML ? o.toXMLString() : JSON.stringify(o))
+				var mimeType
+				if (o instanceof XML) {
+					mimeType = 'application/xml'
+					retval = o.toXMLString()
+				} else {
+					mimeType = 'application/json'
+					retval = JSON.stringify(o)
+				}
+				if (options.mimeType) {
+					mimeType = options.mimeType
+				}
+				target = new Packages.org.apache.wicket.request.target.basic.StringRequestTarget(mimeType, "utf-8", retval)
 				requestCycle.setRequestTarget(target);
 			} else {
 				var app = this.getComponent().getApplication();
@@ -726,7 +771,7 @@ function generateCallback(callback, args, options) {
 	CallBackBehavior = CallBackBehavior || new Packages.org.apache.wicket.behavior.AbstractAjaxBehavior(AbstractAjaxBehaviorImpl)
 
 	getWebClientPluginAccess().getPageContributor().addBehavior('com.servoy.bap.callbackBehavior', CallBackBehavior)
-	return CallBackBehavior.getUrlForCallback(fd, args, options)
+	return CallBackBehavior.getUrlForCallback(hash, args, options)
 }
 
 /**
@@ -913,13 +958,14 @@ var terminator = new Continuation()
 /**
  * Web Client compatible application.updateUI polyfill
  * Warning: use with care, can result in unpredictable behavior when used in the wrong event types or at the right moment
+ * TODO move out of modUtils$webClient, as it is not WC specific
  * @param {Number} [milliseconds]
  * 
  * @properties={typeid:24,uuid:"4651696E-4E25-49B1-A2FE-EB561A859F5A"}
  */
 function updateUI(milliseconds) {
 	checkOperationSupported()
-	if (application.getApplicationType() == APPLICATION_TYPES.WEB_CLIENT) {
+	if (scopes.modUtils$system.isWebClient()) {
       c = new Continuation();
       //FIXME: convert to not use WebClientUtils plugin
       executeClientsideScript(plugins.WebClientUtils.generateCallbackScript(updateUIResume));
