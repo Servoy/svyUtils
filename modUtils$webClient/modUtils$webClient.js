@@ -826,31 +826,31 @@ function addBehavior(behavior, component) {
 }
 
 /**
- * Utility method to gain access to the underlying Java component in order to access more low level API
+ * Utility method to gain access to the underlying Java Wicket Component in order to access more low level API
  * @private
  * @SuppressWarnings(wrongparameters)
  * 
- * @param {RuntimeComponent|RuntimeForm} element
+ * @param {RuntimeComponent|RuntimeForm} component
  *
  * @return {Packages.org.apache.wicket.Component}
  *
  * @properties={typeid:24,uuid:"60FD0C93-55A0-4E4E-AA5B-42F037E42A49"}
  */
-function unwrapElement(element) {
+function unwrapElement(component) {
 	/**@type {Packages.org.apache.wicket.Component}*/
-	var component;
+	var wicketComponent;
 	
-	if (element instanceof RuntimeForm) {
+	if (component instanceof RuntimeForm) {
 		//Using reflection because Servoy's WrapFactory prevents access to the unwrapped FormController
 		//and only the FormController has access to the FormUI
 		//The impl. below works, because it grabs the FormController class and not an instance of it
-		component = unwrapElement(Packages.com.servoy.j2db.FormController)['getMethod']('getFormUI').invoke(element).get('servoywebform')
+		wicketComponent = unwrapElement(Packages.com.servoy.j2db.FormController)['getMethod']('getFormUI').invoke(component).get('servoywebform')
 	} else {
 		var list = new Packages.java.util.ArrayList();
-		list.add(element)
-		component = list.get(0)
+		list.add(component)
+		wicketComponent = list.get(0)
 	}
-	return component
+	return wicketComponent
 }
 
 /**
