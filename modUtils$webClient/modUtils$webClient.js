@@ -497,6 +497,8 @@ function getFormName(element) {
 var callbackFunctionDefinitions = {}
 
 /**
+ * @experimental: Is not covered by tests and signature might change in the future
+ *
  * Generates a URL that can be used from within the browser in a Web Client to invoke a method in the serverside part of the same Web Client<br/>
  * <br/>
  * The generated URL can be used for example using JQuery's Ajax API to call a method on the server and get the returnValue from the invoked method back as response<br>
@@ -533,6 +535,8 @@ function getCallbackUrl(callback, id) {
 }
 
 /**
+ * @experimental: Is not covered by tests and signature might change in the future
+ *  
  * Generates a JavaScript code snippet that ....
  * @param {function(String, Array<String>):*|String} callback Either a Servoy method or a qualifiedName string pointing to a method. Method's first argument receives the bodyContent, second argument the requestParams
  * @param {Array} [args] 
@@ -559,6 +563,7 @@ function getCallbackScript(callback, args, options) {
 }
 
 /**
+ * @private 
  * @type {Packages.org.apache.wicket.behavior.AbstractAjaxBehavior}
  *
  * @properties={typeid:35,uuid:"12E48C24-04C6-4B95-B07F-4E3174AC0045",variableType:-4}
@@ -566,6 +571,7 @@ function getCallbackScript(callback, args, options) {
 var CallBackBehavior
 
 /**
+ * @private 
  * @typedef {{
  * 	mimeType: String=,
  *  id: String=,
@@ -774,17 +780,17 @@ function generateCallback(callback, args, options) {
 	return CallBackBehavior.getUrlForCallback(hash, args, options)
 }
 
-/**
- * TODO: implement, desciption, samplecode
- * TODO: Make more generic, allowing removing any behavior?
- * @param {String} name
- * @param {RuntimeForm|RuntimeComponent} component
- *
- * @properties={typeid:24,uuid:"0989AFB8-AD50-4D22-BA3E-9238599E134F"}
- */
-function removeCallback(name, component) {
-	//Maybe use Wicket.component.getBehaviors & wicket.component.remove. That does make it impossible to make it more generic and allow removing any behavior
-}
+///**
+// * TODO: implement, desciption, samplecode
+// * TODO: Make more generic, allowing removing any behavior?
+// * @param {String} name
+// * @param {RuntimeForm|RuntimeComponent} component
+// *
+// * @properties={typeid:24,uuid:"0989AFB8-AD50-4D22-BA3E-9238599E134F"}
+// */
+//function removeCallback(name, component) {
+//	//Maybe use Wicket.component.getBehaviors & wicket.component.remove. That does make it impossible to make it more generic and allow removing any behavior
+//}
 
 /**
  * @private
