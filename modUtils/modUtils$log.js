@@ -338,7 +338,7 @@ var defaultConfig = {
  * @type {CONFIG_TYPE_DEF}
  * @properties={typeid:35,uuid:"9C2C2402-79C3-417A-BF27-19B1C5F6D63F",variableType:-4}
  */
-var config = defaultConfig
+var currentConfig = defaultConfig
 
 /**
  * Call with null to reset to the default configuration
@@ -388,7 +388,7 @@ var config = defaultConfig
  * @properties={typeid:24,uuid:"ED82D72C-D6B5-4C6C-AD4C-5331AD8713C1"}
  */
 function loadConfig(configuration) {
-	config = configuration||defaultConfig
+	currentConfig = configuration||defaultConfig
 	
 	var pluginName
 	if (!defaultLogPlugins) { //Initialization of defaultLogPlugins array with the names of the default plugins
@@ -417,7 +417,7 @@ function loadConfig(configuration) {
 	//TODO 
 	
 	//reset the rootlogger
-	var rootLoggerConfig = config.loggers.root //TODO make safer
+	var rootLoggerConfig = currentConfig.loggers.root //TODO make safer
 	var rl = getRootLoggerInternal()
 	rl.removeAllAppenders()
 	rl.setLevel(Level.toLevel(rootLoggerConfig.level, ROOT_LOGGER_DEFAULT_LEVEL))
@@ -425,7 +425,7 @@ function loadConfig(configuration) {
 	rl.addAppender(getAppenderForRef(rootLoggerConfig.AppenderRef))
 	
 	//Need to reset all loggers and only configure the ones that are in the new config
-	var configgedLoggers = config.loggers.logger||[]
+	var configgedLoggers = currentConfig.loggers.logger||[]
 	var configgedLoggerNames = []
 	//Go through logger config and if a logger is already instantiated with the supplied name, reconfigure the logger
 	for (i = 0; i < configgedLoggers.length; i++) { //
@@ -484,8 +484,8 @@ function getAppenderForRef(appenderRef) {
 		application.output('Existing Appender returned')
 		return appenders[appenderRef.ref]
 	}
-	for (var j = 0; j < config.appenders.length; j++) {
-		var appenderConfig = config.appenders[j]
+	for (var j = 0; j < currentConfig.appenders.length; j++) {
+		var appenderConfig = currentConfig.appenders[j]
 		if (appenderConfig.name == appenderRef.ref) {
 			var appenderConstructor = logPlugins[appenderConfig.type]
 			if (!appenderConstructor || !(appenderConstructor.prototype instanceof AbstractAppender)) { //CHECKME: second check needed or is the contents of logPlugins under out direct control
@@ -501,6 +501,7 @@ function getAppenderForRef(appenderRef) {
 			}
 		}
 	}
+	return null
 }
 
 /**
@@ -1140,11 +1141,11 @@ function getLogger(loggerName) {
 		var logger = new LoggerInternal(loggerName)
 		loggers[loggerName] = logger;
 		
-		if (config.loggers && config.loggers.logger) {
-			for (var i = 0; i < config.loggers.logger.length; i++) {
-				if (config.loggers.logger[i].name == loggerName) {
+		if (currentConfig.loggers && currentConfig.loggers.logger) {
+			for (var i = 0; i < currentConfig.loggers.logger.length; i++) {
+				if (currentConfig.loggers.logger[i].name == loggerName) {
 					//TODO: delegate logger config to the pluginFactory of Logger
-					var logConfig = config.loggers.logger[i]
+					var logConfig = currentConfig.loggers.logger[i]
 					var keys = Object.keys(logConfig)
 					for (var p = 0; p < keys.length; p++) {
 						switch (keys[p]) {
@@ -1380,6 +1381,7 @@ function AbstractAppender() {
 	 */
 	this.toString = function() {
 		logLog.error("Appender.toString: all appenders must override this method");
+		return null
 	};
 };
 
@@ -2037,304 +2039,12 @@ function formatObjectExpansion(object, maxdepth, indent) {
 	return doFormat(object, maxdepth, indent);
 }
 
-/* --------------------------------Date-related stuff-------------------------------------- */
-/**
- * @private
- * @this {DateUtils}
- * @properties={typeid:35,uuid:"4ACF3D45-CF09-443D-A6B9-FC3D1047074E",variableType:-4}
- */
-var DateUtils = new function() {
-	this.regex = /('[^']*')|(G+|y+|M+|w+|W+|D+|d+|F+|E+|a+|H+|k+|K+|h+|m+|s+|S+|Z+)|([a-zA-Z]+)|([^a-zA-Z']+)/;
-	this.monthNames = ["January", "February", "March", "April", "May", "June",
-	"July", "August", "September", "October", "November", "December"];
-	this.dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-	this.TEXT2 = 0
-	this.TEXT3 = 1
-	this.NUMBER = 2
-	this.YEAR = 3
-	this.MONTH = 4
-	this.TIMEZONE = 5
-	this.types = {
-		G: this.TEXT2,
-		y: this.YEAR,
-		M: this.MONTH,
-		w: this.NUMBER,
-		W: this.NUMBER,
-		D: this.NUMBER,
-		d: this.NUMBER,
-		F: this.NUMBER,
-		E: this.TEXT3,
-		a: this.TEXT2,
-		H: this.NUMBER,
-		k: this.NUMBER,
-		K: this.NUMBER,
-		h: this.NUMBER,
-		m: this.NUMBER,
-		s: this.NUMBER,
-		S: this.NUMBER,
-		Z: this.TIMEZONE
-	};
-	var ONE_DAY = 24 * 60 * 60 * 1000;
-	var ONE_WEEK = 7 * ONE_DAY;
-	this.DEFAULT_MINIMAL_DAYS_IN_FIRST_WEEK = 1;
-
-	var newDateAtMidnight = function(year, month, day) {
-		var d = new Date(year, month, day, 0, 0, 0);
-		d.setMilliseconds(0);
-		return d;
-	};
-
-	this.getDifference = function(date1, date2) {
-		return date1.getTime() - date2.getTime();
-	};
-
-	this.isBefore = function(date1, date2) {
-		return date1.getTime() < date2.getTime();
-	};
-
-	this.getUTCTime = function(date) {
-		return Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds());
-	};
-
-	this.getTimeSince = function(date1, date2) {
-		return date1.getUTCTime() - date2.getUTCTime();
-	};
-
-	this.getPreviousSunday = function(date) {
-		// Using midday avoids any possibility of DST messing things up
-		var midday = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0);
-		var previousSunday = new Date(midday.getTime() - date.getDay() * ONE_DAY);
-		return newDateAtMidnight(previousSunday.getFullYear(), previousSunday.getMonth(), previousSunday.getDate());
-	};
-
-	this.getWeekInYear = function(date, minimalDaysInFirstWeek) {
-		if (typeof this.minimalDaysInFirstWeek == "undefined") {
-			minimalDaysInFirstWeek = this.DEFAULT_MINIMAL_DAYS_IN_FIRST_WEEK;
-		}
-		var previousSunday = this.getPreviousSunday(date);
-		var startOfYear = newDateAtMidnight(date.getFullYear(), 0, 1);
-		var numberOfSundays = this.isBefore(previousSunday, startOfYear) ? 0 : 1 + Math.floor(this.getTimeSince(previousSunday, startOfYear) / ONE_WEEK);
-		var numberOfDaysInFirstWeek = 7 - startOfYear.getDay();
-		var weekInYear = numberOfSundays;
-		if (numberOfDaysInFirstWeek < minimalDaysInFirstWeek) {
-			weekInYear--;
-		}
-		return weekInYear;
-	};
-
-	this.getWeekInMonth = function(date, minimalDaysInFirstWeek) {
-		if (typeof date.minimalDaysInFirstWeek == "undefined") {
-			minimalDaysInFirstWeek = this.DEFAULT_MINIMAL_DAYS_IN_FIRST_WEEK;
-		}
-		var previousSunday = this.getPreviousSunday(date);
-		var startOfMonth = newDateAtMidnight(date.getFullYear(), date.getMonth(), 1);
-		var numberOfSundays = this.isBefore(previousSunday, startOfMonth) ? 0 : 1 + Math.floor(this.getTimeSince(previousSunday, startOfMonth) / ONE_WEEK);
-		var numberOfDaysInFirstWeek = 7 - startOfMonth.getDay();
-		var weekInMonth = numberOfSundays;
-		if (numberOfDaysInFirstWeek >= minimalDaysInFirstWeek) {
-			weekInMonth++;
-		}
-		return weekInMonth;
-	};
-
-	this.getDayInYear = function(date) {
-		var startOfYear = this.newDateAtMidnight(date.getFullYear(), 0, 1);
-		return 1 + Math.floor(this.getTimeSince(date, startOfYear) / ONE_DAY);
-	};
-
-}();
-
-/* --------------------------------SimpleDateFormat---------------------------------- */
-/**
- * @private 
- * @param formatString
- *
- * @properties={typeid:24,uuid:"FDAFF19B-4805-4D54-A8C5-1C9B23E11542"}
- */
-function SimpleDateFormat(formatString) {
-	this.formatString = formatString;
-}
-
-/**
- * @private
- * @SuppressWarnings(unused)
- * @properties={typeid:35,uuid:"EB1F8FE2-6378-482A-8DCC-9EC84E798327",variableType:-4}
- */
-var simpleDateFormatInit = (function() {
-		var padWithZeroes = function(str, len) {
-			while (str.length < len) {
-				str = "0" + str;
-			}
-			return str;
-		};
-
-		var formatText = function(data, numberOfLetters, minLength) {
-			return (numberOfLetters >= 4) ? data : data.substr(0, Math.max(minLength, numberOfLetters));
-		};
-
-		var formatNumber = function(data, numberOfLetters) {
-			var dataString = "" + data;
-			// Pad with 0s as necessary
-			return padWithZeroes(dataString, numberOfLetters);
-		};
-
-		/**
-		 * Sets the minimum number of days in a week in order for that week to
-		 * be considered as belonging to a particular month or year
-		 */
-		SimpleDateFormat.prototype.setMinimalDaysInFirstWeek = function(days) {
-			this.minimalDaysInFirstWeek = days;
-		};
-
-		SimpleDateFormat.prototype.getMinimalDaysInFirstWeek = function() {
-			return typeof this.minimalDaysInFirstWeek == "undefined" ? DateUtils.DEFAULT_MINIMAL_DAYS_IN_FIRST_WEEK : this.minimalDaysInFirstWeek;
-		};
-
-		SimpleDateFormat.prototype.format = function(date) {
-			var formattedString = "";
-			var result;
-			var searchString = this.formatString;
-			while ( (result = DateUtils.regex.exec(searchString))) {
-				/** @type {String} */
-				var quotedString = result[1];
-				/** @type {String} */
-				var patternLetters = result[2];
-				/** @type {String} */
-				var otherLetters = result[3];
-				/** @type {String} */
-				var otherCharacters = result[4];
-
-				// If the pattern matched is quoted string, output the text between the quotes
-				if (quotedString) {
-					if (quotedString == "''") {
-						formattedString += "'";
-					} else {
-						formattedString += quotedString.substring(1, quotedString.length - 1);
-					}
-				} else if (otherLetters) {
-					// Swallow non-pattern letters by doing nothing here
-				} else if (otherCharacters) {
-					// Simply output other characters
-					formattedString += otherCharacters;
-				} else if (patternLetters) {
-					// Replace pattern letters
-					var patternLetter = patternLetters.charAt(0);
-					var numberOfLetters = patternLetters.length;
-					var rawData = "";
-					switch (patternLetter) {
-						case "G":
-							rawData = "AD";
-							break;
-						case "y":
-							rawData = date.getFullYear();
-							break;
-						case "M":
-							rawData = date.getMonth();
-							break;
-						case "w":
-							rawData = date.getWeekInYear(this.getMinimalDaysInFirstWeek());
-							break;
-						case "W":
-							rawData = date.getWeekInMonth(this.getMinimalDaysInFirstWeek());
-							break;
-						case "D":
-							rawData = date.getDayInYear();
-							break;
-						case "d":
-							rawData = date.getDate();
-							break;
-						case "F":
-							rawData = 1 + Math.floor( (date.getDate() - 1) / 7);
-							break;
-						case "E":
-							rawData = DateUtils.dayNames[date.getDay()];
-							break;
-						case "a":
-							rawData = (date.getHours() >= 12) ? "PM" : "AM";
-							break;
-						case "H":
-							rawData = date.getHours();
-							break;
-						case "k":
-							rawData = date.getHours() || 24;
-							break;
-						case "K":
-							rawData = date.getHours() % 12;
-							break;
-						case "h":
-							rawData = (date.getHours() % 12) || 12;
-							break;
-						case "m":
-							rawData = date.getMinutes();
-							break;
-						case "s":
-							rawData = date.getSeconds();
-							break;
-						case "S":
-							rawData = date.getMilliseconds();
-							break;
-						case "Z":
-							rawData = date.getTimezoneOffset(); // This returns the number of minutes since GMT was this time.
-							break;
-					}
-					// Format the raw data depending on the type
-					switch (DateUtils.types[patternLetter]) {
-						case DateUtils.TEXT2:
-							formattedString += formatText(rawData, numberOfLetters, 2);
-							break;
-						case DateUtils.TEXT3:
-							formattedString += formatText(rawData, numberOfLetters, 3);
-							break;
-						case DateUtils.NUMBER:
-							formattedString += formatNumber(rawData, numberOfLetters);
-							break;
-						case DateUtils.YEAR:
-							if (numberOfLetters <= 3) {
-								// Output a 2-digit year
-								var dataString = "" + rawData;
-								formattedString += dataString.substr(2, 2);
-							} else {
-								formattedString += formatNumber(rawData, numberOfLetters);
-							}
-							break;
-						case DateUtils.MONTH:
-							if (numberOfLetters >= 3) {
-								formattedString += formatText(DateUtils.monthNames[rawData], numberOfLetters, numberOfLetters);
-							} else {
-								// NB. Months returned by getMonth are zero-based
-								formattedString += formatNumber(rawData + 1, numberOfLetters);
-							}
-							break;
-						case DateUtils.TIMEZONE:
-							var isPositive = (rawData > 0);
-							// The following line looks like a mistake but isn't
-							// because of the way getTimezoneOffset measures.
-							var prefix = isPositive ? "-" : "+";
-							var absData = Math.abs(rawData);
-
-							// Hours
-							var hours = "" + Math.floor(absData / 60);
-							hours = padWithZeroes(hours, 2);
-							// Minutes
-							var minutes = "" + (absData % 60);
-							minutes = padWithZeroes(minutes, 2);
-
-							formattedString += prefix + hours + minutes;
-							break;
-					}
-				}
-				searchString = searchString.substr(result.index + result[0].length);
-			}
-			return formattedString;
-		};
-	})()
-
 /* ---------------------------------PatternLayout------------------------------------- */
 /**
  * @private 
  * @constructor
  * @extends {AbstractLayout}
- * @param {Object} [pattern]
+ * @param {String} [pattern]
  *
  * @properties={typeid:24,uuid:"2C542AAB-8C8F-4C1F-951A-22A2CB81D623"}
  */
@@ -2431,13 +2141,13 @@ var patternLayoutInit = (function() {
 									var last = loggerNameBits.pop()
 									var retval = []
 									var prevBit, bit
-									for (var i = 0; i < loggerNameBits.length; i++) {
-										bit = bits[i]||prevBit 
+									for (var j = 0; j < loggerNameBits.length; j++) {
+										bit = bits[j]||prevBit 
 										//TODO: implement support for bits that have the format .1~.: should result in an abbreviated loggerNameBit, followed by the literal text
 										if (/^\d+$/.test(bit)) {
-											 retval.push(loggerNameBits[i].substr(0, parseInt(bit)))
+											 retval.push(loggerNameBits[j].substr(0, parseInt(bit)))
 										 } else if (bit === '*') {
-											 retval.push(loggerNameBits[i])
+											 retval.push(loggerNameBits[j])
 										 } else {
 											 retval.push(bit)
 										 }
@@ -2475,7 +2185,7 @@ var patternLayoutInit = (function() {
 								}
 							}
 							// Format the date
-							replacement = (new SimpleDateFormat(dateFormat)).format(loggingEvent.timeStamp);
+							replacement = utils.dateFormat(loggingEvent.timeStamp, dateFormat)
 							break;
 						case "f": // Custom field
 							if (this.hasCustomFields()) {
@@ -2510,7 +2220,7 @@ var patternLayoutInit = (function() {
 							break;
 						case 'relative': // Milliseconds since log4javascript startup
 						case 'r': 
-							replacement = "" + DateUtils.getDifference(loggingEvent.timeStamp, APPLICATION_START_DATE);
+							replacement = (loggingEvent.timeStamp.getTime() - APPLICATION_START_DATE.getTime()).toFixed(0)
 							break;
 						case 'thread':
 						case 't': // Current Thread name
