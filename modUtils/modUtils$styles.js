@@ -89,6 +89,11 @@ function getTextHeight(font) {
  */
 function StyleParser(styleName) {
 	
+	if (!(this instanceof StyleParser)) {
+		application.output("scopes.modUtils$styles.StyleParser: Constructor functions should be called with the \"new\" keyword!", LOGGINGLEVEL.WARNING);
+		return new StyleParser(styleName);
+	}
+	
 	/**
 	 * The name of this style
 	 * 
