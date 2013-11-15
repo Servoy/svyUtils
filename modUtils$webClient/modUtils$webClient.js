@@ -29,6 +29,7 @@
  * TODO: support Arrays of elements/components besides single elements/components to attach certain behaviors to.
  * TODO: callback behaviors
  * TODO: add methods to remove stuff that was added 
+ * TODO: inject logic into the WC that output wicket Debug console messages (at least Error and Warning messages) to the Console of the browser (take care of IE versions that do not support the console)
  */
 
 /**
