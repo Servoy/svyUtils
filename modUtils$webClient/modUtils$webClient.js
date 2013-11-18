@@ -492,7 +492,7 @@ function getFormName(element) {
 /**
  * Store containing FunctionDefinitions by their HashCode. Used by the getCallbackUrl/getCallbackScript methods
  * @private 
- * @type {Object<{fd: Packages.com.servoy.j2db.scripting.FunctionDefinition, options: callbackOptionsType}>}
+ * @type {Object<{fd: Packages.com.servoy.j2db.scripting.FunctionDefinition=, qualifiedName: String=, options: callbackOptionsType}>}
  * @properties={typeid:35,uuid:"6CB64EFA-4E5B-4D7F-968C-042F29AE9220",variableType:-4}
  */
 var callbackFunctionDefinitions = {}
@@ -580,18 +580,19 @@ var CallBackBehavior
  *  returnCallbackReturnValue: Boolean=,
  *  supplyAllArguments: Boolean=
  * }}
+ * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"3EEA98B7-61C8-4F47-A653-5E5D1A3EA754",variableType:-4}
  */
 var callbackOptionsType
 
 /**
  * Utility to create callback code for both getCallbackScript and getCallbackUrl. Maybe should be inlined, as too many code branches based on usage
- * @private 
+ * @private
  *
- * @param {function(String, Array<String>):*|String} callback Either a Servoy method or a qualifiedName string pointing to a method. Method's first argument receives the bodyContent, second argument the requestParams
+ * @param {Object} callback
  * @param {Array} [args] String values are considered references to browser-side properties. To pass hardcoded String literals the String value needs to be double quoted: '"myvalue"' or "'myValue'"
- * @param {callbackOptionsType} options
- * 
+ * @param {callbackOptionsType} [options]
+ *
  * @return {{
  * 	url: String,
  * 	methodHash: String,
@@ -601,7 +602,6 @@ var callbackOptionsType
  */
 function generateCallback(callback, args, options) {
 	options = options||{}
-	//TODO: support qualifiedNameas well to find the function
 	var hash
 	if (typeof callback == 'function') {
 		var fd
@@ -629,17 +629,24 @@ function generateCallback(callback, args, options) {
 	}
 
 	var AbstractAjaxBehaviorImpl = {
-		getUrlForCallback: function(hash, args, options) {
-			//TODO: To make the callback completely standalon, w/o serverside backed map, all info can be encoded into the URL. See WebDataHtmlView.getCalllbackUrl for usage:
-			//ICrypt urlCrypt = Application.get().getSecuritySettings().getCryptFactory().newCrypt();
-			//asb.append(WicketURLEncoder.QUERY_INSTANCE.encode(urlCrypt.encryptUrlSafe(escapedScriptName)));
+		getUrlForCallback: function(hashCode, argmts) {
+			//TODO: To make the callback completely standalone, w/o serverside backed map, all info can be encoded into the URL. See WebDataHtmlView.getCalllbackUrl for usage:
+			/*
+			//Encryption
+			var urlCrypt = Packages.org.apache.wicket.Application.get().getSecuritySettings().getCryptFactory().newCrypt()
+			var cryptedString = Packages.org.apache.wicket.protocol.http.WicketURLEncoder.QUERY_INSTANCE.encode(urlCrypt.encryptUrlSafe('hello, my name = Paul\'s '))
+			
+			//Decryption
+			var urlCrypt = Packages.org.apache.wicket.Application.get().getSecuritySettings().getCryptFactory().newCrypt();
+			var retval = urlCrypt.decryptUrlSafe(cryptedString);
+			*/
 			
 			var paramString = '';
-			if (args != null) {
-				if (Array.isArray(args)) {
-					for (var index = 0; index < args.length; index++) {
+			if (argmts != null) {
+				if (Array.isArray(argmts)) {
+					for (var index = 0; index < argmts.length; index++) {
 						/** @type {Object}*/
-						var value = args[index]
+						var value = argmts[index]
 						if (value != null) {
 							try {
 								//CHECKME: Test the different different ways of handling parameters. Just looking at the code makes me wonder if it works
@@ -675,7 +682,7 @@ function generateCallback(callback, args, options) {
 				}
 				return {
 					url: this.getComponent().urlFor(this, Packages.com.servoy.j2db.server.headlessclient.AlwaysLastPageVersionRequestListenerInterface.INTERFACE),
-					methodHash: 'm=' + hash,
+					methodHash: 'm=' + hashCode,
 					parameterCode: paramString 
 				}
 			} finally {
@@ -778,7 +785,7 @@ function generateCallback(callback, args, options) {
 	CallBackBehavior = CallBackBehavior || new Packages.org.apache.wicket.behavior.AbstractAjaxBehavior(AbstractAjaxBehaviorImpl)
 
 	getWebClientPluginAccess().getPageContributor().addBehavior('com.servoy.bap.callbackBehavior', CallBackBehavior)
-	return CallBackBehavior.getUrlForCallback(hash, args, options)
+	return CallBackBehavior.getUrlForCallback(hash, args)
 }
 
 ///**
