@@ -37,7 +37,7 @@
  * @private
  * @properties={typeid:35,uuid:"ED9695A7-D5AD-4EC0-9F5D-9F85C9A3FC19",variableType:-4}
  */
-var logger = scopes.modUtils$log.getLogger('com.servoy.bap.utils.webclient')
+var log = scopes.modUtils$log.getLogger('com.servoy.bap.utils.webclient')
 
 /**
  * @private
@@ -274,7 +274,7 @@ function addResourceDependancy(url, element, disableAutoAdjustProtocol, isJSReso
 		}
 	} else {	
 		if (!element) {
-			logger.warn('Resource "' + url + '" is added to the current JSWindow only. Requires Servoy 7.3 to add the resource to all current and future JSWindows')
+			log.warn('Resource "' + url + '" is added to the current JSWindow only. Requires Servoy 7.3 to add the resource to all current and future JSWindows')
 		}
 		var contributor = new Packages.org.apache.wicket.behavior.HeaderContributor(new Packages.org.apache.wicket.markup.html.IHeaderContributor({
 				renderHead: function(/**@type {Packages.org.apache.wicket.markup.html.IHeaderResponse}*/ response) {
@@ -303,7 +303,7 @@ function getExternalUrlForMedia(mediaUrl) {
 	}
 	var media = solutionModel.getMedia(mediaUrl.substr(MEDIA_URL_PREFIX.length))
 	if (media == null) {
-		logger.warn('Could not locate "' + mediaUrl + '" in the media library for inclusion in the Web Client markup')
+		log.warn('Could not locate "' + mediaUrl + '" in the media library for inclusion in the Web Client markup')
 		return '#'
 	} 
 	
@@ -490,14 +490,6 @@ function getFormName(element) {
  * http://stackoverflow.com/questions/162911/how-do-i-call-java-code-from-javascript-code-in-wicket
  */
 /**
- * Store containing FunctionDefinitions by their HashCode. Used by the getCallbackUrl/getCallbackScript methods
- * @private 
- * @type {Object<{fd: Packages.com.servoy.j2db.scripting.FunctionDefinition=, qualifiedName: String=, options: callbackOptionsType}>}
- * @properties={typeid:35,uuid:"6CB64EFA-4E5B-4D7F-968C-042F29AE9220",variableType:-4}
- */
-var callbackFunctionDefinitions = {}
-
-/**
  * @experimental: Is not covered by tests and signature might change in the future
  *
  * Generates a URL that can be used from within the browser in a Web Client to invoke a method in the serverside part of the same Web Client<br/>
@@ -505,7 +497,7 @@ var callbackFunctionDefinitions = {}
  * The generated URL can be used for example using JQuery's Ajax API to call a method on the server and get the returnValue from the invoked method back as response<br>
  * <br>
  * This method is low level, allowing a lot of control. For a more straightforward callback, see {@link #getCallbackScript}<br/>
- * @param {function(String, Array<String>):*|String} callback Either a Servoy method or a qualifiedName string pointing to a method. Method's first argument receives the bodyContent, second argument the requestParams
+ * @param {function(String, Object<Array<String>>):*|String} callback Either a Servoy method or a qualifiedName string pointing to a method. Method's first argument receives the bodyContent, second argument the requestParams
  * @param {String} [id]
  * 
  * @example <pre>
@@ -527,12 +519,8 @@ var callbackFunctionDefinitions = {}
  */
 function getCallbackUrl(callback, id) {
 	checkOperationSupported()
-	var callbackObject = generateCallback(callback, null, {returnCallbackReturnValue: true, supplyAllArguments: true})
+	var callbackObject = generateCallback(callback, null, {returnCallbackReturnValue: true, supplyBody: true,supplyAllArguments: true})
 	return callbackObject.url + "&" + callbackObject.methodHash
-
-	/*
-	 * Needs serialization of XML or JavaScript objects to Strings
-	 */
 }
 
 /**
@@ -550,7 +538,7 @@ function getCallbackUrl(callback, id) {
 function getCallbackScript(callback, args, options) {
 	checkOperationSupported()
 	options = options||{}
-	options.returnRetval = false
+	options.returnCallbackReturnValue = false
 	
 	//using POST because the final callback might contain more data than the URL size limit
 	//wicketAjaxPost(url, body, successHandler, failureHandler, preCondition, channel)
@@ -565,25 +553,246 @@ function getCallbackScript(callback, args, options) {
 
 /**
  * @private 
- * @type {Packages.org.apache.wicket.behavior.AbstractAjaxBehavior}
+ * @type {{getUrlForCallback: function(String, Array<Object>):{url:String,methodHash:String,parameterCode:String}}}
+ * @extends {Packages.org.apache.wicket.behavior.AbstractAjaxBehavior}
  *
  * @properties={typeid:35,uuid:"12E48C24-04C6-4B95-B07F-4E3174AC0045",variableType:-4}
  */
-var CallBackBehavior
+var callBackBehavior
 
 /**
- * @private 
- * @typedef {{
- * 	mimeType: String=,
- *  id: String=,
- *  disableImmediateUpdate: Boolean=,
- *  returnCallbackReturnValue: Boolean=,
- *  supplyAllArguments: Boolean=
- * }}
- * @SuppressWarnings(unused)
- * @properties={typeid:35,uuid:"3EEA98B7-61C8-4F47-A653-5E5D1A3EA754",variableType:-4}
+ * @private
+ * @return {{getUrlForCallback: function(String, Array<Object>):{url:String,methodHash:String,parameterCode:String}}}
+ * @properties={typeid:24,uuid:"0A075A5F-4951-485E-BA4A-611ACD31CC13"}
  */
-var callbackOptionsType
+function getCallbackBehavior() {
+	if (callBackBehavior) {
+		return callBackBehavior
+	} else {
+		var AjaxBehaviorImpl = {
+			/**
+			 * TODO: add Date support for the args param?
+			 * @param {String} qualifiedName
+			 * 
+			 * @param {Array<String|Boolean|Number>} args String values are considered variables names for clientside evaluation. 
+			 * Hardcoded string values need to be double quoted, for example '"value"' or "'value'"
+			 * Note that hardcoded values retain their type, while evaluated clientside arguments are always of type String
+			 * 
+			 * @param {String} [options.id]
+			 * 
+			 * @param {String} [options.mimeType] To force a certain miemType in the respons
+			 * 
+			 * @param {Boolean} [options.returnCallbackReturnValue] Whether or not to return the returnValue of the callback method as body in the HTTPResponse. 
+			 * If set to true, options.disableImmediateUpdate will be ignored 
+			 * 
+			 * @param {Boolean} [options.disableImmediateUpdate] If true, the callback will not result in a Wicket response to update the UI in the client
+			 * 
+			 * @param {Boolean} [options.supplyAllArguments] By default only the array passed in for the "args" parameter will be applied to the callback. 
+			 * If this option is set to true, any queryParameter appended to the callback URL will also be returned.
+			 * This does change the structure of the arguments passed into the callback from an Array<> to Object<Array>
+			 * 
+			 * @param {Boolean} [options.supplyBody] whether or not to supply the content of the body as first param
+			 */
+			getUrlForCallback: function(qualifiedName, args, options) {
+				var settings = {m: qualifiedName, f:0}
+				if (options.hasOwnProperty('id')) {
+					settings.id = options.id
+				}
+				if (options.hasOwnProperty('mimeType')) {
+					settings.mt = options.mimeType
+				}
+				if (options.disableImmediateUpdate === true) {
+					settings.f = settings.f | 1
+				}
+				if (options.returnCallbackReturnValue === true) {
+					settings.f = settings.f | 2
+				}
+				if (options.supplyAllArguments === true) {
+					settings.f = settings.f | 4
+				}
+				if (options.supplyBody === true) {
+					settings.f = settings.f | 8
+				}
+				
+				var paramString = '';
+				if (args != null) {
+					if (Array.isArray(args)) {
+						settings.a = [] //Array holding hardcoded param values 
+						settings.p = [] //Array holding positions of params that need to be evaluated clientside. Storing the positions so their values can be merged into the arguments array in onRequest
+						for (var index = 0; index < args.length; index++) {
+							/** @type {Object}*/
+							var value = args[index]
+							if (value != null) {
+								try {
+									var val = utils.stringTrim(value.toString());
+									if (val.slice(0, 1) == val.slice(-1) && ["'",'"'].indexOf(val.slice(0,1)) != -1) { //Double quoted String value, considered a String literal
+										settings.a[index] = val.slice(1,-1)
+									} else if ('string' !== typeof value) { //non-string value
+										settings.a[index] = val
+									} else { //String value: considered to be the name of a variable to be resolved clientside
+										paramString += "+\'&p='+encodeURIComponent(" + val + ")"; 
+										settings.p.push(index)
+									}
+								} catch (ex) {
+									log.debug(ex);
+								}
+							}
+						}
+					} else {
+						//TODO: support for passing an object as argument
+					}
+				}
+
+				//** @type {Packages.org.apache.wicket.protocol.http.WebRequest} */
+				var request = Packages.org.apache.wicket.RequestCycle.get().getRequest();
+				
+				var requestParameters = request.getRequestParameters();
+				var urlDept = requestParameters.getUrlDepth();
+				try {
+					// set the url dept to 0, it should always just be ?xxx without ../../
+					requestParameters.setUrlDepth(0);
+					if (request instanceof Packages.org.apache.wicket.protocol.http.servlet.ServletWebRequest) {
+						request['setWicketRedirectUrl'](""); //TODO: use inline typing if available
+					}
+					
+					//Encryption
+					var urlCrypt = Packages.org.apache.wicket.Application.get().getSecuritySettings().getCryptFactory().newCrypt()
+					var cryptedString = Packages.org.apache.wicket.protocol.http.WicketURLEncoder.QUERY_INSTANCE.encode(urlCrypt.encryptUrlSafe(JSON.stringify(settings)))
+					return {
+						url: this.getComponent().urlFor(this, Packages.com.servoy.j2db.server.headlessclient.AlwaysLastPageVersionRequestListenerInterface.INTERFACE),
+						methodHash: 'm=' + cryptedString,
+						parameterCode: paramString 
+					}
+				} finally {
+					requestParameters.setUrlDepth(urlDept);
+				}
+			},
+			onRequest: function() {
+				var requestCycle = Packages.org.apache.wicket.RequestCycle.get();
+				var request = requestCycle.getRequest();
+
+				var param = request.getParameter("m");  
+				if(param == null){
+					throw scopes.utils.exceptions.IllegalStateException('Invalid callback url');
+				}
+				
+				//Decryption
+				var urlCrypt = Packages.org.apache.wicket.Application.get().getSecuritySettings().getCryptFactory().newCrypt();
+				
+				/** 
+				 * m = qualifiedName of callbackMethod
+				 * mt = mimeType
+				 * f = binary flags for several Boolean options
+				 * a = Array of hardcoded argument values to pass into the callback
+				 * p= Array with positions where clientside evaluated arguments values need to be put in the arguments array passed into the callback method
+				 * 
+				 * @type {{
+				 * 	m: String, 
+				 *  mt: string=,
+				 *  f: Number,
+				 *  a: Array=,
+				 *  p: Array<Number>=,
+				 * }} */
+				var options = JSON.parse(urlCrypt.decryptUrlSafe(param));
+
+				var requestArgs
+				var ps
+				if (options.f & 4) { //supplyAllArguments: also return additional params tagged onto the callback URL
+					var map = request.getParameterMap()
+					map.remove("m")
+					var mapArray = map.keySet().toArray()
+					var objs = {}
+					for (var i = 0; i < mapArray.length; i++) {
+						/** @type {Array<String>} */
+						var value = map.get(mapArray[i]);
+						if (value != null) {
+							objs[mapArray[i]] = Array.prototype.slice.call(value);
+						}
+					}
+					requestArgs = [objs]
+					if (Array.isArray(options.a)) {
+						ps = objs.p||[]
+						objs.p = options.a
+					}
+				} else if (Array.isArray(options.a)) { //Only supply the arguments as defined when generating the callback URL
+					ps = request.getParameters("p")
+					requestArgs = options.a
+				} else {
+					requestArgs = []
+				}
+				if (Array.isArray(options.a)) {
+					//Splice the argument values evaluated on the client into options.a
+					for (var index = 0; index < options.p.length; index++) {
+						options.a.splice(index, 0, ps[index])
+					}
+				}
+
+				/** @type {javax.servlet.http.HttpServletRequest} */
+				var hsr = request.getHttpServletRequest(); 
+				//TODO: support for multiPart posts
+				if (options.f & 8) { //supplyBody
+					try { 
+						var br = hsr.getReader(); 
+						var tmp = null;
+						var bodyContent = ""; 
+						while ((tmp = br.readLine()) != null) {
+							bodyContent += tmp + "\n";
+						}
+		
+						if (bodyContent != null) { 
+							if (requestArgs == null) {
+								requestArgs = [bodyContent];
+							} else {
+								requestArgs.splice(0, 0, bodyContent)
+							}
+						} 
+					} catch (ex) { 
+						log.debug('Failed to read the body content of the incomming callback request' + ex); 
+					}
+				}
+				
+				//TODO: support throwing exceptions in the callback that will result in specific error responses
+				try {
+					var o = scopes.modUtils.callMethod(options.m, requestArgs||[])
+					
+					if (options.f & 2) { //returnCallbackReturnValue
+						var retval
+						var mimeType
+						if (o instanceof XML) {
+							mimeType = 'application/xml'
+							retval = o.toXMLString()
+						} else {
+							mimeType = 'application/json'
+							retval = JSON.stringify(o) //TODO: wrap in try/catch for catching TypeError's on cyclic structures
+						}
+						if (options.mt) {
+							mimeType = options.mt
+						}
+						var target = new Packages.org.apache.wicket.request.target.basic.StringRequestTarget(mimeType, "utf-8", retval)
+						requestCycle.setRequestTarget(target);
+					} else {
+						if (hsr.getMethod() == 'GET') {
+							log.warn('Callback received with method GET while callback is configured to not return a value')
+						}
+						/** @type {Packages.org.apache.wicket.protocol.http.WebApplication} */
+						var app = this.getComponent().getApplication();
+						var targ = app.newAjaxRequestTarget(this.getComponent().getPage());
+						requestCycle.setRequestTarget(targ);
+						
+						if (!options.f & 1) { //disableImmediateUpdate
+							// update client state
+							Packages.com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor.generateResponse(targ, targ.getPage());
+						}
+					}
+				} catch (e) {
+					log.error('Exception thrown in callbackMethod', e)
+				}
+			}
+		}
+		callBackBehavior = new Packages.org.apache.wicket.behavior.AbstractAjaxBehavior(AjaxBehaviorImpl)
+		return callBackBehavior
+	}
+}
 
 /**
  * Utility to create callback code for both getCallbackScript and getCallbackUrl. Maybe should be inlined, as too many code branches based on usage
@@ -591,7 +800,13 @@ var callbackOptionsType
  *
  * @param {Object} callback
  * @param {Array} [args] String values are considered references to browser-side properties. To pass hardcoded String literals the String value needs to be double quoted: '"myvalue"' or "'myValue'"
- * @param {callbackOptionsType} [options]
+ * @param {{
+ * 	mimeType: String=,
+ *  id: String=,
+ *  disableImmediateUpdate: Boolean=,
+ *  returnCallbackReturnValue: Boolean=,
+ *  supplyAllArguments: Boolean=
+ * }} [options]
  *
  * @return {{
  * 	url: String,
@@ -601,204 +816,30 @@ var callbackOptionsType
  * @properties={typeid:24,uuid:"45739F09-DBC5-40FA-BC3C-03D01FC5B3DD"}
  */
 function generateCallback(callback, args, options) {
-	options = options||{}
-	var hash
-	if (typeof callback == 'function') {
-		var fd
-		try {
-			fd = new Packages.com.servoy.j2db.scripting.FunctionDefinition(callback)
-		} catch (e) {
-		}
-		
-		if (!fd || fd.exists(getWebClientPluginAccess()) !== Packages.com.servoy.j2db.scripting.FunctionDefinition.Exist.METHOD_FOUND) {
-			throw scopes.modUtils$exceptions.IllegalArgumentException('Callback param must be a Servoy defined method')
-		}
-		hash = fd.hashCode()
-		callbackFunctionDefinitions[hash] = {
-			fd: fd,
-			options: options
-		}
-	} else if (typeof callback == 'string') {
-		hash = application.getUUID().toString()
-		callbackFunctionDefinitions[hash] = {
-			qualifiedName: callback,
-			options: options
-		}
-	} else {
-		throw new scopes.modUtils$exceptions.IllegalArgumentException('Invalid value for calback parameter: ' + callback)
-	}
-
-	var AbstractAjaxBehaviorImpl = {
-		getUrlForCallback: function(hashCode, argmts) {
-			//TODO: To make the callback completely standalone, w/o serverside backed map, all info can be encoded into the URL. See WebDataHtmlView.getCalllbackUrl for usage:
-			/*
-			//Encryption
-			var urlCrypt = Packages.org.apache.wicket.Application.get().getSecuritySettings().getCryptFactory().newCrypt()
-			var cryptedString = Packages.org.apache.wicket.protocol.http.WicketURLEncoder.QUERY_INSTANCE.encode(urlCrypt.encryptUrlSafe('hello, my name = Paul\'s '))
-			
-			//Decryption
-			var urlCrypt = Packages.org.apache.wicket.Application.get().getSecuritySettings().getCryptFactory().newCrypt();
-			var retval = urlCrypt.decryptUrlSafe(cryptedString);
-			*/
-			
-			var paramString = '';
-			if (argmts != null) {
-				if (Array.isArray(argmts)) {
-					for (var index = 0; index < argmts.length; index++) {
-						/** @type {Object}*/
-						var value = argmts[index]
-						if (value != null) {
-							try {
-								//CHECKME: Test the different different ways of handling parameters. Just looking at the code makes me wonder if it works
-								//TODO: don't need to send hardcoded values to the client and back: can keep them stored on the server against the hashcode
-								var v = utils.stringTrim(value.toString());
-								if (v.slice(0, 1) == v.slice(-1) && ["'",'"'].indexOf(v.slice(0,1)) != -1) {
-									paramString += "+\'&p=" + encodeURIComponent(v.slice(1,-1)) + '\'';
-								} else if ('string' !== typeof value) {
-									paramString += "+\'&p=" + encodeURIComponent(v) + '\'';
-								} else {
-									paramString += "+\'&p='+encodeURIComponent(" + v + ")"; 
-								}
-							} catch (ex) {
-								logger.debug(ex);
-							}
-						}
-					}
-				} else {
-					//TODO: support for passing an object as argument
-				}
-			}
-
-			//** @type {Packages.org.apache.wicket.protocol.http.WebRequest} */
-			var request = Packages.org.apache.wicket.RequestCycle.get().getRequest();
-			
-			var requestParameters = request.getRequestParameters();
-			var urlDept = requestParameters.getUrlDepth();
+	var qualifiedName
+	switch (typeof callback) {
+		case 'function':
+			var fd
 			try {
-				// set the url dept to 0, it should always just be ?xxx without ../../
-				requestParameters.setUrlDepth(0);
-				if (request instanceof Packages.org.apache.wicket.protocol.http.servlet.ServletWebRequest) {
-					request['setWicketRedirectUrl'](""); //TODO: use inline typing if available
-				}
-				return {
-					url: this.getComponent().urlFor(this, Packages.com.servoy.j2db.server.headlessclient.AlwaysLastPageVersionRequestListenerInterface.INTERFACE),
-					methodHash: 'm=' + hashCode,
-					parameterCode: paramString 
-				}
-			} finally {
-				requestParameters.setUrlDepth(urlDept);
-			}
-		},
-		onRequest: function() {
-			//TODO: raise proper exceptions
-			var requestCycle = Packages.org.apache.wicket.RequestCycle.get();
-			var request = requestCycle.getRequest();
-
-			var param = request.getParameter("m");  
-			if(param == null){
-				throw scopes.utils.exceptions.IllegalStateException('Invalid callback url');
-			}
+				fd = new Packages.com.servoy.j2db.scripting.FunctionDefinition(callback)
+			} catch (e) {}
 			
-			var callbackInfo = callbackFunctionDefinitions[param]
-			if (callbackInfo == null) {
-				throw scopes.utils.exceptions.IllegalStateException('Could not find function!');
+			if (!fd || fd.exists(getWebClientPluginAccess()) !== Packages.com.servoy.j2db.scripting.FunctionDefinition.Exist.METHOD_FOUND) {
+				throw scopes.modUtils$exceptions.IllegalArgumentException('Callback param must be a Servoy defined method')
 			}
-			
-			var requestArgs
-			if (callbackInfo.options.supplyAllArguments) {
-				var map = request.getParameterMap()
-				map.remove("m")
-				var mapArray = map.keySet().toArray()
-				var objs = {}
-				for (var i = 0; i < mapArray.length; i++) {
-					/** @type {Array<String>} */
-					var value = map.get(mapArray[i]);
-					if (value != null) {
-						objs[mapArray[i]] = Array.prototype.slice.call(value);
-					}
-				}
-				requestArgs = [objs]; //null;
-			} else {
-				requestArgs = request.getParameters("p")
-			}
-			
-			//TODO: see getObjectParametersFromMap() in JSONBEhavior
-
-			//TODO: how to deal with this, returning the body
-//			/** @type {javax.servlet.http.HttpServletRequest} */
-//			var hsr = request.getHttpServletRequest(); 
-//			//if (hsr.getMethod() == 'POST') {}  //CHECKME: Where did this bit of code come from in the first place and what should it do?
-//			try { 
-//				var br = hsr.getReader(); 
-//				var tmp = null;
-//				var theString = ""; 
-//				while ((tmp = br.readLine()) != null) {
-//					theString += tmp + "\n";
-//				}
-//
-//				if (theString != null) { 
-//					if (obj == null) {
-//						requestArgs = [theString];
-//					} else {
-//						requestArgs = [theString, obj];
-//					}
-//				} 
-//
-//			} catch (ex) { 
-//				logger.debug(ex); 
-//			}
-			var o
-			if (callbackInfo.hasOwnProperty('fd')) {
-				o = callbackInfo.fd.execute(getWebClientPluginAccess(), requestArgs||[], false)||'';
-			} else {
-				o = scopes.modUtils.callMethod(callbackInfo.qualifiedName, requestArgs||[])
-			}
-			var target
-			if (callbackInfo.options.returnCallbackReturnValue === true) {
-				var retval
-				var mimeType
-				if (o instanceof XML) {
-					mimeType = 'application/xml'
-					retval = o.toXMLString()
-				} else {
-					mimeType = 'application/json'
-					retval = JSON.stringify(o)
-				}
-				if (options.mimeType) {
-					mimeType = options.mimeType
-				}
-				target = new Packages.org.apache.wicket.request.target.basic.StringRequestTarget(mimeType, "utf-8", retval)
-				requestCycle.setRequestTarget(target);
-			} else {
-				var app = this.getComponent().getApplication();
-				target = app.newAjaxRequestTarget(this.getComponent().getPage());
-				requestCycle.setRequestTarget(target);
-				
-				if (callbackInfo.options.disableImmediateUpdate !== true) {
-					// update client state
-					Packages.com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor.generateResponse(target, target.getPage());
-				}
-			}
-		}
+			qualifiedName = fd.toMethodString()
+			break;
+		case 'string':
+			qualifiedName = callback
+			break;
+		default:
+			throw new scopes.modUtils$exceptions.IllegalArgumentException('Invalid value for calback parameter: ' + callback)
 	}
-	
-	CallBackBehavior = CallBackBehavior || new Packages.org.apache.wicket.behavior.AbstractAjaxBehavior(AbstractAjaxBehaviorImpl)
 
-	getWebClientPluginAccess().getPageContributor().addBehavior('com.servoy.bap.callbackBehavior', CallBackBehavior)
-	return CallBackBehavior.getUrlForCallback(hash, args)
+	var callbackBehavior = getCallbackBehavior()
+	getWebClientPluginAccess().getPageContributor().addBehavior('com.servoy.bap.callbackBehavior', callbackBehavior)
+	return callbackBehavior.getUrlForCallback(qualifiedName, args, options||{})
 }
-
-///**
-// * TODO: implement, desciption, samplecode
-// * TODO: Make more generic, allowing removing any behavior?
-// * @param {String} name
-// * @param {RuntimeForm|RuntimeComponent} component
-// *
-// * @properties={typeid:24,uuid:"0989AFB8-AD50-4D22-BA3E-9238599E134F"}
-// */
-//function removeCallback(name, component) {
-//	//Maybe use Wicket.component.getBehaviors & wicket.component.remove. That does make it impossible to make it more generic and allow removing any behavior
-//}
 
 /**
  * @private
@@ -840,8 +881,12 @@ function addBehavior(behavior, component) {
 }
 
 /**
- * Utility method to gain access to the underlying Java Wicket Component in order to access more low level API
- * @private
+ * Utility method to gain access to the underlying Java Wicket Component in order to access more low level API<br/>
+ * <br/>
+ * <b>WARNING</b> Use with utmost care. This method exposes low level Java API that is powerfull, but when used inappropriatly can cause all kind of issues. 
+ * The exposed API is NOT part of the public Servoy Scripting API. Use at own risk.
+ * <br/>
+ * <br/>
  * @SuppressWarnings(wrongparameters)
  * 
  * @param {RuntimeComponent|RuntimeForm} component
