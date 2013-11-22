@@ -375,6 +375,15 @@ function getValueListDisplayValue(valueListName, realValue, record) {
 	return result;
 }
 
+/**
+ * Returns true if the supplied argument is a JavaScript object. Returns false for non-objects, including subclasses like Array, Date or Regex
+ * @param {*} object
+ *
+ * @properties={typeid:24,uuid:"D36599C0-AD8F-402F-9F09-D891C87805B0"}
+ */
+function isObject(object) {
+	return Object.prototype.toString.call(object) == '[object Object]'
+}
 
 /*Attempt to replace globals.svy_utl_getTypeOf, but doesn't work that well (yet)
  * =>scopes.modUtils.getType(undefined)
