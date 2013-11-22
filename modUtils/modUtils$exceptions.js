@@ -24,6 +24,13 @@
  */
 
 /**
+ * @private 
+ *
+ * @properties={typeid:35,uuid:"CB850A67-F8C0-4C1A-A55B-302810E36FA9",variableType:-4}
+ */
+var log = scopes.modUtils$log.getLogger('com.servoy.bap.utils.exceptions')
+
+/**
  * General exception holding exception message, i18n key and arguments
  *
  * Subclassed by specific exceptions
@@ -36,12 +43,15 @@
  * @properties={typeid:24,uuid:"8D4DBBD3-4162-4F23-A61E-5875936E8AAB"}
  */
 function SvyException(errorMessage) {
+	if (!(this instanceof SvyException)) {
+		log.error('SvyException subclass called without the \'new\' keyword')
+	}
 	Object.defineProperty(this, "name", {
 		get: function() {
 			return this.constructor.name 
 		}
 	});
-
+	
 	/**
 	 * Returns the exception message
 	 *
@@ -71,6 +81,9 @@ function SvyException(errorMessage) {
  * @properties={typeid:24,uuid:"8E3EBB8D-1397-4444-8E0C-3F9D3E036CC7"}
  */
 function IllegalArgumentException(errorMessage) {
+	if (!(this instanceof IllegalArgumentException)) {
+		return new IllegalArgumentException(errorMessage)
+	}
 	SvyException.call(this, errorMessage);
 }
 
@@ -85,6 +98,9 @@ function IllegalArgumentException(errorMessage) {
  * @properties={typeid:24,uuid:"4B19C306-E4D7-40F2-BE89-DF369F489094"}
  */
 function UnsupportedOperationException(errorMessage) {
+	if (!(this instanceof UnsupportedOperationException)) {
+		return new UnsupportedOperationException(errorMessage)
+	}
 	SvyException.call(this, errorMessage);
 }
 
@@ -101,6 +117,9 @@ function UnsupportedOperationException(errorMessage) {
  * @properties={typeid:24,uuid:"04C9606C-70C0-4C03-854F-7BE2B09FF44C"}
  */
 function IllegalStateException(errorMessage) {
+	if (!(this instanceof IllegalStateException)) {
+		return new IllegalStateException(errorMessage)
+	}
 	SvyException.call(this, errorMessage);
 }
 
@@ -115,6 +134,9 @@ function IllegalStateException(errorMessage) {
  * @properties={typeid:24,uuid:"1B51ABB6-289A-4CCB-A029-73B7D7B9660E"}
  */
 function AbstractMethodInvocationException(errorMessage) {
+	if (!(this instanceof AbstractMethodInvocationException)) {
+		return new AbstractMethodInvocationException(errorMessage)
+	}
 	IllegalStateException.call(this, errorMessage);
 }
 
