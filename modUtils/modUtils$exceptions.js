@@ -46,11 +46,8 @@ function SvyException(errorMessage) {
 	if (!(this instanceof SvyException)) {
 		log.error('SvyException subclass called without the \'new\' keyword')
 	}
-	Object.defineProperty(this, "name", {
-		get: function() {
-			return this.constructor.name 
-		}
-	});
+	this.message = errorMessage
+	this.name = this.constructor['name']
 	
 	/**
 	 * Returns the exception message
@@ -58,14 +55,8 @@ function SvyException(errorMessage) {
 	 * @return {String}
 	 */
 	this.getMessage = function() {
-		return errorMessage;
+		return this.message
 	}
-
-	Object.defineProperty(this, "message", {
-		get: function() {
-			return errorMessage;
-		}
-	});
 }
 
 /**
