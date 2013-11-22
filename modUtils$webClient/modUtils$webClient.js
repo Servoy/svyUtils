@@ -751,7 +751,7 @@ function getCallbackBehavior() {
 					}
 				}
 				
-				//TODO: support throwing exceptions in the callback that will result in specific error responses
+				var target
 				try {
 					var o = scopes.modUtils.callMethod(options.m, requestArgs||[])
 					
@@ -768,7 +768,7 @@ function getCallbackBehavior() {
 						if (options.mt) {
 							mimeType = options.mt
 						}
-						var target = new Packages.org.apache.wicket.request.target.basic.StringRequestTarget(mimeType, "utf-8", retval)
+						target = new Packages.org.apache.wicket.request.target.basic.StringRequestTarget(mimeType, "utf-8", retval)
 						requestCycle.setRequestTarget(target);
 					} else {
 						if (hsr.getMethod() == 'GET') {
@@ -776,16 +776,29 @@ function getCallbackBehavior() {
 						}
 						/** @type {Packages.org.apache.wicket.protocol.http.WebApplication} */
 						var app = this.getComponent().getApplication();
-						var targ = app.newAjaxRequestTarget(this.getComponent().getPage());
-						requestCycle.setRequestTarget(targ);
+						target = app.newAjaxRequestTarget(this.getComponent().getPage());
+						requestCycle.setRequestTarget(target);
 						
 						if (!options.f & 1) { //disableImmediateUpdate
 							// update client state
-							Packages.com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor.generateResponse(targ, targ.getPage());
+							Packages.com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor.generateResponse(target, target.getPage());
 						}
 					}
 				} catch (e) {
+					var x = e
 					log.error('Exception thrown in callbackMethod', e)
+					var statusCode = plugins.http.HTTP_STATUS.SC_INTERNAL_SERVER_ERROR
+					var message = ''
+					if (typeof e == 'number') {
+						statusCode = e
+					} else if (scopes.modUtils.isObject(e)) {
+						statusCode = e['statusCode']
+						message = e['message']
+					} else {
+						message = e
+					}
+					target = Packages.org.apache.wicket.protocol.http.request.WebErrorCodeResponseTarget(statusCode, message)
+					requestCycle.setRequestTarget(target);
 				}
 			}
 		}
