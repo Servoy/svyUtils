@@ -18,7 +18,7 @@
 /**
  * @properties={typeid:35,uuid:"7EBC4113-8B59-4A6D-9F4E-D717DFE5F374",variableType:-4}
  */
-var log = scopes.utils.log.getLogger('com.servoy.bap.utils')
+var log = scopes.modUtils$log.getLogger('com.servoy.bap.utils')
 
 /**
  * @param {String} qualifiedName

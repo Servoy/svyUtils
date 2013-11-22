@@ -673,7 +673,7 @@ function getCallbackBehavior() {
 
 				var param = request.getParameter("m");  
 				if(param == null){
-					throw scopes.utils.exceptions.IllegalStateException('Invalid callback url');
+					throw scopes.modUtils$exceptions.IllegalStateException('Invalid callback url');
 				}
 				
 				//Decryption

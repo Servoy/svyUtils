@@ -1128,7 +1128,7 @@ function getRootLogger() {
  */
 function getLogger(loggerName) {
 	if (!loggerName || typeof loggerName != "string") {
-		throw scopes.utils.exceptions.IllegalArgumentException('non-string logger name "' + loggerName + '" supplied')
+		throw scopes.modUtils$exceptions.IllegalArgumentException('non-string logger name "' + loggerName + '" supplied')
 	}
 
 	// Do not allow retrieval of the root logger by name
