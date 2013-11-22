@@ -15,6 +15,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+/*
+ * TODO:
+ * - Add option to stream blobs from Database to client, see https://www.servoy.com/forum/viewtopic.php?p=107753#p107753
+ * - Add option to stream files from serverside filesystem to Web Client, see https://www.servoy.com/forum/viewtopic.php?p=107753#p107753
+ */
+
 /**
  * <pre>Opens a file from the file system using the default viewer for the fileType on the current platform. (.txt with editor, .pdf with pdf reader, .doc with word, etc.)
  * 
