@@ -293,6 +293,7 @@ function fireEvent(obj, eventType, args, isVetoable) {
 							continue
 					}
 
+					//TODO: try this for the problem below: {}.toString.call(arguments).match(/\s([a-zA-Z]+)/)[1].toLowerCase() == 'arguments'
 					//Would be nice to allow the args param be an arguments object, but haven't found a failsave way to distinguish an arguments object form anything else
 					//Not using something like http://oranlooney.com/javascript-arguments/, as arguments.callee is deprecated in future JavaScript versions and the for loop check doesn't work in Rhino
 					//!!Array.prototype.slice.call(args)['length'] fails for forms and elements objects and other objects that have a length property
