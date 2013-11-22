@@ -465,7 +465,7 @@ function loadConfig(configuration) {
  * @type {Object<AbstractAppender>}
  * @properties={typeid:35,uuid:"42790755-ECF4-4604-91DC-6DB654A73344",variableType:-4}
  */
-var appenders = {}
+var namedAppenders = {}
 
 /**
  * @private 
@@ -480,9 +480,9 @@ function getAppenderForRef(appenderRef) {
 		//TODO: log warning
 		return null
 	}
-	if (appenders.hasOwnProperty(appenderRef.ref)) {
+	if (namedAppenders.hasOwnProperty(appenderRef.ref)) {
 		application.output('Existing Appender returned')
-		return appenders[appenderRef.ref]
+		return namedAppenders[appenderRef.ref]
 	}
 	for (var j = 0; j < currentConfig.appenders.length; j++) {
 		var appenderConfig = currentConfig.appenders[j]
@@ -495,7 +495,7 @@ function getAppenderForRef(appenderRef) {
 			} else {
 				/** @type {AbstractAppender} */
 				var appender = appenderConstructor['PluginFactory'](appenderConfig)
-				appenders[appenderRef.ref] = appender
+				namedAppenders[appenderRef.ref] = appender
 				application.output('Appender created')
 				return appender
 			}
@@ -867,7 +867,7 @@ var initLoggerInternal = (function(){
 				case 'type':
 					break;
 				case 'name':
-					retval.setName(config.name)
+					retval.name = config.name
 					break
 				case 'threshold':
 					retval.setThreshold(Level.toLevel(config.threshold))
@@ -1245,8 +1245,7 @@ var loggingEventInit = (function() {
  * @private 
  * @properties={typeid:24,uuid:"B7FBEA4D-EF81-4471-846A-193E058267A1"}
  */
-function LogPlugin (){
-}
+function LogPlugin (){}
 
 /**
  * @private 
@@ -1561,6 +1560,11 @@ function AbstractLayout() {
 		return this.isTimeStampsInMilliseconds() ? loggingEvent.timeStampInMilliseconds : loggingEvent.timeStampInSeconds;
 	}
 
+	/**
+	 * @param {LoggingEvent} loggingEvent
+	 * @param {Object} combineMessages
+	 * @return {Array<Array>}
+	 */
 	this.getDataValues = function(loggingEvent, combineMessages) {
 		var dataValues = [
 			[this.loggerKey, loggingEvent.logger.name],
@@ -1752,6 +1756,11 @@ var xmlLayoutInit = (function() {
 				return str.replace(/\]\]>/, "]]>]]&gt;<![CDATA[");
 			};
 
+			/**
+			 * @param {LoggingEvent} loggingEvent
+			 * @return {String}
+			 * @this {XmlLayout}
+			 */
 			XmlLayout.prototype.format = function(loggingEvent) {
 				var layout = this;
 				var i, len;
@@ -1848,6 +1857,11 @@ var jsonLayoutInit = (function() {
 			return this.combineMessages;
 		};
 
+		/**
+		 * @param {LoggingEvent} loggingEvent
+		 * @return {String}
+		 * @this {JsonLayout}
+		 */
 		JsonLayout.prototype.format = function(loggingEvent) {
 			var layout = this;
 			/** @type {Array} */
@@ -1935,6 +1949,10 @@ var httpPostdataLayoutInit = (function() {
 			return false;
 		};
 
+		/**
+		 * @param {LoggingEvent} loggingEvent
+		 * @return {String}
+		 */
 		HttpPostDataLayout.prototype.format = function(loggingEvent) {
 			var dataValues = this.getDataValues(loggingEvent);
 			var queryBits = [];
@@ -1976,6 +1994,10 @@ function formatObjectExpansion(object, maxdepth, indent) {
 			indentation = "";
 		}
 
+		/**
+		 * @param {String} text
+		 * @return {String}
+		 */
 		function formatString(text) {
 			var text2 = text.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
 			var lines = text2.split("\n");
@@ -2070,15 +2092,16 @@ var patternLayoutInit = (function() {
 		PatternLayout.prototype = new AbstractLayout() //Object.create(AbstractLayout.prototype);
 		PatternLayout.prototype.constructor = PatternLayout
 
-		PatternLayout.prototype.regex = 
 		/**
 		 * @param {LoggingEvent} loggingEvent
 		 * @return {String}
+		 * @this {PatternLayout}
 		 */
 		PatternLayout.prototype.format = function(loggingEvent) {
 			//TODO: for every logged message the entire config is parsed again. Maybe need to cache something to improve performance
 			var regex = /%(-?[0-9]+)?(\.?[0-9]+)?(message|msg|logger|date|level|relative|thread|[acdfmnprt%])(\{([^\}]+)\})?|([^%]+)/;
 			var formattedString = "";
+			/** @type {Array<String>} */
 			var result;
 			var searchString = this.pattern;
 
@@ -2263,7 +2286,7 @@ var patternLayoutInit = (function() {
 					}
 					formattedString += replacement;
 				}
-				searchString = searchString.substr(result.index + result[0].length);
+				searchString = searchString.substr(result['index'] + result[0].length);
 			}
 			return formattedString;
 		};
