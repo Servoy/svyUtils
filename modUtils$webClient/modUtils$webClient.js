@@ -785,7 +785,6 @@ function getCallbackBehavior() {
 						}
 					}
 				} catch (e) {
-					var x = e
 					log.error('Exception thrown in callbackMethod', e)
 					var statusCode = plugins.http.HTTP_STATUS.SC_INTERNAL_SERVER_ERROR
 					var message = ''
