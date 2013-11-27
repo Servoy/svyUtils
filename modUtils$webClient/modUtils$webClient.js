@@ -723,7 +723,7 @@ function getCallbackBehavior() {
 				if (Array.isArray(options.a)) {
 					//Splice the argument values evaluated on the client into options.a
 					for (var index = 0; index < options.p.length; index++) {
-						options.a.splice(index, 0, ps[index])
+						options.a.splice(options.p[index], 0, ps[index])
 					}
 				}
 
@@ -779,7 +779,7 @@ function getCallbackBehavior() {
 						target = app.newAjaxRequestTarget(this.getComponent().getPage());
 						requestCycle.setRequestTarget(target);
 						
-						if (!options.f & 1) { //disableImmediateUpdate
+						if (!(options.f & 1)) { //disableImmediateUpdate
 							// update client state
 							Packages.com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor.generateResponse(target, target.getPage());
 						}
