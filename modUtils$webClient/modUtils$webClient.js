@@ -753,7 +753,10 @@ function getCallbackBehavior() {
 				
 				var target
 				try {
-					var o = scopes.modUtils.callMethod(options.m, requestArgs||[])
+					//var o = scopes.modUtils.callMethod(options.m, requestArgs||[])
+					/** @type {*} */
+					var o = getWebClientPluginAccess().executeMethod('scopes.modUtils', 'callMethod', [options.m, requestArgs||[]], false) //String context, String methodname, Object[] arguments, final boolean async
+
 					
 					if (options.f & 2) { //returnCallbackReturnValue
 						var retval
