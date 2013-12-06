@@ -16,7 +16,6 @@ function testJavaDependencies() {
 	jsunit.assertEquals('Failed to locate Packages.org.apache.wicket.protocol.http.WebRequestCycle', 'function', typeof Packages.org.apache.wicket.protocol.http.WebRequestCycle)
 	jsunit.assertEquals('Failed to locate Packages.javax.servlet.http.Cookie', 'function', typeof Packages.javax.servlet.http.Cookie)
 	jsunit.assertEquals('Failed to locate Packages.com.servoy.j2db.util.Utils', 'function', typeof Packages.com.servoy.j2db.util.Utils)
-	
 }
 
 /**
@@ -31,3 +30,4 @@ function testMediaHashcode() {
 		jsunit.fail('Failes to get the hashCode from the bytes of a Media Lib entry')
 	}
 }
+
