@@ -23,3 +23,41 @@ function test_getFormParts() {
 	if (!parts) jsunit.fail("no parts returned");
 	jsunit.assertEquals(3, parts.length);
 }
+
+/**
+ * @properties={typeid:24,uuid:"8BEE99FF-F6E7-467B-AA63-C9FEEF88C660"}
+ */
+function test_getJSFormForInput() {
+	var id = application.getUUID().toString()
+	var smForm = solutionModel.newForm(id, null, null, false, 100,100)
+	
+	jsunit.assertTrue(application.createNewFormInstance(id, id + '_2'))
+	jsunit.assertTrue(application.createNewFormInstance(id, id + '_3'))
+	
+	jsunit.assertEquals(smForm, scopes.modUtils$UI.getJSFormForInput(id + '_3'))
+	jsunit.assertEquals(smForm, scopes.modUtils$UI.getJSFormForInput(forms[id + '_3']))
+	
+	jsunit.assertTrue(forms[id + '_3'] instanceof forms[id + '_2'])
+	jsunit.assertTrue(forms[id + '_2'] instanceof forms[id + '_3'])
+	jsunit.assertTrue(forms[id + '_3'] instanceof forms[id])
+}
+
+/**
+ * @properties={typeid:24,uuid:"87D57F8D-9D8B-4578-8EE4-11E78A3856B5"}
+ */
+function test_getRuntimeFormInstanceNames() {
+	var id = application.getUUID().toString()
+	var smForm = solutionModel.newForm(id, null, null, false, 100,100)
+	
+	jsunit.assertTrue(application.createNewFormInstance(id, id + '_2'))
+	jsunit.assertTrue(application.createNewFormInstance(id, id + '_3'))
+	
+	jsunit.assertEquals(0, scopes.modUtils$UI.getRuntimeFormInstanceNames(smForm).length)
+	forms[id]
+	jsunit.assertEquals(1, scopes.modUtils$UI.getRuntimeFormInstanceNames(smForm).length)
+	forms[id + '_2']
+	jsunit.assertEquals(2, scopes.modUtils$UI.getRuntimeFormInstanceNames(smForm).length)
+	forms[id + '_3']
+	jsunit.assertEquals(3, scopes.modUtils$UI.getRuntimeFormInstanceNames(smForm).length)
+
+}
