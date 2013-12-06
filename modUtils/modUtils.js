@@ -385,6 +385,8 @@ function isObject(object) {
 	return Object.prototype.toString.call(object) == '[object Object]'
 }
 
+//TODO add replacer function for JSON.stringify that handles circular references or a custom object stringifier that does this and also removes the quotes around the keys
+
 /*Attempt to replace globals.svy_utl_getTypeOf, but doesn't work that well (yet)
  * =>scopes.modUtils.getType(undefined)
  * global
