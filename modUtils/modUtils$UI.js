@@ -189,7 +189,7 @@ function getRuntimeFormInstanceNames(form) {
 	var jsForm = getJSFormForReference(form)
 	
 	for (var i = 0; i < forms.length; i++) {
-		var f = getJSFormForInput(forms[i])
+		var f = getJSFormForReference(forms[i])
 		var parents = getJSFormHierarchy(f)
 		if (parents.indexOf(jsForm) != -1) {
 			retval.push(forms[i].controller.getName())
