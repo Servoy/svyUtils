@@ -37,7 +37,7 @@ function ExtendedTestException(errorMessage, code) {
 var initTestExceptions = (function(){
 	TestException.prototype = Object.create(scopes.modUtils$exceptions.IllegalArgumentException.prototype);
 	TestException.prototype.constructor = scopes.modUtils$exceptions.IllegalArgumentException
-	ExtendedTestException.prototype = Object.create(TestException.prototype);
+	ExtendedTestException.prototype = Object.create(TestException.prototype); //new TestException;
 	ExtendedTestException.prototype.constructor = ExtendedTestException
 }())
 
@@ -48,6 +48,10 @@ function testExceptions() {
 	//for the used technique here, see: http://stackoverflow.com/questions/4152931/javascript-inheritance-call-super-constructor-or-use-prototype-chain
 	var e = new scopes.modUtils$exceptions.IllegalArgumentException('test');
 	jsunit.assertTrue(e instanceof scopes.modUtils$exceptions.SvyException);
+	jsunit.assertEquals('test', e.getMessage()); 
+
+	e = new scopes.modUtils$exceptions.IllegalArgumentException('test');
+	jsunit.assertTrue(e instanceof Error);
 	jsunit.assertEquals('test', e.getMessage()); 
 	
 	e = new scopes.modUtils$exceptions.IllegalStateException('test');
@@ -71,13 +75,13 @@ function testExceptions() {
 	jsunit.assertTrue(e instanceof TestException);
 	jsunit.assertEquals('test', e.getMessage()); 
 	jsunit.assertEquals(1, e.code); 
-	jsunit.assertEquals('ExtendedTestException', e.constructor.name); 
+	jsunit.assertEquals('ExtendedTestException', e.constructor['name']); 
 	
 	try {
 		throw e;
 	} catch (ex) {
 		jsunit.assertEquals('ExtendedTestException: test', ex.toString())
-		jsunit.assertTrue('Stack property filled',ex.stack !== null)
+		jsunit.assertTrue('Stack property filled', ex['stack'] !== null)
 		var stack = ex.stack.split(' ')
 		jsunit.assertEquals('\tat', stack[0]);
 
@@ -88,10 +92,10 @@ function testExceptions() {
 		jsunit.assertEquals(path.substring(i + 28), parseInt(path.substring(i + 28)).toString())
 		jsunit.assertEquals('(testExceptions)\r\n\tat', stack[2])
 		
-		jsunit.assertEquals('ExtendedTestException', e.name); 
-		jsunit.assertEquals('test', e.getMessage()); 
-		jsunit.assertEquals('test', e.message); 
-		jsunit.assertEquals(1, e.code); 
+		jsunit.assertEquals('ExtendedTestException', e.name);
+		jsunit.assertEquals('test', e.getMessage());
+		jsunit.assertEquals('test', e.message);
+		jsunit.assertEquals(1, e.code);
 		
 //		application.output(ex.fileName)
 //		application.output(ex.lineNumber)
