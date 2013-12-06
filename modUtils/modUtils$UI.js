@@ -30,14 +30,14 @@
 function getCheckBoxValueListItemAdded(oldValue,newValue){
 	var oldItems = (oldValue) ? oldValue.toString().split('\n') : [];
 	var newItems = (newValue) ? newValue.toString().split('\n') : [];
-	if (newItems.length <= oldItems.length) return null;
+	if(newItems.length <= oldItems.length) return null;
 	newItems.sort();
 	oldItems.sort();
-	for (var i in oldItems) {
-		if (oldItems[i] != newItems[i])
-			return newItems[i];
-	}
-	return newItems[newItems.length - 1];
+    for (var i in oldItems) {
+        if (oldItems[i] != newItems[i])
+        	return newItems[i];
+    }
+    return newItems[newItems.length - 1];
 }
 
 /**
@@ -49,27 +49,65 @@ function getCheckBoxValueListItemAdded(oldValue,newValue){
 function getCheckBoxValueListItemRemoved(oldValue,newValue){
 	var oldItems = (oldValue) ? oldValue.toString().split('\n') : [];
 	var newItems = (newValue) ? newValue.toString().split('\n') : [];
-	if (newItems.length >= oldItems.length) return null;
+	if(newItems.length >= oldItems.length) return null;
 	newItems.sort();
 	oldItems.sort();
-	for (var i in newItems) {
-		if (newItems[i] != oldItems[i])
-			return oldItems[i];
+    for (var i in newItems) {
+        if (newItems[i] != oldItems[i])
+        	return oldItems[i];
+    }
+    return oldItems[oldItems.length - 1];
+}
+
+/**
+ * Gets the JSForm for any type of form 'reference' (formName String, RuntimeForm or JSform (the latter for convenience)), regardless how the form was created
+ * Solves the scenario of not being able to get the JSForm representation of forms created using {@link #application#createNewForminstance(...)}
+ * This method should be deprecated and removed after https://support.servoy.com/browse/SVY-3642 gets implemented
+ * 
+ * @param {JSForm|RuntimeForm|String} form 
+ *
+ * @return {JSForm}
+ * @properties={typeid:24,uuid:"D683B1F6-4BD7-42A7-A9BD-E47E1EE7BAB4"}
+ */
+function getJSFormForReference(form) {
+	if (form instanceof JSForm) {
+		/** @type {JSForm} */
+		return form
 	}
-	return oldItems[oldItems.length - 1];
+	
+	/** @type {String} */
+	var formName
+	if (form instanceof RuntimeForm) {
+		formName = form.controller.getName()
+	} else if (form instanceof String) {
+		formName = form
+	}
+	var retval = solutionModel.getForm(formName)
+	if (retval !== null) { //really null, not undefined
+		return retval
+	}
+
+	if (!(formName in forms)) { //It's not a loaded form, so the value of 'form' must be wrong
+		throw new scopes.modUtils$exceptions.IllegalArgumentException("The value provided for the 'form' parameter is not a valid Form identifier: " + form)
+	}
+	//It must be a form created with application.createNewFormInstance
+	var list = new Packages.java.util.ArrayList();
+	list.add(Packages.com.servoy.j2db.FormController)
+	formName = list.get(0)['getMethod']('getForm').invoke(forms[form]).getName()
+	return solutionModel.getForm(formName)
 }
 
 /**
  * Returns the JSForm hierarchy for the given form, from it's utmost base form up to and including the specified form itself
- * @param {JSForm|String} form
+ * @param {JSForm|RuntimeForm|String} form
  * @return {Array<JSForm>} super forms first, given form included as last entry in the returned Array)
  *
  * @properties={typeid:24,uuid:"4E77988E-55A6-45FD-8D96-1DD5BAACFEEE"}
  */
 function getJSFormHierarchy(form) {
+	var curForm = getJSFormForReference(form)
 	/** @type {Array<JSForm>} */
-	var retval = [form instanceof JSForm ? form : solutionModel.getForm(form)] //Doesn't currently support RuntimeForm instances created with application.createNewFromInstance(...)
-	var curForm = retval[0]
+	var retval = [curForm]
 	while ((curForm = curForm.extendsForm)) {
 		retval.push(curForm)
 	}
@@ -77,6 +115,7 @@ function getJSFormHierarchy(form) {
 }
 
 /**
+ * TODO: cleanup, use utility functions, extend to also take RuntimeForm (just to be complete)
  * Returns true if the form is extending the parent form 
  * 
  * @param {JSForm|String} form
@@ -89,12 +128,9 @@ function getJSFormHierarchy(form) {
  * @properties={typeid:24,uuid:"ABCE89C0-9151-4CD7-AF58-38D0913BD738"}
  */
 function isJSFormInstanceOf(form, parentForm) {
-	if (form instanceof String) {
-		form = solutionModel.getForm(form);
-	}
-	if (parentForm instanceof String) {
-		parentForm = solutionModel.getForm(parentForm);
-	}
+	form = getJSFormForReference(form)
+	parentForm = getJSFormForReference(parentForm)
+	
 	if (!form) {
 		throw new scopes.modUtils$exceptions.IllegalArgumentException("Provide valid form");
 	}
@@ -107,11 +143,7 @@ function isJSFormInstanceOf(form, parentForm) {
 		form = form.extendsForm;
 	}
 	
-	if (form == parentForm) {
-		return true;
-	}
-	
-	return false;
+	return form == parentForm
 }
 
 /**
@@ -144,27 +176,83 @@ function getJSFormInstances(superForm) {
 	return retval
 }
 
-//TODO: create a method that gets all loaded RuntimeForms that are an instanceof a certain RuntimeForm or JSForm
-///**
-//* @param {RuntimeForm|JSForm|String} form
-//* @return {Array<String>}
-//*
-//* @properties={typeid:24,uuid:"05F00D04-160F-4489-A24F-395D122C0586"}
-//*/
-//function getRuntimeFormInstanceNames(form) {
-//	//Trick is getting the JSForm for RuntimeForm instances created with application.createNewformInstance()
-//	//According to Johan: je moet weer naar het java object van het form (FormController) en daar moet je dan getForm() op aan roepen
-//}
+/**
+ * Determines the JSForm for given input and returns the names of all RuntimeForm instances based on the JSForm
+ * @param {RuntimeForm|JSForm|String} form
+ *
+ * @return {Array<String>}
+ *
+ * @properties={typeid:24,uuid:"05F00D04-160F-4489-A24F-395D122C0586"}
+ */
+function getRuntimeFormInstanceNames(form) {
+	var retval = []
+	var jsForm = getJSFormForReference(form)
+	
+	for (var i = 0; i < forms.length; i++) {
+		var f = getJSFormForInput(forms[i])
+		var parents = getJSFormHierarchy(f)
+		if (parents.indexOf(jsForm) != -1) {
+			retval.push(forms[i].controller.getName())
+		}
+	}
+	return retval
+}
 
 /**
+ * TODO: docs, including border comment
  * @param {JSForm|String} form
+ * @param {Boolean} [includePrintParts] whether or not to also take into account form parts that are only visible in print mode (default false)
  * @properties={typeid:24,uuid:"4EC9D579-FAD3-4C56-8F34-2891379AF31E"}
  */
-function getJSFormHeight(form) {
+function getJSFormHeight(form, includePrintParts) {
+	var printParts = [JSPart.LEADING_SUBSUMMARY, JSPart.TRAILING_SUBSUMMARY, JSPart.TITLE_FOOTER]
+	
 	/** @type {JSForm} */
-	var smform = typeof form == 'string' ? solutionModel.getForm(form) : form
+	var smform = getJSFormForReference(form)
 	var parts = smform.getParts(true)
-	return parts.length ? parts.pop().height : 0;
+	var height = parts.length ? parts[parts.length-1].height : 0;
+	
+	if (!includePrintParts) {
+		for (var i = 0; i < parts.length; i++) {
+			if (printParts.indexOf(parts[i].getPartType()) != -1) {
+				height -= parts[i].height - parts[i].getPartYOffset()
+			}
+		}
+	}
+	return height
+}
+
+/**
+ * @param {JSForm|RuntimeForm|String} form identifier of or reference to a form in TableView view
+ *
+ * @properties={typeid:24,uuid:"53065728-B0C1-449C-91A4-D79B2271723A"}
+ */
+function getRuntimeTableViewRowHeight(form) {
+	var jsForm = getJSFormForReference(form)
+	if (jsForm.view != JSForm.LOCKED_TABLE_VIEW) {
+		throw new scopes.modUtils$exceptions.IllegalArgumentException('Must be called with a form in TableView view')
+	}
+	
+	var body = jsForm.getPart(JSPart.BODY)
+	var start = body.getPartYOffset()
+	var end = body.height
+	
+	var rowHeight = 0
+	var jsElements = jsForm.getComponents(true)
+	for (var i = 0; i < jsElements.length; i++) {
+		if (jsElements[i].y < start || jsElements[i].y > end) {
+			continue
+		}
+		if (jsElements[i] instanceof JSLabel) {
+			/** @type {JSLabel} */
+			var label = jsElements[i]
+			if (label.labelFor != null) { //TODO: needs further check to see if the labelFor property is set to a actually existing element
+				continue
+			}
+		}
+		rowHeight = Math.max(rowHeight, jsElements[i].height)
+	}
+	return rowHeight
 }
 
 /**
@@ -194,27 +282,26 @@ function getParentFormName(form) {
 }
 
 /**
- * Clones a JSForm, but also makes clones for all forms contained in (nested) tabpanels
+ * Clones a JSForm, including all forms contained in (nested) tabpanels (at designtime)
  * 
  * @see Also see {@link #deepCopyRuntimeForm}: more lightweight, but less ideal when using the SolutionModel on the copied
  * 
  * @param {String} newFormName the name to use for the clone
  * @param {JSForm} original the JSForm to clone
- * @param {String} [prefix] Optional prefix to use for the forms
+ * @param {String} [prefix] Optional prefix to use for the forms 
  * 
  * @return {JSForm} The clone
  * 
- * @throws {scopes.modUtils$exceptions.UnsupportedOperationException}
+ * @throws {scopes.modUtils$exceptions.IllegalArgumentException}
  * 
  * @properties={typeid:24,uuid:"0B4DE5CF-0B58-44F2-B344-3E3B656E549D"}
  */
 function deepCopyJSForm(newFormName, original, prefix) {
 	if (solutionModel.getForm(newFormName)) {
-		throw new scopes.modUtils$exceptions.UnsupportedOperationException("Cloning existing form is not supported");
+		throw new scopes.modUtils$exceptions.IllegalArgumentException('Value provided for the newFormName parameter is already in use by an existing form: ' + newFormName);
 	}
-	
-	var clone = solutionModel.cloneForm(newFormName, original)
 
+	var clone = solutionModel.cloneForm(newFormName, original)
 	var tabPanels = clone.getTabPanels()
 	var formName;
 	for (var i = 0; i < tabPanels.length; i++) {
@@ -224,30 +311,8 @@ function deepCopyJSForm(newFormName, original, prefix) {
 			tabs[j].containsForm = deepCopyJSForm(formName, tabs[j].containsForm, prefix);
 		}
 	}
-	return clone;
+	return clone
 }
-
-//TODO: create function that loops through all (nested) tabs on a given RuntimeForm, with callback to do something on each form encountered
-//To be used by deepCopyJSForm or deepCopyRuntimeForm
-
-/**
- * @param newFormName
- * @param original
- * @param prefix
- *
- * @properties={typeid:24,uuid:"407BD3F5-6D07-4E12-98B8-C2CA31322DA5"}
- */
-//function deepCopyRuntimeForm(newFormName, original, prefix) {
-//	//TODO implement. similar as above, but then use application.createNewFormInstance()
-//	//Has less overhead, as the SM doesn't get extended, but troublesome when doing stuff in those copies using the SM
-//}
-
-/**
- * @properties={typeid:24,uuid:"C8D4A06A-7D47-44F5-A5FE-BA25D29D3F5B"}
- */
-//function globalRecreateUI() {
-//	//TODO implement: function to call recreateUI on all instances of a certain form. Requires #getRuntimeFormInstanceNames()
-//}
 
 /**
  * Convenient method to set multiple properties of a SplitPane in one go
@@ -259,7 +324,7 @@ function deepCopyJSForm(newFormName, original, prefix) {
  * @param {Number} dividerSize
  * @param {Boolean} continuousLayout
  * @param {String} [bgColor] If omitted, the SplitPane will be made transparent
- *
+ * 
  * @properties={typeid:24,uuid:"B94825F2-EB16-49FD-BEBB-AA9A10EF65C1"}
  */
 function initSplitPane(formName, elementName, resizeWeight, dividerLocation, dividerSize, continuousLayout, bgColor) {
