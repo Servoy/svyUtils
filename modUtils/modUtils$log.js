@@ -1,37 +1,31 @@
 /*
-  * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2013 Servoy BV 
-  * 
-  * This program is free software: you can redistribute it and/or modify
-  * it under the terms of the GNU Lesser General Public License as published by
-  * the Free Software Foundation, either version 3 of the License, or
-  * (at your option) any later version.
-  * 
-  * This program is distributed in the hope that it will be useful,
-  * but WITHOUT ANY WARRANTY; without even the implied warranty of
-  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  * GNU Lesser General Public License for more details.
-  * 
-  * You should have received a copy of the GNU Lesser General Public License
-  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
-  */
-
-/*
- * Copyright 2013 Tim Down.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2013 Servoy BV 
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
 /*
+ * This log implementation is an adapted copy of log4javascript version 1.4.6
+ * 
+ * this implementation is heavily altered to:
+ * - Adapt it to the Servoy environment
+ * - Improve performance
+ * - Bring it more inline with log4j 2
+ * - Not expose all configuration options through API, but instead supply one loadConfig method that takes care of the configuration
+ * 
+ * Below the information distributed with the original log4javascript implementation that is licensed under Apache 2:
+ * -------------
  * log4javascript
  *
  * log4javascript is a logging framework for JavaScript based on log4j
@@ -45,6 +39,7 @@
  * Edition: log4javascript
  * Build date: 19 March 2013
  * Website: http://log4javascript.org
+ * -------------
  */
 
 /*
@@ -61,9 +56,9 @@
  * - Replaced typeCheckingCode with JSDoc
  * - Removed evalInScope
  * - Changed formatter to not modify Date prototype
- * - TODO Made default ApplicationOutputAppender one that uses application.output()
- * - TODO Made default level equal to Servoy's loglevel
- * - TODO Better exception output, using Rhino's capabilities
+ * - Made default ApplicationOutputAppender one that uses application.output()
+ * - Made default level equal to Servoy's loglevel
+ * - Better exception output, using Rhino's capabilities
  * - Changed to show stacktraces by default
  * - Adjusted level values to align with Servoy's LOGGING_LEVEL values
  * - Replaces array_contains util function calls with inline Array.indexof 
@@ -81,21 +76,19 @@
  * - Removed global enabled flag
  * - Removed global showStackTraces flag
  * - Added %t to add current ThreadName to output
- *
+ * - Removed the logic that allows logging multiple messages in one go
+ * - Replaced logLog impl with statusLogger (to align with log4j 2)
+ * 
  * TODOs
- * - Fix encapsulation
  * - finish (re)configuration
  * - Make it so that named appender result in one shared instance
- * - Review logLog (vs. StaticLogger in log4j?)
  * - Review all layouts except PatternLayout
  * - fix warnings
+ * - Support also ServoyException (maybe just java.lang.Exception) as exception param when logging
  * - See if Level can be not exposed as Constructor function, but as an object with static properties only
- * - Remove the logic that allows logging multiple messages in one go
- * - remove dependancy on window
- * - Remove logic that allows passing multiple messages
  * - See which appenders/layouts need to stay
- * - Review date utils and see if they can be replaced by modUtils$date
  * - rename to logManager
+ * - Change Logger impl. to use shared Loggerconfig objects between Loggers, like Log4j 2
  * - Add message formatting as in log4j 2
  * - Add catching as in Log4j 2
  */
@@ -123,7 +116,8 @@ var NEW_LINE = "\r\n"; //CHECKME: shouldn't this use a platform specific newLine
 var useTimeStampsInMilliseconds = true;
 
 /**
- * @public
+ * TODO figure out what to do with ths method. Made it private for now as to not expose it in the API
+ * @private
  * @param {Boolean} timeStampsInMilliseconds
  *
  * @properties={typeid:24,uuid:"2293F82F-B192-4375-A38A-DF7CD697B7A2"}
@@ -133,7 +127,8 @@ function setTimeStampsInMilliseconds(timeStampsInMilliseconds) {
 }
 
 /**
- * @public
+ * TODO figure out what to do with ths method. Made it private for now as to not expose it in the API
+ * @private
  * @properties={typeid:24,uuid:"21804846-E57C-4ECB-8D32-8AC9D114BC5C"}
  */
 function isTimeStampsInMilliseconds() {
@@ -168,7 +163,7 @@ function getExceptionStringRep(ex) {
 				exStr += " in file " + ex.fileName.substr(lastSlashIndex + 1)
 			}
 		} catch (localEx) {
-			logLog.warn("Unable to obtain file and line information for error");
+			statusLogger.warn("Unable to obtain file and line information for error");
 		}
 		if (ex.stack) {
 			exStr += NEW_LINE + ex.stack;
@@ -181,106 +176,14 @@ function getExceptionStringRep(ex) {
 	return null;
 }
 
-/* --------------------------------Simple logging for log4javascript itself-------------------------------------- */
-//TODO: finish statusLogger to replace loglog
+/* ----------------------------------Configuration------------------------------------ */
 /**
- * @private
- * @constructor 
- * @extends {Logger}
- * @properties={typeid:24,uuid:"0AC59D9D-FFC7-438B-A6B2-C8096BDF5282"}
- */
-function StatusLogger() {
-	this.log = function(){}
-	this.toString = function(){}
-}
-
-/**
- * @private
- * @SuppressWarnings(unused)
- * @properties={typeid:35,uuid:"E02462A4-85E5-4985-B18F-865415F4D9AA",variableType:-4}
- */
-var initStatusLogger = (function() {
-	StatusLogger.prototype = new Logger() //Object.create(Logger.prototype);
-	StatusLogger.prototype.constructor = StatusLogger
-}())
-
-/**
+ * Type Definition for the config parameter of {@link #loadConfig}<br>
+ * <br>
  * @public
- * @properties={typeid:24,uuid:"1B89A7F7-9F24-40D5-A26D-8994D7BE1C04"}
- */
-function getStatusLogger() {
-	return
-}
-/**
- * @private 
- * @type {String}
- *
- * @properties={typeid:35,uuid:"E4F9858D-7E28-4372-B357-D5D31DA6A3CF"}
- */
-var statusLogger
-
-/**
- * @private
- * @properties={typeid:35,uuid:"CF306053-9ED3-4B7B-8760-1697FE983599",variableType:-4}
- */
-var logLog = {
-	quietMode: false,
-
-	debugMessages: [],
-
-	/**
-	 * @param {Boolean} quietMode
-	 */
-	setQuietMode: function(quietMode) {
-		this.quietMode = quietMode;
-	},
-
-	numberOfErrors: 0,
-
-	alertAllErrors: false,
-
-	setAlertAllErrors: function(alertAllErrors) {
-		this.alertAllErrors = alertAllErrors;
-	},
-
-	/**
-	 * @param {String} message
-	 */
-	debug: function(message) {
-		this.debugMessages.push(message);
-	},
-
-	displayDebug: function() {
-		application.output(this.debugMessages.join(NEW_LINE)); //TODO: changed alert into application.output. Should maybe be something else
-	},
-
-	/**
-	 * @param {String} message
-	 * @param {Error} [exception]
-	 */
-	warn: function(message, exception) {},
-
-	/**
-	 * @param {String} message
-	 * @param {Error} [exception]
-	 */
-	error: function(message, exception) {
-		if (++this.numberOfErrors == 1 || this.alertAllErrors) {
-			if (!this.quietMode) {
-				var alertMessage = "log4javascript error: " + message;
-				if (exception) {
-					alertMessage += NEW_LINE + NEW_LINE + "Original error: " + getExceptionStringRep(exception);
-				}
-				application.output(alertMessage); //TODO: changed alert into application.output. Should maybe be something else
-			}
-		}
-	}
-};
-
-/**
  * @typedef {{
- * 	status: String,
- *  plugins: String,
+ * 	status: String=,
+ *  plugins: String=,
  *  appenders: Array<{
  *  	type: String,
  *  	name: String
@@ -288,11 +191,11 @@ var logLog = {
  *  loggers: {
  *  	logger: Array<{
  *  		name: String,
- *  		level: String,
- *  		additivity: boolean,
+ *  		level: String=,
+ *  		additivity: boolean=,
  *  		AppenderRef: {
  *  			ref: String
- *  		}
+ *  		}=
  *  	}>,
  *  	root: {
  *  		level: String,
@@ -307,7 +210,6 @@ var logLog = {
  */
 var CONFIG_TYPE_DEF
 
-/* ----------------------------------Configuration------------------------------------ */
 /**
  * @private 
  * @properties={typeid:35,uuid:"64DE8B65-AA2E-4B1D-99DE-36983CAF6DB7",variableType:-4}
@@ -341,55 +243,58 @@ var defaultConfig = {
 var currentConfig = defaultConfig
 
 /**
- * Call with null to reset to the default configuration
- * TODO: proper example code
- * TODO: expose config as type 
- * @public 
- * @param configuration
- * @example 
- *  {
-	status: "error", 
-	appenders: [
-		{
-			type: "ApplicationOutputAppender", 
-			name: "ApplicationOutput",
-			PatternLayout: { 
-				pattern: "%5level %logger{1.} - %msg" 
-			}
-		},
-		{
-			type: "ApplicationOutputAppender", 
-			name: "ApplicationOutputWithThread", 
-			PatternLayout: { 
-				pattern: "[%thread] %5level %logger{1.} - %msg" 
-			}
-		}
-	],
-	loggers: {
-		logger: [
-			{
-				name: "com.servoy.bap.components.webpanel", 
-				level: "debug", 
-				additivity: false, 
-				AppenderRef: {
-					ref: "ApplicationOutputWithThread"
-				}
-			}
-		],
-		root: { 
-			level: "error", 
-			AppenderRef: { 
-				ref: "ApplicationOutput" 
-			}
-		}
-	}
-}
+ * Load the logging configuration<br>
+ * Call with null to reset to the default configuration<br>
+ * <br>
+ * @public
+ * @param {CONFIG_TYPE_DEF} configuration
+ * @example <pre>scopes.modUtils$log.loadConfig({
+ *  status: "error", 
+ *  appenders: [
+ *    {
+ *      type: "ApplicationOutputAppender", 
+ *      name: "ApplicationOutput",
+ *      PatternLayout: { 
+ *        pattern: "%5level %logger{1.} - %msg" 
+ *      }
+ *    },
+ *    {
+ *      type: "ApplicationOutputAppender", 
+ *      name: "ApplicationOutputWithThread", 
+ *      PatternLayout: { 
+ *        pattern: "[%thread] %5level %logger{1.} - %msg" 
+ *      }
+ *    }
+ *  ],
+ *  loggers: {
+ *    logger: [
+ *      {
+ *        name: "com.servoy.bap.components.webpanel", 
+ *        level: "debug", 
+ *        additivity: false, 
+ *        AppenderRef: {
+ *          ref: "ApplicationOutputWithThread"
+ *        }
+ *      }
+ *    ],
+ *    root: { 
+ *      level: "error", 
+ *        AppenderRef: { 
+ *          ref: "ApplicationOutput" 
+ *        }
+ *      }
+ *    }
+ *  })</pre>
  *
  * @properties={typeid:24,uuid:"ED82D72C-D6B5-4C6C-AD4C-5331AD8713C1"}
  */
 function loadConfig(configuration) {
-	currentConfig = configuration||defaultConfig
+	currentConfig = configuration = configuration||defaultConfig
 	
+	//Reset the status logger
+	statusLoggerInternal.setLevel(Level.toLevel(configuration.status, Level.ERROR))
+	
+	//Load custom LogPlugins
 	var pluginName
 	if (!defaultLogPlugins) { //Initialization of defaultLogPlugins array with the names of the default plugins
 		defaultLogPlugins = Object.keys(logPlugins)
@@ -401,7 +306,6 @@ function loadConfig(configuration) {
 		}
 	}
 	
-	//load custom plugins
 	/** @type {Array<String>} */
 	var plugs = configuration.plugins ? configuration.plugins.split(',') : []
 	for (var i = 0; i < plugs.length; i++) {
@@ -409,55 +313,111 @@ function loadConfig(configuration) {
 		if (plugin.prototype instanceof LogPlugin) {
 			logPlugins[utils.stringTrim(plugs[i])] = plugin
 		} else {
-			//TODO: Log config warning
-		}
-	}
-	
-	//Reset the status logger
-	//TODO 
-	
-	//reset the rootlogger
-	var rootLoggerConfig = currentConfig.loggers.root //TODO make safer
-	var rl = getRootLoggerInternal()
-	rl.removeAllAppenders()
-	rl.setLevel(Level.toLevel(rootLoggerConfig.level, ROOT_LOGGER_DEFAULT_LEVEL))
-	rl.setAdditivity(false)
-	rl.addAppender(getAppenderForRef(rootLoggerConfig.AppenderRef))
-	
-	//Need to reset all loggers and only configure the ones that are in the new config
-	var configgedLoggers = currentConfig.loggers.logger||[]
-	var configgedLoggerNames = []
-	//Go through logger config and if a logger is already instantiated with the supplied name, reconfigure the logger
-	for (i = 0; i < configgedLoggers.length; i++) { //
-		var loggerConfig = configgedLoggers[i]
-		configgedLoggerNames.push(loggerConfig.name)
-		
-		if (loggers.hasOwnProperty(loggerConfig.name)) { //Need to reconfigure an existing logger
-			var logger = loggers[loggerConfig.name]
-			logger.removeAllAppenders()
-			logger.setLevel(Level.toLevel(loggerConfig.level))
-			logger.setAdditivity(loggerConfig.hasOwnProperty('additivity') ? loggerConfig.additivity : true)
-			
-			//TODO: appender config
-			if (loggerConfig.hasOwnProperty('AppenderRef')) {
-				logger.addAppender(getAppenderForRef(loggerConfig.AppenderRef))
+			if (plugin) { //Found object, but not an instanceof LogPlugin
+				statusLogger.warn("Could not find plugin: The path '" + utils.stringTrim(plugs[i]) + "' did not resolve to an object that is an instance of LogPlugin")
+			} else { //Not found
+				statusLogger.warn("Could not find plugin: The path '" + utils.stringTrim(plugs[i]) + "' did not resolve to an object")
 			}
 		}
 	}
 	
-	//Reset already instantiated loggers that are not in the config anymore to default values
-	for (var loggerName in loggers) {
-		if (!loggers.hasOwnProperty(loggerName)) {
-			continue
+	namedAppenders = {}
+	var processedNamedAppenders = []
+	
+	//reset the rootlogger
+	var rootLoggerConfig
+	if (configuration.loggers && configuration.loggers.root) {
+		rootLoggerConfig = configuration.loggers.root
+	} else {
+		statusLogger.error('Unable to locate configuration for logger ROOTLOGGER (Using default config instead)')
+		rootLoggerConfig = defaultConfig.loggers.root
+	}
+	var rl = getRootLoggerInternal()
+	rl.setLevel(Level.toLevel(rootLoggerConfig.level, ROOT_LOGGER_DEFAULT_LEVEL))	
+	rl.setAdditivity(false)
+	rl.removeAllAppenders()
+	if (rootLoggerConfig.AppenderRef) {
+		var appender
+		if (rootLoggerConfig.AppenderRef.hasOwnProperty('ref')) {
+			appender = getAppenderForRef(rootLoggerConfig.AppenderRef)
+		} else {
+			statusLogger.error("'ref' attribute not specified on Appender configured for ROOTLOGGER. Using default Appender config for RootLogger instead")
+			appender = getAppenderForRef(defaultConfig.loggers.root.AppenderRef)
 		}
-		if (configgedLoggerNames.indexOf(loggerName) == -1) {
-			loggers[loggerName].removeAllAppenders()
-			loggers[loggerName].setLevel(Level.ERROR) //CHECKME: need to specify a default? will use Debug now 
-			loggers[loggerName].setAdditivity(false)
+		if (appender) {
+			rl.addAppender(appender)
+		} else {
+			statusLogger.error('Couldn\'t configure the specified Appender for the ROOTLOGGER: ' + JSON.stringify(rootLoggerConfig.AppenderRef) + '. Using default config instead')
+			rl.addAppender(getAppenderForRef(defaultConfig.loggers.root.AppenderRef))
 		}
+		processedNamedAppenders.push(rootLoggerConfig.AppenderRef.ref)
+	} else {
+		statusLogger.error('Unable to locate Appender configuration for logger ROOTLOGGER. Using default config instead')
+		rl.addAppender(getAppenderForRef(defaultConfig.loggers.root.AppenderRef))
 	}
 	
-	//TODO: also need to reconfig/reset named appenders
+	//Reset all custom loggers
+	var configuredLoggers = configuration.loggers.logger||[]
+	configuredLoggers.sort(function(a, b) { //Sorting loggers to minimize internal reconfiguration
+		if (a.name > b.name) {
+			return 1;
+		} else if (a.name < b.name) {
+			return -1;
+		}
+		return 0;
+	})
+	var configuredLoggerNames = []
+	//Go through configuredLoggers and if a logger is already instantiated with the supplied name, reconfigure the logger
+	for (i = 0; i < configuredLoggers.length; i++) { //
+		var loggerConfig = configuredLoggers[i]
+		if (!loggerConfig.hasOwnProperty('name')) {
+			statusLogger.error("'name' attribute underdefined on Logger: '" + JSON.stringify(loggerConfig) + "'")
+			continue
+		}
+		if (!loggers.hasOwnProperty(loggerConfig.name)) { //Not yet instantiated, so no need to reconfigure
+			continue
+		}	
+		
+		//Reconfigure the existing logger instance
+		var logger = loggers[loggerConfig.name]
+		
+		//Reconfig Level
+		logger.setLevel(loggerConfig.hasOwnProperty('level') ? Level.toLevel(loggerConfig.level) : null)
+		
+		//Reconfig Additivity
+		if (loggerConfig.hasOwnProperty('additivity')) {
+			if (typeof loggerConfig.additivity === 'boolean') {
+				logger.setAdditivity(loggerConfig.additivity)
+			} else {
+				statusLogger.warn("Invalid value for additivity property on logger '" + loggerConfig.name + "': " + loggerConfig.additivity)
+				logger.setAdditivity(true)
+			}
+		} else {
+			logger.setAdditivity(true)
+		}
+		
+		//Reconfig Appenders
+		logger.removeAllAppenders()
+		if (loggerConfig.hasOwnProperty('AppenderRef')) {
+			if (!loggerConfig.AppenderRef.hasOwnProperty('ref')) {
+				statusLogger.error("'ref' attribute not specified on Appender configured for Logger '" + loggerConfig.name + "'")
+				continue
+			}
+			logger.addAppender(getAppenderForRef(loggerConfig.AppenderRef))
+			processedNamedAppenders.push(loggerConfig.AppenderRef.ref)			
+		}
+		//Save processed Logger in order to reset non-processed loggers
+		configuredLoggerNames.push(loggerConfig.name)
+	}
+	
+	//Reset already instantiated loggers to default setup if they are not in the configuration anymore
+	for (var loggerName in loggers) {
+		if (configuredLoggerNames.indexOf(loggerName) == -1) {
+			loggers[loggerName].removeAllAppenders()
+			loggers[loggerName].setLevel(null)
+			loggers[loggerName].setAdditivity(true)
+		}
+	}
 }
 
 /**
@@ -476,27 +436,30 @@ var namedAppenders = {}
  * @properties={typeid:24,uuid:"E9083AE2-0B82-4515-88CC-58E1695D8EFF"}
  */
 function getAppenderForRef(appenderRef) {
-	if (!appenderRef || !appenderRef.ref) {
-		//TODO: log warning
+	if (!appenderRef) {
+		statusLogger.error('getAppenderForRef called with null configuration')
+		return null
+	} else if (!appenderRef.ref) {
+		statusLogger.error("'ref' attribute undefined on Appender configuration")
 		return null
 	}
 	if (namedAppenders.hasOwnProperty(appenderRef.ref)) {
-		application.output('Existing Appender returned')
+		statusLogger.trace('Existing Appender returned')
 		return namedAppenders[appenderRef.ref]
 	}
 	for (var j = 0; j < currentConfig.appenders.length; j++) {
 		var appenderConfig = currentConfig.appenders[j]
 		if (appenderConfig.name == appenderRef.ref) {
 			var appenderConstructor = logPlugins[appenderConfig.type]
+			
 			if (!appenderConstructor || !(appenderConstructor.prototype instanceof AbstractAppender)) { //CHECKME: second check needed or is the contents of logPlugins under out direct control
-				//TODO: raise config error
-				application.output('Appender not found')
+				statusLogger.error('LogPlugin of type "' + appenderConfig.type +'" not found')
 				return null
 			} else {
 				/** @type {AbstractAppender} */
 				var appender = appenderConstructor['PluginFactory'](appenderConfig)
 				namedAppenders[appenderRef.ref] = appender
-				application.output('Appender created')
+				statusLogger.trace('Created Appender of type "' + appenderConfig.type + '" with name "' + appenderConfig.name + '"')
 				return appender
 			}
 		}
@@ -504,24 +467,13 @@ function getAppenderForRef(appenderRef) {
 	return null
 }
 
-/**
- * TODO: remove this when reconfig is finished
- * Resets the all loggers to their default level
- * @public 
- * @deprecated 
- * @properties={typeid:24,uuid:"A38B73EE-4752-4909-9D61-CF4DB620CC3D"}
- */
-function resetConfiguration() {
-	getRootLogger().setLevel(ROOT_LOGGER_DEFAULT_LEVEL);
-	loggers = {};
-}
-
 /* ----------------------------------Levels------------------------------------ */
 /**
  * @public
- * @properties={typeid:35,uuid:"0971FFA4-3E9F-4020-8276-31ED8EAF2F0C",variableType:-4}
+ * @constructor 
+ * @properties={typeid:24,uuid:"0C200AEA-BAF4-4F93-B657-C1F0EF44268D"}
  */
-var Level = function(level, name) {
+function Level(level, name) {
 	this.intLevel = level;
 	this.name = name;
 };
@@ -573,18 +525,23 @@ var levelInit = (function() {
 			        return levels[i];
 			    }
 			}
+			statusLogger.warn("Unable to convert '" + name + "' to a Level")
 			return defaultLevel||Level.DEBUG
 		}
 	}())
 
 /* ----------------------------------Loggers------------------------------------ */
 /**
+ * TODO: the mechanism of Logger and LoggerInternal can be optimized even further: 
+ * LoggerInternal instances are only needed for Loggers that are defined in the config 
+ * and all instantiated loggers use the LoggerInternal of the closest parent that is configured.
+ * Logger instances that are not backed by config receive all their settings from a parent that is backed by config anyway
  * @private
  * @constructor
  * @this {LoggerInternal}
  *
  * @param {String} name
- * @param {Logger} [logger]
+ * @param {Logger} [logger] Optional Logger, used when reconfiguring existing loggers
  *
  * @properties={typeid:24,uuid:"1086E0C7-EE0E-4A8B-B208-9E27A4057B9F"}
  */
@@ -688,7 +645,7 @@ function LoggerInternal(name, logger) {
 				this.invalidateAppenderCache();
 			}
 		} else {
-			logLog.error("Logger.addAppender: appender supplied ('" + appender + "') is not a subclass of Appender");
+			statusLogger.error("Logger.addAppender: appender supplied ('" + appender + "') is not a subclass of Appender");
 		}
 	};
 	
@@ -759,7 +716,7 @@ function LoggerInternal(name, logger) {
 		return appenderCache;
 	};
 	
-	this.isAttached = function(){}
+//	this.isAttached = function(){}
 
 	this.invalidateAppenderCache = function() {
 		appenderCacheInvalidated = true;
@@ -776,19 +733,33 @@ function LoggerInternal(name, logger) {
 	}
 
 	/**
-	 * Call the appenders in the hierrachy starting at this. If no appenders could be found, emit a warning<br>
-	 * <br>
-	 * This method calls all the appenders inherited from the hierarchy circumventing any evaluation of whether to log or not to log the particular log request<br>
-	 * <br>
-	 * @public 
-	 * @param {LoggingEvent} loggingEvent
+	 * @param {Level} level
+	 * @param {*} message 
+	 * @param {Error} [exception]
 	 */
-	this.callAppenders = function(loggingEvent) {
+	this.log = function(level, message, exception) {
+		var loggingEvent = new LoggingEvent(this, new Date(), level, message, exception);
+
 		var effectiveAppenders = this.getEffectiveAppenders();
 		for (var i = 0; i < effectiveAppenders.length; i++) {
 			effectiveAppenders[i].doAppend(loggingEvent);
 		}
-	};
+	}
+	
+//	/**
+//	 * Call the appenders in the hierarchy starting at this. If no appenders could be found, emit a warning<br>
+//	 * <br>
+//	 * This method calls all the appenders inherited from the hierarchy circumventing any evaluation of whether to log or not to log the particular log request<br>
+//	 * <br>
+//	 * @public 
+//	 * @param {LoggingEvent} loggingEvent
+//	 */
+//	this.callAppenders = function(loggingEvent) {
+//		var effectiveAppenders = this.getEffectiveAppenders();
+//		for (var i = 0; i < effectiveAppenders.length; i++) {
+//			effectiveAppenders[i].doAppend(loggingEvent);
+//		}
+//	};
 	
 	/**
 	 * Sets the level. Log messages of a lower level than level will not be logged. Default value is DEBUG<br>
@@ -799,14 +770,16 @@ function LoggerInternal(name, logger) {
 	this.setLevel = function(level) {
 		// Having a level of null on the root logger would be very bad.
 		if (this.isRoot && level === null) {
-			logLog.error("Logger.setLevel: you cannot set the level of the root logger to null");
-		} else if (level instanceof Level) {
-			this.setEffectiveLevel(level)
+			statusLogger.error("Logger.setLevel: you cannot set the level of the root logger to null");
+		} else if (level === loggerLevel) { 
+			return
+		} else if (level instanceof Level || level === null) {
 			loggerLevel = level;
+			this.setEffectiveLevel(level||this.getParent().effectiveLevel)
 		} else {
-			logLog.error("Logger.setLevel: level supplied to logger " + this.name + " is not an instance of log4javascript.Level");
+			statusLogger.error("Logger.setLevel: level supplied to logger " + this.name + " is not an instance of log4javascript.Level");
 		}
-	};
+	}
 
 	/**
 	 * Returns the level explicitly set for this logger or null if none has been set<br>
@@ -818,24 +791,26 @@ function LoggerInternal(name, logger) {
 		return loggerLevel;
 	};
 
+	/**
+	 * @param {Level} level
+	 */
 	this.setEffectiveLevel = function(level) {
-		if (loggerLevel === null) {
-			this.effectiveLevel = level
-			for (var i = 0; i < children.length; i++) {
-				children[i].setEffectiveLevel(level)
-			}
+		statusLogger.trace('Setting effectiveLevel on "' + this.name + '" to ' + level)
+		this.effectiveLevel = level
+		for (var i = 0; i < children.length; i++) {
+			children[i].setEffectiveLevel(level)
 		}
 	}
 	
-	/**
-	 * Returns the level at which the logger is operating. This is either the level explicitly set on the logger or, if no level has been set, the effective level of the logger's parent<br>
-	 * <br>
-	 * @public
-	 * @return {Level}
-	 */
-	this.getEffectiveLevel = function() {
-		return this.effectiveLevel;
-	}
+//	/**
+//	 * Returns the level at which the logger is operating. This is either the level explicitly set on the logger or, if no level has been set, the effective level of the logger's parent<br>
+//	 * <br>
+//	 * @public
+//	 * @return {Level}
+//	 */
+//	this.getEffectiveLevel = function() {
+//		return this.effectiveLevel;
+//	}
 
 	/**
 	 * @return {String}
@@ -851,12 +826,15 @@ function LoggerInternal(name, logger) {
 }
 
 /**
+ * @private
+ * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"0F992E15-B252-4AC8-9041-F2AF6A132DE2",variableType:-4}
  */
 var initLoggerInternal = (function(){
 	LoggerInternal.prototype = new LogPlugin() //Object.create(LogPlugin.prototype)
 	LoggerInternal.prototype.constructor = LoggerInternal
 	
+	//TODO: this PluginFactory is not yet used anywhere
 	LoggerInternal.PluginFactory = function(config) {
 		var retval = new LoggerInternal(config.name)
 				
@@ -891,41 +869,37 @@ var initLoggerInternal = (function(){
 }())
 
 /**
+ * @typedef {{
+ * 	name: String,
+ *  effectiveLevel: Level,
+ *  log: function
+ * }}
+ * @private 
+ * @SuppressWarnings(unused)
+ *
+ * @properties={typeid:35,uuid:"008FD40C-B8C7-4458-B7C3-E68C68B00319",variableType:-4}
+ */
+var internalType
+
+/**
  * @private
  * @constructor 
- * @param {LoggerInternal} internal
+ * @param {internalType} internal
  *
  * @properties={typeid:24,uuid:"118575D2-E51F-4294-97AE-E5F515B7A821"}
  */
 function Logger(internal) {
 	/**
-	 * Generic logging method used by wrapper methods such as debug, error etc<br>
+	 * Generic logging method<br>
 	 * <br>
 	 * @public 
 	 * @param {Level} level
-	 * @param {Array<Object>} params Array with messages to log. Last entry can be an Error
+	 * @param {*} message 
+	 * @param {Error} [exception]
 	 */
-	this.log = function(level, params) {
+	this.log = function(level, message, exception) {
 		if (level.intLevel >= internal.effectiveLevel.intLevel) {
-			// Check whether last param is an exception
-			/** @type {Error} */
-			var exception;
-			var finalParamIndex = params.length - 1;
-			var lastParam = params[finalParamIndex];
-			if (params.length > 1 && (lastParam instanceof Error)) {
-				exception = lastParam;
-				finalParamIndex--;
-			}
-
-			// Construct genuine array for the params
-			var messages = [];
-			for (var i = 0; i <= finalParamIndex; i++) {
-				messages[i] = params[i];
-			}
-
-			var loggingEvent = new LoggingEvent(internal, new Date(), level, messages, exception);
-
-			internal.callAppenders(loggingEvent);
+			internal.log(level, message, exception)
 		}
 	}
 	
@@ -933,11 +907,13 @@ function Logger(internal) {
 	 * Logs a message and optionally an error at level TRACE<br>
 	 * <br>
 	 * @public
-	 * @param {Object} message
+	 * @param {*} message
 	 * @param {Error} [exception]
 	 */
 	this.trace = function(message, exception) {
-		this.log(Level.TRACE, arguments);
+		if (Level.TRACE.intLevel >= internal.effectiveLevel.intLevel) {
+			internal.log(Level.TRACE, message, exception);
+		}
 	}
 	/**
 	 * Logs a message and optionally an error at level DEBUG<br>
@@ -947,7 +923,9 @@ function Logger(internal) {
 	 * @param {Error} [exception]
 	 */
 	this.debug = function(message, exception) {
-		this.log(Level.DEBUG, arguments);
+		if (Level.DEBUG.intLevel >= internal.effectiveLevel.intLevel) {
+			internal.log(Level.DEBUG, message, exception);
+		}			
 	}
 	/**
 	 * Logs a message and optionally an error at level INFO<br>
@@ -957,7 +935,9 @@ function Logger(internal) {
 	 * @param {Error} [exception]
 	 */
 	this.info = function(message, exception) {
-		this.log(Level.INFO, arguments);
+		if (Level.INFO.intLevel >= internal.effectiveLevel.intLevel) {
+			internal.log(Level.INFO, message, exception);
+		}			
 	}
 	/**
 	 * Logs a message and optionally an error at level WARN<br>
@@ -967,7 +947,9 @@ function Logger(internal) {
 	 * @param {Error} [exception]
 	  */
 	this.warn = function(message, exception) {
-		this.log(Level.WARN, arguments);
+		if (Level.WARN.intLevel >= internal.effectiveLevel.intLevel) {
+			internal.log(Level.WARN, message, exception);
+		}			
 	}
 	/**
 	 * Logs a message and optionally an error at level ERROR<br>
@@ -977,7 +959,9 @@ function Logger(internal) {
 	 * @param {Error} [exception]
 	 */
 	this.error = function(message, exception) {
-		this.log(Level.ERROR, arguments);
+		if (Level.ERROR.intLevel >= internal.effectiveLevel.intLevel) {
+			internal.log(Level.ERROR, message, exception);
+		}			
 	}
 	/**
 	 * Logs a message and optionally an error at level FATAL<br>
@@ -987,7 +971,9 @@ function Logger(internal) {
 	 * @param {Error} [exception]
 	 */
 	this.fatal = function(message, exception) {
-		this.log(Level.FATAL, arguments);
+		if (Level.FATAL.intLevel >= internal.effectiveLevel.intLevel) {
+			internal.log(Level.FATAL, message, exception);
+		}
 	}
 	
 	/**
@@ -1072,7 +1058,7 @@ function Logger(internal) {
 var loggers = {};
 	
 /**
-* @private
+* @public
 * @type {String}
 *
 * @properties={typeid:35,uuid:"7AA018E7-ACA9-4215-9117-597DF91D7D16"}
@@ -1106,16 +1092,6 @@ function getRootLoggerInternal() {
 }
 
 /**
- * Returns the root logger from which all other loggers derive<br>
- * <br>
- * @public 
- * @properties={typeid:24,uuid:"8316507A-C3C1-4FDB-9A02-486F725ACD51"}
- */
-function getRootLogger() {
-	return rootLogger||getRootLoggerInternal().externalLogger
-}
-
-/**
  * Returns a logger with the specified name, creating it if a logger with that name does not already exist<br>
  * <br>
  * Note that the name 'root' is reserved for the root logger<br>
@@ -1131,9 +1107,8 @@ function getLogger(loggerName) {
 		throw scopes.modUtils$exceptions.IllegalArgumentException('non-string logger name "' + loggerName + '" supplied')
 	}
 
-	// Do not allow retrieval of the root logger by name
 	if (loggerName == ROOT_LOGGER_NAME) {
-		logLog.error("log4javascript.getLogger: root logger may not be obtained by name");
+		return (rootLogger||getRootLoggerInternal()).externalLogger
 	}
 
 	// Create the logger for this name if it doesn't already exist
@@ -1150,27 +1125,14 @@ function getLogger(loggerName) {
 					for (var p = 0; p < keys.length; p++) {
 						switch (keys[p]) {
 							case 'level':
-								logger.setLevel(Level.toLevel(logConfig['level']))
+								statusLogger.trace('Setting level on "' + loggerName + '" to ' + logConfig.level)
+								logger.setLevel(Level.toLevel(logConfig.level))
 								break;
 							case 'additivity':
-								logger.setAdditivity(logConfig['additivity'] == false ? false: true) //TODO: Better true/false determination needed
+								logger.setAdditivity(logConfig.hasOwnProperty('additivity') && typeof logConfig.additivity == 'boolean' ? logConfig.additivity : true)
 								break;
 							case 'AppenderRef':
-							logger.addAppender(getAppenderForRef(logConfig.AppenderRef))
-							
-//								//FIXME: multiple loggers using the same named Appender should not result in multiple Appender instances
-//								//TODO: How to configure multiple appenders?
-//								for (var j = 0; j < config.appenders.length; j++) {
-//									var appenderConfig = config.appenders[j]
-//									if (appenderConfig.name == logConfig['AppenderRef'].ref) {
-//										var appenderConstructor = logPlugins[appenderConfig.type]
-//										if (!appenderConstructor || !(appenderConstructor instanceof AbstractAppender)) { //CHECKME: second check needed or is the contents of logPlugins under out direct control
-//											//TODO: raise config error
-//										} else {
-//											logger.addAppender(appenderConstructor['PluginFactory'](appenderConfig))
-//										}
-//									}
-//								}
+								logger.addAppender(getAppenderForRef(logConfig.AppenderRef))
 								break;
 							default:
 								//TODO: log unknown config keys
@@ -1180,7 +1142,7 @@ function getLogger(loggerName) {
 				}
 			}
 		}
-		
+		statusLogger.trace('Getting parent for "' + loggerName + '"')
 		var parentName = loggerName
 		var parent
 		while (!parent && parentName) {
@@ -1188,7 +1150,10 @@ function getLogger(loggerName) {
 			parent = loggers[parentName]
 		}
 		parent = parent||getRootLoggerInternal()
-		logger.setEffectiveLevel(parent.effectiveLevel)
+		statusLogger.trace('Found parent is "' + parent.getName() + '"')
+		if (!logger.getLevel()) {
+			logger.setEffectiveLevel(parent.effectiveLevel)
+		}
 		parent.addChild(logger)
 		return logger.externalLogger;
 	}
@@ -1203,19 +1168,19 @@ function getLogger(loggerName) {
  * @param {LoggerInternal} logger
  * @param {Date} timeStamp
  * @param {Level} level
- * @param {Array<String>} messages
+ * @param {String} message
  * @param {Error} exception
  *
  * @properties={typeid:24,uuid:"40428863-BCA7-42D5-9B8D-D276C1A00B5F"}
  */
-function LoggingEvent(logger, timeStamp, level, messages, exception) {
+function LoggingEvent(logger, timeStamp, level, message, exception) {
 	this.logger = logger;
 	this.timeStamp = timeStamp;
 	this.timeStampInMilliseconds = timeStamp.getTime();
 	this.timeStampInSeconds = Math.floor(this.timeStampInMilliseconds / 1000);
 	this.milliseconds = this.timeStamp.getMilliseconds();
 	this.level = level;
-	this.messages = messages;
+	this.message = message;
 	this.exception = exception;
 }
 
@@ -1226,11 +1191,8 @@ function LoggingEvent(logger, timeStamp, level, messages, exception) {
  */
 var loggingEventInit = (function() {
 	LoggingEvent.prototype = {
-		getThrowableStrRep: function() {
+		getThrowableStrRep: function() { //CHECKME This seems to not get called from anywhere
 			return this.exception ? getExceptionStringRep(this.exception) : "";
-		},
-		getCombinedMessages: function() {
-			return (this.messages.length == 1) ? this.messages[0] : this.messages.join(NEW_LINE);
 		},
 		toString: function() {
 			return "LoggingEvent[" + this.level + "]";
@@ -1239,10 +1201,12 @@ var loggingEventInit = (function() {
 }())
 
 /* -------------------------------LogPlugin prototype--------------------------------------- */
+//TODO: not all LogPlugins implement the required static PluginFactory method
 /**
- * Empty base class for all classes that are to be configurable Log components
- * @constructor 
- * @private 
+ * Empty base class for all classes that are to be configurable Log components</br>
+ * Each LogPlugin subclass must provide a static PluginFactory method that takes a config snippet as parameter and returns an instance of itself
+ * @constructor
+ * @public
  * @properties={typeid:24,uuid:"B7FBEA4D-EF81-4471-846A-193E058267A1"}
  */
 function LogPlugin (){}
@@ -1280,10 +1244,7 @@ function AbstractAppender() {
 	
 	this.layout = new PatternLayout(); //CHECKME: does this need to be initialized to a PatternLayout w/o any pattern?
 	this.threshold = Level.ALL;
-//	this.loggers = [];
 
-	// Performs threshold checks before delegating actual logging to the
-	// subclass's specific append method.
 	/**
 	 * Checks the logging event's level is at least as severe as the appender's threshold and calls the appender's append method if so.<br>
 	 * <br>
@@ -1317,7 +1278,7 @@ function AbstractAppender() {
 		if (layout instanceof AbstractLayout) {
 			this.layout = layout;
 		} else {
-			logLog.error("Appender.setLayout: layout supplied to " + this.toString() + " is not a subclass of Layout");
+			statusLogger.error("Appender.setLayout: layout supplied to " + this.toString() + " is not a subclass of Layout");
 		}
 	};
 
@@ -1341,19 +1302,9 @@ function AbstractAppender() {
 		if (threshold instanceof Level) {
 			this.threshold = threshold;
 		} else {
-			logLog.error("Appender.setThreshold: threshold supplied to " + this.toString() + " is not a subclass of Level");
+			statusLogger.error("Appender.setThreshold: threshold supplied to " + this.toString() + " is not a subclass of Level");
 		}
 	};
-
-//	/**
-//	 * Returns the appender's threshold<br>
-//	 * <br>
-//	 * @public
-//	 * @return {Level}
-//	 */
-//	this.getThreshold = function() {
-//		return this.threshold;
-//	};
 	
 	this.getName = function() {
 		return this.appenderName;
@@ -1363,23 +1314,12 @@ function AbstractAppender() {
 		this.appenderName = name
 	}
 
-//	this.setAddedToLogger = function(logger) {
-//		this.loggers.push(logger);
-//	};
-//
-//	this.setRemovedFromLogger = function(logger) {
-//		var i = this.loggers.indexOf(logger)
-//		if (i != -1) {
-//			this.loggers.splice(i,1)
-//		}
-//	};
-
 	/**
 	 * @public
 	 * @return {String}
 	 */
 	this.toString = function() {
-		logLog.error("Appender.toString: all appenders must override this method");
+		statusLogger.error("Appender.toString: all appenders must override this method");
 		return null
 	};
 };
@@ -1400,7 +1340,10 @@ var AbstractAppenderInit = (function(){
 }())
 
 /**
- * Simple Appender that performs application.output
+ * Simple Appender that performs application.output<br>
+ * <br>
+ * Logs the Level.ALL and Level.TRACE as Level.DEBUG<br>
+ * <br>
  * @private 
  * @constructor 
  * @extends {AbstractAppender}
@@ -1414,7 +1357,13 @@ function ApplicationOutputAppender() {
 	 * @param {LoggingEvent} loggingEvent
 	 */
 	this.append = function(loggingEvent) {
-        /*
+		var lvl = loggingEvent.level.intLevel
+		if (lvl < LOGGINGLEVEL.DEBUG) { //All or TRACE
+			lvl = LOGGINGLEVEL.DEBUG
+		} else if (lvl > LOGGINGLEVEL.FATAL) { //OFF
+			return 
+		}
+		/*
          * By default Servoy logs in different way, depending on the type of client and the type of output
          * - In Smart Client (J2DBClient.java) System.out/err.println is used
          * - In Web Client (SessionClient.java) it is delegated to Debug.java, which instantiates a log4j Logger, through org.apache.commons.logging.LogFactory for the com.servoy.j2db.util.Debug class
@@ -1427,18 +1376,16 @@ function ApplicationOutputAppender() {
          * 
          * Then there's also the Public Java API to report errors/warnings etc.
          */
-        var msg = this.layout.format(loggingEvent)//loggingEvent.messages[0]
+        var msg = this.layout.format(loggingEvent)
         if (loggingEvent.exception) {
         	msg += NEW_LINE + loggingEvent.exception.name + ': ' + loggingEvent.exception.message + NEW_LINE + loggingEvent.exception['stack']
         }
-        application.output(msg, loggingEvent.level.intLevel) //TODO: handle TRACE, ALL and OFF
+        application.output(msg, lvl)
     }
 	
     this.toString = function() {
     	return 'ApplicationOutputAppender'
     }
-    
-   
 }
 
 /**
@@ -1526,14 +1473,14 @@ function AbstractLayout() {
 	 * @public
 	 */
 	this.format = function() {
-		logLog.error("Layout.format: layout supplied has no format() method");
+		statusLogger.error("Layout.format: layout supplied has no format() method");
 	}
 
 	/**
 	 * @public
 	 */
 	this.ignoresThrowable = function() {
-		logLog.error("Layout.ignoresThrowable: layout supplied has no ignoresThrowable() method");
+		statusLogger.error("Layout.ignoresThrowable: layout supplied has no ignoresThrowable() method");
 	}
 
 	this.getContentType = function() {
@@ -1556,22 +1503,26 @@ function AbstractLayout() {
 		return this.overrideTimeStampsSetting ? this.useTimeStampsInMilliseconds : useTimeStampsInMilliseconds;
 	}
 
+	/**
+	 * @param {LoggingEvent} loggingEvent
+	 * @return {Number}
+	 */
 	this.getTimeStampValue = function(loggingEvent) {
 		return this.isTimeStampsInMilliseconds() ? loggingEvent.timeStampInMilliseconds : loggingEvent.timeStampInSeconds;
 	}
 
 	/**
 	 * @param {LoggingEvent} loggingEvent
-	 * @param {Object} combineMessages
-	 * @return {Array<Array>}
+	 * @return {Array<Array<String|Date>>}
 	 */
-	this.getDataValues = function(loggingEvent, combineMessages) {
+	this.getDataValues = function(loggingEvent) {
 		var dataValues = [
 			[this.loggerKey, loggingEvent.logger.name],
 			[this.timeStampKey, this.getTimeStampValue(loggingEvent)],
 			[this.levelKey, loggingEvent.level.name],
-			[this.urlKey, window.location.href], //FIXME
-			[this.messageKey, combineMessages ? loggingEvent.getCombinedMessages() : loggingEvent.messages]];
+			//[this.urlKey, window.location.href], //FIXME
+			[this.messageKey, loggingEvent.message]
+		];
 		if (!this.isTimeStampsInMilliseconds()) {
 			dataValues.push([this.millisecondsKey, loggingEvent.milliseconds]);
 		}
@@ -1635,7 +1586,7 @@ function AbstractLayout() {
 	 * @public
 	 */
 	this.toString = function() {
-		logLog.error("Layout.toString: all layouts must override this method");
+		statusLogger.error("Layout.toString: all layouts must override this method");
 	}
 }
 
@@ -1670,8 +1621,12 @@ var simpleLayoutInit = (function() {
 	SimpleLayout.prototype = new AbstractLayout() //Object.create(AbstractLayout.prototype);
 	SimpleLayout.prototype.constructor = SimpleLayout
 
+	/**
+	 * @param {LoggingEvent} loggingEvent
+	 * @return {String}
+	 */
 	SimpleLayout.prototype.format = function(loggingEvent) {
-		return loggingEvent.level.name + " - " + loggingEvent.getCombinedMessages();
+		return loggingEvent.level.name + " - " + loggingEvent.message;
 	};
 
 	SimpleLayout.prototype.ignoresThrowable = function() {
@@ -1707,7 +1662,7 @@ var nullLayoutInit = (function() {
 	NullLayout.prototype.constructor = NullLayout
 
 	NullLayout.prototype.format = function(loggingEvent) {
-		return loggingEvent.messages;
+		return loggingEvent.message;
 	};
 
 	NullLayout.prototype.ignoresThrowable = function() {
@@ -1726,12 +1681,10 @@ var nullLayoutInit = (function() {
  * @private 
  * @constructor
  * @extends {AbstractLayout}
- * @param {Object} combineMessages
  *
  * @properties={typeid:24,uuid:"E33DAAA2-193B-4080-8805-1D3452AA08BD"}
  */
-function XmlLayout(combineMessages) {
-	this.combineMessages = typeof combineMessages != "undefined" ? Boolean(combineMessages) : true;
+function XmlLayout() {
 	this.customFields = [];
 }
 
@@ -1743,10 +1696,6 @@ function XmlLayout(combineMessages) {
 var xmlLayoutInit = (function() {
 			XmlLayout.prototype = new AbstractLayout() //Object.create(AbstractLayout.prototype);
 			XmlLayout.prototype.constructor = XmlLayout
-			
-			XmlLayout.prototype.isCombinedMessages = function() {
-				return this.combineMessages;
-			};
 
 			XmlLayout.prototype.getContentType = function() {
 				return "text/xml";
@@ -1764,27 +1713,17 @@ var xmlLayoutInit = (function() {
 			XmlLayout.prototype.format = function(loggingEvent) {
 				var layout = this;
 				var i, len;
-				function formatMessage(message) {
-					message = (typeof message === "string") ? message : '' + message;
-					return "<log4javascript:message><![CDATA[" + layout.escapeCdata(message) + "]]></log4javascript:message>"; //FIXME
-				}
-
+				
 				var str = "<log4javascript:event logger=\"" + loggingEvent.logger.name + "\" timestamp=\"" + this.getTimeStampValue(loggingEvent) + "\"";
 				if (!this.isTimeStampsInMilliseconds()) {
 					str += " milliseconds=\"" + loggingEvent.milliseconds + "\"";
 				}
 				str += " level=\"" + loggingEvent.level.name + "\">" + NEW_LINE;
-				if (this.combineMessages) {
-					str += formatMessage(loggingEvent.getCombinedMessages());
-				} else {
-					str += "<log4javascript:messages>" + NEW_LINE;
-					for (i = 0, len = loggingEvent.messages.length; i < len; i++) {
-						str += formatMessage(loggingEvent.messages[i]) + NEW_LINE;
-					}
-					str += "</log4javascript:messages>" + NEW_LINE;
-				}
-				if (this.hasCustomFields()) { //FIXME
-					for (i = 0, len = this.customFields.length; i < len; i++) { //FIXME
+				
+				str += "<log4javascript:message><![CDATA[" + layout.escapeCdata((typeof loggingEvent.message === "string") ? loggingEvent.message : '' + loggingEvent.message) + "]]></log4javascript:message>";
+				
+				if (this.hasCustomFields()) {
+					for (i = 0, len = this.customFields.length; i < len; i++) {
 						str += "<log4javascript:customfield name=\"" + this.customFields[i].name + "\"><![CDATA[" + this.customFields[i].value.toString() + "]]></log4javascript:customfield>" + NEW_LINE;
 					}
 				}
@@ -1823,13 +1762,11 @@ function escapeNewLines(str) {
  * @extends {AbstractLayout}
  *
  * @param {Object} readable
- * @param {Object} combineMessages
  *
  * @properties={typeid:24,uuid:"340D216B-0285-475B-82D9-560E6D6E183B"}
  */
-function JsonLayout(readable, combineMessages) {
+function JsonLayout(readable) {
 	this.readable = typeof readable != "undefined" ? Boolean(readable) : false;
-	this.combineMessages = typeof combineMessages != "undefined" ? Boolean(combineMessages) : true;
 	this.batchHeader = this.readable ? "[" + NEW_LINE : "[";
 	this.batchFooter = this.readable ? "]" + NEW_LINE : "]";
 	this.batchSeparator = this.readable ? "," + NEW_LINE : ",";
@@ -1853,10 +1790,6 @@ var jsonLayoutInit = (function() {
 			return this.readable;
 		};
 
-		JsonLayout.prototype.isCombinedMessages = function() { //FIXME
-			return this.combineMessages;
-		};
-
 		/**
 		 * @param {LoggingEvent} loggingEvent
 		 * @return {String}
@@ -1865,7 +1798,7 @@ var jsonLayoutInit = (function() {
 		JsonLayout.prototype.format = function(loggingEvent) {
 			var layout = this;
 			/** @type {Array} */
-			var dataValues = this.getDataValues(loggingEvent, this.combineMessages);
+			var dataValues = this.getDataValues(loggingEvent);
 			var str = "{" + this.lineBreak;
 			var i, len;
 
@@ -1925,6 +1858,7 @@ var jsonLayoutInit = (function() {
 /* ---------------------------------HttpPostDataLayout------------------------------------- */
 /**
  * @private 
+ * @constructor 
  * @extends {AbstractLayout}
  *
  * @properties={typeid:24,uuid:"7027598D-2240-43BD-84A3-05F5BA79B6CC"}
@@ -1941,45 +1875,56 @@ function HttpPostDataLayout() {
  * @properties={typeid:35,uuid:"BB86A214-5807-443C-A4F0-934F4671552D",variableType:-4}
  */
 var httpPostdataLayoutInit = (function() {
-		HttpPostDataLayout.prototype = new AbstractLayout() //Object.create(AbstractLayout.prototype);
-		HttpPostDataLayout.prototype.constructor = HttpPostDataLayout
-			
-		// Disable batching
-		HttpPostDataLayout.prototype.allowBatching = function() {
-			return false;
-		};
-
-		/**
-		 * @param {LoggingEvent} loggingEvent
-		 * @return {String}
-		 */
-		HttpPostDataLayout.prototype.format = function(loggingEvent) {
-			var dataValues = this.getDataValues(loggingEvent);
-			var queryBits = [];
-			for (var i = 0, len = dataValues.length; i < len; i++) {
-				var val = (dataValues[i][1] instanceof Date) ? String(dataValues[i][1].getTime()) : dataValues[i][1];
-				queryBits.push(encodeURIComponent(dataValues[i][0]) + "=" + encodeURIComponent(val));
-			}
-			return queryBits.join("&");
-		};
-
-		HttpPostDataLayout.prototype.ignoresThrowable = function(loggingEvent) {
-			return false;
-		};
-
-		HttpPostDataLayout.prototype.toString = function() {
-			return "HttpPostDataLayout";
-		};
+	HttpPostDataLayout.prototype = new AbstractLayout() //Object.create(AbstractLayout.prototype);
+	HttpPostDataLayout.prototype.constructor = HttpPostDataLayout
 		
-		logPlugins['HttpPostDataLayout'] = HttpPostDataLayout
-	}())
+	// Disable batching
+	HttpPostDataLayout.prototype.allowBatching = function() {
+		return false;
+	};
+
+	/**
+	 * @param {LoggingEvent} loggingEvent
+	 * @return {String}
+	 * @this {HttpPostDataLayout}
+	 */
+	HttpPostDataLayout.prototype.format = function(loggingEvent) {
+		var dataValues = this.getDataValues(loggingEvent);
+		var queryBits = [];
+		for (var i = 0, len = dataValues.length; i < len; i++) {
+			/** @type {Date} */
+			var date = (dataValues[i][1] instanceof Date) ? dataValues[i][1] : null 
+			var val = date ? date.getTime() : dataValues[i][1];
+			queryBits.push(encodeURIComponent(dataValues[i][0].toString()) + "=" + encodeURIComponent(val));
+		}
+		return queryBits.join("&");
+	};
+
+	HttpPostDataLayout.prototype.ignoresThrowable = function(loggingEvent) {
+		return false;
+	};
+
+	HttpPostDataLayout.prototype.toString = function() {
+		return "HttpPostDataLayout";
+	};
+	
+	logPlugins['HttpPostDataLayout'] = HttpPostDataLayout
+}())
 
 /* --------------------------------formatObjectExpansion-------------------------------------- */
+/* TODO: replace this utility method with JSON.Stringify:
+ * - Take care of cyclic references using a replacer function
+ * - strip out the double quotes around the keys using regex: http://stackoverflow.com/questions/11233498/json-stringify-without-quotes-on-properties
+ */
+
 /**
+ * Helper method that stringifies Objects (and prevents recursion while doing that)
+ * 
  * @private
- * @param object
+ * @param {*} object
  * @param {Number} maxdepth
- * @param [indent]
+ * @param {String} [indent]
+ * @return {String}
  *
  * @properties={typeid:24,uuid:"A20BF81C-84B3-4D88-AFF2-966B67B173B1"}
  */
@@ -2099,7 +2044,7 @@ var patternLayoutInit = (function() {
 		 */
 		PatternLayout.prototype.format = function(loggingEvent) {
 			//TODO: for every logged message the entire config is parsed again. Maybe need to cache something to improve performance
-			var regex = /%(-?[0-9]+)?(\.?[0-9]+)?(message|msg|logger|date|level|relative|thread|[acdfmnprt%])(\{([^\}]+)\})?|([^%]+)/;
+			var regex = /%(-?[0-9]+)?(\.?[0-9]+)?(message|msg|logger|date|level|relative|thread|[cdfmnprt%])(\{([^\}]+)\})?|([^%]+)/;
 			var formattedString = "";
 			/** @type {Array<String>} */
 			var result;
@@ -2118,13 +2063,11 @@ var patternLayoutInit = (function() {
 
 				// Check if the pattern matched was just normal text
 				if (text) {
-					formattedString += "" + text;
+					formattedString += '' + text;
 				} else {
-					// Create a raw replacement string based on the conversion
-					// character and specifier
-					var replacement = "";
+					// Create a raw replacement string based on the conversion character and specifier
+					var replacement = '';
 					switch (conversionCharacter) {
-						case 'a': // Array of messages
 						case 'message':
 						case 'msg':
 						case 'm': // Message
@@ -2132,21 +2075,12 @@ var patternLayoutInit = (function() {
 							if (specifier) {
 								depth = parseInt(specifier, 10);
 								if (isNaN(depth)) {
-									logLog.error("PatternLayout.format: invalid specifier '" + specifier + "' for conversion character '" + conversionCharacter + "' - should be a number");
+									statusLogger.error("PatternLayout.format: invalid specifier '" + specifier + "' for conversion character '" + conversionCharacter + "' - should be a number");
 									depth = 0;
 								}
 							}
-							var messages = (conversionCharacter === "a") ? loggingEvent.messages[0] : loggingEvent.messages;
-							for (var i = 0, len = messages.length; i < len; i++) {
-								if (i > 0 && (replacement.charAt(replacement.length - 1) !== " ")) {
-									replacement += " ";
-								}
-								if (depth === 0) {
-									replacement += messages[i];
-								} else {
-									replacement += formatObjectExpansion(messages[i], depth);
-								}
-							}
+							
+							replacement += depth === 0 ? loggingEvent.message : formatObjectExpansion(loggingEvent.message, depth);
 							break;
 						case 'logger':
 						case 'c':
@@ -2216,11 +2150,11 @@ var patternLayoutInit = (function() {
 								if (specifier) {
 									fieldIndex = parseInt(specifier, 10);
 									if (isNaN(fieldIndex)) {
-										logLog.error("PatternLayout.format: invalid specifier '" + specifier + "' for conversion character 'f' - should be a number");
+										statusLogger.error("PatternLayout.format: invalid specifier '" + specifier + "' for conversion character 'f' - should be a number");
 									} else if (fieldIndex === 0) {
-										logLog.error("PatternLayout.format: invalid specifier '" + specifier + "' for conversion character 'f' - must be greater than zero");
+										statusLogger.error("PatternLayout.format: invalid specifier '" + specifier + "' for conversion character 'f' - must be greater than zero");
 									} else if (fieldIndex > this.customFields.length) {
-										logLog.error("PatternLayout.format: invalid specifier '" + specifier + "' for conversion character 'f' - there aren't that many custom fields");
+										statusLogger.error("PatternLayout.format: invalid specifier '" + specifier + "' for conversion character 'f' - there aren't that many custom fields");
 									} else {
 										fieldIndex = fieldIndex - 1;
 									}
@@ -2326,3 +2260,57 @@ var patternLayoutInit = (function() {
 		
 	}()
 )
+
+/* --------------------------------Simple logging for log4javascript itself-------------------------------------- */
+/**
+ * @private
+ * @properties={typeid:35,uuid:"7BA41465-E0B4-4A49-9A83-FA49AF7E644C",variableType:-4}
+ */
+var statusLoggerInternal = {
+	name: 'StatusLogger',
+	effectiveLevel: Level.DEBUG,
+	setLevel: function(level) {
+		this.effectiveLevel = level
+	},
+	/**
+	 * @param {Level} level
+	 * @param {*} message
+	 * @param {Error} exception
+	 */
+	log: function(level, message, exception) {
+		var lvl = level.intLevel
+		if (lvl < LOGGINGLEVEL.DEBUG) { //All or TRACE
+			lvl = LOGGINGLEVEL.DEBUG
+		} else if (lvl > LOGGINGLEVEL.FATAL) { //OFF
+			return 
+		}
+		var msg = utils.dateFormat(new Date(), "yyyy-MM-dd HH:mm:ss,SSS ") + level.toString() + ' '
+		msg += message
+		if (exception) {
+			msg += NEW_LINE + exception //CHECKME: need to better format and include more info, like stack?
+		}
+		
+		application.output(msg, lvl)
+	}
+}
+
+/**
+ * Logger to be used by LogPlugins
+ * @type {Logger}
+ * @private
+ *
+ * @properties={typeid:35,uuid:"EB873CA1-E87F-45C5-8466-92A241156D3F",variableType:-4}
+ */
+var statusLogger = new Logger(statusLoggerInternal)
+
+/**
+ * Gets the logger to be used in LogPlugins for logging messages about the internals of the LogPlugin itself.
+ * 
+ * Used for debugging internal and configuration issues of the LogManager 
+ * @public
+ * @return {Logger}
+ * @properties={typeid:24,uuid:"1B89A7F7-9F24-40D5-A26D-8994D7BE1C04"}
+ */
+function getStatusLogger() {
+	return statusLogger
+}
