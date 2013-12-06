@@ -34,8 +34,8 @@ function test_getJSFormForInput() {
 	jsunit.assertTrue(application.createNewFormInstance(id, id + '_2'))
 	jsunit.assertTrue(application.createNewFormInstance(id, id + '_3'))
 	
-	jsunit.assertEquals(smForm, scopes.modUtils$UI.getJSFormForInput(id + '_3'))
-	jsunit.assertEquals(smForm, scopes.modUtils$UI.getJSFormForInput(forms[id + '_3']))
+	jsunit.assertEquals(smForm, scopes.modUtils$UI.getJSFormForReference(id + '_3'))
+	jsunit.assertEquals(smForm, scopes.modUtils$UI.getJSFormForReference(forms[id + '_3']))
 	
 	jsunit.assertTrue(forms[id + '_3'] instanceof forms[id + '_2'])
 	jsunit.assertTrue(forms[id + '_2'] instanceof forms[id + '_3'])

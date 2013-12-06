@@ -4,6 +4,26 @@ height:480,
 partType:5,
 typeid:19,
 uuid:"254C1B86-219D-4ABC-9A7E-4BD47D6A6DB9"
+},
+{
+location:"89,78",
+onActionMethodID:"FD3E2929-9C13-407C-B2C0-A8E1BC4FFE9B",
+onDoubleClickMethodID:"-1",
+onRightClickMethodID:"-1",
+size:"215,51",
+text:"button",
+typeid:7,
+uuid:"3A9B8AE3-013D-4122-BB96-EBC4A5758168"
+},
+{
+location:"89,168",
+onActionMethodID:"FC615FD8-3DB1-4684-B1ED-9786D14BB032",
+onDoubleClickMethodID:"-1",
+onRightClickMethodID:"-1",
+size:"366,39",
+text:"goto Web Client callback test form",
+typeid:7,
+uuid:"AD4EB2AB-B44E-4F50-8CFB-4AAD305FBB96"
 }
 ],
 name:"dummyFirstForm",
