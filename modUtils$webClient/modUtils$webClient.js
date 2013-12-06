@@ -843,6 +843,9 @@ function generateCallback(callback, args, options) {
 				throw scopes.modUtils$exceptions.IllegalArgumentException('Callback param must be a Servoy defined method')
 			}
 			qualifiedName = fd.toMethodString()
+			if (['scopes','globals'].indexOf(qualifiedName.substring(0, qualifiedName.indexOf('.'))) == -1) {
+				qualifiedName = 'forms.' + qualifiedName
+			}
 			break;
 		case 'string':
 			qualifiedName = callback
