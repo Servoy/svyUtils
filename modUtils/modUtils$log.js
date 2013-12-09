@@ -309,14 +309,15 @@ function loadConfig(configuration) {
 	/** @type {Array<String>} */
 	var plugs = configuration.plugins ? configuration.plugins.split(',') : []
 	for (var i = 0; i < plugs.length; i++) {
-		var plugin = scopes.modUtils.getObject(utils.stringTrim(plugs[i]))
+		var plugName = utils.stringTrim(plugs[i]);
+		var plugin = scopes.modUtils.getObject(plugName)
 		if (plugin.prototype instanceof LogPlugin) {
-			logPlugins[utils.stringTrim(plugs[i])] = plugin
+			logPlugins[plugName] = plugin
 		} else {
 			if (plugin) { //Found object, but not an instanceof LogPlugin
-				statusLogger.warn("Could not find plugin: The path '" + utils.stringTrim(plugs[i]) + "' did not resolve to an object that is an instance of LogPlugin")
+				statusLogger.warn("Could not find plugin: The path '" + plugName + "' did not resolve to an object that is an instance of LogPlugin")
 			} else { //Not found
-				statusLogger.warn("Could not find plugin: The path '" + utils.stringTrim(plugs[i]) + "' did not resolve to an object")
+				statusLogger.warn("Could not find plugin: The path '" + plugName + "' did not resolve to an object")
 			}
 		}
 	}
@@ -456,8 +457,7 @@ function getAppenderForRef(appenderRef) {
 				statusLogger.error('LogPlugin of type "' + appenderConfig.type +'" not found')
 				return null
 			} else {
-				/** @type {AbstractAppender} */
-				var appender = appenderConstructor['PluginFactory'](appenderConfig)
+				var appender = getPluginInstance(appenderConfig.type, appenderConfig)
 				namedAppenders[appenderRef.ref] = appender
 				statusLogger.trace('Created Appender of type "' + appenderConfig.type + '" with name "' + appenderConfig.name + '"')
 				return appender
@@ -465,6 +465,61 @@ function getAppenderForRef(appenderRef) {
 		}
 	}
 	return null
+}
+
+/**
+ * TODO generated, please specify type and doc for the params
+ * @param type
+ * @param configNode
+ *
+ * @properties={typeid:24,uuid:"CA46514A-47F4-4DF0-B880-6033387B96E2"}
+ */
+function getPluginInstance(type, configNode) {
+	var clazz = logPlugins[type]
+	
+	/** @type {PLUGIN_FACTORY_TYPE_DEF} */
+	var factory = clazz['PluginFactory']
+	var args = []
+	var plugin
+	for (var i = 0; i < factory.parameters.length; i++) {
+		var param = factory.parameters[i]
+		if (configNode.hasOwnProperty(param.configName)) {
+			switch (typeof param.type) {
+				case 'string':
+				case 'boolean':
+				case 'number':
+					args.push(configNode[param.configName])
+					break;
+				default:
+					if (param.type == null) {
+						args.push(null)
+					} else {
+						plugin = logPlugins[param.type]
+						if (plugin) {
+							args.push(getPluginInstance(param.type, configNode[param.configName]))
+						} else {
+							statusLogger.warn("Unable to resolve type of '" + param.configName + "'")
+						}
+					}
+					break;
+			}
+		} else {
+			var keys = Object.keys(configNode)
+			var paramSet = false
+			for (var j = 0; j < keys.length; j++) {
+				plugin = logPlugins[keys[j]]
+				if (plugin && plugin.prototype instanceof param.type) {
+					args.push(getPluginInstance(keys[j], configNode[keys[j]]))
+					paramSet = true
+				}
+			}
+			if (!paramSet) {
+				args.push(undefined)
+			}
+		}
+	}
+	
+	return factory.create.apply(this, args)
 }
 
 /* ----------------------------------Levels------------------------------------ */
@@ -1212,6 +1267,17 @@ var loggingEventInit = (function() {
 function LogPlugin (){}
 
 /**
+ * @typedef {{
+ *  create: Function,
+ *  parameters: Array<{configName: String, type: *}>
+ * }}
+ * @private 
+ * @SuppressWarnings(unused)
+ * @properties={typeid:35,uuid:"278F3AAE-604B-4685-AA3E-B4317E553D24",variableType:-4}
+ */
+var PLUGIN_FACTORY_TYPE_DEF
+
+/**
  * @private 
  * @type {Object<LogPlugin>}
  * @properties={typeid:35,uuid:"F33918BB-200F-4EA9-BC61-0B4C3778DB2C",variableType:-4}
@@ -1399,36 +1465,27 @@ var initApplicationOutputAppender = (function(){
 	
 	logPlugins['ApplicationOutputAppender'] = ApplicationOutputAppender
 	
-	ApplicationOutputAppender.PluginFactory = function(config) {
-		var retval = new ApplicationOutputAppender()
-				
-		var keys = Object.keys(config)
-		for (var index = 0; index < keys.length; index++) {
-			var key = keys[index]
-			switch (key) {
-				case 'type':
-					break;
-				case 'name':
-					retval.setName(config.name)
-					break
-				case 'threshold':
-					retval.setThreshold(Level.toLevel(config.threshold))
-					break;
-				default:
-					var plugin = logPlugins[key]
-					if (plugin) {
-						if (plugin.prototype instanceof AbstractLayout) {
-							retval.setLayout(plugin['PluginFactory'](config[key]))
-						} else {
-							//Unknown plugin type
-						}
-					} else {
-						//Unknown config entry
-					}
-					break;
+	ApplicationOutputAppender.PluginFactory = {
+		parameters: [{
+				configName: 'name',
+				type: 'string'
+			}, {
+				configName: 'Layout',
+				type: AbstractLayout
 			}
+		],
+		
+		/**
+		 * @param {String} name
+		 * @param {AbstractLayout} layout
+		 * @return {ApplicationOutputAppender}
+		 */
+		create: function(name, layout) {
+			var retval = new ApplicationOutputAppender()
+			retval.setName(name)
+			retval.setLayout(layout)
+			return retval
 		}
-		return retval
 	}
 }())
 
@@ -1638,6 +1695,13 @@ var simpleLayoutInit = (function() {
 	};
 	
 	logPlugins['SimpleLayout'] = SimpleLayout
+	
+	SimpleLayout.PluginFactory = {
+		parameters: [],
+		create: function() {
+			return new SimpleLayout()
+		}
+	}
 }())
 
 /* ---------------------------------NullLayout-------------------------------------- */
@@ -1674,6 +1738,13 @@ var nullLayoutInit = (function() {
 	};
 	
 	logPlugins['NullLayout'] = NullLayout
+	
+	NullLayout.PluginFactory = {
+		parameters: [],
+		create: function(pattern) {
+			return new NullLayout()
+		}
+	}
 }())
 
 /* ---------------------------------XmlLayout------------------------------------- */
@@ -1694,55 +1765,62 @@ function XmlLayout() {
  * @properties={typeid:35,uuid:"5A02CFFB-582D-4B3F-92AD-B4DEA07071F2",variableType:-4}
  */
 var xmlLayoutInit = (function() {
-			XmlLayout.prototype = new AbstractLayout() //Object.create(AbstractLayout.prototype);
-			XmlLayout.prototype.constructor = XmlLayout
+	XmlLayout.prototype = new AbstractLayout() //Object.create(AbstractLayout.prototype);
+	XmlLayout.prototype.constructor = XmlLayout
 
-			XmlLayout.prototype.getContentType = function() {
-				return "text/xml";
-			};
+	XmlLayout.prototype.getContentType = function() {
+		return "text/xml";
+	};
 
-			XmlLayout.prototype.escapeCdata = function(str) {
-				return str.replace(/\]\]>/, "]]>]]&gt;<![CDATA[");
-			};
+	XmlLayout.prototype.escapeCdata = function(str) {
+		return str.replace(/\]\]>/, "]]>]]&gt;<![CDATA[");
+	};
 
-			/**
-			 * @param {LoggingEvent} loggingEvent
-			 * @return {String}
-			 * @this {XmlLayout}
-			 */
-			XmlLayout.prototype.format = function(loggingEvent) {
-				var layout = this;
-				var i, len;
-				
-				var str = "<log4javascript:event logger=\"" + loggingEvent.logger.name + "\" timestamp=\"" + this.getTimeStampValue(loggingEvent) + "\"";
-				if (!this.isTimeStampsInMilliseconds()) {
-					str += " milliseconds=\"" + loggingEvent.milliseconds + "\"";
-				}
-				str += " level=\"" + loggingEvent.level.name + "\">" + NEW_LINE;
-				
-				str += "<log4javascript:message><![CDATA[" + layout.escapeCdata((typeof loggingEvent.message === "string") ? loggingEvent.message : '' + loggingEvent.message) + "]]></log4javascript:message>";
-				
-				if (this.hasCustomFields()) {
-					for (i = 0, len = this.customFields.length; i < len; i++) {
-						str += "<log4javascript:customfield name=\"" + this.customFields[i].name + "\"><![CDATA[" + this.customFields[i].value.toString() + "]]></log4javascript:customfield>" + NEW_LINE;
-					}
-				}
-				if (loggingEvent.exception) {
-					str += "<log4javascript:exception><![CDATA[" + getExceptionStringRep(loggingEvent.exception) + "]]></log4javascript:exception>" + NEW_LINE;
-				}
-				str += "</log4javascript:event>" + NEW_LINE + NEW_LINE;
-				return str;
-			};
+	/**
+	 * @param {LoggingEvent} loggingEvent
+	 * @return {String}
+	 * @this {XmlLayout}
+	 */
+	XmlLayout.prototype.format = function(loggingEvent) {
+		var layout = this;
+		var i, len;
+		
+		var str = "<log4javascript:event logger=\"" + loggingEvent.logger.name + "\" timestamp=\"" + this.getTimeStampValue(loggingEvent) + "\"";
+		if (!this.isTimeStampsInMilliseconds()) {
+			str += " milliseconds=\"" + loggingEvent.milliseconds + "\"";
+		}
+		str += " level=\"" + loggingEvent.level.name + "\">" + NEW_LINE;
+		
+		str += "<log4javascript:message><![CDATA[" + layout.escapeCdata((typeof loggingEvent.message === "string") ? loggingEvent.message : '' + loggingEvent.message) + "]]></log4javascript:message>";
+		
+		if (this.hasCustomFields()) {
+			for (i = 0, len = this.customFields.length; i < len; i++) {
+				str += "<log4javascript:customfield name=\"" + this.customFields[i].name + "\"><![CDATA[" + this.customFields[i].value.toString() + "]]></log4javascript:customfield>" + NEW_LINE;
+			}
+		}
+		if (loggingEvent.exception) {
+			str += "<log4javascript:exception><![CDATA[" + getExceptionStringRep(loggingEvent.exception) + "]]></log4javascript:exception>" + NEW_LINE;
+		}
+		str += "</log4javascript:event>" + NEW_LINE + NEW_LINE;
+		return str;
+	};
 
-			XmlLayout.prototype.ignoresThrowable = function() {
-				return false;
-			};
+	XmlLayout.prototype.ignoresThrowable = function() {
+		return false;
+	};
 
-			XmlLayout.prototype.toString = function() {
-				return "XmlLayout";
-			};
-			
-			logPlugins['XmlLayout'] = XmlLayout
+	XmlLayout.prototype.toString = function() {
+		return "XmlLayout";
+	};
+	
+	logPlugins['XmlLayout'] = XmlLayout
+	
+	XmlLayout.PluginFactory = {
+		parameters: [],
+		create: function() {
+			return new XmlLayout()
+		}
+	}
 	}())
 
 /* ---------------------------------JsonLayout------------------------------------- */
@@ -1783,77 +1861,84 @@ function JsonLayout(readable) {
  * @properties={typeid:35,uuid:"3350BBD8-3E6C-4E29-AEBA-FE90AEB1D0A8",variableType:-4}
  */
 var jsonLayoutInit = (function() {
-		JsonLayout.prototype = new AbstractLayout() //Object.create(AbstractLayout.prototype);
-		JsonLayout.prototype.constructor = JsonLayout
-			
-		JsonLayout.prototype.isReadable = function() {
-			return this.readable;
-		};
-
-		/**
-		 * @param {LoggingEvent} loggingEvent
-		 * @return {String}
-		 * @this {JsonLayout}
-		 */
-		JsonLayout.prototype.format = function(loggingEvent) {
-			var layout = this;
-			/** @type {Array} */
-			var dataValues = this.getDataValues(loggingEvent);
-			var str = "{" + this.lineBreak;
-			var i, len;
-
-			function formatValue(val, prefix, expand) {
-				// Check the type of the data value to decide whether quotation marks
-				// or expansion are required
-				var formattedValue;
-				var valType = typeof val;
-				if (val instanceof Date) {
-					formattedValue = String(val.getTime());
-				} else if (expand && (val instanceof Array)) {
-					formattedValue = "[" + layout.lineBreak;
-					for (var j = 0; j < val.length; j++) {
-						var childPrefix = prefix + layout.tab;
-						formattedValue += childPrefix + formatValue(val[j], childPrefix, false);
-						if (j < val.length - 1) {
-							formattedValue += ",";
-						}
-						formattedValue += layout.lineBreak;
-					}
-					formattedValue += prefix + "]";
-				} else if (valType !== "number" && valType !== "boolean") {
-					formattedValue = "\"" + escapeNewLines(('' + val).replace(/\"/g, "\\\"")) + "\"";
-				} else {
-					formattedValue = val;
-				}
-				return formattedValue;
-			}
-
-			for (i = 0, len = dataValues.length - 1; i <= len; i++) {
-				str += this.tab + "\"" + dataValues[i][0] + "\"" + this.colon + formatValue(dataValues[i][1], this.tab, true);
-				if (i < len) {
-					str += ",";
-				}
-				str += this.lineBreak;
-			}
-
-			str += "}" + this.lineBreak;
-			return str;
-		};
-
-		JsonLayout.prototype.ignoresThrowable = function() {
-			return false;
-		};
-
-		JsonLayout.prototype.toString = function() {
-			return "JsonLayout";
-		};
-
-		JsonLayout.prototype.getContentType = function() {
-			return "application/json";
-		};
+	JsonLayout.prototype = new AbstractLayout() //Object.create(AbstractLayout.prototype);
+	JsonLayout.prototype.constructor = JsonLayout
 		
-		logPlugins['JsonLayout'] = JsonLayout
-	}())
+	JsonLayout.prototype.isReadable = function() {
+		return this.readable;
+	};
+
+	/**
+	 * @param {LoggingEvent} loggingEvent
+	 * @return {String}
+	 * @this {JsonLayout}
+	 */
+	JsonLayout.prototype.format = function(loggingEvent) {
+		var layout = this;
+		/** @type {Array} */
+		var dataValues = this.getDataValues(loggingEvent);
+		var str = "{" + this.lineBreak;
+		var i, len;
+
+		function formatValue(val, prefix, expand) {
+			// Check the type of the data value to decide whether quotation marks
+			// or expansion are required
+			var formattedValue;
+			var valType = typeof val;
+			if (val instanceof Date) {
+				formattedValue = String(val.getTime());
+			} else if (expand && (val instanceof Array)) {
+				formattedValue = "[" + layout.lineBreak;
+				for (var j = 0; j < val.length; j++) {
+					var childPrefix = prefix + layout.tab;
+					formattedValue += childPrefix + formatValue(val[j], childPrefix, false);
+					if (j < val.length - 1) {
+						formattedValue += ",";
+					}
+					formattedValue += layout.lineBreak;
+				}
+				formattedValue += prefix + "]";
+			} else if (valType !== "number" && valType !== "boolean") {
+				formattedValue = "\"" + escapeNewLines(('' + val).replace(/\"/g, "\\\"")) + "\"";
+			} else {
+				formattedValue = val;
+			}
+			return formattedValue;
+		}
+
+		for (i = 0, len = dataValues.length - 1; i <= len; i++) {
+			str += this.tab + "\"" + dataValues[i][0] + "\"" + this.colon + formatValue(dataValues[i][1], this.tab, true);
+			if (i < len) {
+				str += ",";
+			}
+			str += this.lineBreak;
+		}
+
+		str += "}" + this.lineBreak;
+		return str;
+	};
+
+	JsonLayout.prototype.ignoresThrowable = function() {
+		return false;
+	};
+
+	JsonLayout.prototype.toString = function() {
+		return "JsonLayout";
+	};
+
+	JsonLayout.prototype.getContentType = function() {
+		return "application/json";
+	};
+	
+	logPlugins['JsonLayout'] = JsonLayout
+	
+	JsonLayout.PluginFactory = {
+		parameters: [],
+		create: function() {
+			return new JsonLayout()
+		}
+	}
+}())
 
 /* ---------------------------------HttpPostDataLayout------------------------------------- */
 /**
@@ -1909,6 +1994,12 @@ var httpPostdataLayoutInit = (function() {
 	};
 	
 	logPlugins['HttpPostDataLayout'] = HttpPostDataLayout
+	HttpPostDataLayout.PluginFactory = {
+		parameters: [],
+		create: function() {
+			return new HttpPostDataLayout()
+		}
+	}
 }())
 
 /* --------------------------------formatObjectExpansion-------------------------------------- */
@@ -2235,29 +2326,22 @@ var patternLayoutInit = (function() {
 		
 		logPlugins['PatternLayout'] = PatternLayout
 		
-		PatternLayout.PluginFactory = function (config){
-			var retval = new PatternLayout()
-			
-			var keys = Object.keys(config)
-			for (var index = 0; index < keys.length; index++) {
-				var key = keys[index]
-				switch (key) {
-					case 'pattern':
-						retval.pattern = config[key]
-						break;
-					default:
-						var plugin = logPlugins[key]
-						if (plugin) {
-							//Unknown plugin type
-						} else {
-							//Unknown config entry
-						}
-						break;
+		PatternLayout.PluginFactory = {
+			parameters: [{
+					configName: 'pattern',
+					type: 'string'
 				}
+			],
+			
+			/**
+			 * @param {AbstractLayout} layout
+			 */
+			create: function(pattern) {
+				var retval = new PatternLayout()
+				retval.pattern = pattern
+				return retval
 			}
-			return retval
 		}
-		
 	}()
 )
 
