@@ -79,12 +79,7 @@ function getJSDataSetColumnNames(dataset) {
 	if (!(dataset instanceof JSDataSet)) {
 		throw new scopes.modUtils$exceptions.IllegalArgumentException('Supplied argument is not an instance of JSDataSet')
 	}
-	
-	var columnNames = []
-	for (var i = 1; i <= dataset.getMaxColumnIndex(); i++) {
-		columnNames.push(dataset.getColumnName(i));
-	}
-	return columnNames;
+	return dataset.getColumnNames();
 }
 
 /**
