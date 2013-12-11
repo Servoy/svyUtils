@@ -196,7 +196,7 @@ function getExceptionStringRep(ex) {
  *  		AppenderRef: {
  *  			ref: String
  *  		}=
- *  	}>,
+ *  	}>=,
  *  	root: {
  *  		level: String,
  *  		AppenderRef: {
@@ -323,7 +323,6 @@ function loadConfig(configuration) {
 	}
 	
 	namedAppenders = {}
-	var processedNamedAppenders = []
 	
 	//reset the rootlogger
 	var rootLoggerConfig
@@ -351,7 +350,6 @@ function loadConfig(configuration) {
 			statusLogger.error('Couldn\'t configure the specified Appender for the ROOTLOGGER: ' + JSON.stringify(rootLoggerConfig.AppenderRef) + '. Using default config instead')
 			rl.addAppender(getAppenderForRef(defaultConfig.loggers.root.AppenderRef))
 		}
-		processedNamedAppenders.push(rootLoggerConfig.AppenderRef.ref)
 	} else {
 		statusLogger.error('Unable to locate Appender configuration for logger ROOTLOGGER. Using default config instead')
 		rl.addAppender(getAppenderForRef(defaultConfig.loggers.root.AppenderRef))
@@ -405,7 +403,6 @@ function loadConfig(configuration) {
 				continue
 			}
 			logger.addAppender(getAppenderForRef(loggerConfig.AppenderRef))
-			processedNamedAppenders.push(loggerConfig.AppenderRef.ref)			
 		}
 		//Save processed Logger in order to reset non-processed loggers
 		configuredLoggerNames.push(loggerConfig.name)
@@ -457,6 +454,7 @@ function getAppenderForRef(appenderRef) {
 				statusLogger.error('LogPlugin of type "' + appenderConfig.type +'" not found')
 				return null
 			} else {
+				/** @type {AbstractAppender} */
 				var appender = getPluginInstance(appenderConfig.type, appenderConfig)
 				namedAppenders[appenderRef.ref] = appender
 				statusLogger.trace('Created Appender of type "' + appenderConfig.type + '" with name "' + appenderConfig.name + '"')
@@ -1839,7 +1837,7 @@ function escapeNewLines(str) {
  * @constructor
  * @extends {AbstractLayout}
  *
- * @param {Object} readable
+ * @param {Object} [readable]
  *
  * @properties={typeid:24,uuid:"340D216B-0285-475B-82D9-560E6D6E183B"}
  */
@@ -2334,7 +2332,7 @@ var patternLayoutInit = (function() {
 			],
 			
 			/**
-			 * @param {AbstractLayout} layout
+			 * @param {AbstractLayout} pattern
 			 */
 			create: function(pattern) {
 				var retval = new PatternLayout()
