@@ -248,7 +248,7 @@ var currentConfig = defaultConfig
  * <br>
  * @public
  * @param {CONFIG_TYPE_DEF} configuration
- * @example <pre>scopes.modUtils$log.loadConfig({
+ * @example <pre>scopes.svyLogManager.loadConfig({
  *  status: "error", 
  *  appenders: [
  *    {

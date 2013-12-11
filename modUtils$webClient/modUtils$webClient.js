@@ -33,11 +33,10 @@
  */
 
 /**
- * @type {scopes.modUtils$log.Logger}
  * @private
  * @properties={typeid:35,uuid:"ED9695A7-D5AD-4EC0-9F5D-9F85C9A3FC19",variableType:-4}
  */
-var log = scopes.modUtils$log.getLogger('com.servoy.bap.utils.webclient')
+var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.webclient')
 
 /**
  * @private

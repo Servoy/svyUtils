@@ -28,7 +28,7 @@
  *
  * @properties={typeid:35,uuid:"CB850A67-F8C0-4C1A-A55B-302810E36FA9",variableType:-4}
  */
-var log = scopes.modUtils$log.getLogger('com.servoy.bap.utils.exceptions')
+var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.exceptions')
 
 /**
  * General exception holding exception message, i18n key and arguments
