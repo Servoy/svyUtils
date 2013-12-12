@@ -56,6 +56,11 @@
  */
 
 /**
+ * @properties={typeid:35,uuid:"BAD462CD-2C90-491E-AAFC-765DAF09E5E9",variableType:-4}
+ */
+var log = scopes.svyLogManager.getLogger('com.servoy.bap.eventmanager')
+
+/**
  * @private
  * @type {Object<Object<Array<String>>>}
  *
@@ -255,7 +260,7 @@ function removeListener(obj, eventType, eventHandler) {
  * 
  * @param {*|String} obj The object on which behalf to fire the event
  * @param {String} eventType The event identifier
- * @param {*|Array<*>} [args] An value or Array of values to apply as arguments to the eventHandler invocation
+ * @param {*|Array<*>} [args] A value, an Array of values or an arguments object to apply as arguments to the eventHandler invocation
  * @param {Boolean} [isVetoable] Optionally specify if an event can be vetoed. A listener may veto an event by returning false. Subsequent propagation of the event is then cancelled
  *
  * @return {Boolean} True unless the event was vetoable and vetoed by a listener, in which case all subsequent listeners will not be notified and the caller of this method has an opportunity to veto a change
@@ -283,7 +288,10 @@ function fireEvent(obj, eventType, args, isVetoable) {
 					var scope
 					switch (actionStringParts[0]) {
 						case 'forms':
-							if (!(actionStringParts[1] in forms)) continue; //form is currently not loaded, so not firing the event
+							if (!(actionStringParts[1] in forms)) {
+								log.debug('skipping form-based event handler as the form is not loaded: ' + curel[act])
+								continue; //form is currently not loaded, so not firing the event
+							}
 							scope = forms[actionStringParts[1]]
 							break;
 						case 'scopes':
@@ -293,11 +301,7 @@ function fireEvent(obj, eventType, args, isVetoable) {
 							continue
 					}
 
-					//TODO: try this for the problem below: {}.toString.call(arguments).match(/\s([a-zA-Z]+)/)[1].toLowerCase() == 'arguments'
-					//Would be nice to allow the args param be an arguments object, but haven't found a failsave way to distinguish an arguments object form anything else
-					//Not using something like http://oranlooney.com/javascript-arguments/, as arguments.callee is deprecated in future JavaScript versions and the for loop check doesn't work in Rhino
-					//!!Array.prototype.slice.call(args)['length'] fails for forms and elements objects and other objects that have a length property
-					var result = scope[actionStringParts[2]].apply(scope, Array.isArray(args) ? args : [args]);
+					var result = scope[actionStringParts[2]].apply(scope, Array.isArray(args) || {}.toString.call(arguments).match(/\s([a-zA-Z]+)/)[1].toLowerCase() == 'arguments'? args : [args]);
 					if(isVetoable && result === false){
 						return false;	// terminate event propagation and (possibly) veto change (This is implementation-specific)
 					}
