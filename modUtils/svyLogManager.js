@@ -925,7 +925,7 @@ var initLoggerInternal = (function(){
  * @typedef {{
  * 	name: String,
  *  effectiveLevel: Level,
- *  log: function
+ *  log: function(Level, *, Error|ServoyException)
  * }}
  * @private 
  * @SuppressWarnings(unused)
@@ -948,7 +948,7 @@ function Logger(internal) {
 	 * @public 
 	 * @param {Level} level
 	 * @param {*} message 
-	 * @param {Error} [exception]
+	 * @param {Error|ServoyException} [exception]
 	 */
 	this.log = function(level, message, exception) {
 		if (level.intLevel >= internal.effectiveLevel.intLevel) {
@@ -961,7 +961,7 @@ function Logger(internal) {
 	 * <br>
 	 * @public
 	 * @param {*} message
-	 * @param {Error} [exception]
+	 * @param {Error|ServoyException} [exception]
 	 */
 	this.trace = function(message, exception) {
 		if (Level.TRACE.intLevel >= internal.effectiveLevel.intLevel) {
@@ -973,7 +973,7 @@ function Logger(internal) {
 	 * <br>
 	 * @public
 	 * @param {*} message
-	 * @param {Error} [exception]
+	 * @param {Error|ServoyException} [exception]
 	 */
 	this.debug = function(message, exception) {
 		if (Level.DEBUG.intLevel >= internal.effectiveLevel.intLevel) {
@@ -985,7 +985,7 @@ function Logger(internal) {
 	 * <br>
 	 * @public
 	 * @param {*} message
-	 * @param {Error} [exception]
+	 * @param {Error|ServoyException} [exception]
 	 */
 	this.info = function(message, exception) {
 		if (Level.INFO.intLevel >= internal.effectiveLevel.intLevel) {
@@ -997,7 +997,7 @@ function Logger(internal) {
 	 * <br>
 	 * @public
 	 * @param {*} message
-	 * @param {Error} [exception]
+	 * @param {Error|ServoyException} [exception]
 	  */
 	this.warn = function(message, exception) {
 		if (Level.WARN.intLevel >= internal.effectiveLevel.intLevel) {
@@ -1009,7 +1009,7 @@ function Logger(internal) {
 	 * <br>
 	 * @public
 	 * @param {*} message
-	 * @param {Error} [exception]
+	 * @param {Error|ServoyException} [exception]
 	 */
 	this.error = function(message, exception) {
 		if (Level.ERROR.intLevel >= internal.effectiveLevel.intLevel) {
@@ -1021,7 +1021,7 @@ function Logger(internal) {
 	 * <br>
 	 * @public
 	 * @param {*} message
-	 * @param {Error} [exception]
+	 * @param {Error|ServoyException} [exception]
 	 */
 	this.fatal = function(message, exception) {
 		if (Level.FATAL.intLevel >= internal.effectiveLevel.intLevel) {
@@ -1442,7 +1442,7 @@ function ApplicationOutputAppender() {
          */
         var msg = this.layout.format(loggingEvent)
         if (loggingEvent.exception) {
-        	msg += NEW_LINE + loggingEvent.exception.name + ': ' + loggingEvent.exception.message + NEW_LINE + loggingEvent.exception['stack']
+        	msg += loggingEvent.exception.name + ': ' + loggingEvent.exception.message + NEW_LINE + loggingEvent.exception['stack']
         }
         application.output(msg, lvl)
     }
