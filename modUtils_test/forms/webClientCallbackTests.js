@@ -41,16 +41,16 @@ function onLoad(event) {
 		</body>
 	</html>
 	
-	tmp..*.(@id == 'callbackUrlButton')[0].@onclick = 'invokeCallbackUrl(\'' + scopes.modUtils$webClient.getCallbackUrl(callback) + '\')'
-	tmp..*.(@id == 'callbackScriptButton')[0].@onclick = scopes.modUtils$webClient.getCallbackScript(callback, [], {showLoading: false})
-	tmp..*.(@id == 'callbackScriptWithArgsButton')[0].@onclick = scopes.modUtils$webClient.getCallbackScript(callback, ['localVar', 10, true, '"hello"'], {showLoading: false})
+	tmp..*.(@id == 'callbackUrlButton')[0].@onclick = 'invokeCallbackUrl(\'' + scopes.svyWebClientUtils.getCallbackUrl(callback) + '\')'
+	tmp..*.(@id == 'callbackScriptButton')[0].@onclick = scopes.svyWebClientUtils.getCallbackScript(callback, [], {showLoading: false})
+	tmp..*.(@id == 'callbackScriptWithArgsButton')[0].@onclick = scopes.svyWebClientUtils.getCallbackScript(callback, ['localVar', 10, true, '"hello"'], {showLoading: false})
 	tmp.head.appendChild(<script>{''}</script>)
 	
-	html = scopes.modUtils$webClient.XHTML2Text(tmp)
+	html = scopes.svyWebClientUtils.XHTML2Text(tmp)
 	
 	application.output(html)
 	
-	//scopes.modUtils$webClient.getCallbackUrl(callback, forms.webClientCallbackTests, id)
+	//scopes.svyWebClientUtils.getCallbackUrl(callback, forms.webClientCallbackTests, id)
 }
 
 /**

@@ -1034,7 +1034,7 @@ var terminator = new Continuation()
 /**
  * Web Client compatible application.updateUI polyfill
  * Warning: use with care, can result in unpredictable behavior when used in the wrong event types or at the right moment
- * TODO move out of modUtils$webClient, as it is not WC specific
+ * TODO move out of svyWebClientUtils, as it is not WC specific
  * @param {Number} [milliseconds]
  * 
  * @properties={typeid:24,uuid:"4651696E-4E25-49B1-A2FE-EB561A859F5A"}
