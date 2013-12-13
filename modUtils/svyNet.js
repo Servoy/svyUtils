@@ -51,7 +51,7 @@ var RFC_1918_RANGES = /(^127\.0\.0\.1)|(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)
  */
 function isInternalIPAddress(ipAddress){
 	if(!ipAddress){
-		throw new scopes.modUtils$exceptions.IllegalArgumentException('IP Address is required');
+		throw new scopes.svyExceptions.IllegalArgumentException('IP Address is required');
 	}
 	return RFC_1918_RANGES.test(ipAddress);
 }
@@ -67,7 +67,7 @@ function isInternalIPAddress(ipAddress){
  */
 function getIPVersion(ipAddress){
 	if(!ipAddress){
-		throw new scopes.modUtils$exceptions.IllegalArgumentException('IP Address is required');
+		throw new scopes.svyExceptions.IllegalArgumentException('IP Address is required');
 	}
 	var iNetAddress = java.net.InetAddress.getByName(ipAddress);
 	if(iNetAddress instanceof java.net.Inet6Address){
@@ -218,7 +218,7 @@ function parseUrl(url, strictMode) {
  * @param {String} [httpResponseBody]
  *
  * @constructor
- * @extends {scopes.modUtils$exceptions.SvyException}
+ * @extends {scopes.svyExceptions.SvyException}
  *
  * @author Sean
  *
@@ -238,7 +238,7 @@ function HTTPException(errorMessage, httpCode, httpResponseBody) {
 	 */
 	this.httpResponseBody = httpResponseBody;
 
-	scopes.modUtils$exceptions.SvyException.call(this, errorMessage||'Error in HTTP operation');
+	scopes.svyExceptions.SvyException.call(this, errorMessage||'Error in HTTP operation');
 }
 
 
@@ -248,12 +248,12 @@ function HTTPException(errorMessage, httpCode, httpResponseBody) {
  * @param {String} [errorMessage] - usually taken from plugins.mail.getLastSendMailExceptionMsg()
  *
  * @constructor
- * @extends {scopes.modUtils$exceptions.SvyException}
+ * @extends {scopes.svyExceptions.SvyException}
  *
  * @properties={typeid:24,uuid:"73C704EB-7D7D-4B4B-AD05-88068C478184"}
  */
 function SendMailException(errorMessage) {
-	scopes.modUtils$exceptions.SvyException.call(this, errorMessage||'Failed to send mail');
+	scopes.svyExceptions.SvyException.call(this, errorMessage||'Failed to send mail');
 }
 
 /**
@@ -263,9 +263,9 @@ function SendMailException(errorMessage) {
  * @properties={typeid:35,uuid:"FF2A5C77-1609-4E22-A3A2-2A40910BC57E",variableType:-4}
  */
 var init = function() {
-	HTTPException.prototype = Object.create(scopes.modUtils$exceptions.SvyException.prototype);
+	HTTPException.prototype = Object.create(scopes.svyExceptions.SvyException.prototype);
 	HTTPException.prototype.constructor = HTTPException
 
-	SendMailException.prototype =  Object.create(scopes.modUtils$exceptions.SvyException.prototype);
+	SendMailException.prototype =  Object.create(scopes.svyExceptions.SvyException.prototype);
 	SendMailException.prototype.constructor = SendMailException
 }();

@@ -52,7 +52,7 @@ var MEDIA_URL_PREFIX = 'media:///'
  */
 function checkOperationSupported() {
 	if (!scopes.svySystem.isWebClient()) {
-		throw new scopes.modUtils$exceptions.UnsupportedOperationException('Only supported in Web Client')
+		throw new scopes.svyExceptions.UnsupportedOperationException('Only supported in Web Client')
 	}
 }
 
@@ -672,7 +672,7 @@ function getCallbackBehavior() {
 
 				var param = request.getParameter("m");  
 				if(param == null){
-					throw scopes.modUtils$exceptions.IllegalStateException('Invalid callback url');
+					throw scopes.svyExceptions.IllegalStateException('Invalid callback url');
 				}
 				
 				//Decryption
@@ -839,7 +839,7 @@ function generateCallback(callback, args, options) {
 			} catch (e) {}
 			
 			if (!fd || fd.exists(getWebClientPluginAccess()) !== Packages.com.servoy.j2db.scripting.FunctionDefinition.Exist.METHOD_FOUND) {
-				throw scopes.modUtils$exceptions.IllegalArgumentException('Callback param must be a Servoy defined method')
+				throw scopes.svyExceptions.IllegalArgumentException('Callback param must be a Servoy defined method')
 			}
 			qualifiedName = fd.toMethodString()
 			if (['scopes','globals'].indexOf(qualifiedName.substring(0, qualifiedName.indexOf('.'))) == -1) {
@@ -850,7 +850,7 @@ function generateCallback(callback, args, options) {
 			qualifiedName = callback
 			break;
 		default:
-			throw new scopes.modUtils$exceptions.IllegalArgumentException('Invalid value for calback parameter: ' + callback)
+			throw new scopes.svyExceptions.IllegalArgumentException('Invalid value for calback parameter: ' + callback)
 	}
 
 	var callbackBehavior = getCallbackBehavior()

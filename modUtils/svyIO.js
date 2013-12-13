@@ -34,7 +34,7 @@
  */
 function openFileWithDefaultViewer(file) {
 	if (!scopes.svySystem.isSwingClient()) {
-		throw new scopes.modUtils$exceptions.UnsupportedOperationException('Operation only supported in Smart or Runtime Client')
+		throw new scopes.svyExceptions.UnsupportedOperationException('Operation only supported in Smart or Runtime Client')
 	}
 	var osName = application.getOSName();
 	/** @type {String} */
@@ -441,13 +441,13 @@ function humanizeFileSize(size, numberOfDigits) {
  * @param {String} [errorMessage]
  * 
  * @constructor
- * @extends {scopes.modUtils$exceptions.SvyException}
+ * @extends {scopes.svyExceptions.SvyException}
  * @author patrick
  *
  * @properties={typeid:24,uuid:"E0E2B56B-84B6-4A26-940A-A9EBB9F20CC3"}
  */
 function IOException(errorMessage) {
-	scopes.modUtils$exceptions.SvyException.call(this, errorMessage||'IO Exception');
+	scopes.svyExceptions.SvyException.call(this, errorMessage||'IO Exception');
 }
 
 /**
@@ -477,7 +477,7 @@ function FileNotFoundException(errorMessage, file) {
  * @properties={typeid:35,uuid:"DAF325B1-1E2C-46A6-92C8-D4B2631B15E1",variableType:-4}
  */
 var init = function() {
-	IOException.prototype = Object.create(scopes.modUtils$exceptions.SvyException.prototype);
+	IOException.prototype = Object.create(scopes.svyExceptions.SvyException.prototype);
 	IOException.prototype.constructor = IOException
 	
 	FileNotFoundException.prototype = Object.create(IOException.prototype);

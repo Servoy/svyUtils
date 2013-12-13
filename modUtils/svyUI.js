@@ -88,7 +88,7 @@ function getJSFormForReference(form) {
 	}
 
 	if (!(formName in forms)) { //It's not a loaded form, so the value of 'form' must be wrong
-		throw new scopes.modUtils$exceptions.IllegalArgumentException("The value provided for the 'form' parameter is not a valid Form identifier: " + form)
+		throw new scopes.svyExceptions.IllegalArgumentException("The value provided for the 'form' parameter is not a valid Form identifier: " + form)
 	}
 	//It must be a form created with application.createNewFormInstance
 	var list = new Packages.java.util.ArrayList();
@@ -121,7 +121,7 @@ function getJSFormHierarchy(form) {
  * @param {JSForm|String} form
  * @param {JSForm|String} parentForm
  * 
- * @throws {scopes.modUtils$exceptions.IllegalArgumentException}
+ * @throws {scopes.svyExceptions.IllegalArgumentException}
  * 
  * @return {Boolean}
  *
@@ -132,10 +132,10 @@ function isJSFormInstanceOf(form, parentForm) {
 	parentForm = getJSFormForReference(parentForm)
 	
 	if (!form) {
-		throw new scopes.modUtils$exceptions.IllegalArgumentException("Provide valid form");
+		throw new scopes.svyExceptions.IllegalArgumentException("Provide valid form");
 	}
 	if (!parentForm) {
-		throw new scopes.modUtils$exceptions.IllegalArgumentException("Provide valid parentForm");
+		throw new scopes.svyExceptions.IllegalArgumentException("Provide valid parentForm");
 	}
 	
 	//Go up the hierarchy until the parentForm is found or until there is no more parent.
@@ -230,7 +230,7 @@ function getJSFormHeight(form, includePrintParts) {
 function getRuntimeTableViewRowHeight(form) {
 	var jsForm = getJSFormForReference(form)
 	if (jsForm.view != JSForm.LOCKED_TABLE_VIEW) {
-		throw new scopes.modUtils$exceptions.IllegalArgumentException('Must be called with a form in TableView view')
+		throw new scopes.svyExceptions.IllegalArgumentException('Must be called with a form in TableView view')
 	}
 	
 	var body = jsForm.getPart(JSPart.BODY)
@@ -292,13 +292,13 @@ function getParentFormName(form) {
  * 
  * @return {JSForm} The clone
  * 
- * @throws {scopes.modUtils$exceptions.IllegalArgumentException}
+ * @throws {scopes.svyExceptions.IllegalArgumentException}
  * 
  * @properties={typeid:24,uuid:"0B4DE5CF-0B58-44F2-B344-3E3B656E549D"}
  */
 function deepCopyJSForm(newFormName, original, prefix) {
 	if (solutionModel.getForm(newFormName)) {
-		throw new scopes.modUtils$exceptions.IllegalArgumentException('Value provided for the newFormName parameter is already in use by an existing form: ' + newFormName);
+		throw new scopes.svyExceptions.IllegalArgumentException('Value provided for the newFormName parameter is already in use by an existing form: ' + newFormName);
 	}
 
 	var clone = solutionModel.cloneForm(newFormName, original)

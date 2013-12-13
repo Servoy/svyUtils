@@ -51,7 +51,7 @@ function pivotJSDataSet(dataset) {
  */
 function concatenateJSDataSets(main, addition) {
 	if (!(main instanceof JSDataSet && addition instanceof JSDataSet)) {
-		throw new scopes.modUtils$exceptions.IllegalArgumentException('Supplied arguments are not both instances of JSDataSet')
+		throw new scopes.svyExceptions.IllegalArgumentException('Supplied arguments are not both instances of JSDataSet')
 	}
 
 	var newDS = databaseManager.createEmptyDataSet(0, getJSDataSetColumnNames(main)); //TODO: refactor to use JSDataSet.getColumnNames in version 6.0
@@ -77,7 +77,7 @@ function concatenateJSDataSets(main, addition) {
  */
 function getJSDataSetColumnNames(dataset) {
 	if (!(dataset instanceof JSDataSet)) {
-		throw new scopes.modUtils$exceptions.IllegalArgumentException('Supplied argument is not an instance of JSDataSet')
+		throw new scopes.svyExceptions.IllegalArgumentException('Supplied argument is not an instance of JSDataSet')
 	}
 	return dataset.getColumnNames();
 }
@@ -402,7 +402,7 @@ function NoRelatedRecordException(errorMessage, source, relationNames) {
  * @param {String} [dataProviderID]
  * 
  * @constructor
- * @extends {scopes.modUtils$exceptions.SvyException}
+ * @extends {scopes.svyExceptions.SvyException}
  * 
  * @properties={typeid:24,uuid:"5596DB5B-CCCF-46FF-B47E-1567827C66B5"}
  */
@@ -462,7 +462,7 @@ function SvyDataException(errorMessage, source, dataProviderID){
 	this.getDataProviderID = function(){
 		return dataProviderID;
 	}
-	scopes.modUtils$exceptions.SvyException.call(this, errorMessage);
+	scopes.svyExceptions.SvyException.call(this, errorMessage);
 }
 /**
  * Point prototypes to superclasses
@@ -492,6 +492,6 @@ var init = function() {
 	ValueNotUniqueException.prototype = Object.create(SvyDataException.prototype);
 	ValueNotUniqueException.prototype.constructor = ValueNotUniqueException
 	
-	SvyDataException.prototype = Object.create(scopes.modUtils$exceptions.SvyException.prototype);
+	SvyDataException.prototype = Object.create(scopes.svyExceptions.SvyException.prototype);
 	SvyDataException.prototype.constructor = SvyDataException
 }()

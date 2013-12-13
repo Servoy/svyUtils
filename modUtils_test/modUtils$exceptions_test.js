@@ -5,14 +5,14 @@
  * @param {Number} code
  *
  * @constructor
- * @extends {scopes.modUtils$exceptions.IllegalArgumentException}
+ * @extends {scopes.svyExceptions.IllegalArgumentException}
  *
  *
  * @properties={typeid:24,uuid:"36352A57-C0A7-491F-B614-03A1CF75D58C"}
  */
 function TestException(errorMessage, code) {
 	this.code = code
-	scopes.modUtils$exceptions.IllegalArgumentException.call(this, errorMessage);
+	scopes.svyExceptions.IllegalArgumentException.call(this, errorMessage);
 }
 
 /**
@@ -35,8 +35,8 @@ function ExtendedTestException(errorMessage, code) {
  * @properties={typeid:35,uuid:"E21D3998-7FF8-4A87-8773-15F6B3C41094",variableType:-4}
  */
 var initTestExceptions = (function(){
-	TestException.prototype = Object.create(scopes.modUtils$exceptions.IllegalArgumentException.prototype);
-	TestException.prototype.constructor = scopes.modUtils$exceptions.IllegalArgumentException
+	TestException.prototype = Object.create(scopes.svyExceptions.IllegalArgumentException.prototype);
+	TestException.prototype.constructor = scopes.svyExceptions.IllegalArgumentException
 	ExtendedTestException.prototype = Object.create(TestException.prototype); //new TestException;
 	ExtendedTestException.prototype.constructor = ExtendedTestException
 }())
@@ -46,32 +46,32 @@ var initTestExceptions = (function(){
  */
 function testExceptions() {
 	//for the used technique here, see: http://stackoverflow.com/questions/4152931/javascript-inheritance-call-super-constructor-or-use-prototype-chain
-	var e = new scopes.modUtils$exceptions.IllegalArgumentException('test');
-	jsunit.assertTrue(e instanceof scopes.modUtils$exceptions.SvyException);
+	var e = new scopes.svyExceptions.IllegalArgumentException('test');
+	jsunit.assertTrue(e instanceof scopes.svyExceptions.SvyException);
 	jsunit.assertEquals('test', e.getMessage()); 
 
-	e = new scopes.modUtils$exceptions.IllegalArgumentException('test');
+	e = new scopes.svyExceptions.IllegalArgumentException('test');
 	jsunit.assertTrue(e instanceof Error);
 	jsunit.assertEquals('test', e.getMessage()); 
 	
-	e = new scopes.modUtils$exceptions.IllegalStateException('test');
-	jsunit.assertTrue(e instanceof scopes.modUtils$exceptions.SvyException);
+	e = new scopes.svyExceptions.IllegalStateException('test');
+	jsunit.assertTrue(e instanceof scopes.svyExceptions.SvyException);
 	jsunit.assertEquals('test', e.getMessage()); 
 	
-	e = new scopes.modUtils$exceptions.UnsupportedOperationException('test');
-	jsunit.assertTrue(e instanceof scopes.modUtils$exceptions.SvyException);
+	e = new scopes.svyExceptions.UnsupportedOperationException('test');
+	jsunit.assertTrue(e instanceof scopes.svyExceptions.SvyException);
 	jsunit.assertEquals('test', e.getMessage()); 
 	
 	e = new TestException('test', 1);
-	jsunit.assertTrue(e instanceof scopes.modUtils$exceptions.SvyException);
-	jsunit.assertTrue(e instanceof scopes.modUtils$exceptions.IllegalArgumentException);
+	jsunit.assertTrue(e instanceof scopes.svyExceptions.SvyException);
+	jsunit.assertTrue(e instanceof scopes.svyExceptions.IllegalArgumentException);
 	jsunit.assertTrue(e instanceof TestException);
 	jsunit.assertEquals('test', e.getMessage()); 
 	jsunit.assertEquals(1, e.code); 
 
 	e = new ExtendedTestException('test', 1);
-	jsunit.assertTrue(e instanceof scopes.modUtils$exceptions.SvyException);
-	jsunit.assertTrue(e instanceof scopes.modUtils$exceptions.IllegalArgumentException);
+	jsunit.assertTrue(e instanceof scopes.svyExceptions.SvyException);
+	jsunit.assertTrue(e instanceof scopes.svyExceptions.IllegalArgumentException);
 	jsunit.assertTrue(e instanceof TestException);
 	jsunit.assertEquals('test', e.getMessage()); 
 	jsunit.assertEquals(1, e.code); 

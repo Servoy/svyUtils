@@ -29,7 +29,7 @@ var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils')
  */
 function getObject(qualifiedName, context) {
 	if (!qualifiedName) {
-		throw scopes.modUtils$exceptions.IllegalArgumentException('\'qualifiedName\' parameter must be specified')
+		throw scopes.svyExceptions.IllegalArgumentException('\'qualifiedName\' parameter must be specified')
 	}
 	var bits = qualifiedName.split('.')
 	var scope = context
@@ -67,7 +67,7 @@ function getObject(qualifiedName, context) {
  * @param {*} [context] Optional context from where to start evaluating the qualifiedName
  * 
  * @return {*}
- * @throws {scopes.modUtils$exceptions.IllegalArgumentException}
+ * @throws {scopes.svyExceptions.IllegalArgumentException}
  *
  * @see For getting a qualified name String for a Servoy method: {@link convertServoyMethodToQualifiedName}
  *
@@ -79,7 +79,7 @@ function callMethod(qualifiedName, args, context) {
 	var scope = getObject(bits.join('.'), context)
 	
 	if (!scope || !(scope[methodName] instanceof Function)) {
-		throw scopes.modUtils$exceptions.IllegalArgumentException('\'' + qualifiedName + '\' cannot be resolved to a method')
+		throw scopes.svyExceptions.IllegalArgumentException('\'' + qualifiedName + '\' cannot be resolved to a method')
 	}
 	return scope[methodName].apply(scope, args ? Array.isArray(args) ? args : [args] : null)
 }
@@ -130,7 +130,7 @@ function convertServoyMethodToQualifiedName(method) {
  * @param {String[]} [extraQueryColumns] - optional array of additional dataproviders that can be used in the unique query
  * @param {Object[]} [extraQueryValues] - optional array of additional values that can be used in the unique query
  * 
- * @throws {scopes.modUtils$exceptions.IllegalArgumentException}
+ * @throws {scopes.svyExceptions.IllegalArgumentException}
  * 
  * @author patrick
  * @since 2012-10-04
@@ -139,7 +139,7 @@ function convertServoyMethodToQualifiedName(method) {
  */
 function isValueUnique(foundsetRecordOrDataSource, dataproviderName, value, extraQueryColumns, extraQueryValues) {
 	if (!foundsetRecordOrDataSource || !dataproviderName) {
-		throw new scopes.modUtils$exceptions.IllegalArgumentException("no parameters provided to scopes.modUtils.isValueUnique(foundsetOrRecord, dataproviderName, value)");
+		throw new scopes.svyExceptions.IllegalArgumentException("no parameters provided to scopes.modUtils.isValueUnique(foundsetOrRecord, dataproviderName, value)");
 	}
 	/** @type {String} */
 	var dataSource = (foundsetRecordOrDataSource instanceof String) ? foundsetRecordOrDataSource : foundsetRecordOrDataSource.getDataSource();
@@ -342,7 +342,7 @@ function getValueListDisplayValue(valueListName, realValue, record) {
 		
 		if (jsValueList.relationName) {
 			if (!record) {
-				throw scopes.modUtils$exceptions.IllegalArgumentException("getValueListDisplayValue is called for a valueList that uses a relation but no record is given");
+				throw scopes.svyExceptions.IllegalArgumentException("getValueListDisplayValue is called for a valueList that uses a relation but no record is given");
 			}
 			if (utils.hasRecords(record[jsValueList.relationName])) {
 				for (var rr = 1; rr <= record[jsValueList.relationName].getSize(); rr++) {

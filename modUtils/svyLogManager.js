@@ -1157,7 +1157,7 @@ function getRootLoggerInternal() {
  */
 function getLogger(loggerName) {
 	if (!loggerName || typeof loggerName != "string") {
-		throw scopes.modUtils$exceptions.IllegalArgumentException('non-string logger name "' + loggerName + '" supplied')
+		throw scopes.svyExceptions.IllegalArgumentException('non-string logger name "' + loggerName + '" supplied')
 	}
 
 	if (loggerName == ROOT_LOGGER_NAME) {

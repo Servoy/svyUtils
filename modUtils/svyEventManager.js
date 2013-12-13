@@ -175,7 +175,7 @@ function getActionIdx(obj, evt, eventHandler) {
  * @param {String} eventType The event identifier
  * @param {Function|String} eventHandler The Servoy method to execute upon event firing
  * 
- * @throws {scopes.modUtils$exceptions.IllegalArgumentException} When the obj or eventHandler could not be resolved to a node in the Servoy Object Model
+ * @throws {scopes.svyExceptions.IllegalArgumentException} When the obj or eventHandler could not be resolved to a node in the Servoy Object Model
  * 
  * @example <pre>var EVENT_TYPES = {
  * 	MY_OWN_EVENT_TYPE: 'myOwnEventType'
@@ -201,11 +201,11 @@ function getActionIdx(obj, evt, eventHandler) {
 function addListener(obj, eventType, eventHandler) {
 	var objectString = convertObjectToString(obj);
 	if(!objectString){
-		throw new scopes.modUtils$exceptions.IllegalArgumentException('obj parameter could not be resolved to a node path in the Servoy Object Model: ' + obj);
+		throw new scopes.svyExceptions.IllegalArgumentException('obj parameter could not be resolved to a node path in the Servoy Object Model: ' + obj);
 	}
 	var actionString = convertObjectToString(eventHandler);
 	if (!actionString){
-		throw new scopes.modUtils$exceptions.IllegalArgumentException('eventHandler parameter could not be resolved to a Servoy method');
+		throw new scopes.svyExceptions.IllegalArgumentException('eventHandler parameter could not be resolved to a Servoy method');
 	}
 
 	if (events[objectString]) {
