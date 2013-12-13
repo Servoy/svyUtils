@@ -501,7 +501,7 @@ function getFormName(element) {
  * 
  * @example <pre>
  * \/\/On the Server
- * var url = scopes.modUtils@webClient.getCallbackUrl()
+ * var url = scopes.svyWebClientUtils.getCallbackUrl()
  * 
  * \/\/On the client
  * $.ajax({
