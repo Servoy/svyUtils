@@ -68,6 +68,7 @@ var initTestAppender = (function(){
 			}
 		],
 		/**
+		 * @param {String} name
 		 * @param {scopes.svyLogManager.AbstractLayout} layout
 		 */
 		create: function(name, layout) {
