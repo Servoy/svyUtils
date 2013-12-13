@@ -1,7 +1,7 @@
 /**
  * @properties={typeid:35,uuid:"9C9EFB05-7958-4EA1-85DB-1BE6B3CB8EF7",variableType:-4}
  */
-var EventManager = scopes.modUtils$eventManager
+var EventManager = scopes.svyEventManager
 
 /**
  * @properties={typeid:35,uuid:"DF564340-781C-46B9-86E5-67D80C90EF39",variableType:-4}

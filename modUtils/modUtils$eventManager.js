@@ -182,7 +182,7 @@ function getActionIdx(obj, evt, eventHandler) {
  * }
  * 
  * function onLoad() {
- * 	scopes.modUtils$eventManager.addListener(this, EVENT_TYPES.MY_OWN_EVENT_TYPE, myEventHandler)
+ * 	scopes.svyEventManager.addListener(this, EVENT_TYPES.MY_OWN_EVENT_TYPE, myEventHandler)
  * }	
  *  
  * function myEventHandler(booleanValue, numberValue, stringValue) {
@@ -190,11 +190,11 @@ function getActionIdx(obj, evt, eventHandler) {
  * }
  * 
  * function test(){
- * 	scopes.modUtils$eventManager.fireEvent(this, EVENT_TYPES.MY_FIRST_EVENT_TYPE, [true, 1, 'Hello world!'])
+ * 	scopes.svyEventManager.fireEvent(this, EVENT_TYPES.MY_FIRST_EVENT_TYPE, [true, 1, 'Hello world!'])
  * }
  * </pre>
  * 
- * @example <pre>scopes.modUtils$eventManager.addListener('forms.myForm', 'myEvent', 'scopes.myCustomScope.myEventHandlerMethod')</pre>
+ * @example <pre>scopes.svyEventManager.addListener('forms.myForm', 'myEvent', 'scopes.myCustomScope.myEventHandlerMethod')</pre>
  * 
  * @properties={typeid:24,uuid:"B55D1349-D418-4775-BB05-0451D7438A62"}
  */
@@ -228,7 +228,7 @@ function addListener(obj, eventType, eventHandler) {
 /**
  * Removes a listener
  * 
- * @example <pre>scopes.modUtils$eventManager.removeListener('forms.myForm', 'myEvent', 'scopes.myCustomScope.myEventHandlerMethod')</pre>
+ * @example <pre>scopes.svyEventManager.removeListener('forms.myForm', 'myEvent', 'scopes.myCustomScope.myEventHandlerMethod')</pre>
  *
  * @param {*|String} obj The object from which the listener needs to be removed
  * @param {String} eventType The event identifier
@@ -269,8 +269,8 @@ function removeListener(obj, eventType, eventHandler) {
  * var EVENT_TYPES = {
  * 	MY_OWN_EVENT_TYPE: 'myOwnEventType'
  * }
- * var event = new scopes.modUtils$eventManager.Event(myObject, EVENT_TYPES.MY_OWN_EVENT_TYPE, {x: 10, y:20}, {description: 'some text'})
- * scopes.modUtils$eventManager.fireEvent(id, EVENT_TYPES.MY_OWN_EVENT_TYPE, event)
+ * var event = new scopes.svyEventManager.Event(myObject, EVENT_TYPES.MY_OWN_EVENT_TYPE, {x: 10, y:20}, {description: 'some text'})
+ * scopes.svyEventManager.fireEvent(id, EVENT_TYPES.MY_OWN_EVENT_TYPE, event)
  *</pre>
  *
  * @properties={typeid:24,uuid:"06FDBBB0-D4AF-48E1-BE0F-858BC089D977"}
@@ -328,8 +328,8 @@ function fireEvent(obj, eventType, args, isVetoable) {
  * var EVENT_TYPES = {
  * 	MY_OWN_EVENT_TYPE: 'myOwnEventType'
  * }
- * var event = new scopes.modUtils$eventManager.Event(myObject, EVENT_TYPES.MY_OWN_EVENT_TYPE, {x: 10, y:20}, {description: 'some text'})
- * scopes.modUtils$eventManager.fireEvent(id, EVENT_TYPES.MY_OWN_EVENT_TYPE, event)
+ * var event = new scopes.svyEventManager.Event(myObject, EVENT_TYPES.MY_OWN_EVENT_TYPE, {x: 10, y:20}, {description: 'some text'})
+ * scopes.svyEventManager.fireEvent(id, EVENT_TYPES.MY_OWN_EVENT_TYPE, event)
  *</pre>
  * 
  * @example <pre> //Example of extending the base class
@@ -337,7 +337,7 @@ function fireEvent(obj, eventType, args, isVetoable) {
  *  * Extended Event class that also exposes getPosition
  *  * &#64;private
  *  * &#64;constructor 
- *  * &#64;extends {scopes.modUtils$eventManager.Event}
+ *  * &#64;extends {scopes.svyEventManager.Event}
  *  *
  *  * @param {String} type
  *  * @param {*} source
@@ -345,7 +345,7 @@ function fireEvent(obj, eventType, args, isVetoable) {
  *  * @param {Object} [data]
  *  *&#47;
  *  function Event(type, source, position, data) {
- *  	scopes.modUtils$eventManager.Event.call(this, type, source, data); //Applying the arguments to the base class constructor
+ *  	scopes.svyEventManager.Event.call(this, type, source, data); //Applying the arguments to the base class constructor
  *  	
  *  	this.getPosition = function() {
  *  		return position||null;
@@ -353,7 +353,7 @@ function fireEvent(obj, eventType, args, isVetoable) {
  *  }
  *  
  *  var eventSetup = function() {
- *  	Event.prototype = Object.create(scopes.modUtils$eventManager.Event.prototype); //Set the custom event's prototype to the base class, without invoking the constructor
+ *  	Event.prototype = Object.create(scopes.svyEventManager.Event.prototype); //Set the custom event's prototype to the base class, without invoking the constructor
  *  }()
  *</pre>
  *  
