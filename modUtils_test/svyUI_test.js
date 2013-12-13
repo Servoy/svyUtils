@@ -2,9 +2,9 @@
  * @properties={typeid:24,uuid:"0AEFCB90-5651-4A2D-B0F8-18E7C2F114E7"}
  */
 function test_getFormHeight() {
-	jsunit.assertEquals(50, scopes.modUtils$UI.getJSFormHeight("test_svyUI$getFormParts_base_base"));
-	jsunit.assertEquals(90, scopes.modUtils$UI.getJSFormHeight("test_svyUI$getFormParts_base"));
-	jsunit.assertEquals(120, scopes.modUtils$UI.getJSFormHeight("test_svyUI$getFormParts"));
+	jsunit.assertEquals(50, scopes.svyUI.getJSFormHeight("test_svyUI$getFormParts_base_base"));
+	jsunit.assertEquals(90, scopes.svyUI.getJSFormHeight("test_svyUI$getFormParts_base"));
+	jsunit.assertEquals(120, scopes.svyUI.getJSFormHeight("test_svyUI$getFormParts"));
 }
 
 /**
@@ -34,8 +34,8 @@ function test_getJSFormForInput() {
 	jsunit.assertTrue(application.createNewFormInstance(id, id + '_2'))
 	jsunit.assertTrue(application.createNewFormInstance(id, id + '_3'))
 	
-	jsunit.assertEquals(smForm, scopes.modUtils$UI.getJSFormForReference(id + '_3'))
-	jsunit.assertEquals(smForm, scopes.modUtils$UI.getJSFormForReference(forms[id + '_3']))
+	jsunit.assertEquals(smForm, scopes.svyUI.getJSFormForReference(id + '_3'))
+	jsunit.assertEquals(smForm, scopes.svyUI.getJSFormForReference(forms[id + '_3']))
 	
 	jsunit.assertTrue(forms[id + '_3'] instanceof forms[id + '_2'])
 	jsunit.assertTrue(forms[id + '_2'] instanceof forms[id + '_3'])
@@ -52,12 +52,12 @@ function test_getRuntimeFormInstanceNames() {
 	jsunit.assertTrue(application.createNewFormInstance(id, id + '_2'))
 	jsunit.assertTrue(application.createNewFormInstance(id, id + '_3'))
 	
-	jsunit.assertEquals(0, scopes.modUtils$UI.getRuntimeFormInstanceNames(smForm).length)
+	jsunit.assertEquals(0, scopes.svyUI.getRuntimeFormInstanceNames(smForm).length)
 	forms[id]
-	jsunit.assertEquals(1, scopes.modUtils$UI.getRuntimeFormInstanceNames(smForm).length)
+	jsunit.assertEquals(1, scopes.svyUI.getRuntimeFormInstanceNames(smForm).length)
 	forms[id + '_2']
-	jsunit.assertEquals(2, scopes.modUtils$UI.getRuntimeFormInstanceNames(smForm).length)
+	jsunit.assertEquals(2, scopes.svyUI.getRuntimeFormInstanceNames(smForm).length)
 	forms[id + '_3']
-	jsunit.assertEquals(3, scopes.modUtils$UI.getRuntimeFormInstanceNames(smForm).length)
+	jsunit.assertEquals(3, scopes.svyUI.getRuntimeFormInstanceNames(smForm).length)
 
 }

@@ -279,7 +279,7 @@ var userPropPersistenceImpl;
 function getUserPropertyPersistenceImpl(){
 	if(!userPropPersistenceImpl){
 		var impl = 'defaultUserPropertyPersistenceImpl';
-		var implementations = scopes.modUtils$UI.getJSFormInstances(solutionModel.getForm(impl));
+		var implementations = scopes.svyUI.getJSFormInstances(solutionModel.getForm(impl));
 		if(implementations.length){
 			if(implementations.length > 1){
 				application.output('User Property Persistence SPI: More than one service providers for User Property Persistence. Using first implementation encountered',LOGGINGLEVEL.WARNING);
