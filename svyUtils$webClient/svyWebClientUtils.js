@@ -328,8 +328,8 @@ function convertToExternalURL(url, disableAutoAdjustProtocol) {
 	if (url.indexOf(MEDIA_URL_PREFIX) != 0) {
 		//Replace http with https when the WC is running under https, to prevent mixed content warnings in the browser
 		if (!disableAutoAdjustProtocol && url.substr(0,4) == 'http') {
-			var requiredProtocol = scopes.modUtils$net.parseUrl(application.getServerURL()).protocol
-			var usedProtocol = scopes.modUtils$net.parseUrl(url).protocol
+			var requiredProtocol = scopes.svyNet.parseUrl(application.getServerURL()).protocol
+			var usedProtocol = scopes.svyNet.parseUrl(url).protocol
 			if (usedProtocol != requiredProtocol) {
 				return requiredProtocol + url.substr(usedProtocol.length)
 			}
