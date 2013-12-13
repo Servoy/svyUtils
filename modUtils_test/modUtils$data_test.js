@@ -6,7 +6,7 @@ function testPivotJSDataSet() {
 	ds.addRow(['col1_row1','col2_row1'])
 	ds.addRow(['col1_row2','col2_row2'])
 	
-	var pivoted = scopes.modUtils$data.pivotJSDataSet(ds)
+	var pivoted = scopes.svyDataUtils.pivotJSDataSet(ds)
 	jsunit.assertEquals(3,pivoted.getMaxColumnIndex())
 	jsunit.assertEquals(2,pivoted.getMaxRowIndex())
 	jsunit.assertEquals('row2',pivoted.getColumnName(3))
