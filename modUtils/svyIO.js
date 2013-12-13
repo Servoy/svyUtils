@@ -33,7 +33,7 @@
  * @properties={typeid:24,uuid:"95C45F79-F469-4542-BB8B-BE226010D8B1"}
  */
 function openFileWithDefaultViewer(file) {
-	if (!scopes.modUtils$system.isSwingClient()) {
+	if (!scopes.svySystem.isSwingClient()) {
 		throw new scopes.modUtils$exceptions.UnsupportedOperationException('Operation only supported in Smart or Runtime Client')
 	}
 	var osName = application.getOSName();
@@ -376,7 +376,7 @@ function isFileOpen(file) {
 		throw new FileNotFoundException(null, file)
 	}
 	var result;
-	if (scopes.modUtils$system.isWindowsPlatform()) {
+	if (scopes.svySystem.isWindowsPlatform()) {
 		if (!file.canWrite()) {
 			return true;
 		}

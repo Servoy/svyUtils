@@ -51,7 +51,7 @@ var MEDIA_URL_PREFIX = 'media:///'
  * @properties={typeid:24,uuid:"9287AC01-F11F-4949-BC4C-1C01F04D41D4"}
  */
 function checkOperationSupported() {
-	if (!scopes.modUtils$system.isWebClient()) {
+	if (!scopes.svySystem.isWebClient()) {
 		throw new scopes.modUtils$exceptions.UnsupportedOperationException('Only supported in Web Client')
 	}
 }
@@ -128,7 +128,7 @@ function setFieldHtmlType(element, type) {
  * @properties={typeid:35,uuid:"A01241DE-FB9B-4CA7-B1AA-E34500EABD34",variableType:-4}
  */
 var initSetFieldHtmlType = function(){
-	if (!scopes.modUtils$system.isWebClient()) return;
+	if (!scopes.svySystem.isWebClient()) return;
 	//FIXME: this code gets called/added now everytime
 	//TODO: Remove this code after upgrading to newer Wicket version (this "patch is for wicket 1.4))
 	//Override Wicket function to support all HTML5 input types
@@ -1041,7 +1041,7 @@ var terminator = new Continuation()
  */
 function updateUI(milliseconds) {
 	checkOperationSupported()
-	if (scopes.modUtils$system.isWebClient()) {
+	if (scopes.svySystem.isWebClient()) {
       c = new Continuation();
       //FIXME: convert to not use WebClientUtils plugin
       executeClientsideScript(plugins.WebClientUtils.generateCallbackScript(updateUIResume));

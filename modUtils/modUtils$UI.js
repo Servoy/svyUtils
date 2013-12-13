@@ -358,7 +358,7 @@ function persistSplitPaneDividerPosition(formName, elementName) {
 		return;
 	}
 	var pos = forms[formName].elements[elementName].dividerLocation;
-	scopes.modUtils$system.setUserProperty(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc', pos)
+	scopes.svySystem.setUserProperty(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc', pos)
 }
 
 /**
@@ -375,7 +375,7 @@ function restoreSplitPaneDividerPosition(formName, elementName, position) {
 		return;
 	}
 	/** @type {String} */
-	var pos = scopes.modUtils$system.getUserProperty(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc');
+	var pos = scopes.svySystem.getUserProperty(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc');
 	pos = utils.stringToNumber(pos);
 	forms[formName].elements[elementName]['dividerLocation'] = pos ? pos : position;
 }
