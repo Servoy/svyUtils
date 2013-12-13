@@ -127,7 +127,7 @@ function getJSDataSetByQueryAsync(query, maxReturnedRows, onSuccess, onError) {
  * Converts a byte[] to String<br>
  * <br>
  * @param {byte[]} bytes
- * @param {String} [encoding] Optional param to specify the encoding/chartset to use. See {@link scopes#modUtils$IO#CHAR_SETS} for possible values. Default: scopes.svyIO.CHAR_SETS.UTF_8
+ * @param {String} [encoding] Optional param to specify the encoding/chartset to use. See {@link scopes#svyIO#CHAR_SETS} for possible values. Default: scopes.svyIO.CHAR_SETS.UTF_8
  * @return {String}
  * 
  * @properties={typeid:24,uuid:"62FDE25B-B38E-4799-8DFD-9A151FB3DC7E"}

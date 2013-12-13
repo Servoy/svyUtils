@@ -305,7 +305,7 @@ function jsonConvertToObject(databaseValue, dbType) {
 }
 
 /**
- * TODO: Shouldn't this go into modUtils$data?
+ * TODO: Shouldn't this go into svyDataUtils?
  * Retrieve a valuelist display-value for a real-value.<p>
  * 
  * This method will also find values from type ahead value<br>
