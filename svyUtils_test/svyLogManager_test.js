@@ -44,13 +44,13 @@ function testLogManager() {
 	var childLogger = scopes.svyLogManager.getLogger('com.servoy.bap.test.child')
 
 	//Test plain debug message
-	scopes.modUnitTestUtils.logMessages.ApplicationOutputAppender.length = 0
+	scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length = 0
 	testLogger.debug('hello')
-	jsunit.assertEquals(1, scopes.modUnitTestUtils.logMessages.ApplicationOutputAppender.length)
-	jsunit.assertEquals('DEBUG c.s.b.test - hello', scopes.modUnitTestUtils.logMessages.ApplicationOutputAppender[0])
+	jsunit.assertEquals(1, scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length)
+	jsunit.assertEquals('DEBUG c.s.b.test - hello', scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender[0])
 
 	//Test additivity and level filtering
-	scopes.modUnitTestUtils.logMessages.ApplicationOutputAppender.length = 0
+	scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length = 0
 	testLogger2.info('hello')
 	/* Fails because the testLogger2 logs directly to the appender of the RootLogger, bypassing any level checks based on the config of the RootLogger.
 	 * Looking at the info on the web, this is correct through.
@@ -59,10 +59,10 @@ function testLogManager() {
 	 * Another option is adding a level to the AppenderRef, but it is then possible that 2 Loggers use the same named Appender with a different Level settings...
 	 * See https://issues.apache.org/jira/browse/LOG4J2-60 and http://stackoverflow.com/questions/16042628/log4j2-configuration
 	 */
-	jsunit.assertEquals(1, scopes.modUnitTestUtils.logMessages.ApplicationOutputAppender.length)
+	jsunit.assertEquals(1, scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length)
 
 	//Test additivity and level filtering
-	scopes.modUnitTestUtils.logMessages.ApplicationOutputAppender.length = 0
+	scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length = 0
 	testLogger2.error('hello')
-	jsunit.assertEquals(2, scopes.modUnitTestUtils.logMessages.ApplicationOutputAppender.length)
+	jsunit.assertEquals(2, scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length)
 }

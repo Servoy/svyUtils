@@ -1,6 +1,6 @@
 fileVersion:44,
 mustAuthenticate:false,
-name:"modUnitTestUtils",
+name:"svyUtils$unitTest",
 solutionType:2,
 typeid:43,
 uuid:"F196F60B-ACA3-4727-8A49-49251B565F18"
