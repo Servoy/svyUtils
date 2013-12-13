@@ -310,7 +310,7 @@ function loadConfig(configuration) {
 	var plugs = configuration.plugins ? configuration.plugins.split(',') : []
 	for (var i = 0; i < plugs.length; i++) {
 		var plugName = utils.stringTrim(plugs[i]);
-		var plugin = scopes.modUtils.getObject(plugName)
+		var plugin = scopes.svyUtils.getObject(plugName)
 		if (plugin.prototype instanceof LogPlugin) {
 			logPlugins[plugName] = plugin
 		} else {

@@ -16,6 +16,7 @@
  */
 
 /**
+ * @private 
  * @properties={typeid:35,uuid:"7EBC4113-8B59-4A6D-9F4E-D717DFE5F374",variableType:-4}
  */
 var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils')
@@ -139,7 +140,7 @@ function convertServoyMethodToQualifiedName(method) {
  */
 function isValueUnique(foundsetRecordOrDataSource, dataproviderName, value, extraQueryColumns, extraQueryValues) {
 	if (!foundsetRecordOrDataSource || !dataproviderName) {
-		throw new scopes.svyExceptions.IllegalArgumentException("no parameters provided to scopes.modUtils.isValueUnique(foundsetOrRecord, dataproviderName, value)");
+		throw new scopes.svyExceptions.IllegalArgumentException("no parameters provided to scopes.svyUtils.isValueUnique(foundsetOrRecord, dataproviderName, value)");
 	}
 	/** @type {String} */
 	var dataSource = (foundsetRecordOrDataSource instanceof String) ? foundsetRecordOrDataSource : foundsetRecordOrDataSource.getDataSource();
@@ -388,26 +389,26 @@ function isObject(object) {
 //TODO add replacer function for JSON.stringify that handles circular references or a custom object stringifier that does this and also removes the quotes around the keys
 
 /*Attempt to replace globals.svy_utl_getTypeOf, but doesn't work that well (yet)
- * =>scopes.modUtils.getType(undefined)
+ * =>scopes.svyUtils.getType(undefined)
  * global
- * =>scopes.modUtils.getType(null)
+ * =>scopes.svyUtils.getType(null)
  * global
  * =>var x = databaseManager.createEmptyDataSet()
- * =>scopes.modUtils.getType(x)
+ * =>scopes.svyUtils.getType(x)
  * jsdataset
- * =>scopes.modUtils.getType(databaseManager.getFoundSet('db:/svy_framework/log'))
+ * =>scopes.svyUtils.getType(databaseManager.getFoundSet('db:/svy_framework/log'))
  * foundset
- * =>scopes.modUtils.getType(solutionModel.getForm('AbstractModuleDef'))
+ * =>scopes.svyUtils.getType(solutionModel.getForm('AbstractModuleDef'))
  * javaobject
- * =>scopes.modUtils.getType(plugins)
+ * =>scopes.svyUtils.getType(plugins)
  * pluginscope
- * =>scopes.modUtils.getType(forms)
+ * =>scopes.svyUtils.getType(forms)
  * creationalprototype
- * =>scopes.modUtils.getType(forms.AbstractModuleDef.controller)
+ * =>scopes.svyUtils.getType(forms.AbstractModuleDef.controller)
  * javaobject
- * =>scopes.modUtils.getType(forms.AbstractModuleDef.getId())
+ * =>scopes.svyUtils.getType(forms.AbstractModuleDef.getId())
  * global
- * =>scopes.modUtils.getType(forms.AbstractModuleDef.getId)
+ * =>scopes.svyUtils.getType(forms.AbstractModuleDef.getId)
  * function
  */
 ///**

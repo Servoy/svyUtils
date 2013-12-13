@@ -752,7 +752,7 @@ function getCallbackBehavior() {
 				
 				var target
 				try {
-					//var o = scopes.modUtils.callMethod(options.m, requestArgs||[])
+					//var o = scopes.svyUtils.callMethod(options.m, requestArgs||[])
 					/** @type {*} */
 					var o = getWebClientPluginAccess().executeMethod('scopes.modUtils', 'callMethod', [options.m, requestArgs||[]], false) //String context, String methodname, Object[] arguments, final boolean async
 
@@ -792,7 +792,7 @@ function getCallbackBehavior() {
 					var message = ''
 					if (typeof e == 'number') {
 						statusCode = e
-					} else if (scopes.modUtils.isObject(e)) {
+					} else if (scopes.svyUtils.isObject(e)) {
 						statusCode = e['statusCode']
 						message = e['message']
 					} else {
