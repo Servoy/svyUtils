@@ -77,7 +77,7 @@ function getObject(qualifiedName, context) {
 function callMethod(qualifiedName, args, context) {
 	var bits = qualifiedName.split('.')
 	var methodName = bits.pop()
-	var scope = getObject(bits.join('.'), context)
+	var scope = bits.length ? getObject(bits.join('.'), context) : context
 	
 	if (!scope || !(scope[methodName] instanceof Function)) {
 		throw scopes.svyExceptions.IllegalArgumentException('\'' + qualifiedName + '\' cannot be resolved to a method')
