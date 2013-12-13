@@ -514,7 +514,7 @@ function getShortMonthNames(locale) {
  * @return {String[]} weekdayNames
  * 
  * @example // returns an array of all week days in French<br>
- * var dayNames = scopes.modUtils$date.getWeekdayNames("fr");
+ * var dayNames = scopes.svyDateUtils.getWeekdayNames("fr");
  *
  * @properties={typeid:24,uuid:"06E0DFE5-0CC7-4B67-8AEF-138055EDE536"}
  */
@@ -560,7 +560,7 @@ function getWeekOfYear(date) {
  * @return {String[]} shortWeekdayNames
  * 
  * @example // returns an array of all the short names of the week days in French<br>
- * var dayNames = scopes.modUtils$date.getShortWeekdayNames("fr");
+ * var dayNames = scopes.svyDateUtils.getShortWeekdayNames("fr");
  *
  * @properties={typeid:24,uuid:"18721F93-8475-4680-A922-739A74B87C3A"}
  */
@@ -867,7 +867,7 @@ function getDecimalHours(date) {
 function DateTime(date) {
 	
 	if (!(this instanceof DateTime)) {
-		application.output("scopes.modUtils$date.DateTime: Constructor functions should be called with the \"new\" keyword!", LOGGINGLEVEL.WARNING);
+		application.output("scopes.svyDateUtils.DateTime: Constructor functions should be called with the \"new\" keyword!", LOGGINGLEVEL.WARNING);
 		return new DateTime(date)
 	}
 	
