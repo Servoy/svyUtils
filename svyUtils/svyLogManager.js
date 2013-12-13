@@ -442,7 +442,7 @@ function getAppenderForRef(appenderRef) {
 		return null
 	}
 	if (namedAppenders.hasOwnProperty(appenderRef.ref)) {
-		statusLogger.trace('Existing Appender returned')
+		statusLogger.trace('Existing Appender returned for ' + appenderRef.ref)
 		return namedAppenders[appenderRef.ref]
 	}
 	for (var j = 0; j < currentConfig.appenders.length; j++) {
@@ -466,9 +466,8 @@ function getAppenderForRef(appenderRef) {
 }
 
 /**
- * TODO generated, please specify type and doc for the params
- * @param type
- * @param configNode
+ * @param {String} type
+ * @param {Object} configNode
  *
  * @properties={typeid:24,uuid:"CA46514A-47F4-4DF0-B880-6033387B96E2"}
  */
@@ -1137,9 +1136,12 @@ var rootLogger
  */
 function getRootLoggerInternal() {
 	if (!rootLogger) {
+		//TODO: RootLogger config should be read from the config
 		rootLogger = new LoggerInternal(ROOT_LOGGER_NAME);
 		rootLogger.setLevel(ROOT_LOGGER_DEFAULT_LEVEL);
-		rootLogger.addAppender(new ApplicationOutputAppender()) //TODO: this should be read from the config
+		var appender = new ApplicationOutputAppender()
+		appender.layout = new PatternLayout('%5level %m')
+		rootLogger.addAppender(appender) 
 	}
 	return rootLogger;
 }
@@ -1415,7 +1417,7 @@ var AbstractAppenderInit = (function(){
  * @properties={typeid:24,uuid:"4500F0BF-BB5B-4D4C-868A-611335B3AD71"}
  */
 function ApplicationOutputAppender() {
-	 AbstractAppender.call(this);
+	AbstractAppender.call(this);
 	
 	/**
 	 * @param {LoggingEvent} loggingEvent
