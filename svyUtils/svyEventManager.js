@@ -301,7 +301,7 @@ function fireEvent(obj, eventType, args, isVetoable) {
 							continue
 					}
 
-					var result = scope[actionStringParts[2]].apply(scope, Array.isArray(args) || {}.toString.call(arguments).match(/\s([a-zA-Z]+)/)[1].toLowerCase() == 'arguments'? args : [args]);
+					var result = scope[actionStringParts[2]].apply(scope, Array.isArray(args) || {}.toString.call(args).match(/\s([a-zA-Z]+)/)[1].toLowerCase() == 'arguments'? args : [args]);
 					if(isVetoable && result === false){
 						return false;	// terminate event propagation and (possibly) veto change (This is implementation-specific)
 					}
