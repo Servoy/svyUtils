@@ -81,13 +81,17 @@
  * 
  * TODOs
  * - finish (re)configuration
+ * - make all loggers share a loggerconfig based on the actual configuration
+ * - make all config go through the same methods: getLogger, getRootLogger, loadConfig
+ * - Allow multiple appenders per logger in the config
+ * - Support consise format besides strict format
+ * - support filters
  * - Make it so that named appender result in one shared instance
  * - Review all layouts except PatternLayout
  * - fix warnings
  * - Support also ServoyException (maybe just java.lang.Exception) as exception param when logging
  * - See if Level can be not exposed as Constructor function, but as an object with static properties only
  * - See which appenders/layouts need to stay
- * - rename to logManager
  * - Change Logger impl. to use shared Loggerconfig objects between Loggers, like Log4j 2
  * - Add message formatting as in log4j 2
  * - Add catching as in Log4j 2
@@ -292,7 +296,7 @@ function loadConfig(configuration) {
 	currentConfig = configuration = configuration||defaultConfig
 	
 	//Reset the status logger
-	statusLoggerInternal.setLevel(Level.toLevel(configuration.status, Level.ERROR))
+	statusLoggerConfig.setLevel(Level.toLevel(configuration.status, Level.ERROR))
 	
 	//Load custom LogPlugins
 	var pluginName
@@ -332,7 +336,7 @@ function loadConfig(configuration) {
 		statusLogger.error('Unable to locate configuration for logger ROOTLOGGER (Using default config instead)')
 		rootLoggerConfig = defaultConfig.loggers.root
 	}
-	var rl = getRootLoggerInternal()
+	var rl = getRootLoggerConfig()
 	rl.setLevel(Level.toLevel(rootLoggerConfig.level, ROOT_LOGGER_DEFAULT_LEVEL))	
 	rl.setAdditivity(false)
 	rl.removeAllAppenders()
@@ -584,31 +588,31 @@ var levelInit = (function() {
 
 /* ----------------------------------Loggers------------------------------------ */
 /**
- * TODO: the mechanism of Logger and LoggerInternal can be optimized even further: 
- * LoggerInternal instances are only needed for Loggers that are defined in the config 
- * and all instantiated loggers use the LoggerInternal of the closest parent that is configured.
+ * TODO: the mechanism of Logger and LoggerConfig can be optimized even further: 
+ * nstances are only needed for Loggers that are defined in the config 
+ * and all instantiated loggers use the LoggerConfig of the closest parent that is configured.
  * Logger instances that are not backed by config receive all their settings from a parent that is backed by config anyway
  * @private
  * @constructor
- * @this {LoggerInternal}
+ * @this {LoggerConfig}
  *
  * @param {String} name
  * @param {Logger} [logger] Optional Logger, used when reconfiguring existing loggers
  *
  * @properties={typeid:24,uuid:"1086E0C7-EE0E-4A8B-B208-9E27A4057B9F"}
  */
-function LoggerInternal(name, logger) {
+function LoggerConfig(name, logger) {
 	/**
 	 * @type {Level}
 	 */
 	this.effectiveLevel = null
 	
 	/**
-	 * @type {LoggerInternal}
+	 * @type {LoggerConfig}
 	 */
 	this.parent = null;
 	/**
-	 * @type {Array<LoggerInternal>}
+	 * @type {Array<LoggerConfig>}
 	 */
 	var children = [];
 	
@@ -630,7 +634,7 @@ function LoggerInternal(name, logger) {
 	}
 	
 	/**
-	 * @param {LoggerInternal} childLogger
+	 * @param {LoggerConfig} childLogger
 	 */
 	this.addChild = function(childLogger) {
 		//Check existing children and see if they need to become a child of childLogger instead
@@ -882,13 +886,13 @@ function LoggerInternal(name, logger) {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"0F992E15-B252-4AC8-9041-F2AF6A132DE2",variableType:-4}
  */
-var initLoggerInternal = (function(){
-	LoggerInternal.prototype = new LogPlugin() //Object.create(LogPlugin.prototype)
-	LoggerInternal.prototype.constructor = LoggerInternal
+var initLoggerConfig = (function(){
+	LoggerConfig.prototype = new LogPlugin() //Object.create(LogPlugin.prototype)
+	LoggerConfig.prototype.constructor = LoggerConfig
 	
 	//TODO: this PluginFactory is not yet used anywhere
-	LoggerInternal.PluginFactory = function(config) {
-		var retval = new LoggerInternal(config.name)
+	LoggerConfig.PluginFactory = function(config) {
+		var retval = new LoggerConfig(config.name)
 				
 		var keys = Object.keys(config)
 		for (var index = 0; index < keys.length; index++) {
@@ -1104,7 +1108,7 @@ function Logger(internal) {
  * 
  * TODO: should be a WeakMap to unreferenced loggers are GC. Currently Loggers hold a direct reference to their parent and children, so this wouldn't help.
  * @private
- * @type {Object<LoggerInternal>}
+ * @type {Object<LoggerConfig>}
  * @properties={typeid:35,uuid:"0F49DC42-01BC-4720-B19F-DA1B30BF9D1E",variableType:-4}
  */
 var loggers = {};
@@ -1125,7 +1129,7 @@ var ROOT_LOGGER_DEFAULT_LEVEL = application.isInDeveloper() ? Level.DEBUG : Leve
 
 /**
  * @private
- * @type {LoggerInternal}
+ * @type {LoggerConfig}
  * @properties={typeid:35,uuid:"8FD01917-2F91-4033-A373-C6B8476A6476",variableType:-4}
  */
 var rootLogger
@@ -1134,10 +1138,10 @@ var rootLogger
  * @private
  * @properties={typeid:24,uuid:"AB765A70-AFE5-408F-8DA2-AC05200BD87B"}
  */
-function getRootLoggerInternal() {
+function getRootLoggerConfig() {
 	if (!rootLogger) {
 		//TODO: RootLogger config should be read from the config
-		rootLogger = new LoggerInternal(ROOT_LOGGER_NAME);
+		rootLogger = new LoggerConfig(ROOT_LOGGER_NAME);
 		rootLogger.setLevel(ROOT_LOGGER_DEFAULT_LEVEL);
 		var appender = new ApplicationOutputAppender()
 		appender.layout = new PatternLayout('%5level %m')
@@ -1163,12 +1167,12 @@ function getLogger(loggerName) {
 	}
 
 	if (loggerName == ROOT_LOGGER_NAME) {
-		return (rootLogger||getRootLoggerInternal()).externalLogger
+		return (rootLogger||getRootLoggerConfig()).externalLogger
 	}
 
 	// Create the logger for this name if it doesn't already exist
 	if (!loggers[loggerName]) {
-		var logger = new LoggerInternal(loggerName)
+		var logger = new LoggerConfig(loggerName)
 		loggers[loggerName] = logger;
 		
 		if (currentConfig.loggers && currentConfig.loggers.logger) {
@@ -1204,7 +1208,7 @@ function getLogger(loggerName) {
 			parentName = parentName.substring(0, parentName.lastIndexOf("."));
 			parent = loggers[parentName]
 		}
-		parent = parent||getRootLoggerInternal()
+		parent = parent||getRootLoggerConfig()
 		statusLogger.trace('Found parent is "' + parent.getName() + '"')
 		if (!logger.getLevel()) {
 			logger.setEffectiveLevel(parent.effectiveLevel)
@@ -1220,7 +1224,7 @@ function getLogger(loggerName) {
  * @private
  * @constructor
  *
- * @param {LoggerInternal} logger
+ * @param {LoggerConfig} logger
  * @param {Date} timeStamp
  * @param {Level} level
  * @param {String} message
@@ -1256,7 +1260,6 @@ var loggingEventInit = (function() {
 }())
 
 /* -------------------------------LogPlugin prototype--------------------------------------- */
-//TODO: not all LogPlugins implement the required static PluginFactory method
 /**
  * Empty base class for all classes that are to be configurable Log components</br>
  * Each LogPlugin subclass must provide a static PluginFactory method that takes a config snippet as parameter and returns an instance of itself
@@ -2350,7 +2353,7 @@ var patternLayoutInit = (function() {
  * @private
  * @properties={typeid:35,uuid:"7BA41465-E0B4-4A49-9A83-FA49AF7E644C",variableType:-4}
  */
-var statusLoggerInternal = {
+var statusLoggerConfig = {
 	name: 'StatusLogger',
 	effectiveLevel: Level.DEBUG,
 	setLevel: function(level) {
@@ -2385,7 +2388,7 @@ var statusLoggerInternal = {
  *
  * @properties={typeid:35,uuid:"EB873CA1-E87F-45C5-8466-92A241156D3F",variableType:-4}
  */
-var statusLogger = new Logger(statusLoggerInternal)
+var statusLogger = new Logger(statusLoggerConfig)
 
 /**
  * Gets the logger to be used in LogPlugins for logging messages about the internals of the LogPlugin itself.
