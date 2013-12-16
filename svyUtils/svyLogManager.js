@@ -326,6 +326,7 @@ function loadConfig(configuration) {
 		}
 	}
 	
+	//For now we just clear out the store of named appenders and create new ones, instead of reconfiguring existing instances
 	namedAppenders = {}
 	
 	//reset the rootlogger
