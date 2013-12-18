@@ -260,9 +260,7 @@ function removeListener(obj, eventType, eventHandler) {
  * @param {*|String} obj The object on which behalf to fire the event
  * @param {String} eventType The event identifier
  * @param {*|Array<*>} [args] A value, an Array of values or an arguments object to apply as arguments to the eventHandler invocation
- * @param {Boolean} [isVetoable] Optionally specify if an event can be vetoed. A listener may veto an event by returning false. Subsequent propagation of the event is then cancelled
- *
- * @return {Boolean} True unless the event was vetoable and vetoed by a listener, in which case all subsequent listeners will not be notified and the caller of this method has an opportunity to veto a change
+ * @param {Boolean} [isVetoable] Optionally specify if an event can be vetoed. A listener may veto an event by throwing a {@link #VetoEventException}. Subsequent propagation of the event is then cancelled
  *
  * @example <pre> //Example of using the Event class to fire an Event
  * var EVENT_TYPES = {
@@ -281,7 +279,8 @@ function fireEvent(obj, eventType, args, isVetoable) {
 		if (evtel) {
 			var curel = evtel[eventType];
 			if (curel) {
-				for (var act in curel) { //Is this a save loop? what if on fireEvent a listener removes itself or another one?
+				curel = curel.slice(0) //making a copy of the array with listeners to have a safe loop if listeners get removed
+				for (var act in curel) { 
 					if (!curel[act]) continue
 					var actionStringParts = curel[act].split('.');
 					var scope
@@ -300,15 +299,24 @@ function fireEvent(obj, eventType, args, isVetoable) {
 							continue
 					}
 
-					var result = scope[actionStringParts[2]].apply(scope, Array.isArray(args) || {}.toString.call(args).match(/\s([a-zA-Z]+)/)[1].toLowerCase() == 'arguments'? args : [args]);
-					if(isVetoable && result === false){
-						return false;	// terminate event propagation and (possibly) veto change (This is implementation-specific)
+					args = Array.isArray(args) || {}.toString.call(args).match(/\s([a-zA-Z]+)/)[1].toLowerCase() == 'arguments'? args : [args]
+					if (!(isVetoable === true)) {
+						//Firing of listeners of non-vetoable events are wrapped in try/catch to throw an UnsupportedOperationException when a listener throws a VetoEventException anyway
+						try {
+							scope[actionStringParts[2]].apply(scope, args);
+						} catch (e if e instanceof VetoEventException) {
+							throw scopes.svyExceptions.UnsupportedOperationException('Attempt made to veto a non-vetoable event')
+						} catch (e) {
+							throw e;
+						}
+					} else { //Not wrapping calling of listeners on vetoable events in try/catch to prevent the try/catch overhead
+						scope[actionStringParts[2]].apply(scope, args);
 					}
 				}
 			}
 		}
 	}
-	return true;
+
 }
 
 /**
@@ -412,3 +420,26 @@ function Event(type, source, data) {
 		return retval.slice(0, -2) + ')'
 	}
 }
+
+/**
+ * 
+ * @param message
+ *
+ * @properties={typeid:24,uuid:"2F258EBF-F599-49E3-BDA7-6074A5978BF2"}
+ */
+function VetoEventException(message) {
+	if (!(this instanceof VetoEventException)) {
+		return new VetoEventException(message)
+	}
+	scopes.svyExceptions.SvyException.call(this, message);
+}
+
+/**
+ * @private
+ * @SuppressWarnings(unused)
+ * @properties={typeid:35,uuid:"01D1168C-2619-4128-AABB-1B0D076C6E92",variableType:-4}
+ */
+var init = (function(){
+	VetoEventException.prototype = Object.create(scopes.svyExceptions.SvyException.prototype);
+	VetoEventException.prototype.constructor = VetoEventException
+}())
