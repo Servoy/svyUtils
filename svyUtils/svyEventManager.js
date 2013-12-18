@@ -165,7 +165,6 @@ function getActionIdx(obj, evt, eventHandler) {
 	return -1;
 }
 
-//TODO: add full support for "Named elements/variables/methods of RuntimeForms," to the obj param: 
 /**
  * Adds a Servoy method as listener for the specified eventType on the specified object
  * 
