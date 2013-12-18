@@ -715,9 +715,8 @@ function getCallbackBehavior() {
 				
 				var target
 				try {
-					//var o = scopes.svyUtils.callMethod(options.m, requestArgs||[])
 					/** @type {*} */
-					var o = getWebClientPluginAccess().executeMethod('scopes.svyUtils', 'callMethod', [options.m, requestArgs||[]], false) //String context, String methodname, Object[] arguments, final boolean async
+					var o = getWebClientPluginAccess().executeMethod('scopes.svySystem', 'callMethod', [options.m, requestArgs||[]], false) //String context, String methodname, Object[] arguments, final boolean async
 
 					
 					if (options.f & 2) { //returnCallbackReturnValue

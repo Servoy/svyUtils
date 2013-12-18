@@ -329,3 +329,102 @@ function desistFormInMemory(form) {
 		persistentForms.splice(idx, 1)
 	}
 }
+/**
+ * Calls a method based on a qualified name String.
+ * TODO: add example code, also how to apply this for invocation on the same form
+ * @public
+ *
+ * @param {String} qualifiedName
+ * @param {*} [args]
+ * @param {*} [context] Optional context from where to start evaluating the qualifiedName
+ * 
+ * @return {*}
+ * @throws {scopes.svyExceptions.IllegalArgumentException}
+ *
+ * @see For getting a qualified name String for a Servoy method: {@link convertServoyMethodToQualifiedName}
+ *
+ * @properties={typeid:24,uuid:"33D899FA-8AC0-4E6C-BB21-46DC7EE3153A"}
+ */
+function callMethod(qualifiedName, args, context) {
+	var bits = qualifiedName.split('.')
+	var methodName = bits.pop()
+	var scope = bits.length ? getObject(bits.join('.'), context) : context
+	
+	if (!scope || !(scope[methodName] instanceof Function)) {
+		throw scopes.svyExceptions.IllegalArgumentException('\'' + qualifiedName + '\' cannot be resolved to a method')
+	}
+	return scope[methodName].apply(scope, args ? Array.isArray(args) ? args : [args] : null)
+}
+
+/**
+ * @param {String} qualifiedName
+ * @param {*} [context]
+ * @return {*}
+ *
+ * @properties={typeid:24,uuid:"C17D0CB5-FB9A-45BA-BEE7-9E203ED07DC5"}
+ */
+function getObject(qualifiedName, context) {
+	if (!qualifiedName) {
+		throw scopes.svyExceptions.IllegalArgumentException('\'qualifiedName\' parameter must be specified')
+	}
+	var bits = qualifiedName.split('.')
+	var scope = context
+	if (!scope || !scope[bits[0]]) {
+		switch (bits[0]) {
+			case 'forms':
+				bits.shift()
+				scope = forms[bits.shift()]
+				break;
+			case 'scopes':
+				bits.shift()
+				scope = scopes[bits.shift()]
+				break;
+			case 'globals':
+				bits.shift()
+				scope = globals
+				break;
+			default:
+				scope = null
+		}
+	}
+	while (scope != null && bits.length) {
+		scope = scope[bits.shift()]
+	}
+	return scope
+}
+
+/**
+ * Converts a Servoy method reference to a qualified name String
+ * 
+ * @public
+ * 
+ * @version 5.0
+ * @since 18.07.2013
+ * @author patrick
+ *
+ * @param {Function} method
+ * 
+ * @return {String} The qualified name for the provided method. Returns null if the provided method was not a function or not a Servoy method
+ * 
+ * @see For calling a Servoy method based on a qualified name String: {@link callMethod}
+ *
+ * @properties={typeid:24,uuid:"01FD6255-7730-45F0-8B4D-F1209F5AB5BE"}
+ */
+function convertServoyMethodToQualifiedName(method) {
+	if (method instanceof Function) {
+		try {
+			var fd = new Packages.com.servoy.j2db.scripting.FunctionDefinition(method)
+			if (fd.getFormName()) {
+				return 'forms.' + fd.getFormName() + '.' + fd.getMethodName()
+			} else if (fd.getScopeName()) {
+				return 'scopes.' + fd.getScopeName() + '.' + fd.getMethodName()
+			} else { //TODO: got all variations covered with the above logic?
+				return null
+			}
+		} catch (e) {
+			log.warn(e.message)
+			return null;
+		}
+	}
+	return null;
+}
