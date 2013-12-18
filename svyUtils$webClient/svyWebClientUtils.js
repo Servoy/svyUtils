@@ -262,19 +262,20 @@ function addResourceDependancy(url, element, disableAutoAdjustProtocol, isJSReso
 	checkOperationSupported()
 	
 	//branching based on existence of addGlobalResourceReference on the page contributor to inject resources globally or on the current pageContributor
-	if (!element && getWebClientPluginAccess().getPageContributor().addGlobalJSResourceReference) {
-		if (url.indexOf(MEDIA_URL_PREFIX) != 0) {
-			url = convertToExternalURL(url, disableAutoAdjustProtocol)
-		}
-		if (isJSResource) {
-			getWebClientPluginAccess().getPageContributor().addGlobalJSResourceReference(url)
+	if (!element) {
+		if (getWebClientPluginAccess().getPageContributor().addGlobalJSResourceReference) {
+			if (url.indexOf(MEDIA_URL_PREFIX) != 0) {
+				url = convertToExternalURL(url, disableAutoAdjustProtocol)
+			}
+			if (isJSResource) {
+				getWebClientPluginAccess().getPageContributor().addGlobalJSResourceReference(url)
+			} else {
+				getWebClientPluginAccess().getPageContributor().addGlobalCSSResourceReference(url)
+			}
 		} else {
-			getWebClientPluginAccess().getPageContributor().addGlobalCSSResourceReference(url)
-		}
-	} else {	
-		if (!element) {
 			log.warn('Resource "' + url + '" is added to the current JSWindow only. Requires Servoy 7.3 to add the resource to all current and future JSWindows')
 		}
+	} else {	
 		var contributor = new Packages.org.apache.wicket.behavior.HeaderContributor(new Packages.org.apache.wicket.markup.html.IHeaderContributor({
 				renderHead: function(/**@type {Packages.org.apache.wicket.markup.html.IHeaderResponse}*/ response) {
 					if (isJSResource) {
