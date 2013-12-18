@@ -754,7 +754,7 @@ function getCallbackBehavior() {
 					var message = ''
 					if (typeof e == 'number') {
 						statusCode = e
-					} else if (scopes.svyUtils.isObject(e)) {
+					} else if (scopes.svyJSUtils.isObject(e)) {
 						statusCode = e['statusCode']
 						message = e['message']
 					} else {
