@@ -58,7 +58,7 @@
 /**
  * @properties={typeid:35,uuid:"BAD462CD-2C90-491E-AAFC-765DAF09E5E9",variableType:-4}
  */
-var log = scopes.svyLogManager.getLogger('com.servoy.bap.eventmanager')
+var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.eventmanager')
 
 /**
  * @private
