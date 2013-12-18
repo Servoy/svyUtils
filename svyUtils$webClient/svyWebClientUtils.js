@@ -497,7 +497,6 @@ function getFormName(element) {
  * <br>
  * This method is low level, allowing a lot of control. For a more straightforward callback, see {@link #getCallbackScript}<br/>
  * @param {function(String, Object<Array<String>>):*|String} callback Either a Servoy method or a qualifiedName string pointing to a method. Method's first argument receives the bodyContent, second argument the requestParams
- * @param {String} [id]
  * 
  * @example <pre>
  * \/\/On the Server
@@ -516,7 +515,7 @@ function getFormName(element) {
  * 
  * @properties={typeid:24,uuid:"958C4A78-CE1A-479C-B9BE-711B1AACAD5D"}
  */
-function getCallbackUrl(callback, id) {
+function getCallbackUrl(callback) {
 	checkOperationSupported()
 	var callbackObject = generateCallback(callback, null, {returnCallbackReturnValue: true, supplyBody: true,supplyAllArguments: true})
 	return callbackObject.url + "&" + callbackObject.methodHash
@@ -530,7 +529,6 @@ function getCallbackUrl(callback, id) {
  * @param {Array} [args] 
  * @param {Boolean} [options.showLoading]
  * @param {String} [options.mimeType]
- * @param {String} [options.id]
  *
  * @properties={typeid:24,uuid:"A16EEE7F-85BE-4649-8E84-1CE50E9C96A6"}
  */
@@ -594,9 +592,6 @@ function getCallbackBehavior() {
 			 */
 			getUrlForCallback: function(qualifiedName, args, options) {
 				var settings = {m: qualifiedName, f:0}
-				if (options.hasOwnProperty('id')) {
-					settings.id = options.id
-				}
 				if (options.hasOwnProperty('mimeType')) {
 					settings.mt = options.mimeType
 				}
@@ -816,7 +811,6 @@ function getCallbackBehavior() {
  * @param {Array} [args] String values are considered references to browser-side properties. To pass hardcoded String literals the String value needs to be double quoted: '"myvalue"' or "'myValue'"
  * @param {{
  * 	mimeType: String=,
- *  id: String=,
  *  disableImmediateUpdate: Boolean=,
  *  returnCallbackReturnValue: Boolean=,
  *  supplyAllArguments: Boolean=
