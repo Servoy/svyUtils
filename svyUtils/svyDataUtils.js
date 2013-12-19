@@ -160,7 +160,7 @@ function StringToByteArray(string) {
  */
 function datasourceHasValue(datasource, dataproviderName, value, extraQueryColumns, extraQueryValues) {
 	if (!datasource || !dataproviderName) {
-		throw new scopes.svyExceptions.IllegalArgumentException("no parameters provided to scopes.svyUtils.isValueUnique(foundsetOrRecord, dataproviderName, value)");
+		throw new scopes.svyExceptions.IllegalArgumentException("no parameters provided to scopes.svyDataUtils.datasourceHasValue(foundsetOrRecord, dataproviderName, value)");
 	}
 	/** @type {String} */
 	var dataSource = (datasource instanceof String) ? datasource : datasource.getDataSource();

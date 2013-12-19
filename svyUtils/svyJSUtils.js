@@ -47,26 +47,26 @@ function objectHasValue(object, value) {
 //TODO add replacer function for JSON.stringify that handles circular references or a custom object stringifier that does this and also removes the quotes around the keys
 
 /*Attempt to replace globals.svy_utl_getTypeOf, but doesn't work that well (yet)
- * =>scopes.svyUtils.getType(undefined)
+ * =>scopes.svyJSUtils.getType(undefined)
  * global
- * =>scopes.svyUtils.getType(null)
+ * =>scopes.svyJSUtils.getType(null)
  * global
  * =>var x = databaseManager.createEmptyDataSet()
- * =>scopes.svyUtils.getType(x)
+ * =>scopes.svyJSUtils.getType(x)
  * jsdataset
- * =>scopes.svyUtils.getType(databaseManager.getFoundSet('db:/svy_framework/log'))
+ * =>scopes.svyJSUtils.getType(databaseManager.getFoundSet('db:/svy_framework/log'))
  * foundset
- * =>scopes.svyUtils.getType(solutionModel.getForm('AbstractModuleDef'))
+ * =>scopes.svyJSUtils.getType(solutionModel.getForm('AbstractModuleDef'))
  * javaobject
- * =>scopes.svyUtils.getType(plugins)
+ * =>scopes.svyJSUtils.getType(plugins)
  * pluginscope
- * =>scopes.svyUtils.getType(forms)
+ * =>scopes.svyJSUtils.getType(forms)
  * creationalprototype
- * =>scopes.svyUtils.getType(forms.AbstractModuleDef.controller)
+ * =>scopes.svyJSUtils.getType(forms.AbstractModuleDef.controller)
  * javaobject
- * =>scopes.svyUtils.getType(forms.AbstractModuleDef.getId())
+ * =>scopes.svyJSUtils.getType(forms.AbstractModuleDef.getId())
  * global
- * =>scopes.svyUtils.getType(forms.AbstractModuleDef.getId)
+ * =>scopes.svyJSUtils.getType(forms.AbstractModuleDef.getId)
  * function
  */
 ///**
