@@ -423,7 +423,7 @@ function Event(type, source, data) {
 
 /**
  * 
- * @param message
+ * @param {String} [message]
  *
  * @properties={typeid:24,uuid:"2F258EBF-F599-49E3-BDA7-6074A5978BF2"}
  */
@@ -431,7 +431,7 @@ function VetoEventException(message) {
 	if (!(this instanceof VetoEventException)) {
 		return new VetoEventException(message)
 	}
-	scopes.svyExceptions.SvyException.call(this, message);
+	scopes.svyExceptions.SvyException.call(this, message||'Event propagation vetoed');
 }
 
 /**
