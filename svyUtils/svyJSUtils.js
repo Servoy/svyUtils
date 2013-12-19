@@ -25,6 +25,25 @@ function isObject(object) {
 	return Object.prototype.toString.call(object) == '[object Object]'
 }
 
+/**
+ * Returns true if a given object has a property with the given value<br>
+ * Only checks properties of the Object itself, not properties inherited through the prototype chain
+ * 
+ * @param {Object} object
+ * @param {*} value
+ *
+ * @properties={typeid:24,uuid:"1961FA1B-D8D7-47F7-BFE7-FE017E7CB4FC"}
+ */
+function objectHasValue(object, value) {
+	var keys = Object.keys(object)
+	for (var i = 0; i < keys.length; i++) {
+		if (object[keys[i]] === value) {
+			return true;
+		}
+	}
+	return false;
+}
+
 //TODO add replacer function for JSON.stringify that handles circular references or a custom object stringifier that does this and also removes the quotes around the keys
 
 /*Attempt to replace globals.svy_utl_getTypeOf, but doesn't work that well (yet)

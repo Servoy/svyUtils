@@ -60,6 +60,73 @@ function getCheckBoxValueListItemRemoved(oldValue,newValue){
 }
 
 /**
+ * Alternative to application.getValueListDisplayValue.<p>
+ * 
+ * This method will also find values from type ahead value lists with more than 500 values and related value lists<p>
+ * 
+ * NOTE: In case of a related value list the main record has to be provided as well. The related foundset will be fully walked through until the value is found!<p>
+ * 
+ * TODO: remove when SVY-5213 is implemented
+ *
+ * @param {String} valueListName the name of the value list
+ * @param {Object} realValue the real value
+ * @param {JSRecord} [record] main record for related value lists
+ * 
+ * @version 5.0
+
+ *
+ * @properties={typeid:24,uuid:"75271910-2493-467F-A568-E26BBD5A53E7"}
+ */
+function getValueListDisplayValue(valueListName, realValue, record) {
+	if (!realValue) {
+		return realValue;
+	}
+	var result = application.getValueListDisplayValue(valueListName, realValue);
+	if (!result) {
+		var jsValueList = solutionModel.getValueList(valueListName);
+		var displayValues = jsValueList.getDisplayDataProviderIds();		
+		var returnValues = jsValueList.getReturnDataProviderIds();
+		if (returnValues.length > 1) {
+			application.output("getValueListDisplayValue does not work for value lists with more than one real value", LOGGINGLEVEL.ERROR);
+			return null;
+		}
+		
+		if (jsValueList.relationName) {
+			if (!record) {
+				throw scopes.svyExceptions.IllegalArgumentException("getValueListDisplayValue is called for a valueList that uses a relation but no record is given");
+			}
+			if (utils.hasRecords(record[jsValueList.relationName])) {
+				for (var rr = 1; rr <= record[jsValueList.relationName].getSize(); rr++) {
+					var relatedRecord = record[jsValueList.relationName].getRecord(rr);
+					if (relatedRecord[returnValues[0]] == realValue) {
+						result = new Array();
+						for (var rdv = 0; rdv < displayValues.length; rdv++) {
+							result.push(relatedRecord[displayValues[rdv]]);
+						}
+						result = result.join(jsValueList.separator);
+						break;
+					}
+				}
+			}
+		} else {
+			var dataSource = jsValueList.dataSource;
+			var query = databaseManager.createSelect(dataSource);
+			for (var dv = 0; dv < displayValues.length; dv++) {
+				query.result.add(query.getColumn(displayValues[dv]));
+			}
+			query.where.add(query.getColumn(returnValues[0]).eq(realValue));
+			var dataset = databaseManager.getDataSetByQuery(query, 1);
+			result = dataset.getRowAsArray(1);
+			if (result && result.length > 0) {
+				result = result.join(jsValueList.separator);
+			}
+		}
+	}
+	
+	return result;
+}
+
+/**
  * Gets the JSForm for any type of form 'reference' (formName String, RuntimeForm or JSform (the latter for convenience)), regardless how the form was created
  * Solves the scenario of not being able to get the JSForm representation of forms created using {@link #application#createNewForminstance(...)}
  * This method should be deprecated and removed after https://support.servoy.com/browse/SVY-3642 gets implemented
@@ -199,9 +266,15 @@ function getRuntimeFormInstanceNames(form) {
 }
 
 /**
- * TODO: docs, including border comment
+ * Calculated the designtime height of a form. By default the Form parts that are only used when showing the form in Print mode are excluded
+ * 
+ * NOTE: the returned height currently does NOT include the top and bottom border width if the form has a border
+ * 
  * @param {JSForm|String} form
  * @param {Boolean} [includePrintParts] whether or not to also take into account form parts that are only visible in print mode (default false)
+ * 
+ * @return {Number} height in pixels, excluding the forms top/bottom border
+ * 
  * @properties={typeid:24,uuid:"4EC9D579-FAD3-4C56-8F34-2891379AF31E"}
  */
 function getJSFormHeight(form, includePrintParts) {
@@ -219,6 +292,12 @@ function getJSFormHeight(form, includePrintParts) {
 			}
 		}
 	}
+	
+//	if (smform.borderType) {
+//		
+//	} else {
+//		//TODO: get border settings from CSS
+//	}
 	return height
 }
 

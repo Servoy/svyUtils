@@ -148,6 +148,55 @@ function StringToByteArray(string) {
 }
 
 /**
+ * Tests if a given value for the given dataprovider already exists in the provided datasource
+ * 
+ * @param {JSRecord|JSFoundSet|String} datasource
+ * @param {String} dataproviderName - the name of the dataprovider that should be tested for uniqueness
+ * @param {Object} value - the value that should be unique in the given dataprovider
+ * @param {String[]} [extraQueryColumns] - optional array of additional dataproviders that can be used in the unique query
+ * @param {Object[]} [extraQueryValues] - optional array of additional values that can be used in the unique query
+ *
+ * @properties={typeid:24,uuid:"460E5007-852E-4143-82FD-6840DA430FC0"}
+ */
+function datasourceHasValue(datasource, dataproviderName, value, extraQueryColumns, extraQueryValues) {
+	if (!datasource || !dataproviderName) {
+		throw new scopes.svyExceptions.IllegalArgumentException("no parameters provided to scopes.svyUtils.isValueUnique(foundsetOrRecord, dataproviderName, value)");
+	}
+	/** @type {String} */
+	var dataSource = (datasource instanceof String) ? datasource : datasource.getDataSource();
+	var pkNames = databaseManager.getTable(dataSource).getRowIdentifierColumnNames();
+	var query = databaseManager.createSelect(dataSource);
+	query.getColumn(pkNames[0]).count;
+
+	if (value == null) {
+		query.where.add(query.getColumn(dataproviderName).isNull);
+	} else if (value instanceof UUID) {
+		query.where.add(query.getColumn(dataproviderName).eq(value.toString()));
+	} else {
+		query.where.add(query.getColumn(dataproviderName).eq(value));
+	}
+	if (extraQueryColumns || extraQueryValues) {
+		if (!Array.isArray(extraQueryColumns) || !Array.isArray(extraQueryValues)) {
+			throw scopes.svyExceptions.IllegalArgumentException("extraQueryColumns and extraQueryValues parameters are not both an Array");
+		}
+		if (extraQueryColumns.length != extraQueryValues.length) {
+			throw scopes.svyExceptions.IllegalArgumentException("size of extraQueryColumns and extraQueryValues parameters do not match");
+		}
+		for (var j = 0; j < extraQueryColumns.length; j++) {
+			if (extraQueryValues[j] == null) {
+				query.where.add(query.getColumn(extraQueryColumns[j]).isNull);
+			} else if (extraQueryValues[j] instanceof UUID) {
+				query.where.add(query.getColumn(extraQueryColumns[j]).eq(extraQueryValues[j].toString()));
+			} else {
+				query.where.add(query.getColumn(extraQueryColumns[j]).eq(extraQueryValues[j]));
+			}
+		}
+	}
+	var dataset = databaseManager.getDataSetByQuery(query, 1);
+	return dataset.getValue(1,1) == 0
+}
+
+/**
  * Gets a JSRecord with the specified PK from the specified datasource. 
  * 
  * @param {String} datasource
@@ -464,10 +513,53 @@ function SvyDataException(errorMessage, source, dataProviderID){
 	}
 	scopes.svyExceptions.SvyException.call(this, errorMessage);
 }
+
+/**
+ * The 'from" method of a column converter that stringifies the real value to a JSON String for storage
+ *
+ * @param realValue The real value.
+ * @param {String} dbType The type of the database column. Can be one of "TEXT", "INTEGER", "NUMBER", "DATETIME" or "MEDIA".
+ *
+ * @returns {String} the storage value
+ * 
+ * @see  {@link #fromJSONColumnConverter}
+ *
+ * @properties={typeid:24,uuid:"FB7F5FF8-7FC6-42AF-8E5F-3C6E5C10A9CA"}
+ */
+function toJSONColumnConverter(realValue, dbType) {
+	if (realValue instanceof Array) {
+		// in case we receive a Native Array here, 
+		// try to convert it to a JS array
+		realValue = realValue.concat(new Array())
+	} else if (realValue instanceof UUID) {
+		realValue = realValue.toString()
+	}
+	return JSON.stringify(realValue)
+}
+
+/**
+ * The 'to' method of a column converter that revives a JSON String from storage to the real value for usage in the application again
+ * 
+ * @param storageValue The database value.
+ * @param {String} dbType The type of the database column. Can be one of "TEXT", "INTEGER", "NUMBER", "DATETIME" or "MEDIA".
+ *
+ * @returns {Object} the real value
+ * 
+ * @see  {@link #toJSONColumnConverter}
+ *
+ * @properties={typeid:24,uuid:"D4FBF90C-3911-47D8-91EF-03D071D2CF13"}
+ */
+function fromJSONColumnConverter(storageValue, dbType) {
+	if (storageValue == null) {
+		return null;
+	}
+	return JSON.parse(storageValue)
+}
+
 /**
  * Point prototypes to superclasses
- * @protected 
- *
+ * @private 
+ * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"661B7B5D-659E-43F5-97B7-F07FFB44FF5E",variableType:-4}
  */
 var init = function() {
