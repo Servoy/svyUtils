@@ -130,7 +130,7 @@ function setFieldHtmlType(element, type) {
 var initSetFieldHtmlType = function(){
 	if (!scopes.svySystem.isWebClient()) return;
 	//TODO: Remove this code after upgrading to newer Wicket version (this "patch is for wicket 1.4))
-	addJavaScriptDependancy('media://svyWebClientUtils/svyUtils$wicket.js')
+	addJavaScriptDependancy('media:///svyWebClientUtils/wicketAdditions.js')
 	
 	setFieldHtmlType.TYPES = {
 		TEXT: 'text',

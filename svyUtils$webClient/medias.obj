@@ -2,7 +2,7 @@
 {
 encapsulation:0,
 mimeType:"text/javascript",
-name:"svyWebClientUtils/svyUtils$wicket.js",
+name:"svyWebClientUtils/wicketAdditions.js",
 typeid:37,
 uuid:"397918BB-F730-4032-A3B6-C6497D8BBD46"
 }
