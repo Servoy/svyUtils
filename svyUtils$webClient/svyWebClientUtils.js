@@ -766,10 +766,24 @@ function getCallbackBehavior() {
 				}
 			}
 		}
+		
+		var pageContributor = getWebClientPluginAccess().getPageContributor()
+		if (pageContributor.getBehavior(BAP_CALLBACK_BEHAVIOR_ID)) {
+			pageContributor.removeBehavior(BAP_CALLBACK_BEHAVIOR_ID)
+		}
 		callBackBehavior = new Packages.org.apache.wicket.behavior.AbstractAjaxBehavior(AjaxBehaviorImpl)
 		return callBackBehavior
 	}
 }
+
+/**
+ * @private 
+ *
+ * @type {String}
+ *
+ * @properties={typeid:35,uuid:"6F41FE34-0E9B-43A0-B680-133D18255A6C"}
+ */
+var BAP_CALLBACK_BEHAVIOR_ID = 'com.servoy.bap.callbackBehavior'
 
 /**
  * Utility to create callback code for both getCallbackScript and getCallbackUrl. Maybe should be inlined, as too many code branches based on usage
@@ -816,7 +830,7 @@ function generateCallback(callback, args, options) {
 	}
 
 	var callbackBehavior = getCallbackBehavior()
-	getWebClientPluginAccess().getPageContributor().addBehavior('com.servoy.bap.callbackBehavior', callbackBehavior)
+	getWebClientPluginAccess().getPageContributor().addBehavior(BAP_CALLBACK_BEHAVIOR_ID, callbackBehavior)
 	return callbackBehavior.getUrlForCallback(qualifiedName, args, options||{})
 }
 
