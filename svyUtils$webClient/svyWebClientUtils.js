@@ -430,6 +430,7 @@ function getElementMarkupId(element) {
 
 /**
  * @param {RuntimeComponent} element
+ * @return {String}
  *
  * @properties={typeid:24,uuid:"3BB9D4B3-CA3F-4EC7-AF5A-90895FD701FF"}
  * @SuppressWarnings(wrongparameters)
@@ -440,7 +441,7 @@ function getFormName(element) {
 	/** @type {Packages.com.servoy.j2db.server.headlessclient.WebForm}*/
 	var form = component.findParent(Packages.com.servoy.j2db.IFormUIInternal)
 	if (form) {
-		return form.getFormContext().getValue(1,2)
+		return form.getFormContext().getValue(1,2).toString()
 	}
 	return null
 }
