@@ -15,6 +15,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+ /**
+  * @private
+  *
+ * @properties={typeid:24,uuid:"38714D53-CA5A-4E36-B1F0-F93EE01EFB61"}
+ */
+ function checkOperationSupported() {
+ 	if (!scopes.svySystem.isSwingClient()) {
+ 		throw new scopes.svyExceptions.UnsupportedOperationException('Only supported in Web Client')
+ 	}
+ }
+
 /**
  * Utility method to take off the wrapper on Servoy elements and access the underlying Java component
  * @private
@@ -45,4 +56,27 @@ function getSmartClientPluginAccess() {
 	//TODO: make this saver, in case the window plugin is not installed. Either just try the first plugin available or the plugins node itself or some other way and in all else fails, raise warnings
 	var x = new Packages.org.mozilla.javascript.NativeJavaObject(globals, plugins.window, new Packages.org.mozilla.javascript.JavaMembers(globals, Packages.com.servoy.extensions.plugins.window.WindowProvider));
 	return x['getClientPluginAccess']();
+}
+
+/**
+ * @param {RuntimeComponent} element
+ * @return {String}
+
+ * @SuppressWarnings(wrongparameters)
+ * @properties={typeid:24,uuid:"E5CD9513-415E-4F78-86CC-8ABD9EE07260"}
+ */
+function getFormName(element) {
+	checkOperationSupported()
+	var component = unwrapElement(element)
+	
+	/** @type {Packages.com.servoy.j2db.IFormUIInternal} */
+	var parent = component.getParent()
+	while (parent && !(parent instanceof Packages.com.servoy.j2db.IFormUIInternal)) {
+		 parent = parent.getParent()
+	}
+	
+	if (parent) {
+		return parent.getFormContext().getValue(1,2).toString()
+	}
+	return null
 }
