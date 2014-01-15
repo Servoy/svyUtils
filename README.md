@@ -1,7 +1,6 @@
 svyUtils
 ========
-
-Wide range of low-level utility methods and application concepts for Servoy solutions
+'svyUtils' is a module of the Servoy Business Application Platform. It provides a wide range of low-level utility methods and application concepts for Servoy solutions
 
 LogManager
 ----------
@@ -19,3 +18,8 @@ Also replaces (most) of the functionality of the [WebClientUtils plugin](https:/
 Smart Client utils
 ------------------
 Set of utility methods specifically for the Servoy Smart Client
+
+
+License
+-------
+svyUtils is licensed under LGPL
