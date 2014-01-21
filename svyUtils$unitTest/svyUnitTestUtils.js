@@ -40,6 +40,7 @@ function TestAppender() {
         }
         var name = this.getName()||'DEFAULT'
         logMessages[name].push(msg)
+		application.output(msg, lvl)
     }
 	
     this.toString = function() {
