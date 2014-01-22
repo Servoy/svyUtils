@@ -471,6 +471,7 @@ function getAppenderForRef(appenderRef) {
 }
 
 /**
+ * @private
  * @param {String} type
  * @param {Object} configNode
  *
