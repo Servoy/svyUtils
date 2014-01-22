@@ -273,7 +273,7 @@ var currentConfig = defaultConfig
  *  loggers: {
  *    logger: [
  *      {
- *        name: "com.servoy.bap.components.webpanel", 
+ *        name: "com.servoy.bap.components.webview", 
  *        level: "debug", 
  *        additivity: false, 
  *        AppenderRef: {
