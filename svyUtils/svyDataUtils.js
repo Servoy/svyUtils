@@ -166,7 +166,7 @@ function datasourceHasValue(datasource, dataproviderName, value, extraQueryColum
 	var dataSource = (datasource instanceof String) ? datasource : datasource.getDataSource();
 	var pkNames = databaseManager.getTable(dataSource).getRowIdentifierColumnNames();
 	var query = databaseManager.createSelect(dataSource);
-	query.getColumn(pkNames[0]).count;
+	query.result.add(query.getColumn(pkNames[0]).count);
 
 	if (value == null) {
 		query.where.add(query.getColumn(dataproviderName).isNull);
