@@ -4,9 +4,9 @@
 function testLogManager() {
 	var config = {
 		status: "error",
-		plugins: 'scopes.svyLogManager_test.TestAppender',
+		plugins: 'scopes.svyUnitTestUtils.TestAppender',
 		appenders: [{
-			type: "scopes.svyLogManager_test.TestAppender",
+			type: "scopes.svyUnitTestUtils.TestAppender",
 			name: "ApplicationOutputAppender",
 			PatternLayout: {
 				pattern: "%5level %logger{1.} - %msg"
