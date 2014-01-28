@@ -21,8 +21,7 @@
  * this implementation is heavily altered to:
  * - Adapt it to the Servoy environment
  * - Improve performance
- * - Bring it more inline with log4j 2
- * - Not expose all configuration options through API, but instead supply one loadConfig method that takes care of the configuration
+ * - Bring it more inline with log4j 2 (for example: Not expose all configuration options through API, but instead supply one loadConfig method that takes care of the configuration)
  * 
  * Below the information distributed with the original log4javascript implementation that is licensed under Apache 2:
  * -------------
@@ -83,14 +82,17 @@
  * - finish (re)configuration
  * - make all loggers share a loggerconfig based on the actual configuration
  * - make all config go through the same methods: getLogger, getRootLogger, loadConfig
- * - Allow multiple appenders per logger in the config
+ * - Allow multiple appenders per logger in the config (AppenderRef: [{ref: 'something'}, {ref: 'something else'])
  * - Support consise format besides strict format
- * - support filters
+ * - support filters: http://logging.apache.org/log4j/2.x/manual/filters.html
+ * - support messages, to prevent building the String to output if it is not needed
  * - Make it so that named appender result in one shared instance
  * - Review all layouts except PatternLayout
  * - fix warnings
  * - Support also ServoyException (maybe just java.lang.Exception) as exception param when logging
  * - See if Level can be not exposed as Constructor function, but as an object with static properties only
+ * - build in fail-save if constructors aren't called with new keyword
+ * - See if calling super constructors can be done without creating new instances of public functions
  * - See which appenders/layouts need to stay
  * - Change Logger impl. to use shared Loggerconfig objects between Loggers, like Log4j 2
  * - Add message formatting as in log4j 2
@@ -1283,8 +1285,9 @@ function LogPlugin (){}
 var PLUGIN_FACTORY_TYPE_DEF
 
 /**
+ * Map holding all LogPlugin constructors by name. the constructor functions must be extending LogPlugin
  * @private 
- * @type {Object<LogPlugin>}
+ * @type {Object<Function>}
  * @properties={typeid:35,uuid:"F33918BB-200F-4EA9-BC61-0B4C3778DB2C",variableType:-4}
  */
 var logPlugins = {}
