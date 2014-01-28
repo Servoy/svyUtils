@@ -2364,7 +2364,7 @@ var statusLoggerConfig = {
 	/**
 	 * @param {Level} level
 	 * @param {*} message
-	 * @param {Error} exception
+	 * @param {Error|ServoyException} exception
 	 */
 	log: function(level, message, exception) {
 		var lvl = level.intLevel
