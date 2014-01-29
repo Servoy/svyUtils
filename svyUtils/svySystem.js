@@ -20,6 +20,13 @@
  */
 
 /**
+ * @private 
+ *
+ * @properties={typeid:35,uuid:"2BBF34E6-2B0E-4C0E-8453-4A0530CEFC16",variableType:-4}
+ */
+var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.system')
+ 
+/**
  * Tests if the current client is web client
  * 
  * @return {Boolean}
@@ -282,7 +289,7 @@ function getUserPropertyPersistenceImpl(){
 		var implementations = scopes.svyUI.getJSFormInstances(solutionModel.getForm(impl));
 		if(implementations.length){
 			if(implementations.length > 1){
-				application.output('User Property Persistence SPI: More than one service providers for User Property Persistence. Using first implementation encountered',LOGGINGLEVEL.WARNING);
+				log.warn('User Property Persistence SPI: More than one service providers for User Property Persistence. Using first implementation encountered');
 			}
 			impl = implementations[0].name;
 		}
