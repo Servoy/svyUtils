@@ -422,7 +422,7 @@ function Event(type, source, data) {
 }
 
 /**
- * 
+ * @constructor
  * @param {String} [message]
  *
  * @properties={typeid:24,uuid:"2F258EBF-F599-49E3-BDA7-6074A5978BF2"}
