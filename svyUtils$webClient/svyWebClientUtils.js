@@ -494,7 +494,7 @@ function getCallbackUrl(callback) {
  * @experimental: Is not covered by tests and signature might change in the future
  *  
  * Generates a JavaScript code snippet that ....
- * @param {function(String, Array<String>):*|String} callback Either a Servoy method or a qualifiedName string pointing to a method. Method's first argument receives the bodyContent, second argument the requestParams
+ * @param {function(String, Array<String>):*|String|undefined} callback Either a Servoy method or a qualifiedName string pointing to a method. Method's first argument receives the bodyContent, second argument the requestParams
  * @param {Array} [args] 
  * @param {Boolean} [options.showLoading]
  * @param {String} [options.mimeType]
@@ -519,7 +519,7 @@ function getCallbackScript(callback, args, options) {
 
 /**
  * @private 
- * @type {{getUrlForCallback: function(String, Array<Object>):{url:String,methodHash:String,parameterCode:String}}}
+ * @type {{getUrlForCallback: function(String, Array<Object>, Object):{url:String,methodHash:String,parameterCode:String}}}
  * @extends {Packages.org.apache.wicket.behavior.AbstractAjaxBehavior}
  *
  * @properties={typeid:35,uuid:"12E48C24-04C6-4B95-B07F-4E3174AC0045",variableType:-4}
@@ -528,7 +528,7 @@ var callBackBehavior
 
 /**
  * @private
- * @return {{getUrlForCallback: function(String, Array<Object>):{url:String,methodHash:String,parameterCode:String}}}
+ * @return {{getUrlForCallback: function(String, Array<Object>, Object):{url:String,methodHash:String,parameterCode:String}}}
  * @properties={typeid:24,uuid:"0A075A5F-4951-485E-BA4A-611ACD31CC13"}
  */
 function getCallbackBehavior() {
@@ -632,6 +632,9 @@ function getCallbackBehavior() {
 			},
 			onRequest: function() {
 				var requestCycle = Packages.org.apache.wicket.RequestCycle.get();
+				/**
+				 * @type {Packages.org.apache.wicket.protocol.http.WebRequest}
+				 */
 				var request = requestCycle.getRequest();
 
 				var param = request.getParameter("m");  
@@ -714,10 +717,11 @@ function getCallbackBehavior() {
 					}
 				}
 				
-				var target
 				try {
+					var args = []
+					args.push(options.m, requestArgs||[])
 					/** @type {*} */
-					var o = getWebClientPluginAccess().executeMethod('scopes.svySystem', 'callMethod', [options.m, requestArgs||[]], false) //String context, String methodname, Object[] arguments, final boolean async
+					var o = getWebClientPluginAccess().executeMethod('scopes.svySystem', 'callMethod', args, false) //String context, String methodname, Object[] arguments, final boolean async
 
 					
 					if (options.f & 2) { //returnCallbackReturnValue
@@ -733,20 +737,20 @@ function getCallbackBehavior() {
 						if (options.mt) {
 							mimeType = options.mt
 						}
-						target = new Packages.org.apache.wicket.request.target.basic.StringRequestTarget(mimeType, "utf-8", retval)
-						requestCycle.setRequestTarget(target);
+						var stringTarget = new Packages.org.apache.wicket.request.target.basic.StringRequestTarget(mimeType, "utf-8", retval)
+						requestCycle.setRequestTarget(stringTarget);
 					} else {
 						if (hsr.getMethod() == 'GET') {
 							log.warn('Callback received with method GET while callback is configured to not return a value')
 						}
 						/** @type {Packages.org.apache.wicket.protocol.http.WebApplication} */
 						var app = this.getComponent().getApplication();
-						target = app.newAjaxRequestTarget(this.getComponent().getPage());
-						requestCycle.setRequestTarget(target);
+						var ajaxTarget = app.newAjaxRequestTarget(this.getComponent().getPage());
+						requestCycle.setRequestTarget(ajaxTarget);
 						
 						if (!(options.f & 1)) { //disableImmediateUpdate
 							// update client state
-							Packages.com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor.generateResponse(target, target.getPage());
+							Packages.com.servoy.j2db.server.headlessclient.dataui.WebEventExecutor.generateResponse(ajaxTarget, ajaxTarget.getPage());
 						}
 					}
 				} catch (e) {
@@ -761,8 +765,8 @@ function getCallbackBehavior() {
 					} else {
 						message = e
 					}
-					target = Packages.org.apache.wicket.protocol.http.request.WebErrorCodeResponseTarget(statusCode, message)
-					requestCycle.setRequestTarget(target);
+					var errorTarget = Packages.org.apache.wicket.protocol.http.request.WebErrorCodeResponseTarget(statusCode, message)
+					requestCycle.setRequestTarget(errorTarget);
 				}
 			}
 		}
@@ -803,9 +807,13 @@ var BAP_CALLBACK_BEHAVIOR_ID = 'com.servoy.bap.callbackBehavior'
  * 	methodHash: String,
  *  parameterCode: String
  * }}
+ * 
  * @properties={typeid:24,uuid:"45739F09-DBC5-40FA-BC3C-03D01FC5B3DD"}
  */
 function generateCallback(callback, args, options) {
+	/**
+	 * @type {String}
+	 */
 	var qualifiedName
 	switch (typeof callback) {
 		case 'function':
@@ -830,7 +838,11 @@ function generateCallback(callback, args, options) {
 	}
 
 	var callbackBehavior = getCallbackBehavior()
-	getWebClientPluginAccess().getPageContributor().addBehavior(BAP_CALLBACK_BEHAVIOR_ID, callbackBehavior)
+	
+	/**@type {Packages.org.apache.wicket.behavior.IBehavior}*/
+	var iBehavior = callbackBehavior
+	
+	getWebClientPluginAccess().getPageContributor().addBehavior(BAP_CALLBACK_BEHAVIOR_ID, iBehavior)
 	return callbackBehavior.getUrlForCallback(qualifiedName, args, options||{})
 }
 
@@ -1019,7 +1031,7 @@ function updateUI(milliseconds) {
 	checkOperationSupported()
 	if (scopes.svySystem.isWebClient()) {
       c = new Continuation();
-      executeClientsideScript(getCallbackScript(updateUIResume));
+      executeClientsideScript(getCallbackScript(updateUIResume, null, null)); //Sending in extra params to get rid of warning, see SVY-5955
       terminator();
    } else {
       application.updateUI(milliseconds)
@@ -1029,8 +1041,12 @@ function updateUI(milliseconds) {
 /**
  * Used by the updateUI Web Client polyfill 
  * @private 
+ * @param {String} body
+ * @param {Array<String>} requestParams
+ * @return {undefined}
+ * 
  * @properties={typeid:24,uuid:"06BE500F-780A-4DA4-855B-605F2E2CE83F"}
  */
-function updateUIResume() {
+function updateUIResume(body, requestParams) {
    c();
 }
