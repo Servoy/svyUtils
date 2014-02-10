@@ -22,6 +22,13 @@
  */
 
 /**
+ * @private 
+ *
+ * @properties={typeid:35,uuid:"663420E6-0054-46C0-A328-5257365E0057",variableType:-4}
+ */
+var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.io')
+
+/**
  * <pre>Opens a file from the file system using the default viewer for the fileType on the current platform. (.txt with editor, .pdf with pdf reader, .doc with word, etc.)
  * 
  * TODO: Support opening in the WC: either plugins.file.writeFile, but required to read the content first or showUrl, if file is accessible from the outside (see deprecated globals.svy_utl_open_file())
@@ -120,7 +127,7 @@ function unzip(fileToUnzip, targetFile) {
 		}
 	} catch (e) {
 		// IO Exception
-		application.output("Failed to unzip file \"" + fileToUnzip.getAbsolutePath() + "\": " + e.message);
+		log.error("Failed to unzip file \"{}\": ", fileToUnzip.getAbsolutePath(), e.message);
 		return null;
 	}
 	
@@ -223,7 +230,7 @@ function zip(fileToZip, targetFile, filenamesToStoreUncompressed) {
 		zos = null;
 	}
 	catch(e) {
-		application.output("Error zipping file \"" + fileToZip.getAbsolutePath() + "\": " + e, LOGGINGLEVEL.ERROR);
+		log.error("Error zipping file \"{}\"", fileToZip.getAbsolutePath(), e);
 		throw e;
 	} finally {
 		try {
