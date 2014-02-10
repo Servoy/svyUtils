@@ -20,6 +20,13 @@
  * TODO: methos that take a Date as param shoudl also allow taking a DateTime object as param
  */
 
+/**
+ * @private 
+ *
+ * @properties={typeid:35,uuid:"45890609-A12D-49D1-A195-43BA3CAE4093",variableType:-4}
+ */
+var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.date')
+
 
 /**
  * A java.util.Calendar instance used to do the math
@@ -867,7 +874,7 @@ function getDecimalHours(date) {
 function DateTime(date) {
 	
 	if (!(this instanceof DateTime)) {
-		application.output("scopes.svyDateUtils.DateTime: Constructor functions should be called with the \"new\" keyword!", LOGGINGLEVEL.WARNING);
+		log.warn("scopes.svyDateUtils.DateTime: Constructor functions should be called with the \"new\" keyword!");
 		return new DateTime(date)
 	}
 	
