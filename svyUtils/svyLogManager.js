@@ -620,51 +620,57 @@ function LoggerConfig(name, messageFactory, logger) {
 	 */
 	this.parent = null;
 	/**
+	 * @protected
 	 * @type {Array<LoggerConfig>}
 	 */
-	var children = [];
+	this.children = [];
 	
-	/** @type {Array<AbstractAppender>} */
-	var appenders = [];
-	var loggerLevel = null;
+	/** 
+	 * @protected 
+	 * @type {Array<AbstractAppender>}
+	 * */
+	this.appenders = [];
+	/**
+	 * @protected
+	 * @type {Level}
+	 */
+	this.loggerLevel = null;
 	this.isRoot = (name === ROOT_LOGGER_NAME);
 	
-	var appenderCache = null;
-	var appenderCacheInvalidated = false;
+	/**
+	 * @protected
+	 */
+	this.appenderCache = null;
+	/**
+	 * @protected
+	 */
+	this.appenderCacheInvalidated = false;
 
-	/** @type {String} */
+	/** 
+	 * @type {String}
+	 */
 	this.name = name
-	/**
-	 * @return {String}
-	 */
-	this.getName = function(){
-		return this.name
-	}
-	
-	/**
-	 * @param {LoggerConfig} childLogger
-	 */
-	this.addChild = function(childLogger) {
-		//Check existing children and see if they need to become a child of childLogger instead
-		var childName = childLogger.name + '.'
-		for (var i = 0; i < children.length; i++) {
-			if(children[i].name.substring(0, childName.length) == childName) {
-				var childToMove = children.splice(i,1)[0]
-				childLogger.addChild(childToMove)
-				childToMove.parent = childLogger
-				childToMove.invalidateAppenderCache();
-			}
-		}
-		children.push(childLogger);
-		childLogger.parent = this;
-		childLogger.invalidateAppenderCache();
-	};
 
 	// Additivity
 	/**
-	 * @private 
+	 * @protected 
 	 */
-	var additive = true;
+	this.additive = true;
+	
+	/**
+	 * @type {Logger}
+	 */
+	this.externalLogger = logger ? Logger.call(logger, this) : new Logger(this, messageFactory)
+}
+
+/**
+ * @private 
+ * @SuppressWarnings(unused)
+ * @properties={typeid:35,uuid:"0F992E15-B252-4AC8-9041-F2AF6A132DE2",variableType:-4}
+	 */
+var initLoggerConfig = (function(){
+	LoggerConfig.prototype = Object.create(LogPlugin.prototype)
+	LoggerConfig.prototype.constructor = LoggerConfig
 	
 	/**
 	 * Get the additivity flag for this Logger instance<br>
@@ -672,8 +678,8 @@ function LoggerConfig(name, messageFactory, logger) {
 	 * @public
 	 * @return {Boolean}
 	 */
-	this.getAdditivity = function() {
-		return additive;
+	LoggerConfig.prototype.getAdditivity = function() {
+		return this.additive;
 	};
 
 	/**
@@ -682,11 +688,12 @@ function LoggerConfig(name, messageFactory, logger) {
 	 * Default value is true<br>
 	 * <br>
 	 * @public
+	 * @this {LoggerConfig}
 	 * @param {Boolean} additivity
 	 */
-	this.setAdditivity = function(additivity) {
-		var valueChanged = (additive != additivity);
-		additive = additivity;
+	LoggerConfig.prototype.setAdditivity = function(additivity) {
+		var valueChanged = (this.additive != additivity);
+		this.additive = additivity;
 		if (valueChanged) {
 			this.invalidateAppenderCache();
 		}
@@ -701,10 +708,10 @@ function LoggerConfig(name, messageFactory, logger) {
 	 * @public
 	 * @param {AbstractAppender} appender
 	 */
-	this.addAppender = function(appender) {
+	LoggerConfig.prototype.addAppender = function(appender) {
 		if (appender instanceof AbstractAppender) {
-			if (!(appenders.indexOf(appender) != -1)) {
-				appenders.push(appender);
+			if (!(this.appenders.indexOf(appender) != -1)) {
+				this.appenders.push(appender);
 				//appender.setAddedToLogger(this);
 				this.invalidateAppenderCache();
 			}
@@ -717,9 +724,9 @@ function LoggerConfig(name, messageFactory, logger) {
 	 * @public 
 	 * @param {String} appenderName
 	 */
-	this.getAppender = function(appenderName) {
+	LoggerConfig.prototype.getAppender = function(appenderName) {
 		var retval = null
-		appenders.some(function(elementValue, elementIndex, traversedArray){
+		this.appenders.some(function(elementValue, elementIndex, traversedArray){
 			if (elementValue.getName() == appenderName) {
 				retval = elementValue
 				return true
@@ -732,8 +739,8 @@ function LoggerConfig(name, messageFactory, logger) {
 	/**
 	 * @public 
 	 */
-	this.getAllAppenders = function() {
-		return appenders.slice(0)
+	LoggerConfig.prototype.getAllAppenders = function() {
+		return this.appenders.slice(0)
 	}
 
 	/**
@@ -742,10 +749,10 @@ function LoggerConfig(name, messageFactory, logger) {
 	 * @public
 	 * @param {AbstractAppender} appender
 	 */
-	this.removeAppender = function(appender) {
-		var i = appenders.indexOf(appender)
+	LoggerConfig.prototype.removeAppender = function(appender) {
+		var i = this.appenders.indexOf(appender)
 		if (i != -1) {
-			appenders.splice(i,1)
+			this.appenders.splice(i,1)
 		}
 		//appender.setRemovedFromLogger(this);
 		this.invalidateAppenderCache();
@@ -755,14 +762,15 @@ function LoggerConfig(name, messageFactory, logger) {
 	 * Clears all appenders for the current logger<br>
 	 * <br>
 	 * @public
+	 * @this {LoggerConfig}
 	 */
-	this.removeAllAppenders = function() {
+	LoggerConfig.prototype.removeAllAppenders = function() {
 //		var appenderCount = appenders.length;
 //		if (appenderCount > 0) {
 //			for (var i = 0; i < appenderCount; i++) {
 //				appenders[i].setRemovedFromLogger(this);
 //			}
-			appenders.length = 0;
+			this.appenders.length = 0;
 			this.invalidateAppenderCache();
 //		}
 	};
@@ -770,38 +778,61 @@ function LoggerConfig(name, messageFactory, logger) {
 	/**
 	 * @return {Array<AbstractAppender>}
 	 */
-	this.getEffectiveAppenders = function() {
-		if (appenderCache === null || appenderCacheInvalidated) {
+	LoggerConfig.prototype.getEffectiveAppenders = function() {
+		if (this.appenderCache === null || this.appenderCacheInvalidated) {
 			// Build appender cache
 			var parentEffectiveAppenders = (this.isRoot || !this.getAdditivity()) ? [] : this.parent.getEffectiveAppenders();
-			appenderCache = parentEffectiveAppenders.concat(appenders);
-			appenderCacheInvalidated = false;
+			this.appenderCache = parentEffectiveAppenders.concat(this.appenders);
+			this.appenderCacheInvalidated = false;
 		}
-		return appenderCache;
+		return this.appenderCache;
 	};
 	
 //	this.isAttached = function(){}
 
-	this.invalidateAppenderCache = function() {
-		appenderCacheInvalidated = true;
-		for (var i = 0, len = children.length; i < len; i++) {
-			children[i].invalidateAppenderCache();
+	/**
+	 * @this {LoggerConfig}
+	 */
+	LoggerConfig.prototype.invalidateAppenderCache = function() {
+		this.appenderCacheInvalidated = true;
+		for (var i = 0, len = this.children.length; i < len; i++) {
+			this.children[i].invalidateAppenderCache();
 		}
 	};
 
 	/**
 	 * @public 
 	 */
-	this.getParent = function(){
+	LoggerConfig.prototype.getParent = function(){
 		return this.parent
 	}
 
 	/**
+	 * @this {LoggerConfig}
+	 * @param {LoggerConfig} childLogger
+	 */
+	LoggerConfig.prototype.addChild = function(childLogger) {
+		//Check existing children and see if they need to become a child of childLogger instead
+		var childName = childLogger.name + '.'
+		for (var i = 0; i < this.children.length; i++) {
+			if(this.children[i].name.substring(0, childName.length) == childName) {
+				var childToMove = this.children.splice(i,1)[0]
+				childLogger.addChild(childToMove)
+				childToMove.parent = childLogger
+				childToMove.invalidateAppenderCache();
+			}
+		}
+		this.children.push(childLogger);
+		childLogger.parent = this;
+		childLogger.invalidateAppenderCache();
+	};
+	
+	/**
+	 * @this {LoggerConfig}
 	 * @param {Level} level
-	 * @param {*} message 
 	 * @param {AbstractMessage} message 
 	 */
-	this.log = function(level, message) {
+	LoggerConfig.prototype.log = function(level, message) {
 		var loggingEvent = new LoggingEvent(this, new Date(), level, message);
 
 		var effectiveAppenders = this.getEffectiveAppenders();
@@ -829,16 +860,17 @@ function LoggerConfig(name, messageFactory, logger) {
 	 * Sets the level. Log messages of a lower level than level will not be logged. Default value is DEBUG<br>
 	 * <br>
 	 * @public
+	 * @this {LoggerConfig}
 	 * @param {Level} level
 	 */
-	this.setLevel = function(level) {
+	LoggerConfig.prototype.setLevel = function(level) {
 		// Having a level of null on the root logger would be very bad.
 		if (this.isRoot && level === null) {
 			statusLogger.error("Logger.setLevel: you cannot set the level of the root logger to null");
-		} else if (level === loggerLevel) { 
+		} else if (level === this.loggerLevel) { 
 			return
 		} else if (level instanceof Level || level === null) {
-			loggerLevel = level;
+			this.loggerLevel = level;
 			this.setEffectiveLevel(level||this.getParent().effectiveLevel)
 		} else {
 			statusLogger.error("Logger.setLevel: level supplied to logger {} is not an instance of Level", this.name);
@@ -849,20 +881,22 @@ function LoggerConfig(name, messageFactory, logger) {
 	 * Returns the level explicitly set for this logger or null if none has been set<br>
 	 * <br>
 	 * @public 
+	 * @this {LoggerConfig}
 	 * @return {Level}
 	 */
-	this.getLevel = function() {
-		return loggerLevel;
+	LoggerConfig.prototype.getLevel = function() {
+		return this.loggerLevel;
 	};
 
 	/**
+	 * @this {LoggerConfig}
 	 * @param {Level} level
 	 */
-	this.setEffectiveLevel = function(level) {
+	LoggerConfig.prototype.setEffectiveLevel = function(level) {
 		statusLogger.trace('Setting effectiveLevel on "{}" to {}', this.name, level)
 		this.effectiveLevel = level
-		for (var i = 0; i < children.length; i++) {
-			children[i].setEffectiveLevel(level)
+		for (var i = 0; i < this.children.length; i++) {
+			this.children[i].setEffectiveLevel(level)
 		}
 	}
 	
@@ -879,24 +913,9 @@ function LoggerConfig(name, messageFactory, logger) {
 	/**
 	 * @return {String}
 	 */
-	this.toString = function() {
-		return "Logger[" + name + "]";
+	LoggerConfig.prototype.toString = function() {
+		return "Logger[" + this.name + "]";
 	};
-	
-	/**
-	 * @type {Logger}
-	 */
-	this.externalLogger = logger ? Logger.call(logger, this) : new Logger(this, messageFactory)
-}
-
-/**
- * @private
- * @SuppressWarnings(unused)
- * @properties={typeid:35,uuid:"0F992E15-B252-4AC8-9041-F2AF6A132DE2",variableType:-4}
- */
-var initLoggerConfig = (function(){
-	LoggerConfig.prototype = new LogPlugin() //Object.create(LogPlugin.prototype)
-	LoggerConfig.prototype.constructor = LoggerConfig
 	
 	//TODO: this PluginFactory is not yet used anywhere
 	LoggerConfig.PluginFactory = function(config) {
@@ -1743,7 +1762,18 @@ function AbstractAppender() {
 	
 	this.layout = new PatternLayout(); //CHECKME: does this need to be initialized to a PatternLayout w/o any pattern?
 	this.threshold = Level.ALL;
+};
 
+	/**
+ * @private 
+ * @SuppressWarnings(unused)
+ *
+ * @properties={typeid:35,uuid:"8B52A861-1DDF-487E-9C89-94551992722F",variableType:-4}
+ */
+var initAbstractAppender = (function(){
+	AbstractAppender.prototype = Object.create(LogPlugin.prototype)
+	AbstractAppender.prototype.constructor = AbstractAppender
+	
 	/**
 	 * Checks the logging event's level is at least as severe as the appender's threshold and calls the appender's append method if so.<br>
 	 * <br>
@@ -1752,7 +1782,7 @@ function AbstractAppender() {
 	 * @public 
 	 * @param {LoggingEvent} loggingEvent
 	 */
-	this.doAppend = function(loggingEvent) {
+	AbstractAppender.prototype.doAppend = function(loggingEvent) {
 		
 		if (loggingEvent.level.intLevel >= this.threshold.intLevel) {
 			this.append(loggingEvent);
@@ -1765,15 +1795,16 @@ function AbstractAppender() {
 	 * @protected
 	 * @param {LoggingEvent} loggingEvent
 	 */
-	this.append = function(loggingEvent) {};
+	AbstractAppender.prototype.append = function(loggingEvent) {};
 	
 	/**
 	 * Sets the appender's layout<br>
 	 * <br>
 	 * @public 
+	 * @this {AbstractAppender}
 	 * @param {AbstractLayout} layout
 	 */
-	this.setLayout = function(layout) {
+	AbstractAppender.prototype.setLayout = function(layout) {
 		if (layout instanceof AbstractLayout) {
 			this.layout = layout;
 		} else {
@@ -1785,9 +1816,10 @@ function AbstractAppender() {
 	 * Returns the appender's layout<br>
 	 * <br>
 	 * @public
+	 * @this {AbstractAppender}
 	 * @return {AbstractLayout}
 	 */
-	this.getLayout = function() {
+	AbstractAppender.prototype.getLayout = function() {
 		return this.layout;
 	};
 
@@ -1795,9 +1827,10 @@ function AbstractAppender() {
 	 * Sets the appender's threshold. Log messages of level less severe than this threshold will not be logged<br>
 	 * <br>
 	 * @public
+	 * @this {AbstractAppender}
 	 * @param {Level} threshold
 	 */
-	this.setThreshold = function(threshold) {
+	AbstractAppender.prototype.setThreshold = function(threshold) {
 		if (threshold instanceof Level) {
 			this.threshold = threshold;
 		} else {
@@ -1805,11 +1838,11 @@ function AbstractAppender() {
 		}
 	};
 	
-	this.getName = function() {
+	AbstractAppender.prototype.getName = function() {
 		return this.appenderName;
 	}
 	
-	this.setName = function(name) {
+	AbstractAppender.prototype.setName = function(name) {
 		this.appenderName = name
 	}
 
@@ -1817,21 +1850,10 @@ function AbstractAppender() {
 	 * @public
 	 * @return {String}
 	 */
-	this.toString = function() {
+	AbstractAppender.prototype.toString = function() {
 		statusLogger.error("Appender.toString: all appenders must override this method");
 		return null
 	};
-};
-
-/**
- * @private 
- * @SuppressWarnings(unused)
- *
- * @properties={typeid:35,uuid:"8B52A861-1DDF-487E-9C89-94551992722F",variableType:-4}
- */
-var AbstractAppenderInit = (function(){
-	AbstractAppender.prototype = new LogPlugin() //Object.create(LogPlugin.prototype)
-	AbstractAppender.prototype.constructor = AbstractAppender
 	
 	AbstractAppender.PluginFactory = function(config) {
 		//TODO raise warning when called
@@ -1851,11 +1873,22 @@ var AbstractAppenderInit = (function(){
  */
 function ApplicationOutputAppender() {
 	AbstractAppender.call(this);
+}
+
+/**
+ * @private
+ * @SuppressWarnings(unused)
+ * @properties={typeid:35,uuid:"CCE870E3-C277-473F-9332-5B2EC5597282",variableType:-4}
+ */
+var initApplicationOutputAppender = (function(){
+	ApplicationOutputAppender.prototype = Object.create(AbstractAppender.prototype);
+	ApplicationOutputAppender.prototype.constructor = ApplicationOutputAppender
 	
 	/**
+	 * @this {ApplicationOutputAppender}
 	 * @param {LoggingEvent} loggingEvent
 	 */
-	this.append = function(loggingEvent) {
+	ApplicationOutputAppender.prototype.append = function(loggingEvent) {
 		var lvl = loggingEvent.level.intLevel
 		if (lvl < LOGGINGLEVEL.DEBUG) { //All or TRACE
 			lvl = LOGGINGLEVEL.DEBUG
@@ -1883,19 +1916,9 @@ function ApplicationOutputAppender() {
         application.output(msg, lvl)
     }
 	
-    this.toString = function() {
+    ApplicationOutputAppender.prototype.toString = function() {
     	return 'ApplicationOutputAppender'
     }
-}
-
-/**
- * @private
- * @SuppressWarnings(unused)
- * @properties={typeid:35,uuid:"CCE870E3-C277-473F-9332-5B2EC5597282",variableType:-4}
- */
-var initApplicationOutputAppender = (function(){
-	ApplicationOutputAppender.prototype = new AbstractAppender() //Object.create(AbstractAppender.prototype);
-	ApplicationOutputAppender.prototype.constructor = ApplicationOutputAppender
 	
 	logPlugins['ApplicationOutputAppender'] = ApplicationOutputAppender
 	
@@ -1960,38 +1983,58 @@ function AbstractLayout() {
 	 * @type {Array}
 	 */
 	this.customFields = null
+}
 
 	/**
+ * @private 
+ * @SuppressWarnings(unused)
+ * @properties={typeid:35,uuid:"994AF0DE-AA41-453A-B2E0-61047DBFC751",variableType:-4}
+ */
+var initAbstractLayout = (function() {
+	AbstractLayout.prototype = Object.create(LogPlugin.prototype)
+	/**
 	 * @public
+	 * @abstract
+	 * @param {LoggingEvent} logEvent
+	 * @return {String}
 	 */
-	this.format = function() {
-		statusLogger.error("Layout.format: layout supplied has no format() method");
+	AbstractLayout.prototype.format = function(logEvent) {
+		statusLogger.error("Layout.format: layout supplied has no format() method")
+		return null
 	}
 
 	/**
 	 * @public
+	 * @abstract
 	 */
-	this.ignoresThrowable = function() {
+	AbstractLayout.prototype.ignoresThrowable = function() {
 		statusLogger.error("Layout.ignoresThrowable: layout supplied has no ignoresThrowable() method");
 	}
+	/**
+	 * @public
+	 * @abstract
+	 */
+	AbstractLayout.prototype.toString = function() {
+		statusLogger.error("Layout.toString: all layouts must override this method");
+	}
 
-	this.getContentType = function() {
+	AbstractLayout.prototype.getContentType = function() {
 		return "text/plain";
 	}
 
-	this.allowBatching = function() {
+	AbstractLayout.prototype.allowBatching = function() {
 		return true;
 	}
 
 	/**
 	 * @param {Boolean} timeStampsInMilliseconds
 	 */
-	this.setTimeStampsInMilliseconds = function(timeStampsInMilliseconds) {
+	AbstractLayout.prototype.setTimeStampsInMilliseconds = function(timeStampsInMilliseconds) {
 		this.overrideTimeStampsSetting = true;
 		this.useTimeStampsInMilliseconds = timeStampsInMilliseconds
 	}
 
-	this.isTimeStampsInMilliseconds = function() {
+	AbstractLayout.prototype.isTimeStampsInMilliseconds = function() {
 		return this.overrideTimeStampsSetting ? this.useTimeStampsInMilliseconds : useTimeStampsInMilliseconds;
 	}
 
@@ -1999,15 +2042,16 @@ function AbstractLayout() {
 	 * @param {LoggingEvent} loggingEvent
 	 * @return {Number}
 	 */
-	this.getTimeStampValue = function(loggingEvent) {
+	AbstractLayout.prototype.getTimeStampValue = function(loggingEvent) {
 		return this.isTimeStampsInMilliseconds() ? loggingEvent.timeStampInMilliseconds : loggingEvent.timeStampInSeconds;
 	}
 
 	/**
+	 * Used by JSOn Layout
 	 * @param {LoggingEvent} loggingEvent
 	 * @return {Array<Array<String|Date>>}
 	 */
-	this.getDataValues = function(loggingEvent) {
+	AbstractLayout.prototype.getDataValues = function(loggingEvent) {
 		var dataValues = [
 			[this.loggerKey, loggingEvent.logger.name],
 			[this.timeStampKey, this.getTimeStampValue(loggingEvent)],
@@ -2040,6 +2084,7 @@ function AbstractLayout() {
 	}
 		
 	/**
+	 * @this {AbstractLayout}
 	 * @param {String} [loggerKey]
 	 * @param {String} [timeStampKey]
 	 * @param {String} [levelKey]
@@ -2048,7 +2093,7 @@ function AbstractLayout() {
 	 * @param {String} [urlKey]
 	 * @param {String} [millisecondsKey]
 	 */
-	this.setKeys = function(loggerKey, timeStampKey, levelKey, messageKey,exceptionKey, urlKey, millisecondsKey) {
+	AbstractLayout.prototype.setKeys = function(loggerKey, timeStampKey, levelKey, messageKey,exceptionKey, urlKey, millisecondsKey) {
 		this.loggerKey = loggerKey !== undefined ? loggerKey : this.defaults.loggerKey;
 		this.timeStampKey = timeStampKey !== undefined ? timeStampKey : this.defaults.timeStampKey;
 		this.levelKey = levelKey !== undefined ? levelKey : this.defaults.levelKey;
@@ -2058,7 +2103,10 @@ function AbstractLayout() {
 		this.millisecondsKey = millisecondsKey !== undefined ? millisecondsKey : this.defaults.millisecondsKey;
 	}
 
-	this.setCustomField = function(name, value) {
+	/**
+	 * @this {AbstractLayout}
+	 */
+	AbstractLayout.prototype.setCustomField = function(name, value) {
 		var fieldUpdated = false;
 		for (var i = 0, len = this.customFields.length; i < len; i++) {
 			if (this.customFields[i].name === name) {
@@ -2071,25 +2119,10 @@ function AbstractLayout() {
 		}
 	}
 
-	this.hasCustomFields = function() {
+	AbstractLayout.prototype.hasCustomFields = function() {
 		return this.customFields.length > 0;
 	}
 
-	/**
-	 * @public
-	 */
-	this.toString = function() {
-		statusLogger.error("Layout.toString: all layouts must override this method");
-	}
-}
-
-/**
- * @private 
- * @SuppressWarnings(unused)
- * @properties={typeid:35,uuid:"994AF0DE-AA41-453A-B2E0-61047DBFC751",variableType:-4}
- */
-var AbstractlayoutInit = (function(){
-	AbstractLayout.prototype = new LogPlugin() //Object.create(LogPlugin.prototype);
 	AbstractLayout.prototype.constructor = AbstractLayout
 }())
 
@@ -2102,6 +2135,7 @@ var AbstractlayoutInit = (function(){
  * @properties={typeid:24,uuid:"797A6AF8-F753-4455-9F05-2D0FA04267BA"}
  */
 function SimpleLayout() {
+	AbstractLayout.call(this)
 	this.customFields = [];
 }
 
@@ -2110,14 +2144,10 @@ function SimpleLayout() {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"0427BB0C-1835-4CFC-8477-5F56A5DD8387",variableType:-4}
  */
-var simpleLayoutInit = (function() {
-	SimpleLayout.prototype = new AbstractLayout() //Object.create(AbstractLayout.prototype);
+var initSimpleLayout = (function() {
+	SimpleLayout.prototype = Object.create(AbstractLayout.prototype);
 	SimpleLayout.prototype.constructor = SimpleLayout
 
-	/**
-	 * @param {LoggingEvent} loggingEvent
-	 * @return {String}
-	 */
 	SimpleLayout.prototype.format = function(loggingEvent) {
 		return loggingEvent.level.name + " - " + loggingEvent.message.getFormattedMessage();
 	};
@@ -2149,6 +2179,7 @@ var simpleLayoutInit = (function() {
  * @properties={typeid:24,uuid:"82542802-B4D0-45D6-AC01-A638A2587DE6"}
  */
 function NullLayout() {
+	AbstractLayout.call(this)
 	this.customFields = [];
 }
 
@@ -2157,10 +2188,14 @@ function NullLayout() {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"BEF97D79-9D62-4B12-87B3-ABE53EA0C738",variableType:-4}
  */
-var nullLayoutInit = (function() {
-	NullLayout.prototype = new AbstractLayout() //Object.create(AbstractLayout.prototype);
+var initNullLayout = (function() {
+	NullLayout.prototype = Object.create(AbstractLayout.prototype);
 	NullLayout.prototype.constructor = NullLayout
 
+	/**
+	 * @param {LoggingEvent} loggingEvent
+	 * @return {String}
+	 */
 	NullLayout.prototype.format = function(loggingEvent) {
 		return loggingEvent.message.getFormattedMessage();
 	};
@@ -2192,6 +2227,7 @@ var nullLayoutInit = (function() {
  * @properties={typeid:24,uuid:"E33DAAA2-193B-4080-8805-1D3452AA08BD"}
  */
 function XmlLayout() {
+	AbstractLayout.call(this)
 	this.customFields = [];
 }
 
@@ -2200,8 +2236,8 @@ function XmlLayout() {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"5A02CFFB-582D-4B3F-92AD-B4DEA07071F2",variableType:-4}
  */
-var xmlLayoutInit = (function() {
-	XmlLayout.prototype = new AbstractLayout() //Object.create(AbstractLayout.prototype);
+var initXmlLayout = (function() {
+	XmlLayout.prototype = Object.create(AbstractLayout.prototype);
 	XmlLayout.prototype.constructor = XmlLayout
 
 	XmlLayout.prototype.getContentType = function() {
@@ -2281,6 +2317,8 @@ function escapeNewLines(str) {
  * @properties={typeid:24,uuid:"340D216B-0285-475B-82D9-560E6D6E183B"}
  */
 function JsonLayout(readable) {
+	AbstractLayout.call(this)
+	
 	this.readable = typeof readable != "undefined" ? Boolean(readable) : false;
 	this.batchHeader = this.readable ? "[" + NEW_LINE : "[";
 	this.batchFooter = this.readable ? "]" + NEW_LINE : "]";
@@ -2297,8 +2335,8 @@ function JsonLayout(readable) {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"3350BBD8-3E6C-4E29-AEBA-FE90AEB1D0A8",variableType:-4}
  */
-var jsonLayoutInit = (function() {
-	JsonLayout.prototype = new AbstractLayout() //Object.create(AbstractLayout.prototype);
+var initJsonLayout = (function() {
+	JsonLayout.prototype = Object.create(AbstractLayout.prototype);
 	JsonLayout.prototype.constructor = JsonLayout
 		
 	JsonLayout.prototype.isReadable = function() {
@@ -2386,6 +2424,7 @@ var jsonLayoutInit = (function() {
  * @properties={typeid:24,uuid:"7027598D-2240-43BD-84A3-05F5BA79B6CC"}
  */
 function HttpPostDataLayout() {
+	AbstractLayout.call(this)
 	this.setKeys();
 	this.customFields = [];
 	this.returnsPostData = true;
@@ -2396,8 +2435,8 @@ function HttpPostDataLayout() {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"BB86A214-5807-443C-A4F0-934F4671552D",variableType:-4}
  */
-var httpPostdataLayoutInit = (function() {
-	HttpPostDataLayout.prototype = new AbstractLayout() //Object.create(AbstractLayout.prototype);
+var initHttpPostdataLayout = (function() {
+	HttpPostDataLayout.prototype = Object.create(AbstractLayout.prototype);
 	HttpPostDataLayout.prototype.constructor = HttpPostDataLayout
 		
 	// Disable batching
@@ -2544,6 +2583,7 @@ function formatObjectExpansion(object, maxdepth, indent) {
  * @properties={typeid:24,uuid:"2C542AAB-8C8F-4C1F-951A-22A2CB81D623"}
  */
 function PatternLayout(pattern) {
+	AbstractLayout.call(this)
 	this.pattern = pattern||PatternLayout.DEFAULT_CONVERSION_PATTERN;
 	this.customFields = [];
 }
@@ -2553,7 +2593,7 @@ function PatternLayout(pattern) {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"DEC0D9CB-1760-41E1-9408-5310708D3DC6",variableType:-4}
  */
-var patternLayoutInit = (function() {
+var initPatternLayout = (function() {
 		PatternLayout.TTCC_CONVERSION_PATTERN = "%r %p %c - %m%n";
 		PatternLayout.DEFAULT_CONVERSION_PATTERN = "%m%n";
 		PatternLayout.ISO8601_DATEFORMAT = "yyyy-MM-dd HH:mm:ss,SSS";
@@ -2562,12 +2602,10 @@ var patternLayoutInit = (function() {
 		PatternLayout.DATETIME_DATEFORMAT = "dd MMM yyyy HH:mm:ss,SSS";
 		PatternLayout.COMPACT_DATEFORMAT = "yyyyMMddHHmmssSSS";
 
-		PatternLayout.prototype = new AbstractLayout() //Object.create(AbstractLayout.prototype);
+		PatternLayout.prototype = Object.create(AbstractLayout.prototype);
 		PatternLayout.prototype.constructor = PatternLayout
 
 		/**
-		 * @param {LoggingEvent} loggingEvent
-		 * @return {String}
 		 * @this {PatternLayout}
 		 */
 		PatternLayout.prototype.format = function(loggingEvent) {
