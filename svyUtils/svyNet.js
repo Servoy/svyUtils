@@ -16,6 +16,13 @@
  */
 
 /**
+ * @private 
+ *
+ * @properties={typeid:35,uuid:"511CDD43-7074-4F6E-98DB-76C8436DCB9E",variableType:-4}
+ */
+var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.net')
+
+/**
  * @enum
  * @properties={typeid:35,uuid:"20686801-4B73-4915-B354-4FE30E40B35A",variableType:-4}
  */
@@ -106,13 +113,13 @@ function isHostAccessible(hostname, timeout) {
 		socket.connect(sockaddr, timeOut);
 		reachable = true;
 	} catch (e if e['javaException'] instanceof java.net.UnknownHostException) {
-		application.output('Host "' + hostname + '" cannot be reached, might not exist', LOGGINGLEVEL.DEBUG)
+		log.debug('Host "{}" cannot be reached, might not exist', hostname)
 	} catch (e if e['javaException'] instanceof java.net.SocketTimeoutException) {
-		application.output('Timeout checking host "' + hostname + '"', LOGGINGLEVEL.DEBUG)
+		log.debug('Timeout checking host "{}"', hostname)
 	} catch (e if e['javaException'] instanceof java.io.IOException) {
-		application.output('Network issue checking host "' + hostname + '"', LOGGINGLEVEL.DEBUG)
+		log.debug('Network issue checking host "{}"', hostname)
 	} catch (e) {
-		application.output(e)
+		log.debug(e)
 	} finally {
 		if (socket != null) {
 			try {
