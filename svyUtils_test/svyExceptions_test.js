@@ -81,7 +81,7 @@ function testExceptions() {
 		throw e;
 	} catch (ex) {
 		jsunit.assertEquals('ExtendedTestException: test', ex.toString())
-		jsunit.assertTrue('Stack property filled', ex['stack'] !== null)
+		jsunit.assertTrue('Stack property filled', ex.stack !== null)
 		var stack = ex.stack.split(' ')
 		jsunit.assertEquals('\tat', stack[0]);
 
