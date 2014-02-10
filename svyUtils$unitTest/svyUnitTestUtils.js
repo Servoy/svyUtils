@@ -32,8 +32,9 @@ function TestAppender() {
 			return 
 		}
         var msg = this.layout.format(loggingEvent)
-        if (loggingEvent.exception) {
-        	msg += '\n' + loggingEvent.exception.name + ': ' + loggingEvent.exception.message + '\n' + loggingEvent.exception['stack']
+        var ex = loggingEvent.message.getThrowable()
+		if (ex) {
+        	msg += '\n' + ex.name + ': ' + ex.message + '\n' + ex.stack
         }
         if (this.getName() && !logMessages.hasOwnProperty(this.getName())) {
         	logMessages[this.getName()] = []

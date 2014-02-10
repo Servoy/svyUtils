@@ -77,6 +77,7 @@
  * - Added %t to add current ThreadName to output
  * - Removed the logic that allows logging multiple messages in one go
  * - Replaced logLog impl with statusLogger (to align with log4j 2)
+ * - Added messages, to prevent building the String to output if it is not needed
  * 
  * TODOs
  * - finish (re)configuration
@@ -85,14 +86,11 @@
  * - Allow multiple appenders per logger in the config (AppenderRef: [{ref: 'something'}, {ref: 'something else'])
  * - Support consise format besides strict format
  * - support filters: http://logging.apache.org/log4j/2.x/manual/filters.html
- * - support messages, to prevent building the String to output if it is not needed
  * - Make it so that named appender result in one shared instance
  * - Review all layouts except PatternLayout
  * - fix warnings
- * - Support also ServoyException (maybe just java.lang.Exception) as exception param when logging
  * - See if Level can be not exposed as Constructor function, but as an object with static properties only
  * - build in fail-save if constructors aren't called with new keyword
- * - See if calling super constructors can be done without creating new instances of public functions
  * - See which appenders/layouts need to stay
  * - Change Logger impl. to use shared Loggerconfig objects between Loggers, like Log4j 2
  * - Add message formatting as in log4j 2
@@ -321,9 +319,9 @@ function loadConfig(configuration) {
 			logPlugins[plugName] = plugin
 		} else {
 			if (plugin) { //Found object, but not an instanceof LogPlugin
-				statusLogger.warn("Could not find plugin: The path '" + plugName + "' did not resolve to an object that is an instance of LogPlugin")
+				statusLogger.warn("Could not find plugin: The path '{}' did not resolve to an object that is an instance of LogPlugin", plugName)
 			} else { //Not found
-				statusLogger.warn("Could not find plugin: The path '" + plugName + "' did not resolve to an object")
+				statusLogger.warn("Could not find plugin: The path '{}' did not resolve to an object", plugName)
 			}
 		}
 	}
@@ -354,7 +352,7 @@ function loadConfig(configuration) {
 		if (appender) {
 			rl.addAppender(appender)
 		} else {
-			statusLogger.error('Couldn\'t configure the specified Appender for the ROOTLOGGER: ' + JSON.stringify(rootLoggerConfig.AppenderRef) + '. Using default config instead')
+			statusLogger.error('Couldn\'t configure the specified Appender for the ROOTLOGGER: {}. Using default config instead', JSON.stringify(rootLoggerConfig.AppenderRef))
 			rl.addAppender(getAppenderForRef(defaultConfig.loggers.root.AppenderRef))
 		}
 	} else {
@@ -377,7 +375,7 @@ function loadConfig(configuration) {
 	for (i = 0; i < configuredLoggers.length; i++) { //
 		var loggerConfig = configuredLoggers[i]
 		if (!loggerConfig.hasOwnProperty('name')) {
-			statusLogger.error("'name' attribute underdefined on Logger: '" + JSON.stringify(loggerConfig) + "'")
+			statusLogger.error("'name' attribute underdefined on Logger: '{}'", JSON.stringify(loggerConfig))
 			continue
 		}
 		if (!loggers.hasOwnProperty(loggerConfig.name)) { //Not yet instantiated, so no need to reconfigure
@@ -395,7 +393,7 @@ function loadConfig(configuration) {
 			if (typeof loggerConfig.additivity === 'boolean') {
 				logger.setAdditivity(loggerConfig.additivity)
 			} else {
-				statusLogger.warn("Invalid value for additivity property on logger '" + loggerConfig.name + "': " + loggerConfig.additivity)
+				statusLogger.warn("Invalid value for additivity property on logger '{}': {}", loggerConfig.name, loggerConfig.additivity)
 				logger.setAdditivity(true)
 			}
 		} else {
@@ -406,7 +404,7 @@ function loadConfig(configuration) {
 		logger.removeAllAppenders()
 		if (loggerConfig.hasOwnProperty('AppenderRef')) {
 			if (!loggerConfig.AppenderRef.hasOwnProperty('ref')) {
-				statusLogger.error("'ref' attribute not specified on Appender configured for Logger '" + loggerConfig.name + "'")
+				statusLogger.error("'ref' attribute not specified on Appender configured for Logger '{}'", loggerConfig.name)
 				continue
 			}
 			logger.addAppender(getAppenderForRef(loggerConfig.AppenderRef))
@@ -449,7 +447,7 @@ function getAppenderForRef(appenderRef) {
 		return null
 	}
 	if (namedAppenders.hasOwnProperty(appenderRef.ref)) {
-		statusLogger.trace('Existing Appender returned for ' + appenderRef.ref)
+		statusLogger.trace('Existing Appender returned for {}', appenderRef.ref)
 		return namedAppenders[appenderRef.ref]
 	}
 	for (var j = 0; j < currentConfig.appenders.length; j++) {
@@ -458,13 +456,13 @@ function getAppenderForRef(appenderRef) {
 			var appenderConstructor = logPlugins[appenderConfig.type]
 			
 			if (!appenderConstructor || !(appenderConstructor.prototype instanceof AbstractAppender)) { //CHECKME: second check needed or is the contents of logPlugins under out direct control
-				statusLogger.error('LogPlugin of type "' + appenderConfig.type +'" not found')
+				statusLogger.error('LogPlugin of type "{}" not found', appenderConfig.type)
 				return null
 			} else {
 				/** @type {AbstractAppender} */
 				var appender = getPluginInstance(appenderConfig.type, appenderConfig)
 				namedAppenders[appenderRef.ref] = appender
-				statusLogger.trace('Created Appender of type "' + appenderConfig.type + '" with name "' + appenderConfig.name + '"')
+				statusLogger.trace('Created Appender of type "{}" with name "{}"', appenderConfig.type, appenderConfig.name)
 				return appender
 			}
 		}
@@ -503,7 +501,7 @@ function getPluginInstance(type, configNode) {
 						if (plugin) {
 							args.push(getPluginInstance(param.type, configNode[param.configName]))
 						} else {
-							statusLogger.warn("Unable to resolve type of '" + param.configName + "'")
+							statusLogger.warn("Unable to resolve type of '{}'", param.configName)
 						}
 					}
 					break;
@@ -585,7 +583,7 @@ var levelInit = (function() {
 			        return levels[i];
 			    }
 			}
-			statusLogger.warn("Unable to convert '" + name + "' to a Level")
+		statusLogger.warn("Unable to convert '{}' to a Level", name)
 			return defaultLevel||Level.DEBUG
 		}
 	}())
@@ -601,11 +599,12 @@ var levelInit = (function() {
  * @this {LoggerConfig}
  *
  * @param {String} name
+ * @param {AbstractMessageFactory} [messageFactory]
  * @param {Logger} [logger] Optional Logger, used when reconfiguring existing loggers
  *
  * @properties={typeid:24,uuid:"1086E0C7-EE0E-4A8B-B208-9E27A4057B9F"}
  */
-function LoggerConfig(name, logger) {
+function LoggerConfig(name, messageFactory, logger) {
 	/**
 	 * @type {Level}
 	 */
@@ -705,7 +704,7 @@ function LoggerConfig(name, logger) {
 				this.invalidateAppenderCache();
 			}
 		} else {
-			statusLogger.error("Logger.addAppender: appender supplied ('" + appender + "') is not a subclass of Appender");
+			statusLogger.error("Logger.addAppender: appender supplied ('{}') is not a subclass of Appender", appender);
 		}
 	};
 	
@@ -795,10 +794,10 @@ function LoggerConfig(name, logger) {
 	/**
 	 * @param {Level} level
 	 * @param {*} message 
-	 * @param {Error} [exception]
+	 * @param {AbstractMessage} message 
 	 */
-	this.log = function(level, message, exception) {
-		var loggingEvent = new LoggingEvent(this, new Date(), level, message, exception);
+	this.log = function(level, message) {
+		var loggingEvent = new LoggingEvent(this, new Date(), level, message);
 
 		var effectiveAppenders = this.getEffectiveAppenders();
 		for (var i = 0; i < effectiveAppenders.length; i++) {
@@ -837,7 +836,7 @@ function LoggerConfig(name, logger) {
 			loggerLevel = level;
 			this.setEffectiveLevel(level||this.getParent().effectiveLevel)
 		} else {
-			statusLogger.error("Logger.setLevel: level supplied to logger " + this.name + " is not an instance of log4javascript.Level");
+			statusLogger.error("Logger.setLevel: level supplied to logger {} is not an instance of Level", this.name);
 		}
 	}
 
@@ -855,7 +854,7 @@ function LoggerConfig(name, logger) {
 	 * @param {Level} level
 	 */
 	this.setEffectiveLevel = function(level) {
-		statusLogger.trace('Setting effectiveLevel on "' + this.name + '" to ' + level)
+		statusLogger.trace('Setting effectiveLevel on "{}" to {}', this.name, level)
 		this.effectiveLevel = level
 		for (var i = 0; i < children.length; i++) {
 			children[i].setEffectiveLevel(level)
@@ -882,7 +881,7 @@ function LoggerConfig(name, logger) {
 	/**
 	 * @type {Logger}
 	 */
-	this.externalLogger = logger ? Logger.call(logger, this) : new Logger(this)
+	this.externalLogger = logger ? Logger.call(logger, this) : new Logger(this, messageFactory)
 }
 
 /**
@@ -932,34 +931,61 @@ var initLoggerConfig = (function(){
  * @typedef {{
  * 	name: String,
  *  effectiveLevel: Level,
- *  log: function(Level, *, Error|ServoyException)
+ *  log: function(Level, AbstractMessage)
  * }}
+ * 
  * @private 
  * @SuppressWarnings(unused)
  *
  * @properties={typeid:35,uuid:"008FD40C-B8C7-4458-B7C3-E68C68B00319",variableType:-4}
  */
-var internalType
+var ILogConfig
 
 /**
+ * TODO: add docs and samplecode
  * @private
  * @constructor 
- * @param {internalType} internal
+ * @param {ILogConfig} internal
+ * @param {AbstractMessageFactory} messageFactory
  *
  * @properties={typeid:24,uuid:"118575D2-E51F-4294-97AE-E5F515B7A821"}
  */
-function Logger(internal) {
+function Logger(internal, messageFactory) {
+	var customMessageFactory = messageFactory
+
 	/**
 	 * Generic logging method<br>
 	 * <br>
 	 * @public 
 	 * @param {Level} level
-	 * @param {*} message 
-	 * @param {Error|ServoyException} [exception]
+	 * @param {AbstractMessage|String|Object|*} message 
+	 * @param {Error|ServoyException|*...} [exception]
 	 */
 	this.log = function(level, message, exception) {
 		if (level.intLevel >= internal.effectiveLevel.intLevel) {
-			internal.log(level, message, exception)
+			
+			if (arguments.length == 2 && message instanceof AbstractMessage) {
+				/**@type {AbstractMessage}*/
+				var msg = message
+				internal.log(level, msg)
+			} else {
+				/**
+				 * @type {Error|ServoyException}
+				 */
+				var throwable
+				var parameters
+				if (arguments.length === 3 && (arguments[2] instanceof Error || arguments[2] instanceof ServoyException)) {
+					throwable = arguments[2]
+					if (exception instanceof ServoyException) {
+						/**@type {ServoyException}*/
+						var ex = throwable
+						throwable = new scopes.svyExceptions.ServoyError(ex)				
+					}
+				} else if (arguments.length >= 3) {
+					parameters = Array.prototype.slice.call(arguments, 2)
+				} 
+				internal.log(level, (customMessageFactory||defaultMessageFactory).newMessage(message, parameters, throwable))
+			}
 		}
 	}
 	
@@ -967,72 +993,84 @@ function Logger(internal) {
 	 * Logs a message and optionally an error at level TRACE<br>
 	 * <br>
 	 * @public
-	 * @param {*} message
-	 * @param {Error|ServoyException} [exception]
+	 * @param {AbstractMessage|String|Object|*} message
+	 * @param {Error|ServoyException|*...} [messageParamsOrException]
 	 */
-	this.trace = function(message, exception) {
+	this.trace = function(message, messageParamsOrException) {
 		if (Level.TRACE.intLevel >= internal.effectiveLevel.intLevel) {
-			internal.log(Level.TRACE, message, exception);
+			var args = Array.prototype.slice.call(arguments)
+			args.splice(0,0, Level.TRACE)
+			this.log.apply(this, args)
 		}
 	}
 	/**
 	 * Logs a message and optionally an error at level DEBUG<br>
 	 * <br>
 	 * @public
-	 * @param {*} message
-	 * @param {Error|ServoyException} [exception]
+	 * @param {AbstractMessage|String|Object|*} message
+	 * @param {Error|ServoyException|*...} [messageParamsOrException]
 	 */
-	this.debug = function(message, exception) {
+	this.debug = function(message, messageParamsOrException) {
 		if (Level.DEBUG.intLevel >= internal.effectiveLevel.intLevel) {
-			internal.log(Level.DEBUG, message, exception);
+			var args = Array.prototype.slice.call(arguments)
+			args.splice(0,0, Level.DEBUG)
+			this.log.apply(this, args)
 		}			
 	}
 	/**
 	 * Logs a message and optionally an error at level INFO<br>
 	 * <br>
 	 * @public
-	 * @param {*} message
-	 * @param {Error|ServoyException} [exception]
+	 * @param {AbstractMessage|String|Object|*} message
+	 * @param {Error|ServoyException|*...} [messageParamsOrException]
 	 */
-	this.info = function(message, exception) {
+	this.info = function(message, messageParamsOrException) {
 		if (Level.INFO.intLevel >= internal.effectiveLevel.intLevel) {
-			internal.log(Level.INFO, message, exception);
+			var args = Array.prototype.slice.call(arguments)
+			args.splice(0,0, Level.INFO)
+			this.log.apply(this, args)
 		}			
 	}
 	/**
 	 * Logs a message and optionally an error at level WARN<br>
 	 * <br>
 	 * @public
-	 * @param {*} message
-	 * @param {Error|ServoyException} [exception]
+	 * @param {AbstractMessage|String|Object|*} message
+	 * @param {Error|ServoyException|*...} [messageParamsOrException]
 	  */
-	this.warn = function(message, exception) {
+	this.warn = function(message, messageParamsOrException) {
 		if (Level.WARN.intLevel >= internal.effectiveLevel.intLevel) {
-			internal.log(Level.WARN, message, exception);
+			var args = Array.prototype.slice.call(arguments)
+			args.splice(0,0, Level.WARN)
+			this.log.apply(this, args)
 		}			
 	}
 	/**
 	 * Logs a message and optionally an error at level ERROR<br>
 	 * <br>
 	 * @public
-	 * @param {*} message
-	 * @param {Error|ServoyException} [exception]
+	 * @param {AbstractMessage|String|Object|*} message
+	 * @param {Error|ServoyException|*...} [messageParamsOrException]
 	 */
-	this.error = function(message, exception) {
+	this.error = function(message, messageParamsOrException) {
 		if (Level.ERROR.intLevel >= internal.effectiveLevel.intLevel) {
-			internal.log(Level.ERROR, message, exception);
+			var args = Array.prototype.slice.call(arguments)
+			args.splice(0,0, Level.ERROR)
+			this.log.apply(this, args)
 		}			
 	}
 	/**
 	 * Logs a message and optionally an error at level FATAL<br>
 	 * <br>
 	 * @public
-	 * @param {*} message
-	 * @param {Error|ServoyException} [exception]
+	 * @param {AbstractMessage|String|Object|*} message
+	 * @param {Error|ServoyException|*...} [messageParamsOrException]
 	 */
-	this.fatal = function(message, exception) {
+	this.fatal = function(message, messageParamsOrException) {
 		if (Level.FATAL.intLevel >= internal.effectiveLevel.intLevel) {
-			internal.log(Level.FATAL, message, exception);
+			var args = Array.prototype.slice.call(arguments)
+			args.splice(0,0, Level.FATAL)
+			this.log.apply(this, args)
 		}
 	}
 	
@@ -1101,12 +1139,14 @@ function Logger(internal) {
 		return Level.FATAL.intLevel >= internal.effectiveLevel.intLevel;
 	}
 
+	/**
+	 * @public
+	 */
 	this.getName = function() {
 		return internal.name
 	}
 }
 
-// Logger access methods
 /** 
  * Hashtable of loggers keyed by logger name
  * 
@@ -1157,15 +1197,19 @@ function getRootLoggerConfig() {
 /**
  * Returns a logger with the specified name, creating it if a logger with that name does not already exist<br>
  * <br>
+ * Optionally a instance of a MessageFactory can be provided. A MessageFactory determines how a log statement with additional parameters gets converted to an actual log message.<br>
+ * By default the {@link ParameterizedMessageFactory} is used<br>
+ * <br>
  * Note that the name 'root' is reserved for the root logger<br>
  * <br>
  * @public
  * @param {String} loggerName
+ * @param {AbstractMessageFactory} [messageFactory]
  * @return {Logger}
  *
  * @properties={typeid:24,uuid:"B8C91C9F-3D84-4CC7-8228-EA6D5A975FE0"}
  */
-function getLogger(loggerName) {
+function getLogger(loggerName, messageFactory) {
 	if (!loggerName || typeof loggerName != "string") {
 		throw scopes.svyExceptions.IllegalArgumentException('non-string logger name "' + loggerName + '" supplied')
 	}
@@ -1176,7 +1220,7 @@ function getLogger(loggerName) {
 
 	// Create the logger for this name if it doesn't already exist
 	if (!loggers[loggerName]) {
-		var logger = new LoggerConfig(loggerName)
+		var logger = new LoggerConfig(loggerName, messageFactory)
 		loggers[loggerName] = logger;
 		
 		if (currentConfig.loggers && currentConfig.loggers.logger) {
@@ -1188,7 +1232,7 @@ function getLogger(loggerName) {
 					for (var p = 0; p < keys.length; p++) {
 						switch (keys[p]) {
 							case 'level':
-								statusLogger.trace('Setting level on "' + loggerName + '" to ' + logConfig.level)
+								statusLogger.trace('Setting level on "{}" to {}', loggerName, logConfig.level)
 								logger.setLevel(Level.toLevel(logConfig.level))
 								break;
 							case 'additivity':
@@ -1205,7 +1249,7 @@ function getLogger(loggerName) {
 				}
 			}
 		}
-		statusLogger.trace('Getting parent for "' + loggerName + '"')
+		statusLogger.trace('Getting parent for "{}"', loggerName)
 		var parentName = loggerName
 		var parent
 		while (!parent && parentName) {
@@ -1213,13 +1257,15 @@ function getLogger(loggerName) {
 			parent = loggers[parentName]
 		}
 		parent = parent||getRootLoggerConfig()
-		statusLogger.trace('Found parent is "' + parent.getName() + '"')
+		statusLogger.trace('Found parent is "{}"', parent.name)
 		if (!logger.getLevel()) {
 			logger.setEffectiveLevel(parent.effectiveLevel)
 		}
 		parent.addChild(logger)
 		return logger.externalLogger;
 	}
+	//TODO: add warnings when returning existing logger and a messageFactory was provided that is different than the one with which the logger was previously requested.
+	//See checkMessageFactory in Log4J's AbstractLogger 
 	return loggers[loggerName].externalLogger;
 }
 
@@ -1231,20 +1277,21 @@ function getLogger(loggerName) {
  * @param {LoggerConfig} logger
  * @param {Date} timeStamp
  * @param {Level} level
- * @param {String} message
- * @param {Error} exception
+ * @param {AbstractMessage} message
  *
  * @properties={typeid:24,uuid:"40428863-BCA7-42D5-9B8D-D276C1A00B5F"}
  */
-function LoggingEvent(logger, timeStamp, level, message, exception) {
-	this.logger = logger;
-	this.timeStamp = timeStamp;
-	this.timeStampInMilliseconds = timeStamp.getTime();
-	this.timeStampInSeconds = Math.floor(this.timeStampInMilliseconds / 1000);
-	this.milliseconds = this.timeStamp.getMilliseconds();
-	this.level = level;
-	this.message = message;
-	this.exception = exception;
+function LoggingEvent(logger, timeStamp, level, message) {
+	this.logger = logger
+	this.timeStamp = timeStamp
+	this.timeStampInMilliseconds = timeStamp.getTime()
+	this.timeStampInSeconds = Math.floor(this.timeStampInMilliseconds / 1000)
+	this.milliseconds = this.timeStamp.getMilliseconds()
+	this.level = level
+	/**
+	 * @type {AbstractMessage}
+	 */
+	this.message = message
 }
 
 /**
@@ -1262,6 +1309,374 @@ var loggingEventInit = (function() {
 		}
 	};
 }())
+
+/* ---------------------------------Message------------------------------------- */
+/**
+ * TODO: documentation
+ * @public 
+ * @constructor
+ * @abstract
+ * 
+ * @param {*} format
+ * @param {Array<*>|*...} [parameters]
+ * @param {Error} [throwable]
+ *
+ * @properties={typeid:24,uuid:"36095B79-6EF7-4449-A89E-C4867F327578"}
+ */
+function AbstractMessage(format, parameters, throwable) {
+	if (this.constructor.name === 'AbstractMessage') {
+		//TODO: throw an exception about invoking an Abstract Constructor
+	}
+	/**
+	 * @protected 
+	 */
+	this.format = format
+	//TODO: stringify the parameters, as to not cause mem-leaks or have objects altered before logging
+	/**
+	 * @protected 
+	 */
+	this.parameters = parameters
+	/**
+	 * @protected 
+	 */
+	this.throwable = throwable
+}
+
+/**
+ * @private
+ * @SuppressWarnings(unused)
+  * @properties={typeid:35,uuid:"0960F1DA-3085-4D33-A31E-794E5F7E4F68",variableType:-4}
+ */
+var initAbstractMessage = (function(){
+	/**
+	 * @protected
+	 */
+	AbstractMessage.prototype.format = null
+
+	/**
+	 * @protected
+	 */
+	AbstractMessage.prototype.parameters = null
+	
+	/**
+	 * @protected
+	 */
+	AbstractMessage.prototype.throwable = null
+	
+	/**
+	 * @public
+	 */
+	AbstractMessage.prototype.getFormat = function() {
+		return this.format
+	}
+	
+	/**
+	 * @public
+	 * @abstract
+	 * @return {String}
+	 */
+	AbstractMessage.prototype.getFormattedMessage = function(){
+		return null
+	}
+	
+	/**
+	 * @public
+	 */
+	AbstractMessage.prototype.getParameters = function(){
+		return this.paramters
+	}
+	
+	/**
+	 * @public
+	 * @return {Error}
+	 */
+	AbstractMessage.prototype.getThrowable = function(){
+		return this.throwable
+	}
+}())
+
+/**
+ * @public
+ * @constructor
+ * @extends {AbstractMessage}
+ * @param {String} format
+ * @param {Array<*>|*...} parameters
+ * @param {Error} [throwable]
+ *
+ * @properties={typeid:24,uuid:"4095E81F-AF1B-4CF8-85BF-25C03B7C7B51"}
+ */
+function StringFormattedMessage(format, parameters, throwable) {
+	if (!(this instanceof StringFormattedMessage)) {
+		return new StringFormattedMessage(format, parameters, throwable)
+	}
+	AbstractMessage.apply(this, arguments)
+	
+	/** @protected */
+	this.formattedMessage = null
+
+}
+
+/**
+ * @private
+ * @SuppressWarnings(unused)
+ * @properties={typeid:35,uuid:"A7691A61-E4B9-4707-9034-8DDDACF36A3B",variableType:-4}
+ */
+var initStringformattedMessage = (function() {
+	StringFormattedMessage.prototype = Object.create(AbstractMessage.prototype)
+	StringFormattedMessage.prototype.constructor = StringFormattedMessage
+	
+	StringFormattedMessage.prototype.getFormattedMessage = function() {
+		return utils.stringFormat(this.format, this.parameters)
+	}
+}())
+
+/**
+ * TODO: samples & docs
+ * @public
+ * @constructor 
+ * @extends {AbstractMessage}
+ * @param {String} format
+ * @param {Array<*>|*...} parameters
+ * @param {Error} [throwable]
+ *
+ * @properties={typeid:24,uuid:"2B246023-42C8-45AB-8C18-C8D34E416741"}
+ */
+function ParameterizedMessage(format, parameters, throwable) {
+	if (!(this instanceof ParameterizedMessage)) {
+		return new ParameterizedMessage(format, parameters, throwable)
+	}
+	AbstractMessage.apply(this, arguments)
+	
+	/** @protected */
+	this.formattedMessage = null
+}
+
+/** 
+ * @private
+ * @SuppressWarnings(unused)
+ * @properties={typeid:35,uuid:"F678ABD1-57B4-4319-9772-F084F223BAF6",variableType:-4}
+ */
+var initParameterizedMessage = (function() {
+	ParameterizedMessage.prototype = Object.create(AbstractMessage.prototype)
+	ParameterizedMessage.prototype.constructor = ParameterizedMessage
+
+	/**
+	 * TODO license message, see http://logging.apache.org/log4j/2.x/log4j-api/apidocs/src-html/org/apache/logging/log4j/message/ParameterizedMessage.html#line.31
+	 * @this {ParameterizedMessage}
+	 */
+	ParameterizedMessage.prototype.getFormattedMessage = function() {
+		if (this.formattedMessage === null) {
+			
+			if (this.format == null || this.parameters == null || this.parameters.length == 0) {
+                return this.formattedMessage = this.format;
+            }
+			var messagePattern = this.format
+    
+            var DELIM_START = '{';
+            var DELIM_STOP = '}';
+            var ESCAPE_CHAR = '\\';
+            
+            var result = ''
+            var escapeCounter = 0;
+            var currentArgument = 0;
+            for (var i = 0; i < messagePattern.length; i++) {
+                var curChar = messagePattern.charAt(i);
+                if (curChar == ESCAPE_CHAR) {
+                    escapeCounter++;
+                } else {
+                    if (curChar == DELIM_START) {
+                        if (i < messagePattern.length - 1) {
+                            if (messagePattern.charAt(i + 1) == DELIM_STOP) {
+                                // write escaped escape chars
+                                var escapedEscapes = escapeCounter / 2;
+                                for (var j = 0; j < escapedEscapes; j++) {
+                                    result += ESCAPE_CHAR;
+                                }
+    
+                                if (escapeCounter % 2 == 1) {
+                                    // i.e. escaped
+                                    // write escaped escape chars
+                                    result += DELIM_START;
+                                    result += DELIM_STOP;
+                                } else {
+                                    // unescaped
+                                    if (currentArgument < this.parameters.length) {
+                                        result += this.parameters[currentArgument];
+                                    } else {
+                                        result += DELIM_START + DELIM_STOP;
+                                    }
+                                    currentArgument++;
+                                }
+                                i++;
+                                escapeCounter = 0;
+                                continue;
+                            }
+                        }
+                    }
+                    // any other char beside ESCAPE or DELIM_START/STOP-combo
+                    // write unescaped escape chars
+                    if (escapeCounter > 0) {
+                        for (j = 0; j < escapeCounter; j++) {
+                            result += ESCAPE_CHAR;
+                        }
+                        escapeCounter = 0;
+                    }
+                    result += curChar;
+                }
+            }
+            this.formattedMessage = result
+			//-------------------
+		}
+		return this.formattedMessage
+	}
+}())
+
+/**
+ * @public
+ * @constructor 
+ * @extends {AbstractMessage}
+ *
+ * @properties={typeid:24,uuid:"3BA243D7-8B29-40BC-B03B-C42A1C9ED1FA"}
+ */
+function SimpleMessage(message) {
+	if (!(this instanceof SimpleMessage)) {
+		return new SimpleMessage(message)
+	}
+	AbstractMessage.apply(this, arguments)
+}
+
+/**
+ * @private
+ * @SuppressWarnings(unused)
+ *
+ * @properties={typeid:35,uuid:"2BAE5202-1155-4923-B40F-72A7ADF26F77",variableType:-4}
+ */
+var initSimpleMessage = (function() {
+	SimpleMessage.prototype = Object.create(AbstractMessage.prototype)
+	SimpleMessage.prototype.constructor = SimpleMessage
+	
+	SimpleMessage.prototype.getFormattedMessage = function() {
+		return this.format
+	}
+}())
+
+/**
+ * @public
+ * @constructor 
+ * @extends {AbstractMessage}
+ *
+ * @properties={typeid:24,uuid:"835EDA8E-FE17-4746-8D30-EDDFFE3DFF95"}
+ */
+function ObjectMessage(object) {
+	if (!(this instanceof ObjectMessage)) {
+		return new ObjectMessage(object)
+	}
+	AbstractMessage.apply(this, arguments)
+}
+
+/**
+ * @private
+ * @SuppressWarnings(unused)
+ *
+ * @properties={typeid:35,uuid:"6D980F77-FB92-475E-8895-6BA8C01B59A0",variableType:-4}
+ */
+var initObjectMessage = (function() {
+	ObjectMessage.prototype = Object.create(AbstractMessage.prototype)
+	ObjectMessage.prototype.constructor = ObjectMessage
+	
+	ObjectMessage.prototype.getFormat = function() {
+		return this.format.toString()
+	}
+	
+	ObjectMessage.prototype.getFormattedMessage = function() {
+		return this.format.toString()
+	}
+
+	ObjectMessage.prototype.getParameters = function() {
+		return [this.format]
+	}
+	
+	ObjectMessage.prototype.getThrowable = function() {
+		return (this.format instanceof Error || this.format instanceof ServoyException) ? this.format : null
+	}
+}())
+
+/* -------------------------------MessageFactory--------------------------------------- */
+/**
+ * @public 
+ * @constructor 
+ * @abstract
+ * 
+ * @properties={typeid:24,uuid:"D24859FB-64E3-48D0-AC00-D48824496F3A"}
+ */
+function AbstractMessageFactory() {}
+
+/**
+ * @private
+ * @SuppressWarnings(unused)
+ *
+ * @properties={typeid:35,uuid:"CA03143B-DE1F-40FE-9F21-7F6AD3DF03EF",variableType:-4}
+ */
+var initAbstractMessageFactory = (function() {
+	/**
+	 * @public 
+	 * @return {AbstractMessage}
+	 */
+	 AbstractMessageFactory.prototype.newMessage = function(format, parameters, throwable) {
+		if (typeof parameters === 'undefined') {
+			if (typeof format === 'string') {
+				return new SimpleMessage(format)
+			} else {
+				return new ObjectMessage(format)
+			}
+		} else {
+			return this.newFormattedMessage.apply(this, arguments)
+		}
+	}
+	
+	/**
+	 * @abstract
+	 * @protected
+	 * @return {AbstractMessage}
+	 */
+	AbstractMessageFactory.prototype.newFormattedMessage = function(format, parameters, throwable) {
+		return null;
+	}
+}())
+
+/**
+ * @public 
+ * @constructor 
+ * @extends {AbstractMessageFactory}
+ *
+ * @properties={typeid:24,uuid:"49D8E274-D50C-4423-BF8D-957EE60414C6"}
+ */
+function ParameterizedMessageFactory() {
+	if (!(this instanceof ParameterizedMessageFactory)) {
+		return new ParameterizedMessageFactory()
+	}
+}
+
+/**
+ * @private
+ * @SuppressWarnings(unused)
+ *
+ * @properties={typeid:35,uuid:"AEB56CA1-2987-4510-940A-B7201936986D",variableType:-4}
+ */
+var initParameterizedMessageFactory = (function() {
+	ParameterizedMessageFactory.prototype = Object.create(AbstractMessageFactory.prototype)
+	ParameterizedMessageFactory.prototype.constructor = ParameterizedMessageFactory
+
+	ParameterizedMessageFactory.prototype.newFormattedMessage = function(format, parameters, throwable){
+		return new ParameterizedMessage(format,parameters,throwable);
+	}
+}())
+
+/**
+ * @private
+ * @properties={typeid:35,uuid:"87FC8503-D5E5-4BB7-B777-3CC94617BAD7",variableType:-4}
+ */
+var defaultMessageFactory = new ParameterizedMessageFactory()
 
 /* -------------------------------LogPlugin prototype--------------------------------------- */
 /**
@@ -1309,6 +1724,7 @@ var defaultLogPlugins = null
  * <br>
  * @public 
  * @constructor
+ * @abstract
  * @extends {LogPlugin}
  *
  * @properties={typeid:24,uuid:"347251D0-84E5-40FE-8ED9-45CB3FE7FB4A"}
@@ -1352,7 +1768,7 @@ function AbstractAppender() {
 		if (layout instanceof AbstractLayout) {
 			this.layout = layout;
 		} else {
-			statusLogger.error("Appender.setLayout: layout supplied to " + this.toString() + " is not a subclass of Layout");
+			statusLogger.error("Appender.setLayout: layout supplied to {} is not a subclass of Layout", this.toString());
 		}
 	};
 
@@ -1376,7 +1792,7 @@ function AbstractAppender() {
 		if (threshold instanceof Level) {
 			this.threshold = threshold;
 		} else {
-			statusLogger.error("Appender.setThreshold: threshold supplied to " + this.toString() + " is not a subclass of Level");
+			statusLogger.error("Appender.setThreshold: threshold supplied to {} is not a subclass of Level", this.toString());
 		}
 	};
 	
@@ -1451,8 +1867,9 @@ function ApplicationOutputAppender() {
          * Then there's also the Public Java API to report errors/warnings etc.
          */
         var msg = this.layout.format(loggingEvent)
-        if (loggingEvent.exception) {
-        	msg += loggingEvent.exception.name + ': ' + loggingEvent.exception.message + NEW_LINE + loggingEvent.exception['stack']
+		var ex = loggingEvent.message.getThrowable()
+		if (ex) {
+        	msg += ex.name + ': ' + ex.message + NEW_LINE + ex.stack
         }
         application.output(msg, lvl)
     }
@@ -1502,6 +1919,7 @@ var initApplicationOutputAppender = (function(){
  * Abstract Layout implementation to be extended for actual Layouts
  * @public 
  * @constructor
+ * @abstract
  * @extends {LogPlugin}
  *
  * @properties={typeid:24,uuid:"2D33DAB0-E039-4A7E-8AF9-98E7D0BD3F98"}
@@ -1586,13 +2004,14 @@ function AbstractLayout() {
 			[this.timeStampKey, this.getTimeStampValue(loggingEvent)],
 			[this.levelKey, loggingEvent.level.name],
 			//[this.urlKey, window.location.href], //FIXME
-			[this.messageKey, loggingEvent.message]
+			[this.messageKey, loggingEvent.message.getFormattedMessage()]
 		];
 		if (!this.isTimeStampsInMilliseconds()) {
 			dataValues.push([this.millisecondsKey, loggingEvent.milliseconds]);
 		}
-		if (loggingEvent.exception) {
-			dataValues.push([this.exceptionKey, getExceptionStringRep(loggingEvent.exception)]);
+		var ex = loggingEvent.message.getThrowable()
+		if (ex) {
+			dataValues.push([this.exceptionKey, getExceptionStringRep(ex)]);
 		}
 		if (this.hasCustomFields()) {
 			for (var i = 0, len = this.customFields.length; i < len; i++) {
@@ -1691,7 +2110,7 @@ var simpleLayoutInit = (function() {
 	 * @return {String}
 	 */
 	SimpleLayout.prototype.format = function(loggingEvent) {
-		return loggingEvent.level.name + " - " + loggingEvent.message;
+		return loggingEvent.level.name + " - " + loggingEvent.message.getFormattedMessage();
 	};
 
 	SimpleLayout.prototype.ignoresThrowable = function() {
@@ -1734,7 +2153,7 @@ var nullLayoutInit = (function() {
 	NullLayout.prototype.constructor = NullLayout
 
 	NullLayout.prototype.format = function(loggingEvent) {
-		return loggingEvent.message;
+		return loggingEvent.message.getFormattedMessage();
 	};
 
 	NullLayout.prototype.ignoresThrowable = function() {
@@ -1799,15 +2218,16 @@ var xmlLayoutInit = (function() {
 		}
 		str += " level=\"" + loggingEvent.level.name + "\">" + NEW_LINE;
 		
-		str += "<log4javascript:message><![CDATA[" + layout.escapeCdata((typeof loggingEvent.message === "string") ? loggingEvent.message : '' + loggingEvent.message) + "]]></log4javascript:message>";
+		str += "<log4javascript:message><![CDATA[" + layout.escapeCdata(loggingEvent.message.getFormattedMessage()) + "]]></log4javascript:message>";
 		
 		if (this.hasCustomFields()) {
 			for (i = 0, len = this.customFields.length; i < len; i++) {
 				str += "<log4javascript:customfield name=\"" + this.customFields[i].name + "\"><![CDATA[" + this.customFields[i].value.toString() + "]]></log4javascript:customfield>" + NEW_LINE;
 			}
 		}
-		if (loggingEvent.exception) {
-			str += "<log4javascript:exception><![CDATA[" + getExceptionStringRep(loggingEvent.exception) + "]]></log4javascript:exception>" + NEW_LINE;
+		var ex = loggingEvent.message.getThrowable()
+		if (ex) {
+			str += "<log4javascript:exception><![CDATA[" + getExceptionStringRep(ex) + "]]></log4javascript:exception>" + NEW_LINE;
 		}
 		str += "</log4javascript:event>" + NEW_LINE + NEW_LINE;
 		return str;
@@ -2174,12 +2594,12 @@ var patternLayoutInit = (function() {
 							if (specifier) {
 								depth = parseInt(specifier, 10);
 								if (isNaN(depth)) {
-									statusLogger.error("PatternLayout.format: invalid specifier '" + specifier + "' for conversion character '" + conversionCharacter + "' - should be a number");
+									statusLogger.error("PatternLayout.format: invalid specifier '{}' for conversion character '{}' - should be a number", specifier, conversionCharacter);
 									depth = 0;
 								}
 							}
 							
-							replacement += depth === 0 ? loggingEvent.message : formatObjectExpansion(loggingEvent.message, depth);
+							replacement += depth === 0 ? loggingEvent.message.getFormattedMessage() : formatObjectExpansion(loggingEvent.message.getFormattedMessage(), depth);
 							break;
 						case 'logger':
 						case 'c':
@@ -2249,11 +2669,11 @@ var patternLayoutInit = (function() {
 								if (specifier) {
 									fieldIndex = parseInt(specifier, 10);
 									if (isNaN(fieldIndex)) {
-										statusLogger.error("PatternLayout.format: invalid specifier '" + specifier + "' for conversion character 'f' - should be a number");
+										statusLogger.error("PatternLayout.format: invalid specifier 'specifier' for conversion character 'f' - should be a number", specifier);
 									} else if (fieldIndex === 0) {
-										statusLogger.error("PatternLayout.format: invalid specifier '" + specifier + "' for conversion character 'f' - must be greater than zero");
+										statusLogger.error("PatternLayout.format: invalid specifier '{}' for conversion character 'f' - must be greater than zero", specifier);
 									} else if (fieldIndex > this.customFields.length) {
-										statusLogger.error("PatternLayout.format: invalid specifier '" + specifier + "' for conversion character 'f' - there aren't that many custom fields");
+										statusLogger.error("PatternLayout.format: invalid specifier '{}' for conversion character 'f' - there aren't that many custom fields", specifier);
 									} else {
 										fieldIndex = fieldIndex - 1;
 									}
@@ -2377,9 +2797,9 @@ var statusLoggerConfig = {
 			return 
 		}
 		var msg = utils.dateFormat(new Date(), "yyyy-MM-dd HH:mm:ss,SSS ") + level.toString() + ' '
-		msg += message
-		if (exception) {
-			msg += NEW_LINE + exception //CHECKME: need to better format and include more info, like stack?
+		msg += message.getFormattedMessage()
+		if (message.getThrowable()) {
+			msg += NEW_LINE + message.getThrowable() //CHECKME: need to better format and include more info, like stack?
 		}
 		
 		application.output(msg, lvl)

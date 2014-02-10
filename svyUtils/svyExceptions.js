@@ -132,21 +132,52 @@ function AbstractMethodInvocationException(errorMessage) {
 }
 
 /**
+ * Wrapper around ServoyException to make it a JavaScript Error instance
+ * @constructor 
+ * @extends {SvyException}
+ * @param {ServoyException} servoyException
+ *
+ * @properties={typeid:24,uuid:"6A71126C-BFF3-422A-ADB4-2574AB0BFEF2"}
+ */
+function ServoyError(servoyException) {
+	if (!(this instanceof ServoyError)) {
+		return new ServoyError(servoyException)
+	}
+	/**
+	 * @protected 
+	 */
+	this.ex = servoyException
+	SvyException.call(this, servoyException.getMessage());
+}
+
+/**
   * @properties={typeid:35,uuid:"36364157-A05A-4806-B13E-DA08DD8C27D6",variableType:-4}
   */
 var init = function() {
 	SvyException.prototype = Object.create(Error.prototype);
 	SvyException.prototype.constructor = SvyException
 	
-	IllegalArgumentException.prototype = Object.create(SvyException.prototype);
+	IllegalArgumentException.prototype = Object.create(SvyException.prototype)
 	IllegalArgumentException.prototype.constructor = IllegalArgumentException
 	
-	IllegalStateException.prototype = Object.create(SvyException.prototype);
+	IllegalStateException.prototype = Object.create(SvyException.prototype)
 	IllegalStateException.prototype.constructor = IllegalStateException
 		
-	UnsupportedOperationException.prototype = Object.create(SvyException.prototype);
+	UnsupportedOperationException.prototype = Object.create(SvyException.prototype)
 	UnsupportedOperationException.prototype.constructor = UnsupportedOperationException
 		
-	AbstractMethodInvocationException.prototype = Object.create(IllegalStateException.prototype);
+	AbstractMethodInvocationException.prototype = Object.create(IllegalStateException.prototype)
 	AbstractMethodInvocationException.prototype.constructor = AbstractMethodInvocationException
+	
+	ServoyError.prototype = Object.create(SvyException.prototype)
+	ServoyError.prototype.constructor = ServoyError
+	
+	Object.defineProperty(ServoyError.prototype, 'stack', {
+		get: function() {
+			return this.ex.getScriptStackTrace()
+		}
+	})
+	ServoyError.prototype.unwrap = function() {
+		return this.ex
+	}
 }()
