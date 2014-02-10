@@ -48,15 +48,6 @@ function SvyException(errorMessage) {
 	}
 	this.message = errorMessage
 	this.name = this.constructor['name']
-	
-	/**
-	 * Returns the exception message
-	 *
-	 * @return {String}
-	 */
-	this.getMessage = function() {
-		return this.message
-	}
 }
 
 /**
@@ -156,6 +147,15 @@ function ServoyError(servoyException) {
 var init = function() {
 	SvyException.prototype = Object.create(Error.prototype);
 	SvyException.prototype.constructor = SvyException
+	
+	/**
+	 * Returns the exception message
+	 *
+	 * @return {String}
+	 */
+	SvyException.prototype.getMessage = function() {
+		return this.message
+	}
 	
 	IllegalArgumentException.prototype = Object.create(SvyException.prototype)
 	IllegalArgumentException.prototype.constructor = IllegalArgumentException
