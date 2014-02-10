@@ -22,6 +22,13 @@
  */
 
 /**
+ * @private 
+ *
+ * @properties={typeid:35,uuid:"7C41BEF4-1A96-499B-8851-43A9A9B31E85",variableType:-4}
+ */
+var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.ui')
+
+/**
  * @param {Object} oldValue
  * @param {Object} newValue
  * @return {Object} addedItem
@@ -57,73 +64,6 @@ function getCheckBoxValueListItemRemoved(oldValue,newValue){
         	return oldItems[i];
     }
     return oldItems[oldItems.length - 1];
-}
-
-/**
- * Alternative to application.getValueListDisplayValue.<p>
- * 
- * This method will also find values from type ahead value lists with more than 500 values and related value lists<p>
- * 
- * NOTE: In case of a related value list the main record has to be provided as well. The related foundset will be fully walked through until the value is found!<p>
- * 
- * TODO: remove when SVY-5213 is implemented
- *
- * @param {String} valueListName the name of the value list
- * @param {Object} realValue the real value
- * @param {JSRecord} [record] main record for related value lists
- * 
- * @version 5.0
-
- *
- * @properties={typeid:24,uuid:"75271910-2493-467F-A568-E26BBD5A53E7"}
- */
-function getValueListDisplayValue(valueListName, realValue, record) {
-	if (!realValue) {
-		return realValue;
-	}
-	var result = application.getValueListDisplayValue(valueListName, realValue);
-	if (!result) {
-		var jsValueList = solutionModel.getValueList(valueListName);
-		var displayValues = jsValueList.getDisplayDataProviderIds();		
-		var returnValues = jsValueList.getReturnDataProviderIds();
-		if (returnValues.length > 1) {
-			application.output("getValueListDisplayValue does not work for value lists with more than one real value", LOGGINGLEVEL.ERROR);
-			return null;
-		}
-		
-		if (jsValueList.relationName) {
-			if (!record) {
-				throw scopes.svyExceptions.IllegalArgumentException("getValueListDisplayValue is called for a valueList that uses a relation but no record is given");
-			}
-			if (utils.hasRecords(record[jsValueList.relationName])) {
-				for (var rr = 1; rr <= record[jsValueList.relationName].getSize(); rr++) {
-					var relatedRecord = record[jsValueList.relationName].getRecord(rr);
-					if (relatedRecord[returnValues[0]] == realValue) {
-						result = new Array();
-						for (var rdv = 0; rdv < displayValues.length; rdv++) {
-							result.push(relatedRecord[displayValues[rdv]]);
-						}
-						result = result.join(jsValueList.separator);
-						break;
-					}
-				}
-			}
-		} else {
-			var dataSource = jsValueList.dataSource;
-			var query = databaseManager.createSelect(dataSource);
-			for (var dv = 0; dv < displayValues.length; dv++) {
-				query.result.add(query.getColumn(displayValues[dv]));
-			}
-			query.where.add(query.getColumn(returnValues[0]).eq(realValue));
-			var dataset = databaseManager.getDataSetByQuery(query, 1);
-			result = dataset.getRowAsArray(1);
-			if (result && result.length > 0) {
-				result = result.join(jsValueList.separator);
-			}
-		}
-	}
-	
-	return result;
 }
 
 /**
@@ -433,7 +373,7 @@ function initSplitPane(formName, elementName, resizeWeight, dividerLocation, div
  */
 function persistSplitPaneDividerPosition(formName, elementName) {
 	if (!formName || !elementName) {
-		application.output('svy_utl_saveSplitTabDividerPosition called without mandatory params', LOGGINGLEVEL.ERROR);
+		log.error('persistSplitPaneDividerPosition called without mandatory params');
 		return;
 	}
 	var pos = forms[formName].elements[elementName].dividerLocation;
@@ -450,7 +390,7 @@ function persistSplitPaneDividerPosition(formName, elementName) {
  */
 function restoreSplitPaneDividerPosition(formName, elementName, position) {
 	if (!formName || !elementName) {
-		application.output('svy_utl_setSplitTabDividerPosition called without mandatory params', LOGGINGLEVEL.ERROR);
+		log.error('restoreSplitPaneDividerPosition called without mandatory params');
 		return;
 	}
 	/** @type {String} */
