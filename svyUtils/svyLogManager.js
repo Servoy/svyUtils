@@ -80,19 +80,20 @@
  * - Added messages, to prevent building the String to output if it is not needed
  * 
  * TODOs
- * - finish (re)configuration
- * - make all loggers share a loggerconfig based on the actual configuration
- * - make all config go through the same methods: getLogger, getRootLogger, loadConfig
  * - Allow multiple appenders per logger in the config (AppenderRef: [{ref: 'something'}, {ref: 'something else'])
- * - Support consise format besides strict format
+ * - finish (re)configuration
+ * -- make all config go through the same methods: getLogger, getRootLogger, loadConfig
+ * -- Make it so that named appender result in one shared instance
+ * - Change Logger impl. to use shared Loggerconfig objects between Loggers, like Log4j 2
+ * - Remove unused threshold impl.
  * - support filters: http://logging.apache.org/log4j/2.x/manual/filters.html
- * - Make it so that named appender result in one shared instance
+ * - Option to listen to logging on statuslogger using events, similar to what Log4j offers (needed at least for testing)
  * - Review all layouts except PatternLayout
  * - fix warnings
+ * - Support consise format besides strict format
  * - See if Level can be not exposed as Constructor function, but as an object with static properties only
  * - build in fail-save if constructors aren't called with new keyword
  * - See which appenders/layouts need to stay
- * - Change Logger impl. to use shared Loggerconfig objects between Loggers, like Log4j 2
  * - Add message formatting as in log4j 2
  * - Add catching as in Log4j 2
  */
@@ -120,7 +121,7 @@ var NEW_LINE = "\r\n"; //CHECKME: shouldn't this use a platform specific newLine
 var useTimeStampsInMilliseconds = true;
 
 /**
- * TODO figure out what to do with ths method. Made it private for now as to not expose it in the API
+ * TODO figure out what to do with this method. Made it private for now as to not expose it in the API
  * @private
  * @param {Boolean} timeStampsInMilliseconds
  *
@@ -131,7 +132,7 @@ function setTimeStampsInMilliseconds(timeStampsInMilliseconds) {
 }
 
 /**
- * TODO figure out what to do with ths method. Made it private for now as to not expose it in the API
+ * TODO figure out what to do with this method. Made it private for now as to not expose it in the API
  * @private
  * @properties={typeid:24,uuid:"21804846-E57C-4ECB-8D32-8AC9D114BC5C"}
  */
@@ -361,7 +362,7 @@ function loadConfig(configuration) {
 	}
 	
 	//Reset all custom loggers
-	var configuredLoggers = configuration.loggers.logger||[]
+	var configuredLoggers = (configuration.loggers.logger||[]).slice(0)
 	configuredLoggers.sort(function(a, b) { //Sorting loggers to minimize internal reconfiguration
 		if (a.name > b.name) {
 			return 1;
@@ -471,6 +472,7 @@ function getAppenderForRef(appenderRef) {
 }
 
 /**
+ * Generic method to create a configured instance of a LogPlugin subclass, based on the attributes of the configNode
  * @private
  * @param {String} type
  * @param {Object} configNode
@@ -484,9 +486,9 @@ function getPluginInstance(type, configNode) {
 	var factory = clazz['PluginFactory']
 	var args = []
 	var plugin
-	for (var i = 0; i < factory.parameters.length; i++) {
+	for (var i = 0; i < factory.parameters.length; i++) { //Find the values in configNode for all the parameters specified by the factory
 		var param = factory.parameters[i]
-		if (configNode.hasOwnProperty(param.configName)) {
+		if (configNode.hasOwnProperty(param.configName)) { //configNode attribute matches named parameter, for example "name"
 			switch (typeof param.type) {
 				case 'string':
 				case 'boolean':
@@ -506,7 +508,7 @@ function getPluginInstance(type, configNode) {
 					}
 					break;
 			}
-		} else {
+		} else { //configNode Attribute matches parameter type, for example attribute 'PatternLayout' matches parameter of type 'AbstractLayout'
 			var keys = Object.keys(configNode)
 			var paramSet = false
 			for (var j = 0; j < keys.length; j++) {
@@ -532,6 +534,9 @@ function getPluginInstance(type, configNode) {
  * @properties={typeid:24,uuid:"0C200AEA-BAF4-4F93-B657-C1F0EF44268D"}
  */
 function Level(level, name) {
+	if (!(this instanceof Level)) {
+		return new Level(level, name)
+	}
 	this.intLevel = level;
 	this.name = name;
 };
@@ -541,7 +546,7 @@ function Level(level, name) {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"8CB2F193-D26E-47E7-AF91-28574067D667",variableType:-4}
  */
-var levelInit = (function() {
+var initLevel = (function() {
 		Level.prototype = {
 			toString: function() {
 				return this.name;
@@ -591,7 +596,7 @@ var levelInit = (function() {
 /* ----------------------------------Loggers------------------------------------ */
 /**
  * TODO: the mechanism of Logger and LoggerConfig can be optimized even further: 
- * nstances are only needed for Loggers that are defined in the config 
+ * instances are only needed for Loggers that are defined in the config 
  * and all instantiated loggers use the LoggerConfig of the closest parent that is configured.
  * Logger instances that are not backed by config receive all their settings from a parent that is backed by config anyway
  * @private
@@ -951,6 +956,10 @@ var ILogConfig
  * @properties={typeid:24,uuid:"118575D2-E51F-4294-97AE-E5F515B7A821"}
  */
 function Logger(internal, messageFactory) {
+	/* CHECKME: when implementing shared LoggerConfigs, need to think of a way to properly set a new "LogConfig" on already instantiated Loggers, 
+	 * without loosing state like the customMessageFactory or ideally without creating all the methods again,
+	 * but all this without exposing a public setter method
+	 */
 	var customMessageFactory = messageFactory
 
 	/**
@@ -1299,7 +1308,7 @@ function LoggingEvent(logger, timeStamp, level, message) {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"6BE6F430-807C-4673-85CC-055DFE1DD45F",variableType:-4}
  */
-var loggingEventInit = (function() {
+var initLoggingEvent = (function() {
 	LoggingEvent.prototype = {
 		getThrowableStrRep: function() { //CHECKME This seems to not get called from anywhere
 			return this.exception ? getExceptionStringRep(this.exception) : "";
@@ -2786,10 +2795,9 @@ var statusLoggerConfig = {
 	},
 	/**
 	 * @param {Level} level
-	 * @param {*} message
-	 * @param {Error|ServoyException} exception
+	 * @param {AbstractMessage} message
 	 */
-	log: function(level, message, exception) {
+	log: function(level, message) {
 		var lvl = level.intLevel
 		if (lvl < LOGGINGLEVEL.DEBUG) { //All or TRACE
 			lvl = LOGGINGLEVEL.DEBUG
