@@ -524,7 +524,7 @@ function getPluginInstance(type, configNode) {
 		}
 	}
 	
-	return factory.create.apply(this, args)
+	return factory.create.apply(factory, args)
 }
 
 /* ----------------------------------Levels------------------------------------ */
@@ -970,7 +970,7 @@ var ILogConfig
  * @private
  * @constructor 
  * @param {ILogConfig} internal
- * @param {AbstractMessageFactory} messageFactory
+ * @param {AbstractMessageFactory} [messageFactory]
  *
  * @properties={typeid:24,uuid:"118575D2-E51F-4294-97AE-E5F515B7A821"}
  */
