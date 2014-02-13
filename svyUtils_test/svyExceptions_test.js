@@ -87,9 +87,10 @@ function testExceptions() {
 
 		/** @type {String} */
 		var path = stack[1]
-		var i = path.indexOf('svyExceptions_test.js:')
+		var fileName = 'svyExceptions_test.js:'
+		var i = path.indexOf(fileName)
 		jsunit.assertTrue(i != -1)
-		jsunit.assertEquals(path.substring(i + 28), parseInt(path.substring(i + 28)).toString())
+		jsunit.assertEquals(path.substring(i + fileName.length), parseInt(path.substring(i + fileName.length)).toString())
 		jsunit.assertEquals('(testExceptions)\r\n\tat', stack[2])
 		
 		jsunit.assertEquals('ExtendedTestException', e.name);
