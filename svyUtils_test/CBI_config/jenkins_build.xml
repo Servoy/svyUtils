@@ -1,0 +1,154 @@
+<?xml version="1.0"?>
+
+<!-- Works with Ant 1.7.0 and higher -->
+<project default="main_smart" basedir=".">
+
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties">
+      <classpath>
+        <pathelement location="${ANT_CONTRIB_JAR}"/>
+      </classpath>
+    </taskdef>
+        
+    <import file="export_and_test.xml"/>
+
+    <!-- Cleans the workspace preparing for a new build        -->
+    <!-- Then                                                  -->
+    <!--   - exports smart client solutions                    -->
+    <!--   - if exports didn't fail, runs smart client tests   -->
+    <!--   - exports mobile client solutions                   -->
+    <!--   - if exports didn't fail, runs mobile client tests  -->
+    <!--   - fails the build if any tests or exports failed.   -->
+    
+    <target name="main_smart" depends="clean_exports, clean_test_results, export_smart_client_solutions, run_smart_client_tests_if_exported_ok, prepare_artifacts"/>
+    <target name="main_mobile" depends="clean_exports, clean_test_results, export_mobile_client_solutions, run_and_move_mobile_exports_if_tests_passed, prepare_artifacts"/>
+
+    <target name="prepare_artifacts">
+        <!-- prepare artifacts for Jenkins -->
+        <move file="servoy_log.txt" tofile="${junit.result.dir}/workspace_exporter_app_server_log.txt" failonerror="false"/>
+        <move file="${WORKSPACE}/.metadata/.log" tofile="${junit.result.dir}/workspace_exporter_workspace_log.txt" failonerror="false"/>
+        <move file="${servoy.app_server.dir}/servoy_log.txt" tofile="${junit.result.dir}/smart_import_test_client_log.txt" failonerror="false"/>
+
+        <fail message="Exports failed: please check exporter log files." if="export.failed" />
+        <fail message="Tests failed: please check test reports." if="test.failed" />
+    </target>
+
+    <target name="export_smart_client_solutions" depends="get_equinox_jar, escs_73, escs_lower"/>
+    
+    <target name="escs_73" if="work.servoy.install.7.3.or.higher">
+        <!-- starting with Servoy 7.3, multiple solutions can be exported with one call using a comma separated list of solution names as argument -->
+        <export-solution solutionNames="${smart_test_solutions}"/>
+    </target>
+    
+    <target name="escs_lower" unless="work.servoy.install.7.3.or.higher">
+        <!-- for pre 7.3 we either need to iterate and execute 1 by 1 -->
+        <for list="${smart_test_solutions}" param="solution">
+          <sequential>
+            <export-solution solutionNames="@{solution}"/>
+          </sequential>
+        </for>
+    </target>
+    
+    <target name="run_smart_client_tests_if_exported_ok" unless="export.failed" depends="prepare_classpath">
+        <run-smart-client-tests/>
+        <antcall target="move_smart_exports_if_tests_passed"/>
+    </target>
+    
+    <target name="move_smart_exports_if_tests_passed" unless="test.failed">
+        <!-- tests passed, move .servoy files to a "passed" directory for any further use -->
+        <move todir="${passed.sc.exports.dir}">
+            <fileset dir="${smart.test.exports.dir}" includes="**/*" />
+        </move>
+    </target>
+
+    <target name="export_mobile_client_solutions" depends="get_equinox_jar, emcs_73, emcs_lower"/>
+    
+    <target name="emcs_73" if="work.servoy.install.7.3.or.higher">
+        <!-- starting with Servoy 7.3, multiple solutions can be exported with one call using a comma separated list of solution names as argument -->
+        <export-solution solutionNames="${mobile_service_solutions}" outputDir="${mobile.service.export.dir}"/>
+        <export-mobile-solution solutionNames="${mobile_test_solutions}" production="" outputDir="${mobile.test.war.dir}"/> <!-- "" means export for unit tests -->
+    </target>
+    
+    <target name="emcs_lower" unless="work.servoy.install.7.3.or.higher">
+        <!-- for pre 7.3 we either need to iterate and execute 1 by 1 -->
+        <for list="${mobile_service_solutions}" param="solution">
+          <sequential>
+            <export-solution solutionNames="@{solution}" outputDir="${mobile.service.export.dir}"/>
+          </sequential>
+        </for>
+        <for list="${mobile_test_solutions}" param="solution">
+          <sequential>
+            <export-mobile-solution solutionNames="@{solution}" production="" outputDir="${mobile.test.war.dir}"/>
+          </sequential>
+        </for>
+    </target>
+    
+    <target name="run_mobile_client_tests_if_exported_ok" unless="export.failed" depends="prepare_classpath">
+        <for list="${mobile_test_solutions}" param="solution">
+          <sequential>
+            <run-mobile-client-tests solutionName="@{solution}" driverType="localhost_chrome"/>
+              
+              <!-- here is an example of how you could use sauce labs for testing mobile client in the cloud -->
+              <!-- the local server URL (that has the test app. prepared) could be accessed as simulated local URL via SauceLabs "Sauce Connect" proxy from the cloud test server (browser) -->
+              <!--
+              <run-mobile-client-tests solutionName="@{solution}" driverType="remote iphone ${sauce.labs.selenium.url} idle-timeout=${sauce.labs.selenium.idle-timeout}" />
+              <run-mobile-client-tests solutionName="@{solution}" driverType="remote android ${sauce.labs.selenium.url} idle-timeout=${sauce.labs.selenium.idle-timeout}" />
+              <run-mobile-client-tests solutionName="@{solution}" driverType="remote chrome ${sauce.labs.selenium.url} idle-timeout=${sauce.labs.selenium.idle-timeout}" />
+              (...)
+              -->
+          </sequential>
+        </for>
+        <condition property="skip.move">
+            <isset property="test.failed"/>
+        </condition>
+    </target>
+    
+    <target name="check_export_failed" if="export.failed">
+        <property name="skip.move" value="true"/>
+    </target>
+    
+    <target name="run_and_move_mobile_exports_if_tests_passed" depends="run_mobile_client_tests_if_exported_ok, check_export_failed, get_equinox_jar" unless="skip.move">
+        <!-- tests passed, deploy production mode mobile solution to a Servoy Application Server -->
+        <antcall target="rmme_73">
+            <reference refid="equinox.launcher.jar.location"/>
+           </antcall>
+        <antcall target="rmme_lower">
+            <reference refid="equinox.launcher.jar.location"/>
+        </antcall>
+        <antcall target="move_mobile_exports_if_exported_ok"/>
+    </target>
+    
+    <target name="rmme_73" if="work.servoy.install.7.3.or.higher">
+        <!-- starting with Servoy 7.3, multiple solutions can be exported with one call using a comma separated list of solution names as argument -->
+        <export-solution solutionNames="${mobile_to_deploy_services}" outputDir="${mobile.deploy.s.dir}"/>
+        <export-mobile-solution solutionNames="${mobile_to_deploy}" production="-production" outputDir="${mobile.deploy.w.dir}"/>
+    </target>
+    
+    <target name="rmme_lower" unless="work.servoy.install.7.3.or.higher">
+        <!-- for pre 7.3 we either need to iterate and execute 1 by 1 -->
+        <for list="${mobile_to_deploy_services}" param="solution">
+          <sequential>
+            <export-solution solutionNames="@{solution}" outputDir="${mobile.deploy.s.dir}"/>
+          </sequential>
+        </for>
+        <for list="${mobile_to_deploy}" param="solution">
+          <sequential>
+            <export-mobile-solution solutionNames="@{solution}" production="-production" outputDir="${mobile.deploy.w.dir}"/>
+          </sequential>
+        </for>
+    </target>
+    
+    <target name="move_mobile_exports_if_exported_ok" unless="export.failed">
+        <move todir="${passed.mc.exports.dir}">
+            <fileset dir="${mobile.deploy.s.dir}" includes="**/*" />
+            <fileset dir="${mobile.deploy.w.dir}" includes="**/*" />
+        </move>
+        <antcall target="deploy_war_files_if_needed"/>
+    </target>
+
+    <target name="deploy_war_files_if_needed" if="deploy.webapps.dir">
+        <copy todir="${deploy.webapps.dir}">
+            <fileset dir="${passed.mc.exports.dir}" includes="**/*.war" />
+        </copy>
+    </target>
+    
+</project>

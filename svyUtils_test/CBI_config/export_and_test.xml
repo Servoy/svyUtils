@@ -1,0 +1,315 @@
+<?xml version="1.0"?>
+
+<!-- Works with Ant 1.7.0 and higher -->
+<project basedir=".">
+
+    <property file="export_and_test_personal.properties"/>
+    <property file="export_and_test.properties"/>
+
+    <!-- this macro is almost identical to the sample export solution target from [developer.dir]/exporter -->
+    <macrodef name="export-solution">
+        <attribute name="solutionNames"/>
+        <attribute name="failOnError" default="false"/>
+        <attribute name="outputDir" default="${smart.test.exports.dir}"/>
+        <sequential>
+            <!-- now we are ready to start the workspace exporter -->
+            <echo level="info" message="Using equinox launcher jar: ${equinox.launcher.jar.location_property}" />
+
+            <java   classname="org.eclipse.equinox.launcher.Main"
+                    classpathref="equinox.launcher.jar.location"
+                    failonerror="#{failOnError}"
+                    resultproperty="export.result"
+                    fork="true">
+                <jvmarg value="-Xms40m" />
+                <jvmarg value="-Xmx512m" />
+                <jvmarg value="-XX:MaxPermSize=256M" />
+                <jvmarg value="-Dosgi.configuration.cascaded=false" />
+
+                <arg value="-application" />
+                <arg value="com.servoy.eclipse.exporter.solution.application" />
+
+                <arg value="-data" />
+                <arg value="${WORKSPACE}" />
+                <arg value="-s" />
+                <arg value="@{solutionNames}" />
+                <arg value="-o" />
+                <arg value="@{outputDir}" />
+                <arg value="-as" />
+                <arg value="${servoy.app_server.dir}" />
+                <arg value="-p" />
+                <arg value="${servoy.test.property.file}" />
+
+                <!-- add here any of the optional arguments supported by the exporter; see 'export -help' for more info; for example: -->
+                <!--arg value="-help" /-->
+                <arg value="-verbose" />
+                <arg value="-dbd" />
+                <arg value="-dbi" />
+                <arg value="-md" />
+                <arg value="ws" />
+                <arg value="-i18n" />
+                <arg value="-users" />
+                <arg value="-tables" />
+                <arg value="-modules" />
+            </java>
+            <condition property="export.failed">
+                <not>
+                    <equals arg1="${export.result}" arg2="0"/>
+                </not>
+            </condition>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="export-mobile-solution">
+        <attribute name="solutionNames"/>
+        <attribute name="failOnError" default="false"/>
+        <attribute name="outputDir" default="${mobile.test.war.dir}"/>
+        <attribute name="production" default=""/>
+        <sequential>
+            <!-- store path to newest Eclipse launcher JAR in path id 'newest.equinox.launcher.path.id' -->
+            <!-- and turn the path into a property -->
+            <latest_jar pathName="equinox.launcher.jar.location" dir="${servoy.developer.dir}/plugins" includes="**/org.eclipse.equinox.launcher_*.jar"/>
+
+            <!-- now we are ready to start the workspace exporter -->
+            <echo level="info" message="Using equinox launcher jar: ${equinox.launcher.jar.location_property}" />
+
+            <java   classname="org.eclipse.equinox.launcher.Main"
+                    classpathref="equinox.launcher.jar.location"
+                    failonerror="#{failOnError}"
+                    resultproperty="export.result"
+                    fork="true">
+                <jvmarg value="-Xms40m" />
+                <jvmarg value="-Xmx512m" />
+                <jvmarg value="-XX:MaxPermSize=256M" />
+                <jvmarg value="-Dosgi.configuration.cascaded=false" />
+
+                <arg value="-application" />
+                <arg value="com.servoy.eclipse.exporter.mobile.application" />
+
+                <arg value="-data" />
+                <arg value="${WORKSPACE}" />
+                <arg value="-s" />
+                <arg value="@{solutionNames}" />
+                <arg value="-o" />
+                <arg value="@{outputDir}" />
+                <arg value="-as" />
+                <arg value="${servoy.app_server.dir}" />
+                <arg value="-p" />
+                <arg value="${servoy.test.property.file}" />
+
+                <!-- add here any of the optional arguments supported by the exporter; see 'mobile_export -help' for more info; for example: -->
+                <!--arg value="-help" /-->
+                <arg value="-verbose" />
+                <arg value="@{production}" /> <!-- can be "" for test-client export -->
+                <arg value="-server_url" />
+                <arg value="${work.servoy.install.url}" />
+            </java>
+            <condition property="export.failed">
+                <not>
+                    <equals arg1="${export.result}" arg2="0"/>
+                </not>
+            </condition>
+        </sequential>
+    </macrodef>
+
+    <macrodef name="run-smart-client-tests">
+        <sequential>
+            <echo level="verbose">
+                *** Servoy Solution JS unit smart client tests ***
+            </echo>
+
+            <!-- Define a timeout so we know the test will finish eventually -->
+            <junit fork="yes" forkmode="once" timeout="${test.timeout}" dir="${servoy.app_server.dir}" haltonfailure="false" haltonerror="false" errorProperty="test.failed" failureProperty="test.failed" printsummary="on">
+                <jvmarg value="-XX:MaxPermSize=128m" />
+                <classpath refid="classpath.run_test" />
+
+                <sysproperty key="servoy.test.target-exports" value="${smart.test.exports.dir}" />
+                <sysproperty key="servoy.test.property-file" value="${servoy.test.property.file}" />
+                <!-- <sysproperty key="servoy.test.target-file-ext" value=".servoy" /> -->
+
+                <formatter type="brief" usefile="false" />
+                <formatter type="xml" />
+
+                <!-- formatter similar to type="xml" but it shows test suite hierarchy nicely, in a tree-like result xml - useful to nicely show the place where a test failed (solution/form...)
+                but this formatter is not included in ant yet - you would need to patch it yourself and integrate in ant lib from https://issues.apache.org/bugzilla/show_bug.cgi?id=48529
+                if you plan on using it, either comment out the simple "xml" formatter or add "extension" attribute to one of them so they don't get into conflicts when generating xmls -->
+                <!-- <formatter type="xml.suites" /> -->
+
+                <test name="com.servoy.automation.jsunit.smartclient.ServoyJSUnitTestRunner" todir="${junit.result.dir}" />
+            </junit>
+            
+            <antcall target="create_test_report"/>
+
+            <!-- don't fail directly here so that test artifacts can be prepared for Jenkins before failing - and also allow any mobile tests to run -->
+           </sequential>
+    </macrodef>
+    
+    <macrodef name="run-mobile-client-tests">
+        <attribute name="solutionName"/>
+        <attribute name="driverType"/>
+        <sequential>
+            <echo level="verbose">
+                *** Servoy Solution JS unit mobile client tests ***
+            </echo>
+            
+            <path id="classpath.run_mobile_test">
+                <path refid="classpath.run_test"/>
+                <fileset file="${selenium.server.jar}"/>
+            </path>
+
+            <!-- Define a timeout so we know the test will finish eventually -->
+            <junit fork="yes" forkmode="once" timeout="${test.timeout}" dir="${servoy.app_server.dir}" haltonfailure="false" haltonerror="false" errorProperty="test.failed" failureProperty="test.failed" printsummary="on">
+                <jvmarg value="-XX:MaxPermSize=128m" />
+                <classpath refid="classpath.run_mobile_test" />
+
+                <sysproperty key="servoy.test.target" value="${mobile.test.war.dir}/@{solutionName}_TEST.war" />
+                <sysproperty key="servoy.test.property-file" value="${servoy.test.property.file}" />
+                <sysproperty key="servoy.test.targetServiceSolution" value="${mobile.service.export.dir}/@{solutionName}_service.servoy" />
+                <sysproperty key="servoy.test.seleniumDriver" value="@{driverType}" />
+                <sysproperty key="webdriver.chrome.driver" value="${webdriver.chrome.driver}"/>
+
+                <formatter type="brief" usefile="false" />
+                <formatter type="xml" />
+
+                <!-- formatter similar to type="xml" but it shows test suite hierarchy nicely, in a tree-like result xml - useful to nicely show the place where a test failed (solution/form...)
+                but this formatter is not included in ant yet - you would need to patch it yourself and integrate in ant lib from https://issues.apache.org/bugzilla/show_bug.cgi?id=48529
+                if you plan on using it, either comment out the simple "xml" formatter or add "extension" attribute to one of them so they don't get into conflicts when generating xmls -->
+                <!-- <formatter type="xml.suites" /> -->
+
+                <test name="com.servoy.automation.jsunit.mobile.ServoyMobileJSUnitTestRunner" todir="${junit.result.dir}" />
+            </junit>
+
+            <antcall target="create_test_report"/>
+
+            <!-- don't fail directly here so that test artifacts can be prepared for Jenkins before failing - and also allow any mobile tests to run -->
+        </sequential>
+    </macrodef>
+            
+    <target name="create_test_report">
+        <junitreport todir="${junit.result.dir}">
+            <fileset dir="${junit.result.dir}">
+                <include name="TEST-*.xml" />
+            </fileset>
+            <report format="noframes" todir="${junit.result.dir}" />
+
+            <!-- report similar to format="noframes" but it shows test suite hierarchy nicely, in a tree-like result html - useful to nicely show the place where a test failed (solution/form...)
+            but this report is not included in ant yet - you would need to patch it yourself and integrate in ant lib from https://issues.apache.org/bugzilla/show_bug.cgi?id=48529 -->
+            <!-- <report format="noframes-suiteaware" todir="${junit.result.dir}" /> -->
+        </junitreport>
+    </target>
+        
+    <target name="get_equinox_jar">
+        <!-- store path to newest Eclipse launcher JAR in path id 'newest.equinox.launcher.path.id' -->
+        <!-- and turn the path into a property -->
+        <latest_jar pathName="equinox.launcher.jar.location" dir="${servoy.developer.dir}/plugins" includes="**/org.eclipse.equinox.launcher_*.jar"/>
+    </target>
+
+    <target name="prepare_classpath">
+        <mkdir dir="${lib.dir}"/>
+
+        <latest_jar pathName="cse.jsunit.jar.location" dir="${servoy.developer.dir}/plugins" includes="**/com.servoy.eclipse.jsunit_*.jar"/>
+        <latest_jar pathName="cse.model.jar.location" dir="${servoy.developer.dir}/plugins" includes="**/com.servoy.eclipse.model_*.jar"/>
+        <latest_jar pathName="servoy_debug.jar.location" dir="${servoy.developer.dir}/plugins" includes="**/servoy_debug_*.jar"/>
+        <latest_jar pathName="cse.exporter.mobile.location" dir="${servoy.developer.dir}/plugins" includes="**/com.servoy.eclipse.exporter.mobile_*.jar"/>
+        <echo level="info" message="Using in importer classpath: ${cse.jsunit.jar.location_property}" />
+        <echo level="info" message="Using in importer classpath: ${cse.model.jar.location_property}" />
+        <echo level="info" message="Using in importer classpath: ${servoy_debug.jar.location_property}" />
+        <echo level="info" message="Using in importer classpath: ${cse.exporter.mobile.location_property}" />
+
+        <unzip src="${cse.jsunit.jar.location_property}" dest="${lib.dir}">
+            <patternset>
+                <include name="jsunit-*.jar"/>
+                <include name="j2db_test.jar"/>
+            </patternset>
+        </unzip>
+
+        <path id="classpath.run_test">
+            <fileset dir="${servoy.app_server.dir}/lib">
+                <include name="*.jar" />
+                <exclude name="slf4j-jdk14.jar"/>
+            </fileset>
+            <fileset dir="${lib.dir}">
+                <include name="*.jar" />
+            </fileset>
+            <fileset file="${cse.jsunit.jar.location_property}"/>
+            <fileset file="${cse.model.jar.location_property}"/>
+            <fileset file="${servoy_debug.jar.location_property}"/>
+            <fileset file="${cse.exporter.mobile.location_property}"/>
+            <fileset dir="${servoy.developer.dir}/plugins">
+                <include name="org.junit*4*/junit*.jar"/>
+            </fileset>
+        </path>
+    </target>
+
+    <macrodef name="latest_jar">
+        <attribute name="pathName"/>
+        <attribute name="propertyName" default="@{pathName}_property"/>
+        <attribute name="dir"/>
+        <attribute name="includes"/>
+        <sequential>
+            <!-- store path to newest JAR -->
+            <path id="@{pathName}">
+                <first count="1">
+                    <sort>
+                        <fileset dir="@{dir}" includes="@{includes}" />
+                        <reverse xmlns="antlib:org.apache.tools.ant.types.resources.comparators">
+                            <date />
+                        </reverse>
+                    </sort>
+                </first>
+            </path>
+
+            <!-- create a property as well -->
+           <property name="@{propertyName}" refid="@{pathName}" />
+       </sequential>
+    </macrodef>
+
+    <macrodef name="make-clean-dir">
+        <attribute name="dir"/>
+        <sequential>
+            <delete dir="@{dir}" quiet="true"/>
+            <mkdir dir="@{dir}"/>
+       </sequential>
+    </macrodef>
+    
+    <target name="clean_test_results">
+        <echo level="verbose">
+            *** Cleaning test results ***
+        </echo>
+        <make-clean-dir dir="${junit.result.dir}" />
+        <!-- also delete the servoy log file -->
+        <delete failonerror="false" file="${servoy.app_server.dir}/servoy_log.txt" />
+    </target>
+
+    <target name="clean_exports">
+        <echo level="verbose">
+            *** Cleaning exports ***
+        </echo>
+        <make-clean-dir dir="${smart.test.exports.dir}" />
+        <make-clean-dir dir="${mobile.export.dir}"/>
+        <make-clean-dir dir="${mobile.service.export.dir}"/>
+        <make-clean-dir dir="${mobile.test.war.dir}"/>
+        <make-clean-dir dir="${mobile.deploy.s.dir}"/>
+        <make-clean-dir dir="${mobile.deploy.w.dir}"/>
+
+        <mkdir dir="${passed.exports.dir}" />
+        <mkdir dir="${passed.mc.exports.dir}" />
+        <mkdir dir="${passed.sc.exports.dir}" />
+        
+        <antcall target="clean_passed_exports_if_needed"/>
+        
+        <delete failonerror="false" file="${WORKSPACE}/.metadata/.log" />
+        <delete failonerror="false" file="${antRunner.dir}/servoy_log.txt" />
+        
+        <!-- delete any temporary junit files that get left behind sometimes -->
+        <delete includeemptydirs="true" quiet="true">
+            <fileset dir="${antRunner.dir}" includes="junit*.properties" />
+        </delete>
+    </target>
+
+    <target name="clean_passed_exports_if_needed" if="always_clean_passed_exports">
+        <make-clean-dir dir="${passed.exports.dir}"/>
+        <make-clean-dir dir="${passed.mc.exports.dir}"/>
+        <make-clean-dir dir="${passed.sc.exports.dir}"/>
+    </target>
+
+</project>
