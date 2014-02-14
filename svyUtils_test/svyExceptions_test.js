@@ -83,16 +83,14 @@ function testExceptions() {
 		jsunit.assertEquals('ExtendedTestException: test', ex.toString())
 		jsunit.assertTrue('Stack property filled', ex.stack !== null)
 		application.output(ex.stack)
-		var stack = ex.stack.split(' ')
-		jsunit.assertEquals('\tat', stack[0]);
+		var stack = ex.stack.split(/\r\n|\n|\r/)
 
 		/** @type {String} */
-		var path = stack[1]
-		var fileName = 'svyExceptions_test.js:'
-		var i = path.indexOf(fileName)
-		jsunit.assertTrue(i != -1)
-		jsunit.assertEquals(path.substring(i + fileName.length), parseInt(path.substring(i + fileName.length)).toString())
-		jsunit.assertEquals('(testExceptions)\r\n\tat', stack[2])
+		var path = stack[0]
+		jsunit.assertNotNull(path.match(/^\tat/))
+		jsunit.assertNotNull(path.match(/svyExceptions_test/g)) //Checks for the presence of the scopeName
+		jsunit.assertNotNull(path.match(/:\d+/g)) //Check if a lineNumber is present (contains a colon followed by an integer)
+		jsunit.assertNotNull(path.match(/\(testExceptions\)$/g)) //Check if ends with the methodName between parenthesis
 		
 		jsunit.assertEquals('ExtendedTestException', e.name);
 		jsunit.assertEquals('test', e.getMessage());
