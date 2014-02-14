@@ -1992,6 +1992,8 @@ function AbstractLayout() {
  */
 var initAbstractLayout = (function() {
 	AbstractLayout.prototype = Object.create(LogPlugin.prototype)
+	AbstractLayout.prototype.constructor = AbstractLayout
+	
 	/**
 	 * @public
 	 * @abstract
@@ -2122,8 +2124,6 @@ var initAbstractLayout = (function() {
 	AbstractLayout.prototype.hasCustomFields = function() {
 		return this.customFields.length > 0;
 	}
-
-	AbstractLayout.prototype.constructor = AbstractLayout
 }())
 
 /* ---------------------------------SimpleLayout------------------------------------- */
