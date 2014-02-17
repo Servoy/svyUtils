@@ -127,12 +127,12 @@
                 <!-- <sysproperty key="servoy.test.target-file-ext" value=".servoy" /> -->
 
                 <formatter type="brief" usefile="false" />
-                <formatter type="xml" />
+                <formatter type="xml" extension=".xm1"/>
 
                 <!-- formatter similar to type="xml" but it shows test suite hierarchy nicely, in a tree-like result xml - useful to nicely show the place where a test failed (solution/form...)
                 but this formatter is not included in ant yet - you would need to patch it yourself and integrate in ant lib from https://issues.apache.org/bugzilla/show_bug.cgi?id=48529
                 if you plan on using it, either comment out the simple "xml" formatter or add "extension" attribute to one of them so they don't get into conflicts when generating xmls -->
-                <formatter type="xml.suites"  extension=".xm1"/>
+                <formatter type="xml.suites"/>
 
                 <test name="com.servoy.automation.jsunit.smartclient.ServoyJSUnitTestRunner" todir="${junit.result.dir}" />
             </junit>
@@ -168,12 +168,12 @@
                 <sysproperty key="webdriver.chrome.driver" value="${webdriver.chrome.driver}"/>
 
                 <formatter type="brief" usefile="false" />
-                <formatter type="xml" />
+                <formatter type="xml" extension=".xm1"/>
 
                 <!-- formatter similar to type="xml" but it shows test suite hierarchy nicely, in a tree-like result xml - useful to nicely show the place where a test failed (solution/form...)
                 but this formatter is not included in ant yet - you would need to patch it yourself and integrate in ant lib from https://issues.apache.org/bugzilla/show_bug.cgi?id=48529
                 if you plan on using it, either comment out the simple "xml" formatter or add "extension" attribute to one of them so they don't get into conflicts when generating xmls -->
-                <formatter type="xml.suites"  extension=".xm1"/>
+                <formatter type="xml.suites"/>
 
                 <test name="com.servoy.automation.jsunit.mobile.ServoyMobileJSUnitTestRunner" todir="${junit.result.dir}" />
             </junit>
