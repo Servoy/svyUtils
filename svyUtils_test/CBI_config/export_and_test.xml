@@ -187,7 +187,7 @@
     <target name="create_test_report">
         <junitreport todir="${junit.result.dir}">
             <fileset dir="${junit.result.dir}">
-                <include name="TEST-*.xm1" />
+                <include name="TEST-*.xml" />
             </fileset>
             <!--<report format="noframes" todir="${junit.result.dir}" />-->
 
