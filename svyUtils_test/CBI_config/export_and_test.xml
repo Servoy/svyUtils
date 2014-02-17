@@ -187,9 +187,9 @@
     <target name="create_test_report">
         <junitreport todir="${junit.result.dir}">
             <fileset dir="${junit.result.dir}">
-                <include name="TEST-*.xml1" />
+                <include name="TEST-*.xm1" />
             </fileset>
-            <!--<report format="noframes" todir="${junit.result.dir}" />-->>
+            <!--<report format="noframes" todir="${junit.result.dir}" />-->
 
             <!-- report similar to format="noframes" but it shows test suite hierarchy nicely, in a tree-like result html - useful to nicely show the place where a test failed (solution/form...)
             but this report is not included in ant yet - you would need to patch it yourself and integrate in ant lib from https://issues.apache.org/bugzilla/show_bug.cgi?id=48529 -->
