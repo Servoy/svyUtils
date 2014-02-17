@@ -16,6 +16,25 @@ typeid:7,
 uuid:"3A9B8AE3-013D-4122-BB96-EBC4A5758168"
 },
 {
+location:"89,222",
+onActionMethodID:"F3A7356E-01DC-4DF1-AC3B-74EDB411E5AE",
+onDoubleClickMethodID:"-1",
+onRightClickMethodID:"-1",
+size:"366,35",
+text:"Test updateUI polyfill",
+typeid:7,
+uuid:"5CEF608A-A3B7-421D-88E5-7E765455441E"
+},
+{
+location:"94,272",
+name:"label",
+size:"361,24",
+text:".....",
+transparent:true,
+typeid:7,
+uuid:"84DE840B-C520-4B21-AE2C-4372EA4FA7FA"
+},
+{
 location:"89,168",
 onActionMethodID:"FC615FD8-3DB1-4684-B1ED-9786D14BB032",
 onDoubleClickMethodID:"-1",
