@@ -491,8 +491,43 @@ var init = function() {
 	FileNotFoundException.prototype.constructor = FileNotFoundException
 }()
 
-/*
+/**
+ * @param {String} filePath
+ * @param {String|JSDataSet} textToWrite
+ * @param {Boolean} [append]
+ * @author Rene van Veen
  * TODO: add file writer stuff:
  * - https://www.servoy.com/forum/viewtopic.php?f=22&t=13866&p=72648&hilit=java.io.filewriter#p72637
  * - https://www.servoy.com/forum/viewtopic.php?t=6391
+ * - Extend writing from DS for multi column
+ * @properties={typeid:24,uuid:"8925E56D-8069-4975-99C9-AFCA04C37673"}
  */
+function writeFile(filePath, textToWrite, append)
+{
+	try
+	{
+		var fileWriter = new Packages.java.io.FileWriter(filePath, append == undefined ? true : append)
+		var buffedFileWriter = new Packages.java.io.BufferedWriter(fileWriter)
+		
+		if(textToWrite instanceof JSDataSet)
+		{
+			var max = textToWrite.getMaxRowIndex()
+			for(var i = 1; i <= max; i++)
+			{
+				buffedFileWriter.write(textToWrite.getValue(i,1).toString())
+				buffedFileWriter.newLine()
+			}
+		} else
+		{
+			buffedFileWriter.write(textToWrite.toString())
+			buffedFileWriter.newLine()
+		}
+	} catch(e)
+	{
+		application.output('ERROR writing file "' + filePath + '": ' + e, LOGGINGLEVEL.ERROR);
+	}finally
+	{
+		buffedFileWriter.flush()
+		buffedFileWriter.close()
+	}
+}
