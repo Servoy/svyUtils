@@ -494,7 +494,7 @@ var init = function() {
 /**
  * @param {String} filePath
  * @param {String|JSDataSet} textToWrite
- * @param {Boolean} [append]
+ * @param {Boolean} [append] optional default = true
  * @author Rene van Veen
  * TODO: add file writer stuff:
  * - https://www.servoy.com/forum/viewtopic.php?f=22&t=13866&p=72648&hilit=java.io.filewriter#p72637
