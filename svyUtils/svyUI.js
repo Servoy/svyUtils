@@ -79,7 +79,8 @@ function getCheckBoxValueListItemRemoved(oldValue,newValue){
 function getJSFormForReference(form) {
 	if (form instanceof JSForm) {
 		/** @type {JSForm} */
-		return form
+		var jsForm = form
+		return jsForm
 	}
 	
 	/** @type {String} */
