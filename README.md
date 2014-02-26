@@ -2,7 +2,7 @@ svyUtils
 ========
 'svyUtils' is a module of the Servoy Business Application Platform. It provides a wide range of low-level utility methods and application concepts for Servoy solutions
 
-LogManager
+[LogManager](https://github.com/Servoy/svyUtils/wiki/LogManager)
 ----------
 Provides finegrained logging functionality built with performance and configurability in mind.
 
