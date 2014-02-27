@@ -78,6 +78,7 @@
  * - Removed the logic that allows logging multiple messages in one go
  * - Replaced logLog impl with statusLogger (to align with log4j 2)
  * - Added messages, to prevent building the String to output if it is not needed
+ * - Added 'solution' as Pattern to PatternLayout
  * 
  * TODOs
  * - Allow multiple appenders per logger in the config (AppenderRef: [{ref: 'something'}, {ref: 'something else'])
@@ -2610,7 +2611,7 @@ var initPatternLayout = (function() {
 		 */
 		PatternLayout.prototype.format = function(loggingEvent) {
 			//TODO: for every logged message the entire config is parsed again. Maybe need to cache something to improve performance
-			var regex = /%(-?[0-9]+)?(\.?[0-9]+)?(message|msg|logger|date|level|relative|thread|[cdfmnprt%])(\{([^\}]+)\})?|([^%]+)/;
+			var regex = /%(-?[0-9]+)?(\.?[0-9]+)?(message|msg|logger|date|level|relative|thread|solution[cdfmnprts%])(\{([^\}]+)\})?|([^%]+)/;
 			var formattedString = "";
 			/** @type {Array<String>} */
 			var result;
@@ -2748,6 +2749,10 @@ var initPatternLayout = (function() {
 						case 'thread':
 						case 't': // Current Thread name
 							replacement = application.getApplicationType() != APPLICATION_TYPES.MOBILE_CLIENT ? java.lang.Thread.currentThread().getName() : 'main';
+							break;
+						case 'solution':
+						case 's': // Current solution name
+							replacement = application.getSolutionName();
 							break;
 						case "%": // Literal % sign
 							replacement = "%";
