@@ -2611,7 +2611,7 @@ var initPatternLayout = (function() {
 		 */
 		PatternLayout.prototype.format = function(loggingEvent) {
 			//TODO: for every logged message the entire config is parsed again. Maybe need to cache something to improve performance
-			var regex = /%(-?[0-9]+)?(\.?[0-9]+)?(message|msg|logger|date|level|relative|thread|solution[cdfmnprts%])(\{([^\}]+)\})?|([^%]+)/;
+			var regex = /%(-?[0-9]+)?(\.?[0-9]+)?(message|msg|logger|date|level|relative|thread|solution|[cdfmnprts%])(\{([^\}]+)\})?|([^%]+)/;
 			var formattedString = "";
 			/** @type {Array<String>} */
 			var result;
