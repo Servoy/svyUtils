@@ -350,7 +350,7 @@ function readFile(file, lineCallback, charset) {
  * @properties={typeid:24,uuid:"EEFD9AA1-68B5-4DD9-8C4D-AE0EE2488F28"}
  */
 function getLineCountForFile(file) {
-	if (!file.exists() || file.isFile()) {
+	if (!file.exists() || !file.isFile()) {
 		throw new FileNotFoundException(null, file)
 	}
 	try {
