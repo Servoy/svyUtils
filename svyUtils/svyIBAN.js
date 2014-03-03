@@ -1,3 +1,6 @@
+/*
+ * INFO: https://github.com/arhs/iban.js/blob/master/iban.js 
+ */
 /**
  * @enum
  * @properties={typeid:35,uuid:"CB95534E-31BC-439C-B451-232E0D7FC28C",variableType:-4}
@@ -11,7 +14,7 @@ var NON_ALPHANUM = /[^a-zA-Z0-9]/g;
 var EVERY_FOUR_CHARS = /(.{4})(?!$)/g;
 
 /**
- * @protected 
+ * @protected
  * @type {Object<{countryCode:String, length:Number, structure:String, example:String, _regex:Function, isValid:Function, toBBAN:Function, isValidBBAN:Function, fromBBAN:Function}>}
  * @properties={typeid:35,uuid:"FEE6BDA0-3A82-4F2C-9B03-2680A0DE847B",variableType:-4}
  */
@@ -38,47 +41,56 @@ function IBANElectronicFormat(iban) {
 }
 
 /**
+ * Convert an IBAN to a BBAN.
+ *
  * @param {String} iban
  * @param {String} [separator] optional
  * @return {Boolean}
  * @properties={typeid:24,uuid:"E2DF4EFE-BF67-40E9-AB43-EDC23E983290"}
  */
-function IBANToBBAN(iban, separator){
-    if (typeof separator == 'undefined'){
-        separator = ' ';
-    }
-    iban = IBANElectronicFormat(iban);
-    var countryISO = countries[iban.slice(0,2)];
-    if (!countryISO) {
-        throw new Error('No country with code ' + iban.slice(0,2));
-    }
-    return countryISO.toBBAN(iban, separator);
+function IBANToBBAN(iban, separator) {
+	if (typeof separator == 'undefined') {
+		separator = ' ';
+	}
+	iban = IBANElectronicFormat(iban);
+	var countryISO = countries[iban.slice(0, 2)];
+	if (!countryISO) {
+		throw new Error('No country with code ' + iban.slice(0, 2));
+	}
+	return countryISO.toBBAN(iban, separator);
 }
 
 /**
+ * Convert the passed BBAN to an IBAN for this country specification.
+ * Please note that <i>"generation of the IBAN shall be the exclusive responsibility of the bank/branch servicing the account"</i>.
+ * This method implements the preferred algorithm described in http://en.wikipedia.org/wiki/International_Bank_Account_Number#Generating_IBAN_check_digits
+ *
+ *
  * @param {Number} countryCode
  * @param {String} bban
  * @return {Boolean}
  * @properties={typeid:24,uuid:"8E631656-1B74-4E32-9FE7-6FF19D8FA93B"}
  */
-function BBANToIBAN(countryCode, bban){
-    var country = countries[countryCode];
-    if (!country) {
-        throw new Error('No country with code ' + countryCode);
-    }
-    return country.fromBBAN(this.electronicFormat(bban));
+function BBANToIBAN(countryCode, bban) {
+	var country = countries[countryCode];
+	if (!country) {
+		throw new Error('No country with code ' + countryCode);
+	}
+	return country.fromBBAN(this.electronicFormat(bban));
 }
 
 /**
+ * Check the validity of the passed BBAN.
+ *
  * @param {Number} countryCode
  * @param {String} bban
  * @return {Boolean}
  * @properties={typeid:24,uuid:"059603A1-FD52-424A-9F8B-4019E2B5A384"}
  */
-function isValidBBAN(countryCode, bban){
-	
-    var countryStructure = countries[countryCode];
-    return countryStructure && countryStructure.isValidBBAN(this.electronicFormat(bban));
+function isValidBBAN(countryCode, bban) {
+
+	var countryStructure = countries[countryCode];
+	return countryStructure && countryStructure.isValidBBAN(this.electronicFormat(bban));
 }
 
 /**
@@ -87,17 +99,17 @@ function isValidBBAN(countryCode, bban){
  * @return {String}
  * @properties={typeid:24,uuid:"AB2D7EB0-E7B5-4152-BA54-E55E026E0C60"}
  */
-function IBANPrintFormat(iban, separator){
-    if (typeof separator == 'undefined'){
-        separator = ' ';
-    }
-    return IBANElectronicFormat(iban).replace(EVERY_FOUR_CHARS, "$1" + separator);
+function IBANPrintFormat(iban, separator) {
+	if (typeof separator == 'undefined') {
+		separator = ' ';
+	}
+	return IBANElectronicFormat(iban).replace(EVERY_FOUR_CHARS, "$1" + separator);
 }
 
 /**
  * Prepare an IBAN for mod 97 computation by moving the first 4 chars to the end and transforming the letters to
  * numbers (A = 10, B = 11, ..., Z = 35), as specified in ISO13616.
- * @private 
+ * @private
  * @param {string} iban the IBAN
  * @returns {string} the prepared IBAN
  *
@@ -120,7 +132,7 @@ function iso13616Prepare(iban) {
 
 /**
  * Calculates the MOD 97 10 of the passed IBAN as specified in ISO7064.
- * @private 
+ * @private
  * @param {String} iban
  * @returns {number}
  *
@@ -143,7 +155,7 @@ function iso7064Mod97_10(iban) {
  * A structure is composed of blocks of 3 characters (one letter and 2 digits). Each block represents
  * a logical group in the typical representation of the BBAN. For each group, the letter indicates which characters
  * are allowed in this group and the following 2-digits number tells the length of the group.
- * @private 
+ * @private
  * @param {string} structure the structure to parse
  * @returns {RegExp}
  *
@@ -196,7 +208,7 @@ function parseStructure(structure) {
  * @param structure the structure of the undernying BBAN (for validation and formatting)
  * @param example an example valid IBAN
  * @constructor
- * @private 
+ * @private
  * @properties={typeid:24,uuid:"4185B33E-F976-493B-A6D9-2E89EA82CF19"}
  */
 function IBANSpecification(countryCode, length, structure, example) {
@@ -239,7 +251,7 @@ function IBANSpecification(countryCode, length, structure, example) {
  * @properties={typeid:35,uuid:"5195EE37-A09D-4CCA-ABF5-B41D7B656A01",variableType:-4}
  */
 var init = function() {
-	
+
 	function addIBANSpec(IBAN) {
 		countries[IBAN.countryCode] = IBAN
 	}
