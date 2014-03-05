@@ -180,6 +180,19 @@ function isMobilePlatform() {
 }
 
 /**
+ * Returns the build number of the Servoy version
+ * @return {Number}
+ * 
+ * @properties={typeid:24,uuid:"B6FB2E27-B892-4B21-B911-A3F336FFA581"}
+ */
+function getServoyBuildNumber() {
+	var x = new Packages.org.mozilla.javascript.NativeJavaObject(globals, plugins.window, new Packages.org.mozilla.javascript.JavaMembers(globals, Packages.com.servoy.extensions.plugins.window.WindowProvider));
+	/** @type {Packages.com.servoy.j2db.plugins.IClientPluginAccess} */
+	var clientAccess = x['getClientPluginAccess']()
+	return clientAccess.getReleaseNumber()
+}
+
+/**
  * Gets the Smart Client deep link URL for the specified solution
  * 
  * @param {String} [solutionName]
