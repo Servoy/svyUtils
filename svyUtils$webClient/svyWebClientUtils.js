@@ -231,7 +231,7 @@ function addResourceDependancy(url, element, disableAutoAdjustProtocol, isJSReso
 	//branching based on existence of addGlobalResourceReference on the page contributor to inject resources globally or on the current pageContributor
 	if (!element) {
 		if (getWebClientPluginAccess().getPageContributor().addGlobalJSResourceReference) {
-			if (url.indexOf(MEDIA_URL_PREFIX) != 0) {
+			if (url.indexOf(MEDIA_URL_PREFIX) == 0) {
 				url = convertToExternalURL(url, disableAutoAdjustProtocol)
 			}
 			if (isJSResource) {
