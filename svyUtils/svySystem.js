@@ -355,7 +355,7 @@ function desistFormInMemory(form) {
  * @public
  *
  * @param {String} qualifiedName
- * @param {*} [args]
+ * @param {*} [args] If the value is an array, the entries in the array will be send into the method as separate arguments.
  * @param {*} [context] Optional context from where to start evaluating the qualifiedName
  * 
  * @return {*}
