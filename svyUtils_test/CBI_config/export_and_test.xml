@@ -42,6 +42,8 @@
                 <!-- add here any of the optional arguments supported by the exporter; see 'export -help' for more info; for example: -->
                 <!--arg value="-help" /-->
                 <arg value="-verbose" />
+            	<arg value="-sw" />
+            	<arg value="-pl" />
                 <arg value="-dbd" />
                 <arg value="-dbi" />
                 <arg value="-md" />
@@ -99,6 +101,8 @@
                 <!-- add here any of the optional arguments supported by the exporter; see 'mobile_export -help' for more info; for example: -->
                 <!--arg value="-help" /-->
                 <arg value="-verbose" />
+            	<arg value="-sw" />
+            	<arg value="-pl" />
                 <arg value="@{production}" /> <!-- can be "" for test-client export -->
                 <arg value="-server_url" />
                 <arg value="${work.servoy.install.url}" />
