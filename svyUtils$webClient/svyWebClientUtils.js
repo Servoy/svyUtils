@@ -276,10 +276,31 @@ function getExternalUrlForMedia(mediaUrl) {
 	
 	/**@type {java.lang.Object}*/
 	var bytes = media.bytes
-	mediaUrl += '&amp;hc=' + bytes.hashCode()
 	
 	var resourceReference = new Packages.org.apache.wicket.ResourceReference("media");
-	return mediaUrl.replace(MEDIA_URL_PREFIX, Packages.org.apache.wicket.RequestCycle.get().urlFor(resourceReference) + '?s=' + application.getSolutionName() + '&amp;id=')
+	var request = Packages.org.apache.wicket.RequestCycle.get().getRequest();
+	var requestParameters = request.getRequestParameters();
+	var urlDept = requestParameters.getUrlDepth();
+	var baseUrl
+	try {
+		// set the url dept to 0, it should always just be ?xxx without ../../
+		requestParameters.setUrlDepth(0);
+		if (request instanceof Packages.org.apache.wicket.protocol.http.servlet.ServletWebRequest) {
+			request['setWicketRedirectUrl']("");
+		}
+		baseUrl = Packages.org.apache.wicket.RequestCycle.get().urlFor(resourceReference)
+	} finally {
+		requestParameters.setUrlDepth(urlDept);
+	}
+	
+	//Branching based on Build Number: as of Servoy 7.4 Final Servoy supports directory URL's for media lib entries, allowing relative urls's in for example stylesheets referencing an image in a subfolder
+	if (getWebClientPluginAccess().getReleaseNumber() <= 2025) {
+		mediaUrl += '&amp;hc=' + bytes.hashCode()
+		return mediaUrl.replace(MEDIA_URL_PREFIX, baseUrl + '?s=' + application.getSolutionName() + '&amp;id=')
+	} else {
+		mediaUrl += '?hc=' + bytes.hashCode()
+		return mediaUrl.replace(MEDIA_URL_PREFIX, baseUrl + '/' + application.getSolutionName() + '/')		
+	}
 }
 
 /**
