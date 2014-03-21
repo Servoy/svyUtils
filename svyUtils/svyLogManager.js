@@ -920,35 +920,35 @@ var initLoggerConfig = (function(){
 	
 	//TODO: this PluginFactory is not yet used anywhere
 	LoggerConfig.PluginFactory = function(config) {
-		var retval = new LoggerConfig(config.name)
-				
-		var keys = Object.keys(config)
-		for (var index = 0; index < keys.length; index++) {
-			var key = keys[index]
-			switch (key) {
-				case 'type':
-					break;
-				case 'name':
-					retval.name = config.name
-					break
-				case 'threshold':
-					retval.setThreshold(Level.toLevel(config.threshold))
-					break;
-				default:
-					var plugin = logPlugins[key]
-					if (plugin) {
-						if (plugin.prototype instanceof AbstractLayout) {
-							retval.setLayout(plugin['PluginFactory'](config[key]))
-						} else {
-							//Unknown plugin type
-						}
-					} else {
-						//Unknown config entry
-					}
-					break;
-			}
-		}
-		return retval
+//		var retval = new LoggerConfig(config.name)
+//
+//		var keys = Object.keys(config)
+//		for (var index = 0; index < keys.length; index++) {
+//			var key = keys[index]
+//			switch (key) {
+//				case 'type':
+//					break;
+//				case 'name':
+//					retval.name = config.name
+//					break
+//				case 'threshold':
+//					retval.setThreshold(Level.toLevel(config.threshold))
+//					break;
+//				default:
+//					var plugin = logPlugins[key]
+//					if (plugin) {
+//						if (plugin.prototype instanceof AbstractLayout) {
+//							retval.setLayout(plugin['PluginFactory'](config[key]))
+//						} else {
+//							//Unknown plugin type
+//						}
+//					} else {
+//						//Unknown config entry
+//					}
+//					break;
+//			}
+//		}
+//		return retval
 	}
 }())
 
