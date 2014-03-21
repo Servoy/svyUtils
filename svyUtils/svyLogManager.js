@@ -2456,6 +2456,7 @@ var initHttpPostdataLayout = (function() {
 		for (var i = 0, len = dataValues.length; i < len; i++) {
 			/** @type {Date} */
 			var date = (dataValues[i][1] instanceof Date) ? dataValues[i][1] : null 
+			/**@type {String}*/
 			var val = date ? date.getTime() : dataValues[i][1];
 			queryBits.push(encodeURIComponent(dataValues[i][0].toString()) + "=" + encodeURIComponent(val));
 		}
