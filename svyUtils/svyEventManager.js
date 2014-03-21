@@ -98,10 +98,16 @@ function convertObjectToString(obj) {
 					return null
 				} else if (objStringParts.length == 2) {
 					return obj
-				} else if ( (objStringParts[1] in forms && forms[objStringParts[1]][objStringParts[2]]) ||
-						    ((objStringParts[2] == 'elements' && (solutionModel.getForm(objStringParts[1]).getComponent(objStringParts[2] || solutionModel.getForm(objStringParts[1]).getBean(objStringParts[2]))) || 
-							 solutionModel.getForm(objStringParts[1]).getMethod(objStringParts[2]) ||
-							 solutionModel.getForm(objStringParts[1]).getVariable(objStringParts[2])))) {
+				} else if ( 
+						(objStringParts[1] in forms && forms[objStringParts[1]][objStringParts[2]]) ||
+						(
+							(
+								objStringParts[2] == 'elements' && (solutionModel.getForm(objStringParts[1]).getComponent(objStringParts[3]) || solutionModel.getForm(objStringParts[1]).getBean(objStringParts[3])) || 
+							 	solutionModel.getForm(objStringParts[1]).getMethod(objStringParts[2]) ||
+								solutionModel.getForm(objStringParts[1]).getVariable(objStringParts[2])
+							)
+						)
+					) {
 					return obj
 				}
 				break;
