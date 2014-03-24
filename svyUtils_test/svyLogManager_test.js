@@ -51,6 +51,7 @@ function tearDown() {
  * @properties={typeid:35,uuid:"AD098AC1-10F1-422B-9A57-AC1065C71E42",variableType:-4}
  */
 var testLogger = scopes.svyLogManager.getLogger('com.servoy.bap.test')
+
 /**
  * @properties={typeid:35,uuid:"782C11A6-39CA-4247-BAE3-920C4C11D367",variableType:-4}
  */
