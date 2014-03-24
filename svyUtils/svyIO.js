@@ -360,7 +360,7 @@ function getLineCountForFile(file) {
 		}
 	    return lnr.getLineNumber(); 
 	} catch (e) {
-        application.output('ERROR getting max lines for file "' + file.getName() + '": ' + e, LOGGINGLEVEL.ERROR);
+		log.error('Error getting max lines for file "{}"', file.getName(), e)
 	} finally {
 		lnr.close();
 		fr.close()
