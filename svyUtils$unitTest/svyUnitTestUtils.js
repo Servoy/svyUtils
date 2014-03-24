@@ -34,8 +34,11 @@ function TestAppender() {
         var msg = this.layout.format(loggingEvent)
         var ex = loggingEvent.message.getThrowable()
 		if (ex) {
-        	msg += '\n' + ex.name + ': ' + ex.message + '\n' + ex.stack
+			msg = msg.replace(/\r?\n$/g,'')
+        	msg += scopes.svySystem.LINE_SEPARATOR + ex.name + ': ' + ex.message + scopes.svySystem.LINE_SEPARATOR + ex.stack
         }
+        msg = msg.replace(/\r?\n$/g,'')
+		
         if (this.getName() && !logMessages.hasOwnProperty(this.getName())) {
         	logMessages[this.getName()] = []
         }

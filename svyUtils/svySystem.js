@@ -27,6 +27,15 @@
 var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.system')
  
 /**
+ * Returns the platform specific line separator: \n on Unix systems and \r\n\ on Windows systems
+ * @public 
+ * @type {String}
+ * 
+ * @properties={typeid:35,uuid:"F50B6DEE-B591-4691-934C-64F76B86A9AC"}
+ */
+var LINE_SEPARATOR = Packages.java.lang.System.getProperty("line.separator");
+
+/**
  * Tests if the current client is web client
  * 
  * @return {Boolean}

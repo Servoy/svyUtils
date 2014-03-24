@@ -107,12 +107,13 @@
 var APPLICATION_START_DATE = new Date();
 
 /**
+ * TODO: code in this scope contains some hardcoded \n and \r\n\'s. Check whether that is correct
  * @private
  * @type {String}
  *
  * @properties={typeid:35,uuid:"282E129E-AEB0-4B2F-8ABB-5DDF5F0C09DC"}
  */
-var NEW_LINE = "\r\n"; //CHECKME: shouldn't this use a platform specific newLine?
+var NEW_LINE = Packages.java.lang.System.getProperty("line.separator");
 
 /**
  * @private
@@ -1912,8 +1913,10 @@ var initApplicationOutputAppender = (function(){
         var msg = this.layout.format(loggingEvent)
 		var ex = loggingEvent.message.getThrowable()
 		if (ex) {
-        	msg += ex.name + ': ' + ex.message + NEW_LINE + ex.stack
+			msg = msg.replace(/\r?\n$/g,'')
+        	msg += NEW_LINE + ex.name + ': ' + ex.message + NEW_LINE + ex.stack
         }
+        msg = msg.replace(/\r?\n$/g,'')
         application.output(msg, lvl)
     }
 	
