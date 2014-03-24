@@ -139,6 +139,7 @@ function ServoyError(servoyException) {
 	 */
 	this.ex = servoyException
 	SvyException.call(this, servoyException.getMessage());
+	this.name = servoyException instanceof DataException ? 'DataException' : 'ServoyException'
 }
 
 /**
