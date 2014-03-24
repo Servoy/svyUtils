@@ -989,9 +989,9 @@ function Logger(internal, messageFactory) {
 	 * @public 
 	 * @param {Level} level
 	 * @param {AbstractMessage|String|Object|*} message 
-	 * @param {Error|ServoyException|*...} [exception]
+	 * @param {Error|ServoyException|*...} [messageParamsOrException]
 	 */
-	this.log = function(level, message, exception) {
+	this.log = function(level, message, messageParamsOrException) {
 		if (level.intLevel >= internal.effectiveLevel.intLevel) {
 			
 			if (arguments.length == 2 && message instanceof AbstractMessage) {
@@ -999,22 +999,22 @@ function Logger(internal, messageFactory) {
 				var msg = message
 				internal.log(level, msg)
 			} else {
-				/**
-				 * @type {Error|ServoyException}
-				 */
-				var throwable
-				var parameters
-				if (arguments.length === 3 && (arguments[2] instanceof Error || arguments[2] instanceof ServoyException)) {
-					throwable = arguments[2]
-					if (exception instanceof ServoyException) {
+				if (arguments.length == 2 && message instanceof ServoyException) {
+					/**@type {ServoyException}*/
+					var msg2 = message
+					message = new scopes.svyExceptions.ServoyError(msg2)
+				}
+				var args = [message]
+				if (arguments.length > 2) {
+					Array.prototype.push.apply(args, Array.prototype.slice.call(arguments, 2))
+					var lastParam = args.slice(-1)
+					if (lastParam instanceof ServoyException) {
 						/**@type {ServoyException}*/
-						var ex = throwable
-						throwable = new scopes.svyExceptions.ServoyError(ex)				
+						var ex = lastParam
+						args[args.length - 1] = new scopes.svyExceptions.ServoyError(ex)				
 					}
-				} else if (arguments.length >= 3) {
-					parameters = Array.prototype.slice.call(arguments, 2)
 				} 
-				internal.log(level, (customMessageFactory||defaultMessageFactory).newMessage(message, parameters, throwable))
+				internal.log(level, (customMessageFactory||defaultMessageFactory).newMessage.apply(customMessageFactory||defaultMessageFactory, args))
 			}
 		}
 	}
@@ -1029,7 +1029,7 @@ function Logger(internal, messageFactory) {
 	this.trace = function(message, messageParamsOrException) {
 		if (Level.TRACE.intLevel >= internal.effectiveLevel.intLevel) {
 			var args = Array.prototype.slice.call(arguments)
-			args.splice(0,0, Level.TRACE)
+			args.unshift(Level.TRACE)
 			this.log.apply(this, args)
 		}
 	}
@@ -1043,7 +1043,7 @@ function Logger(internal, messageFactory) {
 	this.debug = function(message, messageParamsOrException) {
 		if (Level.DEBUG.intLevel >= internal.effectiveLevel.intLevel) {
 			var args = Array.prototype.slice.call(arguments)
-			args.splice(0,0, Level.DEBUG)
+			args.unshift(Level.DEBUG)
 			this.log.apply(this, args)
 		}			
 	}
@@ -1057,7 +1057,7 @@ function Logger(internal, messageFactory) {
 	this.info = function(message, messageParamsOrException) {
 		if (Level.INFO.intLevel >= internal.effectiveLevel.intLevel) {
 			var args = Array.prototype.slice.call(arguments)
-			args.splice(0,0, Level.INFO)
+			args.unshift(Level.INFO)
 			this.log.apply(this, args)
 		}			
 	}
@@ -1071,7 +1071,7 @@ function Logger(internal, messageFactory) {
 	this.warn = function(message, messageParamsOrException) {
 		if (Level.WARN.intLevel >= internal.effectiveLevel.intLevel) {
 			var args = Array.prototype.slice.call(arguments)
-			args.splice(0,0, Level.WARN)
+			args.unshift(Level.WARN)
 			this.log.apply(this, args)
 		}			
 	}
@@ -1085,7 +1085,7 @@ function Logger(internal, messageFactory) {
 	this.error = function(message, messageParamsOrException) {
 		if (Level.ERROR.intLevel >= internal.effectiveLevel.intLevel) {
 			var args = Array.prototype.slice.call(arguments)
-			args.splice(0,0, Level.ERROR)
+			args.unshift(Level.ERROR)
 			this.log.apply(this, args)
 		}			
 	}
@@ -1099,7 +1099,7 @@ function Logger(internal, messageFactory) {
 	this.fatal = function(message, messageParamsOrException) {
 		if (Level.FATAL.intLevel >= internal.effectiveLevel.intLevel) {
 			var args = Array.prototype.slice.call(arguments)
-			args.splice(0,0, Level.FATAL)
+			args.unshift(Level.FATAL)
 			this.log.apply(this, args)
 		}
 	}
@@ -1347,29 +1347,28 @@ var initLoggingEvent = (function() {
  * @constructor
  * @abstract
  * 
- * @param {*} format
- * @param {Array<*>|*...} [parameters]
- * @param {Error} [throwable]
+ * @param {*} message
+ * @param {*...} [params]
  *
  * @properties={typeid:24,uuid:"36095B79-6EF7-4449-A89E-C4867F327578"}
  */
-function AbstractMessage(format, parameters, throwable) {
+function AbstractMessage(message, params) {
 	if (this.constructor.name === 'AbstractMessage') {
 		//TODO: throw an exception about invoking an Abstract Constructor
 	}
 	/**
 	 * @protected 
 	 */
-	this.format = format
+	this.format = message
 	//TODO: stringify the parameters, as to not cause mem-leaks or have objects altered before logging
 	/**
 	 * @protected 
 	 */
-	this.parameters = parameters
+	this.parameters = !params ? null : Array.prototype.slice.call(arguments, 1)
 	/**
 	 * @protected 
 	 */
-	this.throwable = throwable
+	this.throwable = this.parameters && this.parameters.length && this.parameters.slice(-1) instanceof Error ? this.parameters.slice(-1) : null
 }
 
 /**
@@ -1413,7 +1412,7 @@ var initAbstractMessage = (function(){
 	 * @public
 	 */
 	AbstractMessage.prototype.getParameters = function(){
-		return this.paramters
+		return this.parameters
 	}
 	
 	/**
@@ -1429,15 +1428,14 @@ var initAbstractMessage = (function(){
  * @public
  * @constructor
  * @extends {AbstractMessage}
- * @param {String} format
- * @param {Array<*>|*...} parameters
- * @param {Error} [throwable]
+ * @param {String} message
+ * @param {*...} params
  *
  * @properties={typeid:24,uuid:"4095E81F-AF1B-4CF8-85BF-25C03B7C7B51"}
  */
-function StringFormattedMessage(format, parameters, throwable) {
+function StringFormattedMessage(message, params) {
 	if (!(this instanceof StringFormattedMessage)) {
-		return new StringFormattedMessage(format, parameters, throwable)
+		return new StringFormattedMessage(message, params)
 	}
 	AbstractMessage.apply(this, arguments)
 	
@@ -1465,15 +1463,14 @@ var initStringformattedMessage = (function() {
  * @public
  * @constructor 
  * @extends {AbstractMessage}
- * @param {String} format
- * @param {Array<*>|*...} parameters
- * @param {Error} [throwable]
+ * @param {String} message
+ * @param {*...} params
  *
  * @properties={typeid:24,uuid:"2B246023-42C8-45AB-8C18-C8D34E416741"}
  */
-function ParameterizedMessage(format, parameters, throwable) {
+function ParameterizedMessage(message, params) {
 	if (!(this instanceof ParameterizedMessage)) {
-		return new ParameterizedMessage(format, parameters, throwable)
+		return new ParameterizedMessage(message, params)
 	}
 	AbstractMessage.apply(this, arguments)
 	
@@ -1615,11 +1612,11 @@ var initObjectMessage = (function() {
 	ObjectMessage.prototype.constructor = ObjectMessage
 	
 	ObjectMessage.prototype.getFormat = function() {
-		return this.format.toString()
+		return typeof this.format.toString == Function ? this.format.toString() : '' + this.format
 	}
 	
 	ObjectMessage.prototype.getFormattedMessage = function() {
-		return this.format.toString()
+		return typeof this.format.toString == Function ? this.format.toString() : '' + this.format
 	}
 
 	ObjectMessage.prototype.getParameters = function() {
@@ -1652,12 +1649,12 @@ var initAbstractMessageFactory = (function() {
 	 * @public 
 	 * @return {AbstractMessage}
 	 */
-	 AbstractMessageFactory.prototype.newMessage = function(format, parameters, throwable) {
-		if (typeof parameters === 'undefined') {
-			if (typeof format === 'string') {
-				return new SimpleMessage(format)
+	 AbstractMessageFactory.prototype.newMessage = function(message, params) {
+		if (typeof params === 'undefined') {
+			if (typeof message === 'string') {
+				return new SimpleMessage(message)
 			} else {
-				return new ObjectMessage(format)
+				return new ObjectMessage(message)
 			}
 		} else {
 			return this.newFormattedMessage.apply(this, arguments)
@@ -1669,7 +1666,7 @@ var initAbstractMessageFactory = (function() {
 	 * @protected
 	 * @return {AbstractMessage}
 	 */
-	AbstractMessageFactory.prototype.newFormattedMessage = function(format, parameters, throwable) {
+	AbstractMessageFactory.prototype.newFormattedMessage = function(message, params) {
 		return null;
 	}
 }())
@@ -1697,13 +1694,14 @@ var initParameterizedMessageFactory = (function() {
 	ParameterizedMessageFactory.prototype = Object.create(AbstractMessageFactory.prototype)
 	ParameterizedMessageFactory.prototype.constructor = ParameterizedMessageFactory
 
-	ParameterizedMessageFactory.prototype.newFormattedMessage = function(format, parameters, throwable){
-		return new ParameterizedMessage(format,parameters,throwable);
+	ParameterizedMessageFactory.prototype.newFormattedMessage = function(message, params){
+		return new ParameterizedMessage(message,params);
 	}
 }())
 
 /**
  * @private
+ * @type {AbstractMessageFactory}
  * @properties={typeid:35,uuid:"87FC8503-D5E5-4BB7-B777-3CC94617BAD7",variableType:-4}
  */
 var defaultMessageFactory = new ParameterizedMessageFactory()

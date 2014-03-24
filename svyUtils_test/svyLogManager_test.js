@@ -136,7 +136,7 @@ function testStringFormattedMessage() {
 	scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length = 0
 		
 	//Test logging a custom Message 
-	testLogger.debug(new scopes.svyLogManager.StringFormattedMessage('The time is: %1$tH:%1$tM:%1$tS', [new Date(2009, 0, 1, 12, 0, 0)]))
+	testLogger.debug(new scopes.svyLogManager.StringFormattedMessage('The time is: %1$tH:%1$tM:%1$tS', new Date(2009, 0, 1, 12, 0, 0)))
 	jsunit.assertEquals(1, scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length)
 	jsunit.assertEquals('DEBUG c.s.b.test - The time is: 12:00:00', scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender[0])
 }
@@ -166,14 +166,27 @@ function testAbstractMessageAndAdditionalParams() {
  * @properties={typeid:24,uuid:"17D676EF-CDE1-4492-AB15-824245D3F0E5"}
  */
 function testServoyExceptionWrapper() {
-//This way of getting a ServoyException instance doesn't work, see SVY-5984
-//	try {
-//		application.executeProgram('dflsdflvhbldsjhb')		
-//	} catch (e) {
-//		var ex = e
-//		testLogger.debug(ex.getMessage())
-//	}
+	scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length = 0
 	
+	//Getting a ServoyException by firing a bogus query and then unwrapping the Java Exception thrown
+	try {
+		databaseManager.getDataSetByQuery('udm','select 1 from nonexisting',null,10)
+	} catch (e) {
+		var ex = e
+		testLogger.debug(ex['javaException'].getCause())
+	}
+	
+	//Test logging a custom Message 
+	jsunit.assertEquals(1, scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length)
+	var expected = 'DEBUG c.s.b.test - DataException: ERROR: relation "nonexisting" does not exist'.concat(
+		'\n',
+		'  Position: 15',
+		scopes.svySystem.LINE_SEPARATOR,
+		'DataException: ERROR: relation "nonexisting" does not exist',
+		'\n',
+		'  Position: 15'
+	)
+	jsunit.assertEquals(expected, scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender[0])
 }
 
 /**
@@ -190,8 +203,8 @@ function testCustomMessageFactory() {
 	function StringFormattedMessageFactory() {}
 	StringFormattedMessageFactory.prototype = Object.create(scopes.svyLogManager.AbstractMessageFactory.prototype)
 	StringFormattedMessageFactory.prototype.constructor = StringFormattedMessageFactory
-	StringFormattedMessageFactory.prototype.newFormattedMessage = function(format, parameters, throwable) {
-		return new scopes.svyLogManager.StringFormattedMessage(format, parameters, throwable);
+	StringFormattedMessageFactory.prototype.newFormattedMessage = function(format, parameters) {
+		return new scopes.svyLogManager.StringFormattedMessage(format, parameters);
 	}
 	
 	var childLogger = scopes.svyLogManager.getLogger('com.servoy.bap.test.child', new StringFormattedMessageFactory())
