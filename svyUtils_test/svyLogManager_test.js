@@ -171,7 +171,7 @@ function testServoyExceptionWrapper() {
 	
 	//Getting a ServoyException by firing a bogus query and then unwrapping the Java Exception thrown
 	try {
-		databaseManager.getDataSetByQuery('udm','select 1 from nonexisting',null,10)
+		databaseManager.getDataSetByQuery('nonexisting','select 1 from nonexisting', null, 10)
 	} catch (e) {
 		var ex = e
 		testLogger.debug(ex['javaException'].getCause())
@@ -179,14 +179,7 @@ function testServoyExceptionWrapper() {
 	
 	//Test logging a custom Message 
 	jsunit.assertEquals(1, scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length)
-	var expected = 'DEBUG c.s.b.test - DataException: ERROR: relation "nonexisting" does not exist'.concat(
-		'\n',
-		'  Position: 15',
-		scopes.svySystem.LINE_SEPARATOR,
-		'DataException: ERROR: relation "nonexisting" does not exist',
-		'\n',
-		'  Position: 15'
-	)
+	var expected = 'DEBUG c.s.b.test - ServoyException: Server nonexisting not found' + scopes.svySystem.LINE_SEPARATOR + 'ServoyException: Server nonexisting not found'
 	jsunit.assertEquals(expected, scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender[0])
 }
 
