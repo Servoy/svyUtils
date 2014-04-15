@@ -203,7 +203,7 @@ function addWeeks(date, weeks) {
 }
 
 /**
- * Adds the given number of days to the given date and returns a new dat<br>
+ * Adds the given number of days to the given date and returns a new date<br>
  * Negative number of days will be substracted
  * 
  * @public
@@ -217,6 +217,59 @@ function addWeeks(date, weeks) {
  */
 function addDays(date, days) {
 	return addToDate(date, java.util.Calendar.DATE, days);
+}
+
+/**
+ * Adds the given number of days to the given date and returns a new date<p>
+ * Saturdays, Sundays and any dates in the optional holidays array are not counted<p>
+ * Negative number of days will be substracted
+ * 
+ * @public 
+ *
+ * @param date the date to add or substract days to/from
+ * @param days the number of days to be added/substracted
+ * @param {Array<Date>} [holidays] optional array with dates to skip
+ * 
+ * @version 6.0
+ * @since 15.04.2014
+ * @author patrick
+ *
+ * @properties={typeid:24,uuid:"7E575AE1-AA0D-427D-9972-A2B1C1293912"}
+ */
+function addBusinessDays(date, days, holidays) {
+	calendar.setTimeInMillis(date.getTime());
+	var numberOfDaysToAdd = Math.abs(days);
+	var daysToAdd = days < 0 ? -1 : 1;
+	var businessDaysAdded = 0;
+	
+	/**
+	 * @param {java.util.Calendar} dateToCheck
+	 */
+	function isHoliday(dateToCheck) {
+		if (holidays && holidays.length > 0) {
+			for (var i = 0; i < holidays.length; i++) {
+				if (holidays[i].getFullYear() == dateToCheck.get(java.util.Calendar.YEAR) && holidays[i].getMonth() == dateToCheck.get(java.util.Calendar.MONTH) && holidays[i].getDate() == dateToCheck.get(java.util.Calendar.DAY_OF_MONTH)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	while (businessDaysAdded < numberOfDaysToAdd) {
+		calendar.add(java.util.Calendar.DATE, daysToAdd);
+		if (calendar.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.SATURDAY || calendar.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.SUNDAY) {
+			// add another day
+			continue;
+		}
+		if (isHoliday(calendar)) {
+			// add another day
+			continue;
+		}
+		businessDaysAdded ++;
+	}
+	
+	return new Date(calendar.getTimeInMillis());
 }
 
 /**
