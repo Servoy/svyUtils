@@ -379,7 +379,7 @@ function getLineCountForFile(file) {
  * @properties={typeid:24,uuid:"61CAFF50-B7A8-499D-8008-4B8457A3E2F6"}
  */
 function isFileOpen(file) {
-	if (!file.exists() || file.isFile()) {
+	if (!file.exists() || !file.isFile()) {
 		throw new FileNotFoundException(null, file)
 	}
 	var result;
