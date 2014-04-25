@@ -1214,3 +1214,22 @@ function isValueTimeUnit(value){
 	}
 	return false;
 }
+
+/**
+ * Returns true when date time starts at 00:00:00
+ * @param {Date} date
+ * 
+ * @public 
+ * @return {Boolean}
+ * @properties={typeid:24,uuid:"5CA6DDF5-5988-4B68-BB07-77C4B602A1C4"}
+ */
+function isStartOfDay(date) {
+	if(!date){
+		throw new scopes.svyExceptions.IllegalArgumentException('Date is required');
+	}
+	if (date.getHours()==0 && date.getMinutes()==0 && date.getSeconds()==0 && date.getMilliseconds()==0) {
+		return true;
+	} else {
+		return false;
+	}
+}
