@@ -557,18 +557,14 @@ function fromJSONColumnConverter(storageValue, dbType) {
 }
 
 /**
- * Returns the value stored in the DB for any given dataprovider and a given record or foundset
+ * Returns the original value of the given dataprovider of a record that has changes not yet saved to the database
  * 
- * @param {JSRecord|JSFoundSet} recordOrFoundset
+ * @param {JSRecord} record
  * @param {String} dataProviderId
  *
  * @properties={typeid:24,uuid:"357B80F0-BCCE-4E8E-A047-E2996E6E4CF9"}
  */
-function getValueInDB(recordOrFoundset, dataProviderId) {
-	var record = recordOrFoundset;
-	if (recordOrFoundset instanceof JSFoundSet) {
-		record = recordOrFoundset.getSelectedRecord();
-	}
+function getDataproviderValueInDB(record, dataProviderId) {
 	var changedData = record.getChangedData();
 	for (var i = 1; i <= changedData.getMaxRowIndex(); i++) {
 		if (changedData.getValue(i, 1) == dataProviderId) {
