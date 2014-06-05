@@ -44,6 +44,24 @@ function objectHasValue(object, value) {
 	return false;
 }
 
+/**
+ * Helper function for dynamically calling a constructor function with arguments
+ * 
+ * @see http://stackoverflow.com/questions/3362471/how-can-i-call-a-javascript-constructor-using-call-or-apply
+ * 
+ * @param {Function} constructor
+ * @param {Array<*>} args
+ * @return {Object}
+ *
+ * @properties={typeid:24,uuid:"FEA9C6A7-068C-49AD-A4F5-79E0BFDF8ACE"}
+ */
+function dynamicConstructorInvoker(constructor, args) {
+	var instance = Object.create(constructor.prototype);
+    var result = constructor.apply(instance, args);
+
+    return (result !== null && typeof result === 'object') ? result : instance;
+}
+
 //TODO add replacer function for JSON.stringify that handles circular references or a custom object stringifier that does this and also removes the quotes around the keys
 
 /*Attempt to replace globals.svy_utl_getTypeOf, but doesn't work that well (yet)
