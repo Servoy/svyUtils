@@ -999,21 +999,14 @@ function Logger(internal, messageFactory) {
 				var msg = message
 				internal.log(level, msg)
 			} else {
-				if (arguments.length == 2 && message instanceof ServoyException) {
+				var args = Array.prototype.slice.call(arguments, 1)
+				var lastParam = args[args.length - 1]
+				if (lastParam instanceof ServoyException) {
 					/**@type {ServoyException}*/
-					var msg2 = message
-					message = new scopes.svyExceptions.ServoyError(msg2)
+					var ex = lastParam
+					args[args.length - 1] = new scopes.svyExceptions.ServoyError(ex)				
 				}
-				var args = [message]
-				if (arguments.length > 2) {
-					Array.prototype.push.apply(args, Array.prototype.slice.call(arguments, 2))
-					var lastParam = args.slice(-1)
-					if (lastParam instanceof ServoyException) {
-						/**@type {ServoyException}*/
-						var ex = lastParam
-						args[args.length - 1] = new scopes.svyExceptions.ServoyError(ex)				
-					}
-				} 
+			
 				internal.log(level, (customMessageFactory||defaultMessageFactory).newMessage.apply(customMessageFactory||defaultMessageFactory, args))
 			}
 		}
@@ -1364,11 +1357,11 @@ function AbstractMessage(message, params) {
 	/**
 	 * @protected 
 	 */
-	this.parameters = !params ? null : Array.prototype.slice.call(arguments, 1)
+	this.parameters = arguments.length == 1 ? null : Array.prototype.slice.call(arguments, 1)
 	/**
 	 * @protected 
 	 */
-	this.throwable = this.parameters && this.parameters.length && this.parameters.slice(-1) instanceof Error ? this.parameters.slice(-1) : null
+	this.throwable = this.parameters && this.parameters.length && this.parameters.slice(-1)[0] instanceof Error ? this.parameters.slice(-1)[0] : null
 }
 
 /**
@@ -1647,10 +1640,12 @@ function AbstractMessageFactory() {}
 var initAbstractMessageFactory = (function() {
 	/**
 	 * @public 
+	 * @param {String|Object|*} message 
+	 * @param {Error|ServoyException|*...} [messageParamsOrException]
 	 * @return {AbstractMessage}
 	 */
-	 AbstractMessageFactory.prototype.newMessage = function(message, params) {
-		if (typeof params === 'undefined') {
+	AbstractMessageFactory.prototype.newMessage = function(message, messageParamsOrException) {
+		if (arguments.length == 1) {
 			if (typeof message === 'string') {
 				return new SimpleMessage(message)
 			} else {
@@ -1664,9 +1659,11 @@ var initAbstractMessageFactory = (function() {
 	/**
 	 * @abstract
 	 * @protected
+	 * @param {String|Object|*} message 
+	 * @param {Error|ServoyException|*...} messageParamsOrException
 	 * @return {AbstractMessage}
 	 */
-	AbstractMessageFactory.prototype.newFormattedMessage = function(message, params) {
+	AbstractMessageFactory.prototype.newFormattedMessage = function(message, messageParamsOrException) {
 		return null;
 	}
 }())
@@ -1695,7 +1692,7 @@ var initParameterizedMessageFactory = (function() {
 	ParameterizedMessageFactory.prototype.constructor = ParameterizedMessageFactory
 
 	ParameterizedMessageFactory.prototype.newFormattedMessage = function(message, params){
-		return new ParameterizedMessage(message,params);
+		return scopes.svyJSUtils.dynamicConstructorInvoker(ParameterizedMessage, Array.prototype.slice.call(arguments))
 	}
 }())
 
