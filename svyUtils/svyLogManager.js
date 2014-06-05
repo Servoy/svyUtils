@@ -1912,8 +1912,12 @@ var initApplicationOutputAppender = (function(){
 		var ex = loggingEvent.message.getThrowable()
 		if (ex) {
 			msg = msg.replace(/\r?\n$/g,'')
-        	msg += NEW_LINE + ex.name + ': ' + ex.message + NEW_LINE + ex.stack
-        }
+        	msg += NEW_LINE + ex.name + ': ' + ex.message
+        	var stack = ex.stack
+			if (stack) {
+				msg += NEW_LINE + stack
+        	}
+		}
         msg = msg.replace(/\r?\n$/g,'')
         application.output(msg, lvl)
     }
