@@ -221,6 +221,38 @@ function getRecord(datasource, pks) {
 }
 
 /**
+ * Tests if a given relation is global (only based on global or scope variables or literals)
+ * 
+ * @param {String} relationName
+ * @return {Boolean} false for any dataprovider based relation or self joins
+ *
+ * @properties={typeid:24,uuid:"045975C0-6EC2-4EFE-A1AA-43A7E7C94C64"}
+ */
+function isGlobalRelation(relationName) {
+	var jsRelation = solutionModel.getRelation(relationName);
+	if (!jsRelation) {
+		throw new scopes.svyExceptions.IllegalArgumentException("Relation \"" + relationName + "\" not found");
+	}
+	var relationItems = jsRelation.getRelationItems();
+	if (!relationItems || relationItems.length == 0) {
+		// self relation
+		return false;
+	}
+	var isGlobal = true;
+	for (var i = 0; i < relationItems.length; i++) {
+		var relationItem = relationItems[i];
+		if (relationItem.primaryLiteral != null) {
+			continue;
+		}
+		if (!relationItem.primaryDataProviderID.match("globals|scopes")) {
+			isGlobal = false;
+			break;
+		}
+	}
+	return isGlobal;
+}
+
+/**
  * Selects the first record in the foundset
  * @param {JSFoundSet} foundset
  * @return {Boolean} false when the foundset is empty
