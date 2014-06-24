@@ -613,6 +613,9 @@ function getDataproviderValueInDB(record, dataProviderId) {
  * @properties={typeid:35,uuid:"661B7B5D-659E-43F5-97B7-F07FFB44FF5E",variableType:-4}
  */
 var init = function() {
+	SvyDataException.prototype = Object.create(scopes.svyExceptions.SvyException.prototype);
+	SvyDataException.prototype.constructor = SvyDataException
+	
 	NoRecordException.prototype = Object.create(SvyDataException.prototype);
 	NoRecordException.prototype.constructor = NoRecordException
 		
@@ -633,7 +636,4 @@ var init = function() {
 	
 	ValueNotUniqueException.prototype = Object.create(SvyDataException.prototype);
 	ValueNotUniqueException.prototype.constructor = ValueNotUniqueException
-	
-	SvyDataException.prototype = Object.create(scopes.svyExceptions.SvyException.prototype);
-	SvyDataException.prototype.constructor = SvyDataException
 }()
