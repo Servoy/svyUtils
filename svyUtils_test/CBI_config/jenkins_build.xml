@@ -73,6 +73,15 @@
 		<arg value="--root"/>
 	    <arg value="${REPORT_COVERAGE}"/>
 	  </exec>
+	  <echo level="info" message="creating cobertura report coverage in folder ${REPORT_COVERAGE}"/>
+	  <exec executable="cmd">
+	    <arg value="/c"/>
+		<arg value="istanbul"/>
+	    <arg value="report"/>
+		<arg value="cobertura"/>
+		<arg value="--root"/>
+	    <arg value="${REPORT_COVERAGE}"/>
+	  </exec>
 	</target>
 
     <target name="export_mobile_client_solutions" depends="get_equinox_jar, emcs_73, emcs_lower"/>
