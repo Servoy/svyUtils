@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+
+<!-- Works with Ant 1.7.0 and higher -->
+<project basedir=".">
+
+    <property file="export_and_test_personal.properties"/>
+    <property file="export_and_test.properties"/>
+
+	<target name="instrument_code" depends= "clean_instrumented_workspace, instrument_workspace, servoy_parse_instrumented_workspace, clean_instrument_code"/>
+
+	<!-- clean the instrumented workspace -->
+	<target name="clean_instrumented_workspace">
+	  <echo message="clean instrumented workspace"/>	
+	  <delete dir="${TEMP_INSTRUMENTED_WORKSPACE}"/>
+	  <delete dir="${INSTRUMENTED_WORKSPACE}"/>
+	  <mkdir dir="${TEMP_INSTRUMENTED_WORKSPACE}"/>		<!-- instrumented files -->		
+	  <copy todir="${INSTRUMENTED_WORKSPACE}"> <!--instrumented and parsed files -->
+		<fileset dir="${WORKSPACE}">
+		</fileset>
+	  </copy>
+	</target>
+	
+	<!-- instrument all code from workspace into the instrumented workspace-->
+	<target name="instrument_workspace" depends="clean_instrumented_workspace">
+	  <echo level="info" message="instrumenting workspace ${WORKSPACE} into temp workspace ${TEMP_INSTRUMENTED_WORKSPACE}"/>
+	  <exec executable="cmd">
+	    <arg value="/c"/>
+	    <!--<arg value="C:\Users\Administrator\AppData\Roaming\npm\istanbul.cmd"/-->
+		<arg value="istanbul"/>
+	    <arg value="instrument"/>
+	    <arg value="${WORKSPACE}"/>
+	    <arg value="--output"/>
+	    <arg value="${TEMP_INSTRUMENTED_WORKSPACE}"/>	
+		<arg value="--preserve-comments"/>
+	  </exec>
+	</target>
+	
+	<target name="servoy_parse_instrumented_workspace" depends="instrument_workspace">
+	  <echo level="info" message="parsing Servoy code in instrumented workspace ${TEMP_INSTRUMENTED_WORKSPACE}. Generate result into ${INSTRUMENTED_WORKSPACE}"/>
+	  <exec executable="cmd">
+	    <arg value="/c"/>
+	    <!--<arg value="C:\Users\Administrator\AppData\Roaming\npm\istanbul.cmd"/-->
+		<arg value="node"/>
+	    <arg value="ServoyParser.js"/>
+	    <arg value="${INSTRUMENTED_WORKSPACE}"/>
+	    <arg value="${TEMP_INSTRUMENTED_WORKSPACE}"/>
+	  </exec>
+	</target>
+	
+
+	
+		<!-- clean the instrumented workspace -->
+	<target name="clean_instrument_code" depends="instrument_workspace, servoy_parse_instrumented_workspace">
+	  <!--<delete dir="${TEMP_INSTRUMENTED_WORKSPACE}"/>-->
+	</target>
+	
+</project>

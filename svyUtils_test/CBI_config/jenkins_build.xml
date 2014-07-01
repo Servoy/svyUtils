@@ -9,7 +9,9 @@
       </classpath>
     </taskdef>
         
-    <import file="export_and_test.xml"/>
+    <import file="instrument_workspace.xml"/>
+	<import file="export_and_test.xml"/>
+	
 
     <!-- Cleans the workspace preparing for a new build        -->
     <!-- Then                                                  -->
@@ -19,7 +21,7 @@
     <!--   - if exports didn't fail, runs mobile client tests  -->
     <!--   - fails the build if any tests or exports failed.   -->
     
-    <target name="main_smart" depends="clean_exports, clean_test_results, export_smart_client_solutions, run_smart_client_tests_if_exported_ok, prepare_artifacts"/>
+    <target name="main_smart" depends="instrument_code, clean_exports, clean_test_results, export_smart_client_solutions, run_smart_client_tests_if_exported_ok, prepare_artifacts"/>
     <target name="main_mobile" depends="clean_exports, clean_test_results, export_mobile_client_solutions, run_and_move_mobile_exports_if_tests_passed, prepare_artifacts"/>
 
     <target name="prepare_artifacts">
@@ -51,6 +53,7 @@
     <target name="run_smart_client_tests_if_exported_ok" unless="export.failed" depends="prepare_classpath">
         <run-smart-client-tests/>
         <antcall target="move_smart_exports_if_tests_passed"/>
+		<antcall target="run_report_code_coverage"/>
     </target>
     
     <target name="move_smart_exports_if_tests_passed" unless="test.failed">
@@ -59,6 +62,18 @@
             <fileset dir="${smart.test.exports.dir}" includes="**/*" />
         </move>
     </target>
+	
+	<target name="run_report_code_coverage">	  
+	  <!-- create code coverage report after running mobile client tests-->
+	  <echo level="info" message="creating report coverage in folder ${REPORT_COVERAGE}"/>
+	  <exec executable="cmd">
+	    <arg value="/c"/>
+		<arg value="istanbul"/>
+	    <arg value="report"/>
+		<arg value="--root"/>
+	    <arg value="${REPORT_COVERAGE}"/>
+	  </exec>
+	</target>
 
     <target name="export_mobile_client_solutions" depends="get_equinox_jar, emcs_73, emcs_lower"/>
     
