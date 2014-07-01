@@ -35,7 +35,11 @@ function TestAppender() {
         var ex = loggingEvent.message.getThrowable()
 		if (ex) {
 			msg = msg.replace(/\r?\n$/g,'')
-        	msg += scopes.svySystem.LINE_SEPARATOR + ex.name + ': ' + ex.message + scopes.svySystem.LINE_SEPARATOR + ex.stack
+        	msg += scopes.svySystem.LINE_SEPARATOR + ex.name + ': ' + ex.message
+			var stack = ex.stack
+			if (stack) {
+				msg += scopes.svySystem.LINE_SEPARATOR + ex.stack
+			}
         }
         msg = msg.replace(/\r?\n$/g,'')
 		

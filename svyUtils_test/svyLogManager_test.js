@@ -107,6 +107,34 @@ function testDefaultParameterizedMessage() {
 }
 
 /**
+ * @properties={typeid:24,uuid:"3CB6C9FA-BDBB-4311-8101-B86D43313BE8"}
+ */
+function testDefaultParameterizedMessageWithMultipleParams() {
+	scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length = 0
+	
+	//Test logging a default parameterized message
+	testLogger.debug('{} {}' , 'hello', 'Servoy')
+	jsunit.assertEquals(1, scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length)
+	jsunit.assertEquals('DEBUG c.s.b.test - hello Servoy', scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender[0])
+}
+
+
+/**
+ * @properties={typeid:24,uuid:"5632163D-F1B3-444F-A712-553142A7543A"}
+ */
+function testDefaultParameterizedMessageLastParamIsException(){
+	scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length = 0
+	
+	//Getting a ServoyException by firing a bogus query and then unwrapping the Java Exception thrown
+	testLogger.debug('Some {}', 'error', new scopes.svyExceptions.SvyException('Test'))
+	
+	//Test logging a custom Message 
+	jsunit.assertEquals(1, scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length)
+	var expected = 'DEBUG c.s.b.test - Some error' + scopes.svySystem.LINE_SEPARATOR + 'SvyException: Test'
+	jsunit.assertEquals(expected, scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender[0])
+}
+
+/**
  * @properties={typeid:24,uuid:"65B2C809-C5D4-4572-A9DC-B88A0A3E7F41"}
  */
 function testDefaulParameterizedMessageWithTooLittleParams() {

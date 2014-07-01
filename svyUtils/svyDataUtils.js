@@ -221,6 +221,38 @@ function getRecord(datasource, pks) {
 }
 
 /**
+ * Tests if a given relation is global (only based on global or scope variables or literals)
+ * 
+ * @param {String} relationName
+ * @return {Boolean} false for any dataprovider based relation or self joins
+ *
+ * @properties={typeid:24,uuid:"045975C0-6EC2-4EFE-A1AA-43A7E7C94C64"}
+ */
+function isGlobalRelation(relationName) {
+	var jsRelation = solutionModel.getRelation(relationName);
+	if (!jsRelation) {
+		throw new scopes.svyExceptions.IllegalArgumentException("Relation \"" + relationName + "\" not found");
+	}
+	var relationItems = jsRelation.getRelationItems();
+	if (!relationItems || relationItems.length == 0) {
+		// self relation
+		return false;
+	}
+	var isGlobal = true;
+	for (var i = 0; i < relationItems.length; i++) {
+		var relationItem = relationItems[i];
+		if (relationItem.primaryLiteral != null) {
+			continue;
+		}
+		if (!relationItem.primaryDataProviderID.match("globals|scopes")) {
+			isGlobal = false;
+			break;
+		}
+	}
+	return isGlobal;
+}
+
+/**
  * Selects the first record in the foundset
  * @param {JSFoundSet} foundset
  * @return {Boolean} false when the foundset is empty
@@ -557,12 +589,33 @@ function fromJSONColumnConverter(storageValue, dbType) {
 }
 
 /**
+ * Returns the original value of the given dataprovider of a record that has changes not yet saved to the database
+ * 
+ * @param {JSRecord} record
+ * @param {String} dataProviderId
+ *
+ * @properties={typeid:24,uuid:"357B80F0-BCCE-4E8E-A047-E2996E6E4CF9"}
+ */
+function getDataproviderValueInDB(record, dataProviderId) {
+	var changedData = record.getChangedData();
+	for (var i = 1; i <= changedData.getMaxRowIndex(); i++) {
+		if (changedData.getValue(i, 1) == dataProviderId) {
+			return changedData.getValue(i,2);
+		}
+	}
+	return record[dataProviderId];
+}
+
+/**
  * Point prototypes to superclasses
  * @private 
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"661B7B5D-659E-43F5-97B7-F07FFB44FF5E",variableType:-4}
  */
 var init = function() {
+	SvyDataException.prototype = Object.create(scopes.svyExceptions.SvyException.prototype);
+	SvyDataException.prototype.constructor = SvyDataException
+	
 	NoRecordException.prototype = Object.create(SvyDataException.prototype);
 	NoRecordException.prototype.constructor = NoRecordException
 		
@@ -583,7 +636,4 @@ var init = function() {
 	
 	ValueNotUniqueException.prototype = Object.create(SvyDataException.prototype);
 	ValueNotUniqueException.prototype.constructor = ValueNotUniqueException
-	
-	SvyDataException.prototype = Object.create(scopes.svyExceptions.SvyException.prototype);
-	SvyDataException.prototype.constructor = SvyDataException
 }()
