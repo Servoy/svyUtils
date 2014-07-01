@@ -159,9 +159,9 @@ function readWorkspaceJSFileList() {
  * parse the content of the file. Return the parsed content.
  */
 function parseData(data) { 
-	var LEFT_CONTENT = "if (!__";
-	var RIGHT_CONTENT = "/*"
-	if (data.substring(0, 7) == LEFT_CONTENT) {
+	if (data.substring(0, 11) == '\nvar __cov_' && data.search('__coverage__') != -1) {
+		var LEFT_CONTENT = "if (!__";
+		var RIGHT_CONTENT = "/*"
 		var parsedData = data;
 		parsedData = parsedData.replace(RIGHT_CONTENT, "})();\n" + RIGHT_CONTENT);
 		parsedData = '/**\n * @properties={typeid:35,uuid:"' + generateUUID() + '"} \n */' + parsedData;
