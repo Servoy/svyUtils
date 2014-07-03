@@ -7,6 +7,7 @@ function testIsObject() {
 	jsunit.assertFalse(scopes.svyJSUtils.isObject(new Date()))
 	jsunit.assertFalse(scopes.svyJSUtils.isObject(1))
 	jsunit.assertFalse(scopes.svyJSUtils.isObject(''))
+	jsunit.assertFalse(scopes.svyJSUtils.isObject(/ /))
 	jsunit.assertFalse(scopes.svyJSUtils.isObject(false))
 	jsunit.assertFalse(scopes.svyJSUtils.isObject(forms))
 	jsunit.assertFalse(scopes.svyJSUtils.isObject(scopes))
