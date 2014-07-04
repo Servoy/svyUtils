@@ -666,7 +666,7 @@ function LoggerConfig(name, messageFactory, logger) {
 }
 
 /**
- * @private 
+ * @private
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"0F992E15-B252-4AC8-9041-F2AF6A132DE2",variableType:-4}
 	 */
@@ -1761,7 +1761,7 @@ function AbstractAppender() {
 	this.threshold = Level.ALL;
 };
 
-	/**
+/**
  * @private 
  * @SuppressWarnings(unused)
  *
@@ -1988,7 +1988,7 @@ function AbstractLayout() {
 	this.customFields = null
 }
 
-	/**
+/**
  * @private 
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"994AF0DE-AA41-453A-B2E0-61047DBFC751",variableType:-4}

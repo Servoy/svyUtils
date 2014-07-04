@@ -18,6 +18,7 @@
 /**
  * Returns true if the supplied argument is a JavaScript object. Returns false for non-objects, including subclasses like Array, Date or Regex
  * @param {*} object
+ * @return {Boolean}
  *
  * @properties={typeid:24,uuid:"8B942664-6C9B-48AD-B0AA-DC9C9E411BCD"}
  */

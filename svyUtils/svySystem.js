@@ -36,47 +36,47 @@ var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.system')
 var LINE_SEPARATOR = Packages.java.lang.System.getProperty("line.separator");
 
 /**
- * Tests if the current client is web client
+ * Tests if the current client is Web Client
  * 
  * @return {Boolean}
  * @public 
  * @properties={typeid:24,uuid:"CA076FBF-D0BE-4C43-8264-0A9B87D52CC0"}
  */
 function isWebClient() {
-	return application.getApplicationType() == APPLICATION_TYPES.WEB_CLIENT
+	return application.getApplicationType() === APPLICATION_TYPES.WEB_CLIENT
 }
 
 /**
- * Test is the current client is smart client
+ * Test is the current client is a Smart Client
  * 
  * @return {Boolean}
  * @public 
  * @properties={typeid:24,uuid:"F7529082-605B-4ADC-A010-84936034B364"}
  */
 function isSmartClient() {
-	return application.getApplicationType() == APPLICATION_TYPES.SMART_CLIENT
+	return application.getApplicationType() === APPLICATION_TYPES.SMART_CLIENT
 }
 
 /**
- * Test if the current client is runtime client
+ * Test if the current client is a Runtime Client
  * 
  * @return {Boolean}
  * @public 
  * @properties={typeid:24,uuid:"B37DF176-F87D-49EF-8558-BD6D993C1A8F"}
  */
 function isRuntimeClient() {
-	return application.getApplicationType() == APPLICATION_TYPES.RUNTIME_CLIENT
+	return application.getApplicationType() === APPLICATION_TYPES.RUNTIME_CLIENT
 }
 
 /**
- * Test if the current client is headless client
+ * Test if the current client is a Headless Client
  * 
  * @return {Boolean}
  * @public 
  * @properties={typeid:24,uuid:"8848A72B-257F-4D53-8B93-67141285CB18"}
  */
 function isHeadlessClient(){
-	return application.getApplicationType() == APPLICATION_TYPES.HEADLESS_CLIENT;
+	return application.getApplicationType() === APPLICATION_TYPES.HEADLESS_CLIENT;
 }
 
 /**
@@ -91,14 +91,14 @@ function isSwingClient() {
 }
 
 /**
- * Test if the current client is servoy mobile
+ * Test if the current client is a Mobile Client
  * 
  * @return {Boolean}
  * @public 
  * @properties={typeid:24,uuid:"15818D17-D669-4173-AC74-9F44FD67A168"}
  */
 function isMobileClient() {
-	return application.getApplicationType() == APPLICATION_TYPES.MOBILE_CLIENT;
+	return application.getApplicationType() === APPLICATION_TYPES.MOBILE_CLIENT;
 }
 
 /**
@@ -185,7 +185,7 @@ function isMobilePlatform() {
 	/** @type {Packages.org.apache.wicket.protocol.http.request.WebClientInfo} */
 	var clientInfo = Packages.org.apache.wicket.Session.get().getClientInfo()
 	var userAgent = clientInfo.getUserAgent()
-	return /iPhone|iPad|Android/.test(userAgent)
+	return /iPhone|iPad|iPod|Android/.test(userAgent)
 }
 
 /**
