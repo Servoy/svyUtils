@@ -1609,9 +1609,6 @@ var initObjectMessage = (function() {
 	}
 	
 	ObjectMessage.prototype.getFormattedMessage = function() {
-		application.output(this.format)
-		application.output(this.format instanceof java.lang.Object)
-		
 		return typeof this.format.toString === 'function' ? this.format.toString() : '' + this.format
 	}
 
