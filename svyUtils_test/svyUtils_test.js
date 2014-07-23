@@ -46,17 +46,5 @@ function onSolutionClose(force) {
  * @properties={typeid:24,uuid:"4E14F1C2-C4DB-46FF-A83B-A340D75BB1E7"}
  */
 function onSolutionOpen(arg, queryParams) {
-	// write coverage json object.
-	var coverageExists = false;
-	try {
-		if (__coverage__) {
-			coverageExists = true;
-		}
-	} catch (e) {
-		log.info('__coverage__ is not defined')
-	}
-	
-	if (coverageExists) {
-		scopes.istanbul_scope.initIstanbul();
-	}
+	scopes.istanbul_scope.initIstanbul();
 }
