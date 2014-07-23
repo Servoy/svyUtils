@@ -1,4 +1,4 @@
-//Override Wicket function to support all HTML5 input types
+/* Override Wicket function to support all HTML5 input types */
 Wicket.Form.serializeInput = function(input) {
 	var type = input.type.toLowerCase();
 	switch (type) {
