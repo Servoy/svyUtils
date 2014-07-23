@@ -1211,7 +1211,7 @@ function getRootLoggerConfig() {
 		rootLogger = new LoggerConfig(ROOT_LOGGER_NAME);
 		rootLogger.setLevel(ROOT_LOGGER_DEFAULT_LEVEL);
 		var appender = new ApplicationOutputAppender()
-		appender.layout = new PatternLayout('%5level %m')
+		appender.layout = new PatternLayout('%5level %msg')
 		rootLogger.addAppender(appender) 
 	}
 	return rootLogger;
@@ -1233,7 +1233,7 @@ function getRootLoggerConfig() {
  * @properties={typeid:24,uuid:"B8C91C9F-3D84-4CC7-8228-EA6D5A975FE0"}
  */
 function getLogger(loggerName, messageFactory) {
-	if (!loggerName || typeof loggerName != "string") {
+	if (!loggerName || typeof loggerName !== "string") {
 		throw scopes.svyExceptions.IllegalArgumentException('non-string logger name "' + loggerName + '" supplied')
 	}
 
@@ -1259,7 +1259,7 @@ function getLogger(loggerName, messageFactory) {
 								logger.setLevel(Level.toLevel(logConfig.level))
 								break;
 							case 'additivity':
-								logger.setAdditivity(logConfig.hasOwnProperty('additivity') && typeof logConfig.additivity == 'boolean' ? logConfig.additivity : true)
+								logger.setAdditivity(logConfig.hasOwnProperty('additivity') && typeof logConfig.additivity === 'boolean' ? logConfig.additivity : true)
 								break;
 							case 'AppenderRef':
 								logger.addAppender(getAppenderForRef(logConfig.AppenderRef))
@@ -1605,11 +1605,14 @@ var initObjectMessage = (function() {
 	ObjectMessage.prototype.constructor = ObjectMessage
 	
 	ObjectMessage.prototype.getFormat = function() {
-		return typeof this.format.toString == Function ? this.format.toString() : '' + this.format
+		return typeof this.format.toString === 'function' ? this.format.toString() : '' + this.format
 	}
 	
 	ObjectMessage.prototype.getFormattedMessage = function() {
-		return typeof this.format.toString == Function ? this.format.toString() : '' + this.format
+		application.output(this.format)
+		application.output(this.format instanceof java.lang.Object)
+		
+		return typeof this.format.toString === 'function' ? this.format.toString() : '' + this.format
 	}
 
 	ObjectMessage.prototype.getParameters = function() {
@@ -2322,7 +2325,7 @@ function escapeNewLines(str) {
 function JsonLayout(readable) {
 	AbstractLayout.call(this)
 	
-	this.readable = typeof readable != "undefined" ? Boolean(readable) : false;
+	this.readable = typeof readable !== "undefined" ? Boolean(readable) : false;
 	this.batchHeader = this.readable ? "[" + NEW_LINE : "[";
 	this.batchFooter = this.readable ? "]" + NEW_LINE : "]";
 	this.batchSeparator = this.readable ? "," + NEW_LINE : ",";
@@ -2525,11 +2528,11 @@ function formatObjectExpansion(object, maxdepth, indent) {
 
 		if (obj === null) {
 			return "null";
-		} else if (typeof obj == "undefined") {
+		} else if (typeof obj === "undefined") {
 			return "undefined";
-		} else if (typeof obj == "string") {
+		} else if (typeof obj === "string") {
 			return formatString(obj);
-		} else if (typeof obj == "object" && objectsExpanded.indexOf(obj) != -1) {
+		} else if (typeof obj === "object" && objectsExpanded.indexOf(obj) != -1) {
 			try {
 				expansion = '' + obj;
 			} catch (ex) {
@@ -2554,7 +2557,7 @@ function formatObjectExpansion(object, maxdepth, indent) {
 			return expansion;
 		} else if (Object.prototype.toString.call(obj) == "[object Date]") {
 			return obj.toString();
-		} else if (typeof obj == "object" && depth > 0) {
+		} else if (typeof obj === "object" && depth > 0) {
 			objectsExpanded.push(obj);
 			expansion = "{" + NEW_LINE;
 			childDepth = depth - 1;
@@ -2730,7 +2733,7 @@ var initPatternLayout = (function() {
 									}
 								}
 								var val = this.customFields[fieldIndex].value;
-								if (typeof val == "function") {
+								if (typeof val === "function") {
 									/** @type {Function} */
 									var tmp = val
 									val = tmp(this, loggingEvent);
