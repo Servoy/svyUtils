@@ -30,6 +30,13 @@ function onSolutionClose(force) {
 		} else {
 			log.info('coverage file ' + filePath + ' written with success')
 		}
+		
+		try {
+			scopes.istanbul_scope.initIstanbul();
+		} catch (e) {
+			application.output('C: cannot init istanbul_scope')
+			application.output(e)
+		}
 	} 
 	return true
 }
@@ -46,5 +53,10 @@ function onSolutionClose(force) {
  * @properties={typeid:24,uuid:"4E14F1C2-C4DB-46FF-A83B-A340D75BB1E7"}
  */
 function onSolutionOpen(arg, queryParams) {
-	scopes.istanbul_scope.initIstanbul();
+	try {
+		scopes.istanbul_scope.initIstanbul();
+	} catch (e) {
+		application.output('cannot init istanbul_scope')
+		application.output(e)
+	}
 }
