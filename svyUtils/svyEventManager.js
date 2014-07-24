@@ -310,9 +310,10 @@ function fireEvent(obj, eventType, args, isVetoable) {
 						//Firing of listeners of non-vetoable events are wrapped in try/catch to throw an UnsupportedOperationException when a listener throws a VetoEventException anyway
 						try {
 							scope[actionStringParts[2]].apply(scope, args);
-						} catch (e if e instanceof VetoEventException) {
-							throw scopes.svyExceptions.UnsupportedOperationException('Attempt made to veto a non-vetoable event')
 						} catch (e) {
+							if (e instanceof VetoEventException) {
+								throw scopes.svyExceptions.UnsupportedOperationException('Attempt made to veto a non-vetoable event')								
+							}
 							throw e;
 						}
 					} else { //Not wrapping calling of listeners on vetoable events in try/catch to prevent the try/catch overhead
