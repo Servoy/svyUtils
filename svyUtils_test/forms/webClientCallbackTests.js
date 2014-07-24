@@ -15,42 +15,30 @@ var date
  * @properties={typeid:24,uuid:"01F1DB5E-7E41-40FE-B456-5EA9281CCD85"}
  */
 function onLoad(event) {
-	var tmp = <html>
-		<head>
-			<script>
-			<![CDATA[
-				var localVar = 'localVarValue'
-			
-				function invokeCallbackUrl(callbackUrl) {
-					$.ajax({
-						  type: "POST",
-						  url: callbackUrl,
-						  data: 'hello',
-						  success: function(data, textStatus,  jqXHR) {
-							  alert(data)
-						  }
-						});
-				}
-			]]>
-			</script>
-		</head>
-		<body>
-			<button id="callbackUrlButton">call callbackUrl</button>
-			<button id="callbackScriptButton">call callbackScript</button>
-			<button id="callbackScriptWithArgsButton">call callbackScript</button>
-		</body>
-	</html>
-	
-	tmp..*.(@id == 'callbackUrlButton')[0].@onclick = 'invokeCallbackUrl(\'' + scopes.svyWebClientUtils.getCallbackUrl(callback) + '\')'
-	tmp..*.(@id == 'callbackScriptButton')[0].@onclick = scopes.svyWebClientUtils.getCallbackScript(callback, [], {showLoading: false})
-	tmp..*.(@id == 'callbackScriptWithArgsButton')[0].@onclick = scopes.svyWebClientUtils.getCallbackScript(callback, ['localVar', 10, true, '"hello"'], {showLoading: false})
-	tmp.head.appendChild(<script>{''}</script>)
-	
-	html = scopes.svyWebClientUtils.XHTML2Text(tmp)
-	
-	application.output(html)
-	
-	//scopes.svyWebClientUtils.getCallbackUrl(callback, forms.webClientCallbackTests, id)
+	html = '<html>\
+		<head>\
+			<script>\
+				var localVar = \'localVarValue\'\
+			\
+				function invokeCallbackUrl(callbackUrl) {\
+					$.ajax({\
+						  type: "POST",\
+						  url: callbackUrl,\
+						  data: \'hello\',\
+						  success: function(data, textStatus,  jqXHR) {\
+							  alert(data)\
+						  }\
+						});\
+				}\
+			]]>\
+			</script>\
+		</head>\
+		<body>\
+			<button id="callbackUrlButton" onclick="invokeCallbackUrl(\'' + scopes.svyWebClientUtils.getCallbackUrl(callback) + '\')">call callbackUrl</button>\
+			<button id="callbackScriptButton" onclick="' + scopes.svyWebClientUtils.getCallbackScript(callback, [], {showLoading: false}) + '">call callbackScript</button>\
+			<button id="callbackScriptWithArgsButton" onclick="' + scopes.svyWebClientUtils.getCallbackScript(callback, ['localVar', 10, true, '"hello"'], {showLoading: false}) + '">call callbackScript</button>\
+		</body>\
+	</html>'
 }
 
 /**
