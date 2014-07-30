@@ -595,6 +595,376 @@ var initLevel = (function() {
 		}
 	}())
 
+/* -------------------------------MessageFactory--------------------------------------- */
+/**
+ * @public 
+ * @constructor 
+ * @abstract
+ * 
+ * @properties={typeid:24,uuid:"D24859FB-64E3-48D0-AC00-D48824496F3A"}
+ */
+function AbstractMessageFactory() {}
+
+/**
+ * @private
+ * @SuppressWarnings(unused)
+ *
+ * @properties={typeid:35,uuid:"CA03143B-DE1F-40FE-9F21-7F6AD3DF03EF",variableType:-4}
+ */
+var initAbstractMessageFactory = (function() {
+	/**
+	 * @public 
+	 * @param {String|Object|*} message 
+	 * @param {Error|ServoyException|*...} [messageParamsOrException]
+	 * @return {AbstractMessage}
+	 */
+	AbstractMessageFactory.prototype.newMessage = function(message, messageParamsOrException) {
+		if (arguments.length == 1) {
+			if (typeof message === 'string') {
+				return new SimpleMessage(message)
+			} else {
+				return new ObjectMessage(message)
+			}
+		} else {
+			return this.newFormattedMessage.apply(this, arguments)
+		}
+	}
+	
+	/**
+	 * @abstract
+	 * @protected
+	 * @param {String|Object|*} message 
+	 * @param {Error|ServoyException|*...} messageParamsOrException
+	 * @return {AbstractMessage}
+	 */
+	AbstractMessageFactory.prototype.newFormattedMessage = function(message, messageParamsOrException) {
+		return null;
+	}
+}())
+
+/**
+ * @public 
+ * @constructor 
+ * @extends {AbstractMessageFactory}
+ *
+ * @properties={typeid:24,uuid:"49D8E274-D50C-4423-BF8D-957EE60414C6"}
+ */
+function ParameterizedMessageFactory() {
+	if (!(this instanceof ParameterizedMessageFactory)) {
+		return new ParameterizedMessageFactory()
+	}
+}
+
+/**
+ * @private
+ * @SuppressWarnings(unused)
+ *
+ * @properties={typeid:35,uuid:"AEB56CA1-2987-4510-940A-B7201936986D",variableType:-4}
+ */
+var initParameterizedMessageFactory = (function() {
+	ParameterizedMessageFactory.prototype = Object.create(AbstractMessageFactory.prototype)
+	ParameterizedMessageFactory.prototype.constructor = ParameterizedMessageFactory
+
+	ParameterizedMessageFactory.prototype.newFormattedMessage = function(message, params){
+		return scopes.svyJSUtils.dynamicConstructorInvoker(ParameterizedMessage, Array.prototype.slice.call(arguments))
+	}
+}())
+
+/**
+ * @private
+ * @type {AbstractMessageFactory}
+ * @properties={typeid:35,uuid:"87FC8503-D5E5-4BB7-B777-3CC94617BAD7",variableType:-4}
+ */
+var defaultMessageFactory = new ParameterizedMessageFactory()
+	
+/* ---------------------------------Message------------------------------------- */
+/**
+ * TODO: documentation
+ * @public 
+ * @constructor
+ * @abstract
+ * 
+ * @param {*} message
+ * @param {*...} [params]
+ *
+ * @properties={typeid:24,uuid:"36095B79-6EF7-4449-A89E-C4867F327578"}
+ */
+function AbstractMessage(message, params) {
+	if (this.constructor.name === 'AbstractMessage') {
+		//TODO: throw an exception about invoking an Abstract Constructor
+	}
+	/**
+	 * @protected 
+	 */
+	this.format = message
+	//TODO: stringify the parameters, as to not cause mem-leaks or have objects altered before logging
+	/**
+	 * @protected 
+	 */
+	this.parameters = arguments.length == 1 ? null : Array.prototype.slice.call(arguments, 1)
+	/**
+	 * @protected 
+	 */
+	this.throwable = this.parameters && this.parameters.length && this.parameters.slice(-1)[0] instanceof Error ? this.parameters.slice(-1)[0] : null
+}
+
+/**
+ * @private
+ * @SuppressWarnings(unused)
+  * @properties={typeid:35,uuid:"0960F1DA-3085-4D33-A31E-794E5F7E4F68",variableType:-4}
+ */
+var initAbstractMessage = (function(){
+	/**
+	 * @protected
+	 */
+	AbstractMessage.prototype.format = null
+
+	/**
+	 * @protected
+	 */
+	AbstractMessage.prototype.parameters = null
+	
+	/**
+	 * @protected
+	 */
+	AbstractMessage.prototype.throwable = null
+	
+	/**
+	 * @public
+	 */
+	AbstractMessage.prototype.getFormat = function() {
+		return this.format
+	}
+	
+	/**
+	 * @public
+	 * @abstract
+	 * @return {String}
+	 */
+	AbstractMessage.prototype.getFormattedMessage = function(){
+		return null
+	}
+	
+	/**
+	 * @public
+	 */
+	AbstractMessage.prototype.getParameters = function(){
+		return this.parameters
+	}
+	
+	/**
+	 * @public
+	 * @return {Error}
+	 */
+	AbstractMessage.prototype.getThrowable = function(){
+		return this.throwable
+	}
+}())
+
+/**
+ * @public
+ * @constructor
+ * @extends {AbstractMessage}
+ * @param {String} message
+ * @param {*...} params
+ *
+ * @properties={typeid:24,uuid:"4095E81F-AF1B-4CF8-85BF-25C03B7C7B51"}
+ */
+function StringFormattedMessage(message, params) {
+	if (!(this instanceof StringFormattedMessage)) {
+		return new StringFormattedMessage(message, params)
+	}
+	AbstractMessage.apply(this, arguments)
+	
+	/** @protected */
+	this.formattedMessage = null
+}
+
+/**
+ * @private
+ * @SuppressWarnings(unused)
+ * @properties={typeid:35,uuid:"A7691A61-E4B9-4707-9034-8DDDACF36A3B",variableType:-4}
+ */
+var initStringformattedMessage = (function() {
+	StringFormattedMessage.prototype = Object.create(AbstractMessage.prototype)
+	StringFormattedMessage.prototype.constructor = StringFormattedMessage
+	
+	StringFormattedMessage.prototype.getFormattedMessage = function() {
+		return utils.stringFormat(this.format, this.parameters)
+	}
+}())
+
+/**
+ * TODO: samples & docs
+ * @public
+ * @constructor 
+ * @extends {AbstractMessage}
+ * @param {String} message
+ * @param {*...} params
+ *
+ * @properties={typeid:24,uuid:"2B246023-42C8-45AB-8C18-C8D34E416741"}
+ */
+function ParameterizedMessage(message, params) {
+	if (!(this instanceof ParameterizedMessage)) {
+		return new ParameterizedMessage(message, params)
+	}
+	AbstractMessage.apply(this, arguments)
+	
+	/** @protected */
+	this.formattedMessage = null
+}
+
+/** 
+ * @private
+ * @SuppressWarnings(unused)
+ * @properties={typeid:35,uuid:"F678ABD1-57B4-4319-9772-F084F223BAF6",variableType:-4}
+ */
+var initParameterizedMessage = (function() {
+	ParameterizedMessage.prototype = Object.create(AbstractMessage.prototype)
+	ParameterizedMessage.prototype.constructor = ParameterizedMessage
+
+	/**
+	 * TODO license message, see http://logging.apache.org/log4j/2.x/log4j-api/apidocs/src-html/org/apache/logging/log4j/message/ParameterizedMessage.html#line.31
+	 * @this {ParameterizedMessage}
+	 */
+	ParameterizedMessage.prototype.getFormattedMessage = function() {
+		if (this.formattedMessage === null) {
+			
+			if (this.format == null || this.parameters == null || this.parameters.length == 0) {
+                return this.formattedMessage = this.format;
+            }
+			var messagePattern = this.format
+    
+            var DELIM_START = '{';
+            var DELIM_STOP = '}';
+            var ESCAPE_CHAR = '\\';
+            
+            var result = ''
+            var escapeCounter = 0;
+            var currentArgument = 0;
+            for (var i = 0; i < messagePattern.length; i++) {
+                var curChar = messagePattern.charAt(i);
+                if (curChar == ESCAPE_CHAR) {
+                    escapeCounter++;
+                } else {
+                    if (curChar == DELIM_START) {
+                        if (i < messagePattern.length - 1) {
+                            if (messagePattern.charAt(i + 1) == DELIM_STOP) {
+                                // write escaped escape chars
+                                var escapedEscapes = escapeCounter / 2;
+                                for (var j = 0; j < escapedEscapes; j++) {
+                                    result += ESCAPE_CHAR;
+                                }
+    
+                                if (escapeCounter % 2 == 1) {
+                                    // i.e. escaped
+                                    // write escaped escape chars
+                                    result += DELIM_START;
+                                    result += DELIM_STOP;
+                                } else {
+                                    // unescaped
+                                    if (currentArgument < this.parameters.length) {
+                                        result += this.parameters[currentArgument];
+                                    } else {
+                                        result += DELIM_START + DELIM_STOP;
+                                    }
+                                    currentArgument++;
+                                }
+                                i++;
+                                escapeCounter = 0;
+                                continue;
+                            }
+                        }
+                    }
+                    // any other char beside ESCAPE or DELIM_START/STOP-combo
+                    // write unescaped escape chars
+                    if (escapeCounter > 0) {
+                        for (j = 0; j < escapeCounter; j++) {
+                            result += ESCAPE_CHAR;
+                        }
+                        escapeCounter = 0;
+                    }
+                    result += curChar;
+                }
+            }
+            this.formattedMessage = result
+			//-------------------
+		}
+		return this.formattedMessage
+	}
+}())
+
+/**
+ * @public
+ * @constructor 
+ * @extends {AbstractMessage}
+ *
+ * @properties={typeid:24,uuid:"3BA243D7-8B29-40BC-B03B-C42A1C9ED1FA"}
+ */
+function SimpleMessage(message) {
+	if (!(this instanceof SimpleMessage)) {
+		return new SimpleMessage(message)
+	}
+	AbstractMessage.apply(this, arguments)
+}
+
+/**
+ * @private
+ * @SuppressWarnings(unused)
+ *
+ * @properties={typeid:35,uuid:"2BAE5202-1155-4923-B40F-72A7ADF26F77",variableType:-4}
+ */
+var initSimpleMessage = (function() {
+	SimpleMessage.prototype = Object.create(AbstractMessage.prototype)
+	SimpleMessage.prototype.constructor = SimpleMessage
+	
+	SimpleMessage.prototype.getFormattedMessage = function() {
+		return this.format
+	}
+}())
+
+/**
+ * @public
+ * @constructor 
+ * @extends {AbstractMessage}
+ *
+ * @properties={typeid:24,uuid:"835EDA8E-FE17-4746-8D30-EDDFFE3DFF95"}
+ */
+function ObjectMessage(object) {
+	if (!(this instanceof ObjectMessage)) {
+		return new ObjectMessage(object)
+	}
+	AbstractMessage.apply(this, arguments)
+}
+
+/**
+ * @private
+ * @SuppressWarnings(unused)
+ *
+ * @properties={typeid:35,uuid:"6D980F77-FB92-475E-8895-6BA8C01B59A0",variableType:-4}
+ */
+var initObjectMessage = (function() {
+	ObjectMessage.prototype = Object.create(AbstractMessage.prototype)
+	ObjectMessage.prototype.constructor = ObjectMessage
+	
+	ObjectMessage.prototype.getFormat = function() {
+		return typeof this.format.toString === 'function' ? this.format.toString() : '' + this.format
+	}
+	
+	ObjectMessage.prototype.getFormattedMessage = function() {
+		return typeof this.format.toString === 'function' ? this.format.toString() : '' + this.format
+	}
+
+	ObjectMessage.prototype.getParameters = function() {
+		return [this.format]
+	}
+	
+	ObjectMessage.prototype.getThrowable = function() {
+		return (this.format instanceof Error || this.format instanceof ServoyException) ? this.format : null
+	}
+}())
+
+
 /* ----------------------------------Loggers------------------------------------ */
 /**
  * TODO: the mechanism of Logger and LoggerConfig can be optimized even further: 
@@ -1332,376 +1702,6 @@ var initLoggingEvent = (function() {
 		}
 	};
 }())
-
-/* ---------------------------------Message------------------------------------- */
-/**
- * TODO: documentation
- * @public 
- * @constructor
- * @abstract
- * 
- * @param {*} message
- * @param {*...} [params]
- *
- * @properties={typeid:24,uuid:"36095B79-6EF7-4449-A89E-C4867F327578"}
- */
-function AbstractMessage(message, params) {
-	if (this.constructor.name === 'AbstractMessage') {
-		//TODO: throw an exception about invoking an Abstract Constructor
-	}
-	/**
-	 * @protected 
-	 */
-	this.format = message
-	//TODO: stringify the parameters, as to not cause mem-leaks or have objects altered before logging
-	/**
-	 * @protected 
-	 */
-	this.parameters = arguments.length == 1 ? null : Array.prototype.slice.call(arguments, 1)
-	/**
-	 * @protected 
-	 */
-	this.throwable = this.parameters && this.parameters.length && this.parameters.slice(-1)[0] instanceof Error ? this.parameters.slice(-1)[0] : null
-}
-
-/**
- * @private
- * @SuppressWarnings(unused)
-  * @properties={typeid:35,uuid:"0960F1DA-3085-4D33-A31E-794E5F7E4F68",variableType:-4}
- */
-var initAbstractMessage = (function(){
-	/**
-	 * @protected
-	 */
-	AbstractMessage.prototype.format = null
-
-	/**
-	 * @protected
-	 */
-	AbstractMessage.prototype.parameters = null
-	
-	/**
-	 * @protected
-	 */
-	AbstractMessage.prototype.throwable = null
-	
-	/**
-	 * @public
-	 */
-	AbstractMessage.prototype.getFormat = function() {
-		return this.format
-	}
-	
-	/**
-	 * @public
-	 * @abstract
-	 * @return {String}
-	 */
-	AbstractMessage.prototype.getFormattedMessage = function(){
-		return null
-	}
-	
-	/**
-	 * @public
-	 */
-	AbstractMessage.prototype.getParameters = function(){
-		return this.parameters
-	}
-	
-	/**
-	 * @public
-	 * @return {Error}
-	 */
-	AbstractMessage.prototype.getThrowable = function(){
-		return this.throwable
-	}
-}())
-
-/**
- * @public
- * @constructor
- * @extends {AbstractMessage}
- * @param {String} message
- * @param {*...} params
- *
- * @properties={typeid:24,uuid:"4095E81F-AF1B-4CF8-85BF-25C03B7C7B51"}
- */
-function StringFormattedMessage(message, params) {
-	if (!(this instanceof StringFormattedMessage)) {
-		return new StringFormattedMessage(message, params)
-	}
-	AbstractMessage.apply(this, arguments)
-	
-	/** @protected */
-	this.formattedMessage = null
-
-}
-
-/**
- * @private
- * @SuppressWarnings(unused)
- * @properties={typeid:35,uuid:"A7691A61-E4B9-4707-9034-8DDDACF36A3B",variableType:-4}
- */
-var initStringformattedMessage = (function() {
-	StringFormattedMessage.prototype = Object.create(AbstractMessage.prototype)
-	StringFormattedMessage.prototype.constructor = StringFormattedMessage
-	
-	StringFormattedMessage.prototype.getFormattedMessage = function() {
-		return utils.stringFormat(this.format, this.parameters)
-	}
-}())
-
-/**
- * TODO: samples & docs
- * @public
- * @constructor 
- * @extends {AbstractMessage}
- * @param {String} message
- * @param {*...} params
- *
- * @properties={typeid:24,uuid:"2B246023-42C8-45AB-8C18-C8D34E416741"}
- */
-function ParameterizedMessage(message, params) {
-	if (!(this instanceof ParameterizedMessage)) {
-		return new ParameterizedMessage(message, params)
-	}
-	AbstractMessage.apply(this, arguments)
-	
-	/** @protected */
-	this.formattedMessage = null
-}
-
-/** 
- * @private
- * @SuppressWarnings(unused)
- * @properties={typeid:35,uuid:"F678ABD1-57B4-4319-9772-F084F223BAF6",variableType:-4}
- */
-var initParameterizedMessage = (function() {
-	ParameterizedMessage.prototype = Object.create(AbstractMessage.prototype)
-	ParameterizedMessage.prototype.constructor = ParameterizedMessage
-
-	/**
-	 * TODO license message, see http://logging.apache.org/log4j/2.x/log4j-api/apidocs/src-html/org/apache/logging/log4j/message/ParameterizedMessage.html#line.31
-	 * @this {ParameterizedMessage}
-	 */
-	ParameterizedMessage.prototype.getFormattedMessage = function() {
-		if (this.formattedMessage === null) {
-			
-			if (this.format == null || this.parameters == null || this.parameters.length == 0) {
-                return this.formattedMessage = this.format;
-            }
-			var messagePattern = this.format
-    
-            var DELIM_START = '{';
-            var DELIM_STOP = '}';
-            var ESCAPE_CHAR = '\\';
-            
-            var result = ''
-            var escapeCounter = 0;
-            var currentArgument = 0;
-            for (var i = 0; i < messagePattern.length; i++) {
-                var curChar = messagePattern.charAt(i);
-                if (curChar == ESCAPE_CHAR) {
-                    escapeCounter++;
-                } else {
-                    if (curChar == DELIM_START) {
-                        if (i < messagePattern.length - 1) {
-                            if (messagePattern.charAt(i + 1) == DELIM_STOP) {
-                                // write escaped escape chars
-                                var escapedEscapes = escapeCounter / 2;
-                                for (var j = 0; j < escapedEscapes; j++) {
-                                    result += ESCAPE_CHAR;
-                                }
-    
-                                if (escapeCounter % 2 == 1) {
-                                    // i.e. escaped
-                                    // write escaped escape chars
-                                    result += DELIM_START;
-                                    result += DELIM_STOP;
-                                } else {
-                                    // unescaped
-                                    if (currentArgument < this.parameters.length) {
-                                        result += this.parameters[currentArgument];
-                                    } else {
-                                        result += DELIM_START + DELIM_STOP;
-                                    }
-                                    currentArgument++;
-                                }
-                                i++;
-                                escapeCounter = 0;
-                                continue;
-                            }
-                        }
-                    }
-                    // any other char beside ESCAPE or DELIM_START/STOP-combo
-                    // write unescaped escape chars
-                    if (escapeCounter > 0) {
-                        for (j = 0; j < escapeCounter; j++) {
-                            result += ESCAPE_CHAR;
-                        }
-                        escapeCounter = 0;
-                    }
-                    result += curChar;
-                }
-            }
-            this.formattedMessage = result
-			//-------------------
-		}
-		return this.formattedMessage
-	}
-}())
-
-/**
- * @public
- * @constructor 
- * @extends {AbstractMessage}
- *
- * @properties={typeid:24,uuid:"3BA243D7-8B29-40BC-B03B-C42A1C9ED1FA"}
- */
-function SimpleMessage(message) {
-	if (!(this instanceof SimpleMessage)) {
-		return new SimpleMessage(message)
-	}
-	AbstractMessage.apply(this, arguments)
-}
-
-/**
- * @private
- * @SuppressWarnings(unused)
- *
- * @properties={typeid:35,uuid:"2BAE5202-1155-4923-B40F-72A7ADF26F77",variableType:-4}
- */
-var initSimpleMessage = (function() {
-	SimpleMessage.prototype = Object.create(AbstractMessage.prototype)
-	SimpleMessage.prototype.constructor = SimpleMessage
-	
-	SimpleMessage.prototype.getFormattedMessage = function() {
-		return this.format
-	}
-}())
-
-/**
- * @public
- * @constructor 
- * @extends {AbstractMessage}
- *
- * @properties={typeid:24,uuid:"835EDA8E-FE17-4746-8D30-EDDFFE3DFF95"}
- */
-function ObjectMessage(object) {
-	if (!(this instanceof ObjectMessage)) {
-		return new ObjectMessage(object)
-	}
-	AbstractMessage.apply(this, arguments)
-}
-
-/**
- * @private
- * @SuppressWarnings(unused)
- *
- * @properties={typeid:35,uuid:"6D980F77-FB92-475E-8895-6BA8C01B59A0",variableType:-4}
- */
-var initObjectMessage = (function() {
-	ObjectMessage.prototype = Object.create(AbstractMessage.prototype)
-	ObjectMessage.prototype.constructor = ObjectMessage
-	
-	ObjectMessage.prototype.getFormat = function() {
-		return typeof this.format.toString === 'function' ? this.format.toString() : '' + this.format
-	}
-	
-	ObjectMessage.prototype.getFormattedMessage = function() {
-		return typeof this.format.toString === 'function' ? this.format.toString() : '' + this.format
-	}
-
-	ObjectMessage.prototype.getParameters = function() {
-		return [this.format]
-	}
-	
-	ObjectMessage.prototype.getThrowable = function() {
-		return (this.format instanceof Error || this.format instanceof ServoyException) ? this.format : null
-	}
-}())
-
-/* -------------------------------MessageFactory--------------------------------------- */
-/**
- * @public 
- * @constructor 
- * @abstract
- * 
- * @properties={typeid:24,uuid:"D24859FB-64E3-48D0-AC00-D48824496F3A"}
- */
-function AbstractMessageFactory() {}
-
-/**
- * @private
- * @SuppressWarnings(unused)
- *
- * @properties={typeid:35,uuid:"CA03143B-DE1F-40FE-9F21-7F6AD3DF03EF",variableType:-4}
- */
-var initAbstractMessageFactory = (function() {
-	/**
-	 * @public 
-	 * @param {String|Object|*} message 
-	 * @param {Error|ServoyException|*...} [messageParamsOrException]
-	 * @return {AbstractMessage}
-	 */
-	AbstractMessageFactory.prototype.newMessage = function(message, messageParamsOrException) {
-		if (arguments.length == 1) {
-			if (typeof message === 'string') {
-				return new SimpleMessage(message)
-			} else {
-				return new ObjectMessage(message)
-			}
-		} else {
-			return this.newFormattedMessage.apply(this, arguments)
-		}
-	}
-	
-	/**
-	 * @abstract
-	 * @protected
-	 * @param {String|Object|*} message 
-	 * @param {Error|ServoyException|*...} messageParamsOrException
-	 * @return {AbstractMessage}
-	 */
-	AbstractMessageFactory.prototype.newFormattedMessage = function(message, messageParamsOrException) {
-		return null;
-	}
-}())
-
-/**
- * @public 
- * @constructor 
- * @extends {AbstractMessageFactory}
- *
- * @properties={typeid:24,uuid:"49D8E274-D50C-4423-BF8D-957EE60414C6"}
- */
-function ParameterizedMessageFactory() {
-	if (!(this instanceof ParameterizedMessageFactory)) {
-		return new ParameterizedMessageFactory()
-	}
-}
-
-/**
- * @private
- * @SuppressWarnings(unused)
- *
- * @properties={typeid:35,uuid:"AEB56CA1-2987-4510-940A-B7201936986D",variableType:-4}
- */
-var initParameterizedMessageFactory = (function() {
-	ParameterizedMessageFactory.prototype = Object.create(AbstractMessageFactory.prototype)
-	ParameterizedMessageFactory.prototype.constructor = ParameterizedMessageFactory
-
-	ParameterizedMessageFactory.prototype.newFormattedMessage = function(message, params){
-		return scopes.svyJSUtils.dynamicConstructorInvoker(ParameterizedMessage, Array.prototype.slice.call(arguments))
-	}
-}())
-
-/**
- * @private
- * @type {AbstractMessageFactory}
- * @properties={typeid:35,uuid:"87FC8503-D5E5-4BB7-B777-3CC94617BAD7",variableType:-4}
- */
-var defaultMessageFactory = new ParameterizedMessageFactory()
 
 /* -------------------------------LogPlugin prototype--------------------------------------- */
 /**
