@@ -248,6 +248,50 @@ function zip(fileToZip, targetFile, filenamesToStoreUncompressed) {
 }
 
 /**
+ * Creates a MD5 or SHA1 hash of a given file
+ * 
+ * @version 6.0
+ * @since Sep 12, 2014
+ * @author patrick
+ * 
+ * @param {String|plugins.file.JSFile} file - the file to calculate a hash for
+ * @param {String} [algorithm] - either MD5 or SHA1 (default)
+ * 
+ * @return {String} hash
+ *
+ * @properties={typeid:24,uuid:"02BA9E89-FD80-4C2A-AE16-4CE3F105302C"}
+ */
+function calculateHash(file, algorithm) {
+	if (!algorithm) algorithm = "SHA1";
+	if (algorithm != "SHA1" && algorithm != "MD5") return null;
+
+	try {
+		var jsSourceFile;
+		if (file instanceof String) {
+			jsSourceFile = plugins.file.convertToJSFile(file);
+		} else {
+			jsSourceFile = file;
+		}
+		
+		if (!jsSourceFile.exists()) return null;
+
+		var md = java.security.MessageDigest.getInstance(algorithm);
+		md.update(jsSourceFile.getBytes());
+		var digestBytes = md.digest();
+
+		var HEXES = "0123456789abcdef";
+		var hex = new java.lang.StringBuilder(2 * digestBytes.length);
+		for (var i = 0; i < digestBytes.length; i++) {
+			hex.append(HEXES.charAt( (digestBytes[i] & 0xF0) >> 4)).append(HEXES.charAt( (digestBytes[i] & 0x0F)));
+		}
+
+		return hex.toString();
+	} catch (e) {
+		return null;
+	}
+}
+
+/**
  * Copies streams
  * 
  * @param {java.nio.channels.ReadableByteChannel} src
