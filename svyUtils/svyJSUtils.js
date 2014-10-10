@@ -46,6 +46,91 @@ function objectHasValue(object, value) {
 }
 
 /**
+ * Determines if two objects or two values are equivalent. Supports value types, regular expressions, arrays and
+ * objects.
+ *
+ * <p>Two objects or values are considered equivalent if at least one of the following is true:</p><p><ul>
+ *
+ * <li>Both objects or values pass `===` comparison.</li>
+ * <li>Both objects or values are of the same type and all of their properties pass `===` comparison.</li>
+ * <li>Both values are NaN. (In JavasScript, NaN == NaN => false. But we consider two NaN as equal)
+ * <li>Both values represent the same regular expression (In JavasScript,
+ *   /abc/ == /abc/ => false. But we consider two regular expressions as equal when their textual
+ *   representation matches).</li>
+ * </ul></p><p>
+ * During a property comparison, properties of type "function" type are ignored.</p>
+ * 
+ * @version 6.0
+ * @since Oct 10, 2014
+ * @author patrick
+ *
+ * @param {*} o1
+ * @param {*} o2
+ *
+ * @properties={typeid:24,uuid:"4E1F1471-1A86-4E12-8AF8-DDD2E7171ECF"}
+ */
+function areObjectsEqual(o1, o2) {
+	if (o1 === o2) return true;
+	if (o1 === null || o2 === null) return false;
+	if (o1 !== o1 && o2 !== o2) return true; // NaN === NaN
+	var t1 = typeof o1, t2 = typeof o2, length, keySet;
+	/** @type {String} */
+	var key;
+	if (t1 == t2) {
+		if (t1 == 'object') {
+			if (o1 instanceof Array) {
+				if (! (o2 instanceof Array)) return false;
+				if ( (length = o1.length) == o2.length) {
+					for (key = 0; key < length; key++) {
+						if (!areObjectsEqual(o1[key], o2[key])) return false;
+					}
+					return true;
+				}
+			} else if (o1 instanceof Date) {
+				return (o2 instanceof Date) && o1.getTime() == o2.getTime();
+			} else if (o1 instanceof RegExp && o2 instanceof RegExp) {
+				return o1.toString() == o2.toString();
+			} else {
+				keySet = { };
+				for (key in o1) {
+					if (o1[key] instanceof Function) continue;
+					if (!areObjectsEqual(o1[key], o2[key])) return false;
+					keySet[key] = true;
+				}
+				for (key in o2) {
+					if (!keySet.hasOwnProperty(key) && o2[key] !== undefined && ! (o2[key] instanceof Function)) return false;
+				}
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+/**
+ * Creates an array containing all property names from a given object<p>
+ * 
+ * {lastName: "Doe", firstName: "John"} will result in ["lastName", "firstName"]
+ * 
+ * @version 6.0
+ * @since Oct 10, 2014
+ * @author patrick
+ *
+ * @param {Object} obj
+ *
+ * @properties={typeid:24,uuid:"21F90E6F-EF40-45F9-9DCC-28FA1514A42A"}
+ */
+function createPropertyArrayFromObject(obj) {
+	var result = [];
+	if (!obj) return result;
+	for (var i in obj) {
+		result.push(i);
+	}
+	return result;
+}
+
+
+/**
  * Helper function for dynamically calling a constructor function with arguments
  * 
  * @see http://stackoverflow.com/questions/3362471/how-can-i-call-a-javascript-constructor-using-call-or-apply
