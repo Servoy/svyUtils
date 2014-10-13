@@ -51,9 +51,12 @@ function objectHasValue(object, value) {
  *
  * <p>Two objects or values are considered equivalent if at least one of the following is true:</p><p><ul>
  *
- * <li>Both objects or values pass `===` comparison.</li>
- * <li>Both objects or values are of the same type and all of their properties pass `===` comparison.</li>
- * <li>Both values are NaN. (In JavasScript, NaN == NaN => false. But we consider two NaN as equal)
+ * <li>Both objects or values pass "===" comparison.</li>
+ * <li>Both objects or values are of the same type and all of their properties pass "===" comparison.</li>
+ * <li>Both values are NaN. (In JavasScript, NaN == NaN => false. But we consider two NaN as equal)</li>
+ * <li>Both values are JSDataSets with the same content</li>
+ * <li>Both values are JSFoundSets with the same records</li>
+ * <li>Both values are UUIDs with the same value</li>
  * <li>Both values represent the same regular expression (In JavasScript,
  *   /abc/ == /abc/ => false. But we consider two regular expressions as equal when their textual
  *   representation matches).</li>
@@ -88,17 +91,35 @@ function areObjectsEqual(o1, o2) {
 				}
 			} else if (o1 instanceof Date) {
 				return (o2 instanceof Date) && o1.getTime() == o2.getTime();
+			} else if (o1 instanceof UUID) {
+				return (o2 instanceof UUID) && o1.toString() == o2.toString();
 			} else if (o1 instanceof RegExp && o2 instanceof RegExp) {
 				return o1.toString() == o2.toString();
+			} else if (o1 instanceof JSDataSet) {
+				if (! (o2 instanceof JSDataSet)) return false;
+				if (o1.getMaxRowIndex() == o2.getMaxRowIndex) {
+					for (var i = 1; i <= o1.getMaxRowIndex(); i++) {
+						if (!areObjectsEqual(o1.getRowAsArray(i), o2.getRowAsArray(i))) return false;
+					}
+					return true;
+				}
+			} else if (o1 instanceof JSFoundSet) {
+				if (! (o2 instanceof JSFoundSet)) return false;
+				if (o1.getSize() == o2.getSize()) {
+					for (var f = 1; f <= o1.getSize(); f++) {
+						if (!areObjectsEqual(o1.getRecord(f).getPKs(), o2.getRecord(f).getPKs())) return false;
+					}
+					return true;
+				}
 			} else {
 				keySet = { };
 				for (key in o1) {
-					if (o1[key] instanceof Function) continue;
+					if (o1[key] instanceof Function || (typeof (o1[key]) == "function")) continue;
 					if (!areObjectsEqual(o1[key], o2[key])) return false;
 					keySet[key] = true;
 				}
 				for (key in o2) {
-					if (!keySet.hasOwnProperty(key) && o2[key] !== undefined && ! (o2[key] instanceof Function)) return false;
+					if (!keySet.hasOwnProperty(key) && o2[key] !== undefined && ! (o2[key] instanceof Function || (typeof (o2[key]) == "function"))) return false;
 				}
 				return true;
 			}

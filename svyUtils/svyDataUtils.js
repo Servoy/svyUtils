@@ -45,41 +45,23 @@ function pivotJSDataSet(dataset) {
  * @param {JSDataSet} main
  * @param {JSDataSet} addition
  * @return {JSDataSet} New JSDataSet containing all rowns from main joined with all rows from addition.
- *
- * @SuppressWarnings(deprecated)
+ * 
  * @properties={typeid:24,uuid:"72E868A3-A03C-417C-BBC8-2980A55E5116"}
  */
 function concatenateJSDataSets(main, addition) {
-	if (!(main instanceof JSDataSet && addition instanceof JSDataSet)) {
+	if (! (main instanceof JSDataSet && addition instanceof JSDataSet)) {
 		throw new scopes.svyExceptions.IllegalArgumentException('Supplied arguments are not both instances of JSDataSet')
 	}
 
-	var newDS = databaseManager.createEmptyDataSet(0, getJSDataSetColumnNames(main)); //TODO: refactor to use JSDataSet.getColumnNames in version 6.0
+	var newDS = databaseManager.createEmptyDataSet(0, main.getColumnNames());
 	for (var i = 1; i <= main.getMaxRowIndex(); i++) {
 		newDS.addRow(main.getRowAsArray(i))
 	}
-	
+
 	for (i = 1; i <= addition.getMaxRowIndex(); i++) {
-		newDS.addRow(addition.getRowAsArray(i).slice(0,main.getMaxColumnIndex()))
+		newDS.addRow(addition.getRowAsArray(i).slice(0, main.getMaxColumnIndex()))
 	}
 	return newDS
-}
-
-/**
- * Returns an Array with the column names of the specified JSDataSet
- * @deprecated Use {@link JSDataSet#getColumnNames} instead. Will be removed in version 6
- * 
- * @param {JSDataSet} dataset
- * 
- * @return {Array<String>}
- *
- * @properties={typeid:24,uuid:"DEF5A3BA-B9B9-4599-BB49-665AED2DFDB5"}
- */
-function getJSDataSetColumnNames(dataset) {
-	if (!(dataset instanceof JSDataSet)) {
-		throw new scopes.svyExceptions.IllegalArgumentException('Supplied argument is not an instance of JSDataSet')
-	}
-	return dataset.getColumnNames();
 }
 
 /**
