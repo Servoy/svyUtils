@@ -344,26 +344,31 @@ function deepCopyJSForm(newFormName, original, prefix) {
  * @param {Number} dividerSize
  * @param {Boolean} continuousLayout
  * @param {String} [bgColor] If omitted, the SplitPane will be made transparent
+ * @param {Number} [leftFormMinSize] Minimum size of the left/top form
+ * @param {Number} [rightFormMinSize] Minimum size of the right/bottom form
  * 
  * @properties={typeid:24,uuid:"B94825F2-EB16-49FD-BEBB-AA9A10EF65C1"}
  */
-function initSplitPane(formName, elementName, resizeWeight, dividerLocation, dividerSize, continuousLayout, bgColor) {
+function initSplitPane(formName, elementName, resizeWeight, dividerLocation, dividerSize, continuousLayout, bgColor, leftFormMinSize, rightFormMinSize) {
 	/** @type {RuntimeSplitPane} */
 	var splitPane = forms[formName].elements[elementName]
 
-	if (!(splitPane instanceof RuntimeSplitPane)) return;
-	
-	if (resizeWeight) 		splitPane.resizeWeight = resizeWeight
-	if (dividerLocation) 	restoreSplitPaneDividerPosition(formName, elementName, dividerLocation)
-	if (dividerSize)		splitPane.dividerSize = dividerSize
-	if (continuousLayout)	splitPane.continuousLayout = continuousLayout
+	if (! (splitPane instanceof RuntimeSplitPane)) return;
+
+	if (resizeWeight) splitPane.resizeWeight = resizeWeight
+	if (dividerLocation) restoreSplitPaneDividerPosition(formName, elementName, dividerLocation)
+	if (dividerSize) splitPane.dividerSize = dividerSize
+	if (continuousLayout) splitPane.continuousLayout = continuousLayout
 	if (bgColor && bgColor != 'transparent') {
 		splitPane.transparent = false
 		splitPane.bgcolor = bgColor
 	} else {
 		splitPane.transparent = true
 	}
+	if (leftFormMinSize) splitPane.leftFormMinSize = leftFormMinSize
+	if (rightFormMinSize) splitPane.rightFormMinSize = rightFormMinSize
 }
+
 
 /**
  * Persists the position of the splitpane divider to be used by {@link #restoreSplitPaneDividerPosition()} in a next user session
