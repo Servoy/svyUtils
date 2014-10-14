@@ -255,15 +255,14 @@ function zip(fileToZip, targetFile, filenamesToStoreUncompressed) {
  * @author patrick
  * 
  * @param {String|plugins.file.JSFile} file - the file to calculate a hash for
- * @param {String} [algorithm] - either MD5 or SHA1 (default)
+ * @param {String} [algorithm] - one of the HASH_ALGORITHM constants, defaults to SHA1
  * 
  * @return {String} hash
  *
  * @properties={typeid:24,uuid:"02BA9E89-FD80-4C2A-AE16-4CE3F105302C"}
  */
 function calculateHash(file, algorithm) {
-	if (!algorithm) algorithm = "SHA1";
-	if (algorithm != "SHA1" && algorithm != "MD5") return null;
+	if (!algorithm) algorithm = "SHA-1";
 
 	try {
 		var jsSourceFile;
@@ -287,8 +286,24 @@ function calculateHash(file, algorithm) {
 
 		return hex.toString();
 	} catch (e) {
+		log.error("Error calculating Hash for file \"" + file.getAbsolutePath() + "\": " + e.message);
 		return null;
 	}
+}
+
+/**
+ * Hash algorithms that are supported in calculateHash()
+ * @enum
+ *
+ * @properties={typeid:35,uuid:"DA2141EB-E8D0-431D-9241-0392E2051BC9",variableType:-4}
+ */
+var HASH_ALGORITHM = {
+	MD2: "MD2",	
+	MD5: "MD5",
+	SHA1: "SHA-1",
+	SHA256: "SHA-256",
+	SHA384: "SHA-384",	
+	SHA512: "SHA-512"
 }
 
 /**
