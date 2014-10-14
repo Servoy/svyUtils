@@ -129,29 +129,6 @@ function areObjectsEqual(o1, o2) {
 }
 
 /**
- * Creates an array containing all property names from a given object<p>
- * 
- * {lastName: "Doe", firstName: "John"} will result in ["lastName", "firstName"]
- * 
- * @version 6.0
- * @since Oct 10, 2014
- * @author patrick
- *
- * @param {Object} obj
- *
- * @properties={typeid:24,uuid:"21F90E6F-EF40-45F9-9DCC-28FA1514A42A"}
- */
-function createPropertyArrayFromObject(obj) {
-	var result = [];
-	if (!obj) return result;
-	for (var i in obj) {
-		result.push(i);
-	}
-	return result;
-}
-
-
-/**
  * Helper function for dynamically calling a constructor function with arguments
  * 
  * @see http://stackoverflow.com/questions/3362471/how-can-i-call-a-javascript-constructor-using-call-or-apply
