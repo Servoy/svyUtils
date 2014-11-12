@@ -2,10 +2,10 @@ svyUtils
 ========
 'svyUtils' is a module of the Servoy Business Application Platform. It provides a wide range of low-level utility methods and application concepts for Servoy solutions
 
-
 Install
 -------------
-To use the svyUtils modules download the [svyUtilsXXX.servoy]() files and import it into your workspace. Add the svyUtils modules into the modules of your solution for using them.
+To use the svyUtils modules download the [svyUtils.servoy]() files and import them into your workspace. Add the svyUtils modules to the active solution to start using them.
+
 To use the latest source code clone the git repository and checkout the develop branch. Install the [egit](http://www.eclipse.org/egit/download/) plugin for Eclipse to clone the repository and import the projects into the workspace.
 
 
