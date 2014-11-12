@@ -4,7 +4,7 @@ svyUtils
 
 Install
 -------------
-To use the svyUtils modules download the [svyUtils.servoy]() files and import them into your workspace. Add the svyUtils modules to the active solution to start using them.
+To use the svyUtils modules download the [svyUtils.zip](https://github.com/Servoy/svyUtils/releases) file extract the .servoy files and import them into your workspace. Add the svyUtils modules to the active solution to start using them.
 
 To use the latest source code clone the git repository and checkout the develop branch. Install the [egit](http://www.eclipse.org/egit/download/) plugin for Eclipse to clone the repository and import the projects into the workspace.
 
