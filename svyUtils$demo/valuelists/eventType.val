@@ -1,0 +1,7 @@
+addEmptyValue:1,
+customValues:"SAMPLE EVENT|sampleEvent\
+MY CUSTOM EVENT|myCustomEvent\
+",
+name:"eventType",
+typeid:34,
+uuid:"78F19CB2-9E23-41D7-AA54-AED6BCE83442"

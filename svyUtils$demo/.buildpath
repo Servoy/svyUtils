@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<buildpath>
+	<buildpathentry excluding=".stp/|medias/" kind="src" path=""/>
+	<buildpathentry exported="true" kind="prj" path="/svyUtils"/>
+	<buildpathentry exported="true" kind="prj" path="/svyUtils$Excel"/>
+	<buildpathentry exported="true" kind="prj" path="/svyUtils$smartClient"/>
+	<buildpathentry exported="true" kind="prj" path="/svyUtils$unitTest"/>
+	<buildpathentry exported="true" kind="prj" path="/svyUtils$webClient"/>
+</buildpath>
