@@ -2,7 +2,7 @@ encapsulation:60,
 items:[
 {
 background:"#ffffff",
-height:339,
+height:465,
 partType:5,
 typeid:19,
 uuid:"02A718F0-D0DD-4890-B7D5-4F19FE2E71CB"
@@ -10,19 +10,50 @@ uuid:"02A718F0-D0DD-4890-B7D5-4F19FE2E71CB"
 {
 dataProviderID:"text",
 displayType:1,
-location:"129,121",
+location:"129,181",
 size:"363,80",
 typeid:4,
 uuid:"043A3022-A829-4051-920E-8A6ACFBDCEAA"
 },
 {
-location:"513,151",
+formIndex:7,
+location:"300,144",
+name:"labelError",
+size:"395,20",
+text:"you must specify a valid datasource in order to use the DBLogger",
+transparent:true,
+typeid:7,
+uuid:"04A760CF-2E51-420C-A2CE-CA50991FF2C7",
+visible:false
+},
+{
+formIndex:1,
+location:"25,144",
+size:"98,20",
+text:"DB Logger",
+transparent:true,
+typeid:7,
+uuid:"12B8FB4B-5E94-4C92-BF11-3F7ACAD60F77"
+},
+{
+location:"513,211",
 onActionMethodID:"6D5E5A76-03EF-485C-8667-46ABC24C8EA2",
 onDoubleClickMethodID:"-1",
 onRightClickMethodID:"-1",
 text:"warning",
 typeid:7,
 uuid:"49D81EFA-0011-4532-ADAE-810BB675DE5A"
+},
+{
+dataProviderID:"DBLogEnabled",
+displayType:4,
+formIndex:6,
+location:"139,144",
+onDataChangeMethodID:"ED9003C2-1A30-4E2D-842B-0E9369728ED5",
+text:"is enabled",
+transparent:true,
+typeid:4,
+uuid:"5B97830A-CCD1-433D-8FDF-CEF87F8BB7B8"
 },
 {
 fontType:"Segoe UI,0,26",
@@ -34,7 +65,7 @@ typeid:7,
 uuid:"5BC10646-FF18-4F50-AD60-1A5710797C05"
 },
 {
-location:"26,216",
+location:"26,276",
 size:"670,20",
 text:"In Developer: check the developer console",
 transparent:true,
@@ -42,7 +73,26 @@ typeid:7,
 uuid:"63E521C8-9699-47F2-86D5-8EB231EB32CA"
 },
 {
-location:"25,121",
+dataProviderID:"fileLogEnabled",
+displayType:4,
+formIndex:6,
+location:"139,114",
+text:"is enabled",
+transparent:true,
+typeid:4,
+uuid:"883181D9-6282-4D7D-8E9B-08BFBADA4107"
+},
+{
+formIndex:1,
+location:"25,114",
+size:"98,20",
+text:"File Logger",
+transparent:true,
+typeid:7,
+uuid:"8A8A272D-00BE-4ABB-B494-4D38D99C1BEC"
+},
+{
+location:"25,181",
 size:"84,20",
 text:"log message",
 transparent:true,
@@ -50,7 +100,7 @@ typeid:7,
 uuid:"D3E08E6B-93F1-4FD9-8972-EF948B0F8FF6"
 },
 {
-location:"25,246",
+location:"25,306",
 size:"670,20",
 text:"In Application Server: check the server log in the admin page",
 transparent:true,
@@ -58,7 +108,7 @@ typeid:7,
 uuid:"DEC4746F-1447-4483-BD93-C679021F7755"
 },
 {
-location:"513,181",
+location:"513,241",
 onActionMethodID:"74EEF732-DFF6-4002-B2F4-E1E4B977C612",
 onDoubleClickMethodID:"-1",
 onRightClickMethodID:"-1",
@@ -67,7 +117,7 @@ typeid:7,
 uuid:"EB888266-6CC5-47EC-A74E-4E393A2C207F"
 },
 {
-location:"513,121",
+location:"513,181",
 onActionMethodID:"051E959D-54F0-417F-93F2-E460354DE393",
 onDoubleClickMethodID:"-1",
 onRightClickMethodID:"-1",
@@ -78,6 +128,7 @@ uuid:"EDF6CF38-2FB9-4DAF-9840-7344C3399620"
 ],
 name:"logManager",
 navigatorID:"-1",
+onLoadMethodID:"-1",
 showInMenu:true,
 size:"717,480",
 typeid:3,

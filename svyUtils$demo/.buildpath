@@ -3,6 +3,7 @@
 	<buildpathentry excluding=".stp/|medias/" kind="src" path=""/>
 	<buildpathentry exported="true" kind="prj" path="/svyUtils"/>
 	<buildpathentry exported="true" kind="prj" path="/svyUtils$Excel"/>
+	<buildpathentry exported="true" kind="prj" path="/svyUtils$logManagerAppenders"/>
 	<buildpathentry exported="true" kind="prj" path="/svyUtils$smartClient"/>
 	<buildpathentry exported="true" kind="prj" path="/svyUtils$unitTest"/>
 	<buildpathentry exported="true" kind="prj" path="/svyUtils$webClient"/>
