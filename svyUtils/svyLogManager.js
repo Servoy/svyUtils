@@ -200,15 +200,11 @@ function getExceptionStringRep(ex) {
  *  		name: String,
  *  		level: String=,
  *  		additivity: boolean=,
- *  		AppenderRef: {
- *  			ref: String
- *  		}=
+ *  		AppenderRef: {ref:String}|Array<{ref:String}>=
  *  	}>=,
  *  	root: {
  *  		level: String,
- *  		AppenderRef: {
- *  			ref: String
- *  		}
+ *  		AppenderRef: {ref:String}|Array<{ref:String}>=
  *  	}
  *  }
  * }}
@@ -345,15 +341,30 @@ function loadConfig(configuration) {
 	rl.setAdditivity(false)
 	rl.removeAllAppenders()
 	if (rootLoggerConfig.AppenderRef) {
-		var appender
-		if (rootLoggerConfig.AppenderRef.hasOwnProperty('ref')) {
-			appender = getAppenderForRef(rootLoggerConfig.AppenderRef)
+		/** @type {Array<AbstractAppender>} */
+		var appenders = [];
+		if (rootLoggerConfig.AppenderRef instanceof Array) {
+			/** @type {Array<{ref: string}>} */
+			var rootAppenders = rootLoggerConfig.AppenderRef;
+			for (var raps = 0; raps < rootAppenders.length; raps++) {
+				if (!rootAppenders[raps].hasOwnProperty('ref')) {
+					statusLogger.error("'ref' attribute not specified on Appender configured for Logger '{}'", loggerConfig.name)
+					continue
+				}
+				appenders.push(getAppenderForRef(rootAppenders[raps]));
+			}
+		} else if (rootLoggerConfig.AppenderRef.hasOwnProperty('ref')) {
+			/** @type {{ref: String}} */
+			var rootAppenderRef = rootLoggerConfig.AppenderRef;
+			appenders.push(getAppenderForRef(rootAppenderRef));
 		} else {
 			statusLogger.error("'ref' attribute not specified on Appender configured for ROOTLOGGER. Using default Appender config for RootLogger instead")
-			appender = getAppenderForRef(defaultConfig.loggers.root.AppenderRef)
+			appenders.push(getAppenderForRef(defaultConfig.loggers.root.AppenderRef))
 		}
-		if (appender) {
-			rl.addAppender(appender)
+		if (appenders.length > 0) {
+			for (var ap = 0; ap < appenders.length; ap++) {
+				rl.addAppender(appenders[ap]);
+			}
 		} else {
 			statusLogger.error('Couldn\'t configure the specified Appender for the ROOTLOGGER: {}. Using default config instead', JSON.stringify(rootLoggerConfig.AppenderRef))
 			rl.addAppender(getAppenderForRef(defaultConfig.loggers.root.AppenderRef))
@@ -406,11 +417,24 @@ function loadConfig(configuration) {
 		//Reconfig Appenders
 		logger.removeAllAppenders()
 		if (loggerConfig.hasOwnProperty('AppenderRef')) {
-			if (!loggerConfig.AppenderRef.hasOwnProperty('ref')) {
+			if (loggerConfig.AppenderRef instanceof Array) {
+				/** @type {Array<{ref: string}>} */
+				var loggerAppenders = loggerConfig.AppenderRef;
+				for (var aps = 0; aps < loggerAppenders.length; aps++) {
+					if (!loggerAppenders[aps].hasOwnProperty('ref')) {
+						statusLogger.error("'ref' attribute not specified on Appender configured for Logger '{}'", loggerConfig.name)
+						continue
+					}
+					logger.addAppender(getAppenderForRef(loggerAppenders[aps]));
+				}
+			} else if (!loggerConfig.AppenderRef.hasOwnProperty('ref')) {
 				statusLogger.error("'ref' attribute not specified on Appender configured for Logger '{}'", loggerConfig.name)
 				continue
+			} else {
+				/** @type {{ref: String}} */
+				var appenderRef = loggerConfig.AppenderRef;
+				logger.addAppender(getAppenderForRef(appenderRef))
 			}
-			logger.addAppender(getAppenderForRef(loggerConfig.AppenderRef))
 		}
 		//Save processed Logger in order to reset non-processed loggers
 		configuredLoggerNames.push(loggerConfig.name)
@@ -1632,7 +1656,17 @@ function getLogger(loggerName, messageFactory) {
 								logger.setAdditivity(logConfig.hasOwnProperty('additivity') && typeof logConfig.additivity === 'boolean' ? logConfig.additivity : true)
 								break;
 							case 'AppenderRef':
-								logger.addAppender(getAppenderForRef(logConfig.AppenderRef))
+								if (logConfig.AppenderRef instanceof Array) {
+									/** @type {Array<{ref: String}>} */
+									var appArray = logConfig.AppenderRef;
+									for (var a = 0; a < appArray.length; a++) {
+										logger.addAppender(getAppenderForRef(appArray[a]));
+									}
+								} else {
+									/** @type {{ref: String}} */
+									var appRef = logConfig.AppenderRef;				
+									logger.addAppender(getAppenderForRef(appRef))
+								}
 								break;
 							default:
 								//TODO: log unknown config keys
