@@ -56,6 +56,7 @@
  * @typedef {{
  * 	eventTimeColumnName: String, 
  * 	loggerColumnName: String=, 
+ * 	logLevelNameColumnName: String=, 
  * 	logLevelColumnName: String=, 
  * 	logMessageColumnName: String, 
  * 	userIdColumName: String=,
@@ -123,6 +124,11 @@ function DbAppender(datasource, dbMapping, userId) {
 		if (columnNames.indexOf(this.dbMapping[i]) == -1) {
 			scopes.svyLogManager.getStatusLogger().error("DbAppender couldn't find given column \"" + this.dbMapping[i] + "\" in datasource \"" + this.datasource + "\"");
 		}
+		if (i == "eventTimeColumnName" && jsTable.getColumn(this.dbMapping[i]).getType() != JSColumn.DATETIME) {
+			scopes.svyLogManager.getStatusLogger().error("DbAppender found wrong column type for column \"" + this.dbMapping[i] + "\" in datasource \"" + this.datasource + "\"; DATETIME required");
+		} else if (i == "logLevelColumnName" && jsTable.getColumn(this.dbMapping[i]).getType() != JSColumn.INTEGER) {
+			scopes.svyLogManager.getStatusLogger().error("DbAppender found wrong column type for column \"" + this.dbMapping[i] + "\" in datasource \"" + this.datasource + "\"; INTEGER required");
+		}
 	}
 }
 
@@ -150,7 +156,8 @@ var initDbAppender = (function() {
 		var record = this.foundset.getRecord(this.foundset.newRecord());
 
 		if (this.dbMapping.eventTimeColumnName) record[this.dbMapping.eventTimeColumnName] = loggingEvent.timeStamp;
-		if (this.dbMapping.logLevelColumnName) record[this.dbMapping.logLevelColumnName] = loggingEvent.level.name;
+		if (this.dbMapping.logLevelColumnName) record[this.dbMapping.logLevelColumnName] = loggingEvent.level.intLevel;
+		if (this.dbMapping.logLevelNameColumnName) record[this.dbMapping.logLevelNameColumnName] = loggingEvent.level.name;
 		if (this.dbMapping.logMessageColumnName) record[this.dbMapping.logMessageColumnName] = loggingEvent.message.getFormattedMessage();
 		if (this.dbMapping.userIdColumName && this.userId) record[this.dbMapping.userIdColumName] = this.userId;
 		if (this.dbMapping.loggerColumnName) record[this.dbMapping.loggerColumnName] = loggingEvent.logger.name;
