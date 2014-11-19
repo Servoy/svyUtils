@@ -2,6 +2,7 @@ encapsulation:60,
 items:[
 {
 anchors:15,
+borderType:"EmptyBorder,0,0,0,0",
 items:[
 {
 containsFormID:"34F8DE79-88B7-46C9-8956-EF95D04A449C",

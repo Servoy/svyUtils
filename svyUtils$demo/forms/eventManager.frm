@@ -9,6 +9,7 @@ uuid:"5926C13C-44B8-45FA-8453-9DE28C433ED6"
 },
 {
 anchors:15,
+borderType:"EmptyBorder,0,0,0,0",
 items:[
 {
 containsFormID:"13F597A8-8A76-4038-9A2D-8AE63C498412",

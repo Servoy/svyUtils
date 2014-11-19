@@ -1,15 +1,15 @@
 encapsulation:60,
 items:[
 {
-location:"25,28",
-size:"363,20",
-text:"Fire an event containing the following text message.",
+location:"25,57",
+size:"343,20",
+text:"Send notification to all listener by firing an event.",
 transparent:true,
 typeid:7,
 uuid:"15315A6E-4E3A-4E19-A173-C87DD8B1BBD7"
 },
 {
-location:"25,75",
+location:"25,104",
 size:"84,20",
 text:"Event type",
 transparent:true,
@@ -17,14 +17,23 @@ typeid:7,
 uuid:"5D054200-6EFD-4078-915F-F35139F3EE86"
 },
 {
+fontType:"Segoe UI,1,20",
+location:"25,15",
+size:"343,28",
+text:"Sender",
+transparent:true,
+typeid:7,
+uuid:"62702B15-FD3A-4620-A2F6-E3948574E306"
+},
+{
 background:"#ffffff",
-height:344,
+height:363,
 partType:5,
 typeid:19,
 uuid:"86060B8E-896F-4202-9681-D7F4E3F66872"
 },
 {
-location:"237,265",
+location:"221,294",
 onActionMethodID:"1C42198A-A160-4783-98AA-B1D464AC7C96",
 onDoubleClickMethodID:"-1",
 onRightClickMethodID:"-1",
@@ -37,8 +46,8 @@ uuid:"B32F3AA8-4176-43BA-BA34-6B39559BD86B"
 anchors:11,
 dataProviderID:"text",
 displayType:1,
-location:"25,162",
-size:"363,80",
+location:"25,191",
+size:"343,80",
 typeid:4,
 uuid:"B55A82B5-F775-4F57-8164-619B62BB3137"
 },
@@ -46,14 +55,14 @@ uuid:"B55A82B5-F775-4F57-8164-619B62BB3137"
 dataProviderID:"eventType",
 displayType:2,
 editable:false,
-location:"120,75",
+location:"120,104",
 size:"140,20",
 typeid:4,
 uuid:"B8078930-9B6C-4987-A78B-CE0BE26D5FCA",
 valuelistID:"78F19CB2-9E23-41D7-AA54-AED6BCE83442"
 },
 {
-location:"25,135",
+location:"25,164",
 size:"84,20",
 text:"Event message",
 transparent:true,
@@ -61,7 +70,7 @@ typeid:7,
 uuid:"D9BD235B-69FD-498C-9D5A-DAC5631C50CB"
 },
 {
-location:"25,105",
+location:"25,134",
 size:"84,20",
 text:"Is important",
 transparent:true,
@@ -71,7 +80,7 @@ uuid:"F0EBD117-E2D0-45BF-A178-8A3B43813001"
 {
 dataProviderID:"isImportant",
 displayType:4,
-location:"120,105",
+location:"120,134",
 transparent:true,
 typeid:4,
 uuid:"F32220C9-0EAE-4D19-BA67-EA00FF54CA32"

@@ -2,7 +2,7 @@ encapsulation:60,
 items:[
 {
 formIndex:3,
-location:"152,85",
+location:"152,123",
 size:"250,20",
 text:"register to listen for the event SampleEvent",
 transparent:true,
@@ -11,7 +11,7 @@ uuid:"03525C56-B418-40E2-A793-F73078325545"
 },
 {
 formIndex:4,
-location:"39,85",
+location:"39,123",
 onActionMethodID:"CEEB15CE-AACB-4752-8FE2-FA25D68589FD",
 onDoubleClickMethodID:"-1",
 onRightClickMethodID:"-1",
@@ -22,7 +22,7 @@ uuid:"2311857B-A048-4EA8-BC8B-689C7C30DF81"
 },
 {
 formIndex:1,
-location:"39,270",
+location:"39,308",
 size:"98,20",
 text:"Is register",
 transparent:true,
@@ -32,7 +32,7 @@ uuid:"33F2458A-24BA-407B-98EB-1525F8F6B7A3"
 {
 borderType:"TitledBorder,MyCustomEvent,4,0",
 lineSize:1,
-location:"28,189",
+location:"28,227",
 size:"399,117",
 transparent:true,
 typeid:21,
@@ -40,7 +40,7 @@ uuid:"35CCFCED-C045-422E-85D7-9331690B4BE1"
 },
 {
 formIndex:5,
-location:"153,242",
+location:"153,280",
 size:"250,20",
 text:"unregister to stop listening at the event",
 transparent:true,
@@ -49,22 +49,22 @@ uuid:"44FAA20F-C545-4812-9BF4-CDE39E86A5A8"
 },
 {
 background:"#ffffff",
-height:615,
+height:523,
 partType:5,
 typeid:19,
 uuid:"46615E1D-761A-4526-8159-4F7F020FCD70"
 },
 {
-location:"15,15",
+location:"28,57",
 size:"363,20",
-text:"Subscrive to the event to start listening",
+text:"Subscrive to the event to start listening for receiving notifications",
 transparent:true,
 typeid:7,
 uuid:"659D6E63-5174-4079-9D29-70C54C872945"
 },
 {
 formIndex:2,
-location:"39,242",
+location:"39,280",
 onActionMethodID:"4D5F209E-CBED-47CC-9F37-82CFDB6C21D9",
 onDoubleClickMethodID:"-1",
 onRightClickMethodID:"-1",
@@ -77,14 +77,14 @@ uuid:"6E9AB16E-3FA8-4121-B2CE-ED17502A2243"
 anchors:15,
 dataProviderID:"text",
 displayType:1,
-location:"15,347",
-size:"363,260",
+location:"28,385",
+size:"399,108",
 typeid:4,
 uuid:"6FEE1445-3D2C-4052-8CD2-676023266120"
 },
 {
 formIndex:3,
-location:"152,217",
+location:"152,255",
 size:"250,20",
 text:"register to listen for the event MyCustomEvent",
 transparent:true,
@@ -93,7 +93,7 @@ uuid:"82D2D3A1-B82D-45A6-BAD1-8CF735E58664"
 },
 {
 formIndex:4,
-location:"39,217",
+location:"39,255",
 onActionMethodID:"3061447F-FE8B-45FF-9914-6ACE7C578FC1",
 onDoubleClickMethodID:"-1",
 onRightClickMethodID:"-1",
@@ -104,7 +104,7 @@ uuid:"8F51D3E0-93AA-40D0-BAE7-B0AA20D7B510"
 },
 {
 formIndex:2,
-location:"39,110",
+location:"39,148",
 onActionMethodID:"649682E8-E142-4262-B297-C31D0F41F66E",
 onDoubleClickMethodID:"-1",
 onRightClickMethodID:"-1",
@@ -115,7 +115,7 @@ uuid:"923C0CE3-02B8-4D87-883A-AC5CFE97E6E5"
 },
 {
 formIndex:1,
-location:"39,138",
+location:"39,176",
 size:"98,20",
 text:"Is register",
 transparent:true,
@@ -124,7 +124,7 @@ uuid:"ABD20095-D352-4B31-AA7A-70BE4E11B336"
 },
 {
 formIndex:5,
-location:"153,110",
+location:"153,148",
 size:"250,20",
 text:"unregister to stop listening at the event",
 transparent:true,
@@ -136,17 +136,26 @@ dataProviderID:"isListeningSampleEvent",
 displayType:4,
 editable:false,
 formIndex:6,
-location:"153,138",
+location:"153,176",
 transparent:true,
 typeid:4,
 uuid:"B03D797E-DE45-4722-A95F-CB5D8400B0F6"
+},
+{
+fontType:"Segoe UI,1,20",
+location:"28,15",
+size:"363,28",
+text:"Receiver",
+transparent:true,
+typeid:7,
+uuid:"B04F88C7-B0F6-4EC5-921F-CCC2F893DC23"
 },
 {
 dataProviderID:"isListeningMyCustomEvent",
 displayType:4,
 editable:false,
 formIndex:6,
-location:"153,270",
+location:"153,308",
 transparent:true,
 typeid:4,
 uuid:"D0C074E2-106F-41EB-9492-60A37441D922"
@@ -154,16 +163,16 @@ uuid:"D0C074E2-106F-41EB-9492-60A37441D922"
 {
 borderType:"TitledBorder,Sample Event,4,0",
 lineSize:1,
-location:"28,57",
+location:"28,95",
 size:"399,117",
 transparent:true,
 typeid:21,
 uuid:"E7F863F4-7127-4B76-960D-9E97D82B567E"
 },
 {
-location:"15,322",
+location:"28,360",
 size:"130,20",
-text:"received messages",
+text:"Received messages",
 transparent:true,
 typeid:7,
 uuid:"F9843925-D0B4-45F7-9A00-D9D539F8B4EC"
@@ -174,6 +183,6 @@ navigatorID:"-1",
 onLoadMethodID:"667DE411-0AD4-4B1D-9A64-C4CB6B7C89BE",
 onUnLoadMethodID:"632856FB-D49F-4D34-A3C0-215E484C492E",
 showInMenu:true,
-size:"548,417",
+size:"466,615",
 typeid:3,
 uuid:"97FA72E2-A482-435C-929A-9C3D4DDAC597"
