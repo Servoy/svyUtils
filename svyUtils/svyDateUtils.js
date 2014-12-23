@@ -442,6 +442,34 @@ function createDateTimeSearchString(start, end) {
 }
 
 /**
+ * Creates an object with the number of days, hours, minutes and seconds between two dates
+ * 
+ * @param {Date} start
+ * @param {Date} end
+ * 
+ * @return {{difference: Number, days: Number, hours: Number, minutes: Number, seconds: Number}}
+ *
+ * @properties={typeid:24,uuid:"05B6D44D-1EEB-48A2-8E3F-AFEF07BA4117"}
+ */
+function getDateDifference(start, end) {
+	var difference = end.getTime() - start.getTime();
+	
+	var secondsInMillis = 1000;
+	var minutesInMillis = secondsInMillis * 60;
+	var hoursInMillis = minutesInMillis * 60;
+	var daysInMillis = hoursInMillis * 24;
+	
+	var elapsedDays = Math.floor(difference / daysInMillis);
+	difference = difference % daysInMillis;
+	var elapsedHours = Math.floor(difference / hoursInMillis);
+	difference = difference % hoursInMillis;
+	var elapsedMinutes = Math.floor(difference / minutesInMillis);
+	difference = difference % minutesInMillis;
+	var elapsedSeconds = Math.floor(difference / secondsInMillis);
+	return {difference: end.getTime() - start.getTime(), days: elapsedDays, hours: elapsedHours, minutes: elapsedMinutes, seconds: elapsedSeconds};
+}
+
+/**
  * Returns the date format for the default or the given locale using the given style (defaults to MEDIUM)
  * 
  * @param {DATE_FORMAT} [style]	- see DATE_FORMAT for possible styles
