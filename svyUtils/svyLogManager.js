@@ -340,11 +340,13 @@ function loadConfig(configuration) {
 	rl.setLevel(Level.toLevel(rootLoggerConfig.level, ROOT_LOGGER_DEFAULT_LEVEL))	
 	rl.setAdditivity(false)
 	rl.removeAllAppenders()
+	
+	var defaultAppenderRef
 	if (rootLoggerConfig.AppenderRef) {
-		/** @type {Array<AbstractAppender>} */
+		/** @type {Array<{appender: AbstractAppender, level: Level}>} */
 		var appenders = [];
 		if (rootLoggerConfig.AppenderRef instanceof Array) {
-			/** @type {Array<{ref: string}>} */
+			/** @type {Array<{ref: string, level: String}>} */
 			var rootAppenders = rootLoggerConfig.AppenderRef;
 			for (var raps = 0; raps < rootAppenders.length; raps++) {
 				if (!rootAppenders[raps].hasOwnProperty('ref')) {
@@ -354,7 +356,7 @@ function loadConfig(configuration) {
 				appenders.push(getAppenderForRef(rootAppenders[raps]));
 			}
 		} else if (rootLoggerConfig.AppenderRef.hasOwnProperty('ref')) {
-			/** @type {{ref: String}} */
+			/** @type {{ref: String, level: String}} */
 			var rootAppenderRef = rootLoggerConfig.AppenderRef;
 			appenders.push(getAppenderForRef(rootAppenderRef));
 		} else {
@@ -363,15 +365,17 @@ function loadConfig(configuration) {
 		}
 		if (appenders.length > 0) {
 			for (var ap = 0; ap < appenders.length; ap++) {
-				rl.addAppender(appenders[ap]);
+				rl.addAppender(appenders[ap].appender, appenders[ap].level);
 			}
 		} else {
 			statusLogger.error('Couldn\'t configure the specified Appender for the ROOTLOGGER: {}. Using default config instead', JSON.stringify(rootLoggerConfig.AppenderRef))
-			rl.addAppender(getAppenderForRef(defaultConfig.loggers.root.AppenderRef))
+			defaultAppenderRef = getAppenderForRef(defaultConfig.loggers.root.AppenderRef);
+			rl.addAppender(defaultAppenderRef.appender, defaultAppenderRef.level)
 		}
 	} else {
 		statusLogger.error('Unable to locate Appender configuration for logger ROOTLOGGER. Using default config instead')
-		rl.addAppender(getAppenderForRef(defaultConfig.loggers.root.AppenderRef))
+		defaultAppenderRef = getAppenderForRef(defaultConfig.loggers.root.AppenderRef)
+		rl.addAppender(defaultAppenderRef.appender, defaultAppenderRef.level)
 	}
 	
 	//Reset all custom loggers
@@ -416,24 +420,28 @@ function loadConfig(configuration) {
 		
 		//Reconfig Appenders
 		logger.removeAllAppenders()
+		
+		var appenderConfig
 		if (loggerConfig.hasOwnProperty('AppenderRef')) {
 			if (loggerConfig.AppenderRef instanceof Array) {
-				/** @type {Array<{ref: string}>} */
+				/** @type {Array<{ref: string, level: String}>} */
 				var loggerAppenders = loggerConfig.AppenderRef;
 				for (var aps = 0; aps < loggerAppenders.length; aps++) {
 					if (!loggerAppenders[aps].hasOwnProperty('ref')) {
 						statusLogger.error("'ref' attribute not specified on Appender configured for Logger '{}'", loggerConfig.name)
 						continue
 					}
-					logger.addAppender(getAppenderForRef(loggerAppenders[aps]));
+					appenderConfig = getAppenderForRef(loggerAppenders[aps])
+					logger.addAppender(appenderConfig.appender, appenderConfig.level);
 				}
 			} else if (!loggerConfig.AppenderRef.hasOwnProperty('ref')) {
 				statusLogger.error("'ref' attribute not specified on Appender configured for Logger '{}'", loggerConfig.name)
 				continue
 			} else {
-				/** @type {{ref: String}} */
+				/** @type {{ref: String, level: String}} */
 				var appenderRef = loggerConfig.AppenderRef;
-				logger.addAppender(getAppenderForRef(appenderRef))
+				appenderConfig = getAppenderForRef(appenderRef);
+				logger.addAppender(appenderConfig.appender, appenderConfig.level)
 			}
 		}
 		//Save processed Logger in order to reset non-processed loggers
@@ -459,9 +467,9 @@ var namedAppenders = {}
 
 /**
  * @private 
- * @param {{ref: String}} appenderRef
+ * @param {{ref: String, level: String=}} appenderRef
  * 
- * @return {AbstractAppender}
+ * @return {{appender: AbstractAppender, level: Level}}
  *
  * @properties={typeid:24,uuid:"E9083AE2-0B82-4515-88CC-58E1695D8EFF"}
  */
@@ -473,9 +481,11 @@ function getAppenderForRef(appenderRef) {
 		statusLogger.error("'ref' attribute undefined on Appender configuration")
 		return null
 	}
+	var level = appenderRef.level ? Level.toLevel(appenderRef.level) : null;
+	
 	if (namedAppenders.hasOwnProperty(appenderRef.ref)) {
 		statusLogger.trace('Existing Appender returned for {}', appenderRef.ref)
-		return namedAppenders[appenderRef.ref]
+		return {appender: namedAppenders[appenderRef.ref], level: level};
 	}
 	for (var j = 0; j < currentConfig.appenders.length; j++) {
 		var appenderConfig = currentConfig.appenders[j]
@@ -490,7 +500,7 @@ function getAppenderForRef(appenderRef) {
 				var appender = getPluginInstance(appenderConfig.type, appenderConfig)
 				namedAppenders[appenderRef.ref] = appender
 				statusLogger.trace('Created Appender of type "{}" with name "{}"', appenderConfig.type, appenderConfig.name)
-				return appender
+				return {appender: appender, level: level}
 			}
 		}
 	}
@@ -1023,9 +1033,10 @@ function LoggerConfig(name, messageFactory, logger) {
 	
 	/** 
 	 * @protected 
-	 * @type {Array<AbstractAppender>}
+	 * @type {Array<{appender: AbstractAppender, level: Level}>}
 	 * */
 	this.appenders = [];
+	
 	/**
 	 * @protected
 	 * @type {Level}
@@ -1103,11 +1114,12 @@ var initLoggerConfig = (function(){
 	 * <br>
 	 * @public
 	 * @param {AbstractAppender} appender
+	 * @param {Level} [level]
 	 */
-	LoggerConfig.prototype.addAppender = function(appender) {
+	LoggerConfig.prototype.addAppender = function(appender, level) {
 		if (appender instanceof AbstractAppender) {
 			if (!(this.appenders.indexOf(appender) != -1)) {
-				this.appenders.push(appender);
+				this.appenders.push({appender: appender, level: level ? level : null});
 				//appender.setAddedToLogger(this);
 				this.invalidateAppenderCache();
 			}
@@ -1123,7 +1135,7 @@ var initLoggerConfig = (function(){
 	LoggerConfig.prototype.getAppender = function(appenderName) {
 		var retval = null
 		this.appenders.some(function(elementValue, elementIndex, traversedArray){
-			if (elementValue.getName() == appenderName) {
+			if (elementValue.appender.getName() == appenderName) {
 				retval = elementValue
 				return true
 			}
@@ -1172,7 +1184,7 @@ var initLoggerConfig = (function(){
 	};
 
 	/**
-	 * @return {Array<AbstractAppender>}
+	 * @return {Array<{appender: AbstractAppender, level: Level}>}
 	 */
 	LoggerConfig.prototype.getEffectiveAppenders = function() {
 		if (this.appenderCache === null || this.appenderCacheInvalidated) {
@@ -1233,7 +1245,10 @@ var initLoggerConfig = (function(){
 
 		var effectiveAppenders = this.getEffectiveAppenders();
 		for (var i = 0; i < effectiveAppenders.length; i++) {
-			effectiveAppenders[i].doAppend(loggingEvent);
+			var effectiveAppender = effectiveAppenders[i];
+			if (!effectiveAppender.level || (loggingEvent.level.intLevel >= effectiveAppender.level.intLevel)) {
+				effectiveAppender.appender.doAppend(loggingEvent);
+			}
 		}
 	}
 	
@@ -1657,15 +1672,17 @@ function getLogger(loggerName, messageFactory) {
 								break;
 							case 'AppenderRef':
 								if (logConfig.AppenderRef instanceof Array) {
-									/** @type {Array<{ref: String}>} */
+									/** @type {Array<{ref: String, level: String}>} */
 									var appArray = logConfig.AppenderRef;
 									for (var a = 0; a < appArray.length; a++) {
-										logger.addAppender(getAppenderForRef(appArray[a]));
+										var appArrayItem = getAppenderForRef(appArray[a]);
+										logger.addAppender(appArrayItem.appender, appArrayItem.level);
 									}
 								} else {
-									/** @type {{ref: String}} */
-									var appRef = logConfig.AppenderRef;				
-									logger.addAppender(getAppenderForRef(appRef))
+									/** @type {{ref: String, level: String}} */
+									var appRef = logConfig.AppenderRef;
+									var appRefItem = getAppenderForRef(appRef);
+									logger.addAppender(appRefItem.appender, appRefItem.level);
 								}
 								break;
 							default:
@@ -1923,6 +1940,8 @@ var initApplicationOutputAppender = (function(){
 		var lvl = loggingEvent.level.intLevel
 		if (lvl < LOGGINGLEVEL.DEBUG) { //All or TRACE
 			lvl = LOGGINGLEVEL.DEBUG
+		} else if (lvl == LOGGINGLEVEL.FATAL) { //ERROR because Servoy does not output FATAL in red
+			lvl = LOGGINGLEVEL.ERROR 
 		} else if (lvl > LOGGINGLEVEL.FATAL) { //OFF
 			return 
 		}
