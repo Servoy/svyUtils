@@ -265,6 +265,26 @@ function SendMailException(errorMessage) {
 	scopes.svyExceptions.SvyException.call(this, errorMessage||'Failed to send mail');
 }
 
+
+/**
+ * @author Rene van Veen
+ * @return {String}
+ * @properties={typeid:24,uuid:"C8500A7A-4B67-49CF-AEE7-3B23B180E695"}
+ */
+function getRemoteIPAddress()
+{
+	try
+	{
+		var url = 'http://checkip.amazonaws.com'
+		var connection = new java.net.URL(url)
+		var data = connection.openConnection()
+		var reader = new java.io.BufferedReader(new java.io.InputStreamReader(data.getInputStream()))
+		return reader.readLine()
+	} catch(e)
+	{
+		return 'No internet connection'
+	}
+}
 /**
  * Point prototypes to superclasses
  * @protected 
