@@ -993,7 +993,7 @@ function FoundSetExcelWorkbook(foundset, dataproviders, headers, template, sheet
 			this.sheet.createFreezePane(1, this.startRow + 1);
 		}
 
-		if (this.autoSizeColumns) {
+		if (this.autoSizeColumns && headers) {
 			for (i = 0; i < headers.length; i++) {
 				this.sheet.autoSizeColumn(this.startColumn + i);
 			}
