@@ -428,6 +428,132 @@ function getLineCountForFile(file) {
 }
 
 /**
+ * Buffered file writer that can be used to write to a file in chunks instead of holding the file's content completely in memory
+ * 
+ * @constructor 
+ * 
+ * @since 08.01.2015
+ * @author patrick
+ *
+ * @param {String|plugins.file.JSFile} pathOrFile
+ * @param {Boolean} [append] if true (default), then data will be written to the end of the file rather than the beginning
+ * 
+ * @example <pre>
+ * var fs = datasources.db.example_data.customers.getFoundSet();
+ * var colNames = datasources.db.example_data.customers.getColumnNames();
+ * 
+ * fs.loadAllRecords();
+ * 
+ * try {
+ *     // get a buffered writer overwriting a possibly existing file
+ *     var bufferedWriter = new scopes.svyIO.BufferedWriter("D:\\test.txt", false);
+ *     for (var i = 1; i <= fs.getSize(); i++) {
+ *          var record = fs.getRecord(i);
+ *          for (var c = 0; c < colNames.length; c++) {
+ *               // write the value in double quotes adding a comma if not the last column
+ *               bufferedWriter.write("\"" + record[colNames[c]] + "\"" + (c < (colNames.length - 1) ? "," : ""));
+ *          }
+ *          if (i < fs.getSize()) {
+ *               // add new lines for any record other than the last
+ *               bufferedWriter.newLine();
+ *          }
+ *     }
+ * } catch(e) {
+ *     // Problem
+ *     application.output(e.message);
+ * } finally {
+ *     if (bufferedWriter) {
+ *          // close the file if a writer could be created at all
+ *          bufferedWriter.close();
+ *     }
+ * }</pre>
+ * 
+ * @throws {java.io.IOException}
+ *
+ * @properties={typeid:24,uuid:"9F518CA2-AF03-4B84-8AD3-87059862C8F0"}
+ */
+function BufferedWriter(pathOrFile, append) {
+	
+	if (!(this instanceof BufferedWriter)) {
+		log.warn("scopes.svyIO.BufferedWriter: Constructor functions should be called with the \"new\" keyword!");
+		return new BufferedWriter(pathOrFile, append);
+	}
+
+	if (append === undefined) append = true;
+
+	var filePath = null;
+	if (pathOrFile instanceof String) {
+		filePath = pathOrFile;
+	} else {
+		/** @type {plugins.file.JSFile} */
+		var jsFile = pathOrFile;
+		filePath = jsFile.getAbsolutePath();
+	}
+
+	try {
+		var fileWriter = new Packages.java.io.FileWriter(filePath, append);
+		var bufferedFileWriter = new Packages.java.io.BufferedWriter(fileWriter);
+	} catch (e) {
+		throw e;
+	}
+	
+	/**
+	 * Writes the given String<br>
+	 * If the given value is a Date or a Number
+	 * 
+	 * @throws {java.io.IOException}
+	 */
+	this.write = function(stringToWrite) {
+		try {
+			if (stringToWrite instanceof Date) {
+				/** @type {Date} */
+				var dateValue = stringToWrite;
+				stringToWrite = utils.dateFormat(dateValue, i18n.getDefaultDateFormat());
+			}
+			else if (stringToWrite instanceof Number) {
+				/** @type {Number} */
+				var numValue = stringToWrite;
+				stringToWrite = utils.numberFormat(numValue, i18n.getDefaultNumberFormat());
+			}
+			if (stringToWrite && stringToWrite instanceof String) {
+				bufferedFileWriter.write(stringToWrite);
+			}
+		} catch (e) {
+			throw e;
+		}
+	}
+	
+	/**
+	 * Writes the platform's own notion of line separator as defined by the system property line.separator.<br>
+	 * Not all platforms use the newline character ('\n') to terminate lines. Calling this method to terminate<br>
+	 * each output line is therefore preferred to writing a newline character directly.
+	 * 
+	 * @throws {java.io.IOException}
+	 */
+	this.newLine = function() {
+		try {
+			bufferedFileWriter.newLine();
+		} catch (e) {
+			throw e;
+		}
+	}
+	
+	/**
+	 * Closes the stream
+	 * 
+	 * @throws {java.io.IOException}
+	 */
+	this.close = function() {
+		try {
+			// don't flush, because that is done by close already and would result in an error on closed streams while close does not
+			bufferedFileWriter.close();
+		} catch (e) {
+			throw e;
+		}
+	}
+}
+
+/**
  * Returns true if the given file is currently opened by the user
  * 
  * @param {plugins.file.JSFile} file
