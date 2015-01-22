@@ -109,6 +109,13 @@ function DbAppender(datasource, dbMapping, userId) {
 	 */
 	this.userId = userId ? userId : null;
 	
+	/**
+	 * Array of custom columns that can be configured with fixed values, variables or Function calls
+	 * 
+	 * @type {Array<{columnName: String, value: Object|Function}>}
+	 */
+	this.customColumns = [];
+	
 	try {
 		/**
 		 * a foundset for the datasource
@@ -163,6 +170,21 @@ var initDbAppender = (function() {
 		if (this.dbMapping.loggerColumnName) record[this.dbMapping.loggerColumnName] = loggingEvent.logger.name;
 		if (this.dbMapping.solutionColumnName) record[this.dbMapping.solutionColumnName] = application.getSolutionName();
 
+		if (this.customColumns) {
+			for (var c = 0; c < this.customColumns.length; c++) {
+				var col = this.customColumns[c];
+				var value;
+				if (col.value instanceof Function) {
+					/** @type {Function} */
+					var colFun = col.value;
+					value = colFun(loggingEvent);
+				} else {
+					value = col.value;
+				}
+				record[col.columnName] = value;
+			}
+		}
+		
 		var success = databaseManager.saveData(record);
 		if (!success) {
 			scopes.svyLogManager.getStatusLogger().error("DbAppender failed to save log message to datasource \"" + this.datasource + "\"");
@@ -189,6 +211,9 @@ var initDbAppender = (function() {
 		}, {
 			configName: 'userId',
 			type: 'string'
+		}, {
+			configName: 'customColumns',
+			type: 'object'
 		}],
 
 		/**
@@ -197,12 +222,14 @@ var initDbAppender = (function() {
 		 * @param {String} datasource
 		 * @param {DB_MAPPING} dbMapping
 		 * @param {String} userId
+		 * @param {Array} customColumns
 		 * @return {DbAppender}
 		 */
-		create: function(name, layout, datasource, dbMapping, userId) {
+		create: function(name, layout, datasource, dbMapping, userId, customColumns) {
 			var retval = new DbAppender(datasource, dbMapping, userId);
 			retval.setName(name);
 			retval.setLayout(layout);
+			if (customColumns) retval.customColumns = customColumns;
 			return retval;
 		}
 	}
