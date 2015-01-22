@@ -668,12 +668,17 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 	 * @param {QBSelect|JSDataSet|String} queryOrDataset
 	 * @param {String} [serverName] when queryOrDataset is a query string, a serverName is required
 	 * @param {Array} [queryArguments] optional arguments for a query string
+	 * @param {Array<Number>} [columnTypes] needed when a dataset is provided
 	 */
-	this.refreshData = function(queryOrDataset, serverName, queryArguments) {
+	this.refreshData = function(queryOrDataset, serverName, queryArguments, columnTypes) {
 		if (queryOrDataset instanceof JSDataSet) {
 			/** @type {JSDataSet} */
 			var dataset = queryOrDataset;
-			dataset.createDataSource(utils.stringReplace(datasource, "mem:", ""));
+			if (columnTypes) {
+				dataset.createDataSource(utils.stringReplace(datasource, "mem:", ""), columnTypes);
+			} else {
+				dataset.createDataSource(utils.stringReplace(datasource, "mem:", ""));
+			}
 		} else if (queryOrDataset instanceof QBSelect) {
 			/** @type {QBSelect} */
 			var query = queryOrDataset;
