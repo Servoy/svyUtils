@@ -95,7 +95,7 @@ function initModules(startupArguments) {
 			
 			form.moduleInit.call(null, startupArguments);
 			scopes.svyEventManager.fireEvent(this, APPLICATION_EVENT_TYPES.MODULE_INITIALIZED, [form])
-			log.trace('Initialized module ' + (form.getId() ? form.getId() : "[no ID provided for moduleDefinition \"" + moduleDefName + "\"]") + ' version ' + form.getVersion());
+			log.debug('Initialized module ' + (form.getId() ? form.getId() : "[no ID provided for moduleDefinition \"" + moduleDefName + "\"]") + ' version ' + form.getVersion());
 			stack.pop()
 			processed[moduleDefName] = null
 		}

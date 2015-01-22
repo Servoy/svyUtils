@@ -63,6 +63,38 @@ var DATE_FORMAT = {
 }
 
 /**
+ * The current date at 00:00:00.0
+ * 
+ * @type {Date}
+ *
+ * @properties={typeid:35,uuid:"05426994-8026-4634-8E03-5E12E69E3389",variableType:93}
+ */
+var TODAY_START;
+
+/**
+ * The current date at 23:59:59.999
+ * 
+ * @type {Date}
+ *
+ * @properties={typeid:35,uuid:"CA8FCCDE-7FBA-4815-B3AB-AF736BA0E445",variableType:93}
+ */
+var TODAY_END;
+
+/**
+ * @private
+ * 
+ * @type {Object}
+ * @SuppressWarnings(unused)
+ *
+ * @properties={typeid:35,uuid:"EDBB02A9-A782-415A-927B-D3B5BDE9BA55",variableType:-4}
+ */
+var initTodayVars = (function() {
+	var now = new Date();
+	TODAY_START = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+	TODAY_END = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
+}());
+
+/**
  * Adds the value of the given field to the given date
  * 
  * @private 
