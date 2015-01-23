@@ -668,9 +668,8 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 	 * @param {QBSelect|JSDataSet|String} queryOrDataset
 	 * @param {String} [serverName] when queryOrDataset is a query string, a serverName is required
 	 * @param {Array} [queryArguments] optional arguments for a query string
-	 * @param {Array<Number>} [columnTypes] needed when a dataset is provided
 	 */
-	this.refreshData = function(queryOrDataset, serverName, queryArguments, columnTypes) {
+	this.refreshData = function(queryOrDataset, serverName, queryArguments) {
 		if (queryOrDataset instanceof JSDataSet) {
 			/** @type {JSDataSet} */
 			var dataset = queryOrDataset;
@@ -726,6 +725,21 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 			var headerName = useHeaders ? columnHeaders[i] : dataproviders[i];
 			addColumn(dataproviders[i], headerName);
 		}
+	}
+	
+	var columnTypes = [];
+	var colNames = jsTable.getColumnNames();
+	for (var cn = 0; cn < colNames.length; cn++) {
+		columnTypes.push(jsTable.getColumn(colNames[cn]).getType());
+	}
+	
+	/**
+	 * Returns an array of JSColumn column types constants
+	 * 
+	 * @return {Array<Number>}
+	 */
+	this.getColumnTypes = function() {
+		return columnTypes;
 	}
 	
 	/**
