@@ -185,6 +185,62 @@ function getJSFormInstances(superForm) {
 }
 
 /**
+ * <p>Returns the JSLabel that acts as a labelFor label for the given element on the given form</p>
+ * 
+ * This method uses the solutionModel to find the labelFor element, because at runtime labelFor<br>
+ * elements no longer exist in table views
+ * 
+ * @param {JSForm|RuntimeForm|String} form the form on which the element is located
+ * @param {JSComponent|RuntimeComponent|String} element the element to get the labelFor label for
+ * 
+ * @return {JSLabel} labelFor element
+ *
+ * @properties={typeid:24,uuid:"6D69CB0F-0EC9-49BB-9FDE-FA69DCC8A1C7"}
+ */
+function getLabelForElement(form, element) {
+	/** @type {JSForm} */
+	var jsForm;
+	if (form instanceof String) {
+		/** @type {String} */
+		var formName = form;
+		jsForm = solutionModel.getForm(formName);
+	} else if (form instanceof RuntimeForm) {
+		/** @type {RuntimeForm} */
+		var runtimeForm = form;
+		jsForm = solutionModel.getForm(runtimeForm.controller.getName());
+	} else if (form instanceof JSForm) {
+		jsForm = form;
+	} else {
+		throw new scopes.svyExceptions.IllegalArgumentException("Wrong parameter provided for \"getLabelForElementName\"");
+	}
+	
+	/** @type {String} */
+	var elementName;
+	if (element instanceof String) {
+		/** @type {String} */
+		var elementNameStr = element;
+		elementName = elementNameStr;
+	} else if (element instanceof RuntimeComponent) {
+		/** @type {RuntimeComponent} */
+		var runtimeComp = form;
+		elementName = runtimeComp.getName();
+	} else if (element instanceof JSComponent) {
+		elementName = element.name;
+	} else {
+		throw new scopes.svyExceptions.IllegalArgumentException("Wrong parameter provided for \"getLabelForElementName\"");
+	}
+	var mainComponent = jsForm.getComponent(elementName);
+	var allLabels = jsForm.getLabels(true);
+	for (var i = 0; i < allLabels.length; i++) {
+		if (allLabels[i].labelFor == mainComponent.name) {
+			return allLabels[i];
+		}
+	}
+	
+	return null;
+}
+
+/**
  * Determines the JSForm for given input and returns the names of all RuntimeForm instances based on the JSForm
  * @param {RuntimeForm|JSForm|String} form
  *
