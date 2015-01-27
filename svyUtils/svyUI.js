@@ -193,25 +193,16 @@ function getJSFormInstances(superForm) {
  * @param {JSForm|RuntimeForm|String} form the form on which the element is located
  * @param {JSComponent|RuntimeComponent|String} element the element to get the labelFor label for
  * 
- * @return {JSLabel} labelFor element
+ * @return {Array<JSLabel>} labelFor elements
  *
  * @properties={typeid:24,uuid:"6D69CB0F-0EC9-49BB-9FDE-FA69DCC8A1C7"}
  */
-function getLabelForElement(form, element) {
+function getLabelForElements(form, element) {
 	/** @type {JSForm} */
-	var jsForm;
-	if (form instanceof String) {
-		/** @type {String} */
-		var formName = form;
-		jsForm = solutionModel.getForm(formName);
-	} else if (form instanceof RuntimeForm) {
-		/** @type {RuntimeForm} */
-		var runtimeForm = form;
-		jsForm = solutionModel.getForm(runtimeForm.controller.getName());
-	} else if (form instanceof JSForm) {
-		jsForm = form;
-	} else {
-		throw new scopes.svyExceptions.IllegalArgumentException("Wrong parameter provided for \"getLabelForElementName\"");
+	try {
+		var jsForm = getJSFormForReference(form);
+	} catch (e) {
+		throw e;
 	}
 	
 	/** @type {String} */
@@ -231,13 +222,15 @@ function getLabelForElement(form, element) {
 	}
 	var mainComponent = jsForm.getComponent(elementName);
 	var allLabels = jsForm.getLabels(true);
+	
+	var labelForElements = [];
 	for (var i = 0; i < allLabels.length; i++) {
 		if (allLabels[i].labelFor == mainComponent.name) {
-			return allLabels[i];
+			labelForElements.push(allLabels[i]);
 		}
 	}
 	
-	return null;
+	return labelForElements;
 }
 
 /**
