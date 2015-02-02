@@ -1675,12 +1675,14 @@ function getLogger(loggerName, messageFactory) {
 									/** @type {Array<{ref: String, level: String}>} */
 									var appArray = logConfig.AppenderRef;
 									for (var a = 0; a < appArray.length; a++) {
+										/** @type {{appender: AbstractAppender, level: Level}} */
 										var appArrayItem = getAppenderForRef(appArray[a]);
 										logger.addAppender(appArrayItem.appender, appArrayItem.level);
 									}
 								} else {
 									/** @type {{ref: String, level: String}} */
 									var appRef = logConfig.AppenderRef;
+									/** @type {{appender: AbstractAppender, level: Level}} */
 									var appRefItem = getAppenderForRef(appRef);
 									logger.addAppender(appRefItem.appender, appRefItem.level);
 								}
