@@ -213,7 +213,7 @@ function getLabelForElements(form, element) {
 		elementName = elementNameStr;
 	} else if (element instanceof RuntimeComponent) {
 		/** @type {RuntimeComponent} */
-		var runtimeComp = form;
+		var runtimeComp = element;
 		elementName = runtimeComp.getName();
 	} else if (element instanceof JSComponent) {
 		elementName = element.name;
