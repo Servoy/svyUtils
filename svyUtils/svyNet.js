@@ -279,7 +279,7 @@ function getRemoteIPAddress() {
 		var reader = new java.io.BufferedReader(new java.io.InputStreamReader(data.getInputStream()))
 		return reader.readLine()
 	} catch(e) {
-		throw new scopes.svyExceptions.SvyException.call(this, 'Cannot get remote ip address, check internet connection')
+		throw new scopes.svyExceptions.SvyException('Cannot get remote ip address, check internet connection')
 	}
 }
 /**
