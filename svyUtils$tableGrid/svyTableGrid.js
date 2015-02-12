@@ -895,6 +895,14 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 					jsComponent.onRightClick = onRightClickMethod;
 				}
 				
+				if (!gridColumn.showClick) {
+					jsComponent.showClick = gridColumn.showClick;
+				}
+				
+				if (!gridColumn.showFocus) {
+					jsComponent.showFocus = gridColumn.showFocus;
+				}				
+				
 				jsHeaderLabel = jsForm.newLabel(gridColumn.headerText, startX, 0, gridColumn.width, this.headerHeight);
 				jsHeaderLabel.name = "lbl_" + jsComponent.name;
 				jsHeaderLabel.styleClass = gridColumn.headerStyleClass ? gridColumn.headerStyleClass : this.headerStyleClass;
@@ -1636,6 +1644,38 @@ function GridColumn(dataProviderName, columnIndex) {
 	 */
 	this.setTooltipText = function(tooltipText) {
 		this.tooltipText = tooltipText;
+		return this;
+	}	
+	
+	/**
+	 * Show click property of this column
+	 * @type {Boolean}
+	 */
+	this.showClick = true;
+	
+	/**
+	 * Sets the show click property of this column
+	 * @param {Boolean} showClick
+	 * @return {GridColumn} 
+	 */
+	this.setShowClick = function(showClick) {
+		this.showClick = showClick;
+		return this;
+	}
+	
+	/**
+	 * Show focus property of this column
+	 * @type {Boolean}
+	 */
+	this.showFocus = true;
+	
+	/**
+	 * Sets the show focus property of this column
+	 * @param {Boolean} showFocus
+	 * @return {GridColumn} 
+	 */
+	this.setShowFocus = function(showFocus) {
+		this.showFocus = showFocus;
 		return this;
 	}	
 }
