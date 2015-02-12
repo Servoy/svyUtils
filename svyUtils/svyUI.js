@@ -185,6 +185,45 @@ function getJSFormInstances(superForm) {
 }
 
 /**
+ * Returns all components of the given form that have the given designtime property (set with the optional value)
+ * 
+ * @author patrick
+ *
+ * @param {JSForm|RuntimeForm|String} form - the form to analyze
+ * @param {String} propertyName - the name of the designtime property to filter for
+ * @param {Object} [propertyValue] - the value of the designtime property to filter for (if not given, the matching property is returned regardless its value)
+ * 
+ * @return {Array<JSComponent>}
+ *
+ * @properties={typeid:24,uuid:"0312A093-0703-4832-8332-FA7FE7FB4C1B"}
+ */
+function getElementsByDesigntimeProperty(form, propertyName, propertyValue) {
+	/** @type {JSForm} */
+	try {
+		var jsForm = getJSFormForReference(form);
+	} catch (e) {
+		throw e;
+	}
+	
+	/**
+	 * @param {JSComponent} element
+	 */
+	function filterComponents(element) {
+		if ((propertyValue == null || propertyValue == undefined) && element.getDesignTimePropertyNames().indexOf(propertyName) >= 0) {
+			return true;
+		}
+		var dtp = element.getDesignTimeProperty(propertyName);
+		if (!dtp) return false;
+		return dtp == propertyValue;
+	}
+	
+	var components = jsForm.getComponents(true);
+	components = components.filter(filterComponents);
+	
+	return components;
+}
+
+/**
  * <p>Returns the JSLabel that acts as a labelFor label for the given element on the given form</p>
  * 
  * This method uses the solutionModel to find the labelFor element, because at runtime labelFor<br>
