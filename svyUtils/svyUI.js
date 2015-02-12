@@ -202,7 +202,7 @@ function getElementsByDesigntimeProperty(form, propertyName, propertyValue) {
 	try {
 		var jsForm = getJSFormForReference(form);
 	} catch (e) {
-		throw e;
+		return [];
 	}
 	
 	/**
