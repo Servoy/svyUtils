@@ -743,6 +743,7 @@ function getCallbackBehavior() {
 				 * }} */
 				var options = JSON.parse(urlCrypt.decryptUrlSafe(param));
 
+				var hasDeveloperProvidedArguments = Array.isArray(options.a) //Developer provided arguments when generating the callback
 				var requestArgs
 				var ps
 				if (options.f & 4) { //supplyAllArguments: also return additional params tagged onto the callback URL
@@ -757,21 +758,22 @@ function getCallbackBehavior() {
 							objs[mapArray[i]] = Array.prototype.slice.call(value);
 						}
 					}
-					requestArgs = [objs]
-					if (Array.isArray(options.a)) {
+					if (hasDeveloperProvidedArguments) {
 						ps = objs.p||[]
 						objs.p = options.a
 					}
-				} else if (Array.isArray(options.a)) { //Only supply the arguments as defined when generating the callback URL
-					ps = request.getParameters("p")
-					requestArgs = options.a
+					requestArgs = [objs]
+				} else if (hasDeveloperProvidedArguments) { //Only supply the arguments as defined when generating the callback URL
+					ps = request.getParameters("p") //the values specified by the developer to evaluate clientside
+					requestArgs = options.a //the hardcoded values provided by the developer
 				} else {
 					requestArgs = []
 				}
-				if (Array.isArray(options.a)) {
+				
+				if (hasDeveloperProvidedArguments && options.p.length) {
 					//Splice the argument values evaluated on the client into options.a
 					for (var index = 0; index < options.p.length; index++) {
-						options.a.splice(options.p[index], 0, ps[index])
+						options.a[options.p[index]] = ps[index]
 					}
 				}
 
