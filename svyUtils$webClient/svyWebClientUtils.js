@@ -231,7 +231,7 @@ function addResourceDependancy(url, element, disableAutoAdjustProtocol, isJSReso
 	//branching based on existence of addGlobalResourceReference on the page contributor to inject resources globally or on the current pageContributor
 	if (!element) {
 		if (getWebClientPluginAccess().getPageContributor().addGlobalJSResourceReference) {
-			if (url.indexOf(MEDIA_URL_PREFIX) == 0) {
+			if (url.indexOf(MEDIA_URL_PREFIX) === 0) {
 				url = convertToExternalURL(url, disableAutoAdjustProtocol)
 			}
 			if (isJSResource) {
@@ -265,11 +265,11 @@ function addResourceDependancy(url, element, disableAutoAdjustProtocol, isJSReso
  * @properties={typeid:24,uuid:"B8C949DD-494F-4352-9BC7-1DA7FE0A404E"}
  */
 function getExternalUrlForMedia(mediaUrl) {
-	if (mediaUrl.indexOf(MEDIA_URL_PREFIX) != 0) {
+	if (mediaUrl.indexOf(MEDIA_URL_PREFIX) !== 0) {
 		return mediaUrl
 	}
 	var media = solutionModel.getMedia(mediaUrl.substr(MEDIA_URL_PREFIX.length))
-	if (media == null) {
+	if (media === null) {
 		log.warn('Could not locate "' + mediaUrl + '" in the media library for inclusion in the Web Client markup')
 		return '#'
 	} 
@@ -314,12 +314,12 @@ function getExternalUrlForMedia(mediaUrl) {
  */
 function convertToExternalURL(url, disableAutoAdjustProtocol) { 
 	//Maybe instead we should use protocol-less URLS, like mentioned here: http://stackoverflow.com/questions/12069156/protocol-less-urls
-	if (url.indexOf(MEDIA_URL_PREFIX) != 0) {
+	if (url.indexOf(MEDIA_URL_PREFIX) !== 0) {
 		//Replace http with https when the WC is running under https, to prevent mixed content warnings in the browser
-		if (!disableAutoAdjustProtocol && url.substr(0,4) == 'http') {
+		if (!disableAutoAdjustProtocol && url.substr(0,4) === 'http') {
 			var requiredProtocol = scopes.svyNet.parseUrl(application.getServerURL()).protocol
 			var usedProtocol = scopes.svyNet.parseUrl(url).protocol
-			if (usedProtocol != requiredProtocol) {
+			if (usedProtocol !== requiredProtocol) {
 				return requiredProtocol + url.substr(usedProtocol.length)
 			}
 		}
@@ -339,7 +339,7 @@ function executeClientsideScript(script, window) {
 	checkOperationSupported()
 	if (!script) return
 	script = utils.stringTrim(script)
-	if (script.charAt(-1) != ';') {
+	if (script.charAt(-1) !== ';') {
 		script += ';'
 	}
 	//TODO: test passing null value for main window
@@ -599,17 +599,17 @@ function getCallbackBehavior() {
 				}
 				
 				var paramString = '';
-				if (args != null) {
+				if (args !== null) {
 					if (Array.isArray(args)) {
 						settings.a = [] //Array holding hardcoded param values 
 						settings.p = [] //Array holding positions of params that need to be evaluated clientside. Storing the positions so their values can be merged into the arguments array in onRequest
 						for (var index = 0; index < args.length; index++) {
 							/** @type {Object}*/
 							var value = args[index]
-							if (value != null) {
+							if (value !== null) {
 								try {
 									var val = utils.stringTrim(value.toString());
-									if (val.slice(0, 1) == val.slice(-1) && ["'",'"'].indexOf(val.slice(0,1)) != -1) { //Double quoted String value, considered a String literal
+									if (val.slice(0, 1) === val.slice(-1) && ["'",'"'].indexOf(val.slice(0,1)) !== -1) { //Double quoted String value, considered a String literal
 										settings.a[index] = val.slice(1,-1)
 									} else if ('string' !== typeof value) { //non-string value
 										settings.a[index] = val
@@ -659,7 +659,7 @@ function getCallbackBehavior() {
 				var request = requestCycle.getRequest();
 
 				var param = request.getParameter("m");  
-				if(param == null){
+				if(param === null){
 					throw scopes.svyExceptions.IllegalStateException('Invalid callback url');
 				}
 				
@@ -692,7 +692,7 @@ function getCallbackBehavior() {
 					for (var i = 0; i < mapArray.length; i++) {
 						/** @type {Array<String>} */
 						var value = map.get(mapArray[i]);
-						if (value != null) {
+						if (value !== null) {
 							objs[mapArray[i]] = Array.prototype.slice.call(value);
 						}
 					}
@@ -722,12 +722,12 @@ function getCallbackBehavior() {
 						var br = hsr.getReader(); 
 						var tmp = null;
 						var bodyContent = ""; 
-						while ((tmp = br.readLine()) != null) {
+						while ((tmp = br.readLine()) !== null) {
 							bodyContent += tmp + "\n";
 						}
 		
-						if (bodyContent != null) { 
-							if (requestArgs == null) {
+						if (bodyContent !== null) { 
+							if (requestArgs === null) {
 								requestArgs = [bodyContent];
 							} else {
 								requestArgs.splice(0, 0, bodyContent)
@@ -761,7 +761,7 @@ function getCallbackBehavior() {
 						var stringTarget = new Packages.org.apache.wicket.request.target.basic.StringRequestTarget(mimeType, "utf-8", retval)
 						requestCycle.setRequestTarget(stringTarget);
 					} else {
-						if (hsr.getMethod() == 'GET') {
+						if (hsr.getMethod() === 'GET') {
 							log.warn('Callback received with method GET while callback is configured to not return a value')
 						}
 						/** @type {Packages.org.apache.wicket.protocol.http.WebApplication} */
@@ -778,7 +778,7 @@ function getCallbackBehavior() {
 					log.error('Exception thrown in callbackMethod', e)
 					var statusCode = plugins.http.HTTP_STATUS.SC_INTERNAL_SERVER_ERROR
 					var message = ''
-					if (typeof e == 'number') {
+					if (typeof e === 'number') {
 						statusCode = e
 					} else if (scopes.svyJSUtils.isObject(e)) {
 						statusCode = e['statusCode']
@@ -847,7 +847,7 @@ function generateCallback(callback, args, options) {
 				throw scopes.svyExceptions.IllegalArgumentException('Callback param must be a Servoy defined method')
 			}
 			qualifiedName = fd.toMethodString()
-			if (['scopes','globals'].indexOf(qualifiedName.substring(0, qualifiedName.indexOf('.'))) == -1) {
+			if (['scopes','globals'].indexOf(qualifiedName.substring(0, qualifiedName.indexOf('.'))) === -1) {
 				qualifiedName = 'forms.' + qualifiedName
 			}
 			break;
