@@ -576,7 +576,7 @@ function getCallbackUrl(callback) {
  * @experimental: Is not covered by tests and signature might change in the future
  *  
  * Generates a JavaScript code snippet that ....
- * @param {function(String, Array<String>):*|String|undefined} callback Either a Servoy method or a qualifiedName string pointing to a method. Method's first argument receives the bodyContent, second argument the requestParams
+ * @param {function(String...):*|String|undefined} callback Either a Servoy method or a qualifiedName string pointing to a method.
  * @param {Array} [args] 
  * @param {Boolean} [options.showLoading]
  * @param {String} [options.mimeType]
