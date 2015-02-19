@@ -84,7 +84,7 @@ function setComponentVisibility(component, visibility) {
 	checkOperationSupported()
 	var style = visibility ? 'display: block' : 'display: none'
 	var model = Packages.org.apache.wicket.model.Model(style)
-	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('style', model, '')
+	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('style', model, ';')
 	addBehavior(behavior, component)
 }
 
@@ -100,6 +100,67 @@ function addClass(component, className) {
 	checkOperationSupported()
 	var model = Packages.org.apache.wicket.model.Model(className)
 	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('class', true, model, ' ')
+	addBehavior(behavior, component)
+}
+
+/**
+ * Provides a way to dynamically add extra CSS classes to an element or form<br>
+ * <br>
+ * Can be used to conditionally include a CSS class on an element or form
+ * 
+ * @param {RuntimeComponent|RuntimeForm} component
+ * @param {function():String} provider
+ *
+ * @properties={typeid:24,uuid:"E1477EED-6F18-4979-8D19-F58D90952903"}
+ */
+function addDynamicClass(component, provider) {
+	checkOperationSupported()
+	
+	var model = new JavaAdapter(Packages.org.apache.wicket.model.Model, {
+		getObject: function() {return provider()}
+	})
+	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('class', model, ' ')
+	addBehavior(behavior, component)
+}
+
+/**
+ * Provides a way to dynamically extend the style attribute of an element or form<br>
+ * <br>
+ * Can be used to conditionally add extra style properties on an element or form
+ * 
+ * @param {RuntimeComponent|RuntimeForm} component
+ * @param {function():String} provider
+ *
+ * @properties={typeid:24,uuid:"8CFC45C9-55A2-4D6F-9E5F-3E1042721767"}
+ */
+function addDynamicStyle(component, provider) {
+	checkOperationSupported()
+	
+	var model = new JavaAdapter(Packages.org.apache.wicket.model.Model, {
+		getObject: function() {return provider()}
+	})
+	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('style', model, ';')
+	addBehavior(behavior, component)
+}
+
+/**
+ * Provides a way to dynamically extend the value of any attribute on an element or form<br>
+ * <br>
+ * Can be used to conditionally add or extend the value of any attribute on elements or forms
+ * 
+ * @param {RuntimeComponent|RuntimeForm} component
+ * @param {String} attribute
+ * @param {function():String} provider
+ *
+ * @properties={typeid:24,uuid:"0B13457D-23E8-485B-B15A-BCAC456876D7"}
+ */
+function addDynamicAttribute(component, attribute, provider) {
+	checkOperationSupported()
+	
+	var model = new JavaAdapter(Packages.org.apache.wicket.model.Model, {
+		getObject: function() {return provider()}
+	})
+	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender(attribute, model, ' ')
 	addBehavior(behavior, component)
 }
 
