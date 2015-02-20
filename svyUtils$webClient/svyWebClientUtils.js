@@ -66,7 +66,7 @@ function checkOperationSupported() {
 function centerPanel(element) {
 	checkOperationSupported()
 	var model = Packages.org.apache.wicket.model.Model('left: 50%;margin-left:-' + element.getWidth() / 2 + 'px;')
-	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('style', model, '')
+	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('style', model, ';')
 	unwrapElement(element).add(behavior)
 }
 
@@ -116,7 +116,7 @@ function addClass(component, className) {
 function addDynamicClass(component, provider) {
 	checkOperationSupported()
 	
-	var model = new JavaAdapter(Packages.org.apache.wicket.model.Model, {
+	var model = new JavaAdapter(Packages.org.apache.wicket.model.Model, { //See SVY-7933 for warning
 		getObject: function() {return provider()}
 	})
 	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('class', model, ' ')
@@ -136,7 +136,7 @@ function addDynamicClass(component, provider) {
 function addDynamicStyle(component, provider) {
 	checkOperationSupported()
 	
-	var model = new JavaAdapter(Packages.org.apache.wicket.model.Model, {
+	var model = new JavaAdapter(Packages.org.apache.wicket.model.Model, { //See SVY-7933 for warning
 		getObject: function() {return provider()}
 	})
 	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('style', model, ';')
@@ -147,20 +147,21 @@ function addDynamicStyle(component, provider) {
  * Provides a way to dynamically extend the value of any attribute on an element or form<br>
  * <br>
  * Can be used to conditionally add or extend the value of any attribute on elements or forms
- * 
+ *
  * @param {RuntimeComponent|RuntimeForm} component
  * @param {String} attribute
  * @param {function():String} provider
+ * @param {String} separator Value by which to separate multiple values for the specified attribute. Default: ''
  *
  * @properties={typeid:24,uuid:"0B13457D-23E8-485B-B15A-BCAC456876D7"}
  */
-function addDynamicAttribute(component, attribute, provider) {
+function addDynamicAttribute(component, attribute, provider, separator) {
 	checkOperationSupported()
 	
-	var model = new JavaAdapter(Packages.org.apache.wicket.model.Model, {
+	var model = new JavaAdapter(Packages.org.apache.wicket.model.Model, { //See SVY-7933 for warning
 		getObject: function() {return provider()}
 	})
-	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender(attribute, model, ' ')
+	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender(attribute, model, separator||'')
 	addBehavior(behavior, component)
 }
 
@@ -551,7 +552,7 @@ function getFormName(element) {
  * 
  * @example <pre>
  * \/\/On the Server
- * var url = scopes.svyWebClientUtils.getCallbackUrl()
+ * var url = scopes.svyWebClientUtils.getCallbackUrl(myMethod)
  * 
  * \/\/On the client
  * $.ajax({
@@ -575,11 +576,12 @@ function getCallbackUrl(callback) {
 /**
  * @experimental: Is not covered by tests and signature might change in the future
  *  
- * Generates a JavaScript code snippet that ....
- * @param {function(String...):*|String|undefined} callback Either a Servoy method or a qualifiedName string pointing to a method.
- * @param {Array} [args] 
- * @param {Boolean} [options.showLoading]
- * @param {String} [options.mimeType]
+ * Generates a JavaScript code snippet that when invoked in the client (browser) executes the supplied callback method on the server
+ * 
+ * @param {String|function(String...)} callback Either a Servoy method or a qualifiedName string pointing to a method.
+ * @param {Array<String|Number|Boolean>} [args] String values are considered references to browser-side variables. To pass hardcoded String literals the String value needs to be quoted: '"myvalue"' or "'myValue'". All other values are considered hardcoded values as well and will get serialized using JSON
+ * @param {Boolean} [options.showLoading] Whether or not to show the Loading indicator
+ * @param {String} [options.mimeType] Forces a certain mimeType in the response
  *
  * @properties={typeid:24,uuid:"A16EEE7F-85BE-4649-8E84-1CE50E9C96A6"}
  */
@@ -622,13 +624,11 @@ function getCallbackBehavior() {
 			 * TODO: add Date support for the args param?
 			 * @param {String} qualifiedName
 			 * 
-			 * @param {Array<String|Boolean|Number>} args String values are considered variables names for clientside evaluation. 
-			 * Hardcoded string values need to be double quoted, for example '"value"' or "'value'"
-			 * Note that hardcoded values retain their type, while evaluated clientside arguments are always of type String
+			 * @param {Array<String|Boolean|Number>} args Quoted string values are considered hardcoded String values. Non-quoted String values are considered variable names to be evaluated clientside. All other values are considered hardcoded values as well and will get serialized using JSON
 			 * 
 			 * @param {String} [options.id]
 			 * 
-			 * @param {String} [options.mimeType] To force a certain miemType in the respons
+			 * @param {String} [options.mimeType] To force a certain mimeType in the response
 			 * 
 			 * @param {Boolean} [options.returnCallbackReturnValue] Whether or not to return the returnValue of the callback method as body in the HTTPResponse. 
 			 * If set to true, options.disableImmediateUpdate will be ignored 
@@ -877,7 +877,7 @@ var BAP_CALLBACK_BEHAVIOR_ID = 'com.servoy.bap.callbackBehavior'
  * Utility to create callback code for both getCallbackScript and getCallbackUrl. Maybe should be inlined, as too many code branches based on usage
  * @private
  *
- * @param {Object} callback
+ * @param {String|function} callback
  * @param {Array} [args] String values are considered references to browser-side properties. To pass hardcoded String literals the String value needs to be double quoted: '"myvalue"' or "'myValue'"
  * @param {{
  * 	mimeType: String=,
