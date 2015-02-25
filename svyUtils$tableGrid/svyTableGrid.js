@@ -873,7 +873,7 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 					if (gridColumn.mediaOptions) {
 						jsLabel.mediaOptions = gridColumn.mediaOptions;
 					}
-					if (jsLabel.onDoubleClick) {
+					if (gridColumn.onDoubleClick) {
 						jsComponent.onDoubleClick = createFunctionCallMethod(jsForm, gridColumn.onDoubleClick);
 					} else if (onDoubleClickMethod) {
 						jsLabel.onDoubleClick = onDoubleClickMethod;
