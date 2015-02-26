@@ -8,7 +8,7 @@
  * @private 
  * @properties={typeid:35,uuid:"09288A13-7587-40CD-B8DF-36AD6EEC8D34",variableType:-4}
  */
-var log = scopes.svyLogManager.getLogger('com.servoy.bap.application.core')
+var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.application.core')
 
 /**
  * @private
