@@ -712,7 +712,7 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 			/** @type {GridColumn} */
 			var newCol = new GridColumn(columnNames[colIndex], colIndex);
 			if (useHeaders) {
-				newCol.setHeaderText(columnHeaders[colIndex-1]);
+				newCol.setHeaderText(columnHeaders[colIndex]);
 			}
 			gridColumns.push(newCol);
 		}
@@ -960,7 +960,8 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 				}
 			}
 		}
-		var runtimeForm = this.createForm(formName);		
+		var runtimeForm = this.createForm(formName);
+		runtimeForm.controller.loadAllRecords();
 		panel.addTab(runtimeForm, formName ? formName : null, tabText ? tabText : null, null, null, null, null, null, index >= 0 ? index : -1);
 		return runtimeForm;
 	}
