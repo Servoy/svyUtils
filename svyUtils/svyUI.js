@@ -274,6 +274,7 @@ function getLabelForElements(form, element) {
 
 /**
  * Determines the JSForm for given input and returns the names of all RuntimeForm instances based on the JSForm
+ * 
  * @param {RuntimeForm|JSForm|String} form
  *
  * @return {Array<String>}
@@ -365,6 +366,7 @@ function getRuntimeTableViewRowHeight(form) {
 
 /**
  * Sets the visibility of all toolbars at once
+ * 
  * @param {Boolean} state
  * 
  * @see Also see {@link #plugins#window#setToolBarAreaVisible()}: hides/shows the entire toolbar area
@@ -443,9 +445,9 @@ function initSplitPane(formName, elementName, resizeWeight, dividerLocation, div
 
 	if (! (splitPane instanceof RuntimeSplitPane)) return;
 
-	if (resizeWeight) splitPane.resizeWeight = resizeWeight
-	if (dividerLocation) restoreSplitPaneDividerPosition(formName, elementName, dividerLocation)
-	if (dividerSize) splitPane.dividerSize = dividerSize
+	if (resizeWeight instanceof Number) splitPane.resizeWeight = resizeWeight
+	if (dividerLocation instanceof Number) restoreSplitPaneDividerPosition(formName, elementName, dividerLocation)
+	if (dividerSize instanceof Number) splitPane.dividerSize = dividerSize
 	if (continuousLayout) splitPane.continuousLayout = continuousLayout
 	if (bgColor && bgColor != 'transparent') {
 		splitPane.transparent = false
@@ -453,8 +455,8 @@ function initSplitPane(formName, elementName, resizeWeight, dividerLocation, div
 	} else {
 		splitPane.transparent = true
 	}
-	if (leftFormMinSize) splitPane.leftFormMinSize = leftFormMinSize
-	if (rightFormMinSize) splitPane.rightFormMinSize = rightFormMinSize
+	if (leftFormMinSize instanceof Number) splitPane.leftFormMinSize = leftFormMinSize
+	if (rightFormMinSize instanceof Number) splitPane.rightFormMinSize = rightFormMinSize
 }
 
 
