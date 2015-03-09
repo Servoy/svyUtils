@@ -92,10 +92,15 @@ function getFormName(element) {
 }
 
 /**
- * Forces 
+ * Allow runtime updating the height of the body part of a form in RECORD_VIEW<br/> 
+ * <br/>
+ * This allows to mimic the behavior of the Web Client when placing elements at runtime using element.setLocation() below the bounds of the designtime form<br/> 
+ * In the Web Client this will automatically cause scrollbars to appear, but not so in the Smart Client<br/>
+ * </br>
+ * This method allows the height of the BODY part to be set at Runtime, without having to go through the SolutionModel and having to do a controller.recreateUI()
  * 
- * @param {RuntimeForm} form
- * @param {Number} height
+ * @param {RuntimeForm} form A form in RECORD_VIEW
+ * @param {Number} height 
  *
  * @properties={typeid:24,uuid:"96CEA78A-7153-4BFD-A608-078E3B6CE486"}
  */
