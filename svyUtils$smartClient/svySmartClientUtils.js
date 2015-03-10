@@ -29,18 +29,28 @@
 /**
  * Utility method to take off the wrapper on Servoy elements and access the underlying Java component
  * @private
- * @param {RuntimeComponent} element
+ * 
+ * @param {RuntimeComponent|RuntimeForm} component
  *
  * @return {Packages.javax.swing.JComponent}
  *
  * @properties={typeid:24,uuid:"EB054514-911B-477C-B060-FB1BB8C6367F"}
  */
-function unwrapElement(element) {
-	var list = new Packages.java.util.ArrayList();
-	list.add(element)
-
+function unwrapElement(component) {
 	/**@type {Packages.javax.swing.JComponent}*/
-	var unwrappedElement = list.get(0) 
+	var unwrappedElement
+	
+	var list = new Packages.java.util.ArrayList()
+	if (component instanceof RuntimeForm) {
+		list.add(0, Packages.com.servoy.j2db.FormController)
+		/**@type {Packages.java.lang.Class}*/
+		var fc = list.get(0)
+		unwrappedElement = fc.getMethod('getFormUI').invoke(component)
+	} else {
+		list.add(component)
+		unwrappedElement = list.get(0) 
+	}
+	
 	return unwrappedElement
 }
 
@@ -79,4 +89,37 @@ function getFormName(element) {
 		return parent.getFormContext().getValue(1,2).toString()
 	}
 	return null
+}
+
+/**
+ * Allow runtime updating the height of the body part of a form in RECORD_VIEW<br/> 
+ * <br/>
+ * This allows to mimic the behavior of the Web Client when placing elements at runtime using element.setLocation() below the bounds of the designtime form<br/> 
+ * In the Web Client this will automatically cause scrollbars to appear, but not so in the Smart Client<br/>
+ * </br>
+ * This method allows the height of the BODY part to be set at Runtime, without having to go through the SolutionModel and having to do a controller.recreateUI()
+ * 
+ * @param {RuntimeForm} form A form in RECORD_VIEW
+ * @param {Number} height 
+ *
+ * @properties={typeid:24,uuid:"96CEA78A-7153-4BFD-A608-078E3B6CE486"}
+ */
+function setFormHeight(form, height) {
+	if (!(form instanceof RuntimeForm)) {
+		throw scopes.svyExceptions.IllegalArgumentException('form argument is not an instance of RuntimeForm')
+	}
+	if (form.controller.view !== JSForm.RECORD_VIEW) {
+		throw scopes.svyExceptions.IllegalArgumentException('form argument is not an instance of RuntimeForm')		
+	}
+
+	/**@type {Packages.com.servoy.j2db.smart.SwingForm}*/
+	var unwrappedForm = unwrapElement(form)
+
+	//CHECKME: why is this typing needed? Seems like Packages.com.servoy.j2db.smart.SwingForm is not recognized
+	/**@type {Packages.javax.swing.JComponent}*/
+	var panel = unwrappedForm.getViewport().getComponents()[0]
+	
+	var preferredWidth = panel.getPreferredSize().width
+	panel.setPreferredSize(new Packages.java.awt.Dimension(preferredWidth, height))
+	panel.revalidate()
 }

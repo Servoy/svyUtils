@@ -186,18 +186,19 @@ function getJSFormInstances(superForm) {
 
 /**
  * Returns all components of the given form that have the given designtime property (set with the optional value)
- * 
+ *
  * @author patrick
  *
  * @param {JSForm|RuntimeForm|String} form - the form to analyze
  * @param {String} propertyName - the name of the designtime property to filter for
  * @param {Object} [propertyValue] - the value of the designtime property to filter for (if not given, the matching property is returned regardless its value)
- * 
+ * @param {Boolean} [includeInherited] Whether or not to include inherited elements. Default: true
+ *
  * @return {Array<JSComponent>}
  *
  * @properties={typeid:24,uuid:"0312A093-0703-4832-8332-FA7FE7FB4C1B"}
  */
-function getElementsByDesigntimeProperty(form, propertyName, propertyValue) {
+function getElementsByDesigntimeProperty(form, propertyName, propertyValue, includeInherited) {
 	/** @type {JSForm} */
 	try {
 		var jsForm = getJSFormForReference(form);
@@ -209,18 +210,16 @@ function getElementsByDesigntimeProperty(form, propertyName, propertyValue) {
 	 * @param {JSComponent} element
 	 */
 	function filterComponents(element) {
-		if ((propertyValue == null || propertyValue == undefined) && element.getDesignTimePropertyNames().indexOf(propertyName) >= 0) {
+		if ((propertyValue === null || propertyValue === undefined) && element.getDesignTimePropertyNames().indexOf(propertyName) >= 0) {
 			return true;
 		}
 		var dtp = element.getDesignTimeProperty(propertyName);
-		if (!dtp) return false;
+		if (!dtp) return false; //What about values that evaluate to false?
 		return dtp == propertyValue;
 	}
 	
-	var components = jsForm.getComponents(true);
-	components = components.filter(filterComponents);
-	
-	return components;
+	var components = jsForm.getComponents(includeInherited);
+	return components.filter(filterComponents);
 }
 
 /**
@@ -274,6 +273,7 @@ function getLabelForElements(form, element) {
 
 /**
  * Determines the JSForm for given input and returns the names of all RuntimeForm instances based on the JSForm
+ * 
  * @param {RuntimeForm|JSForm|String} form
  *
  * @return {Array<String>}
@@ -365,6 +365,7 @@ function getRuntimeTableViewRowHeight(form) {
 
 /**
  * Sets the visibility of all toolbars at once
+ * 
  * @param {Boolean} state
  * 
  * @see Also see {@link #plugins#window#setToolBarAreaVisible()}: hides/shows the entire toolbar area
@@ -443,9 +444,9 @@ function initSplitPane(formName, elementName, resizeWeight, dividerLocation, div
 
 	if (! (splitPane instanceof RuntimeSplitPane)) return;
 
-	if (resizeWeight) splitPane.resizeWeight = resizeWeight
-	if (dividerLocation) restoreSplitPaneDividerPosition(formName, elementName, dividerLocation)
-	if (dividerSize) splitPane.dividerSize = dividerSize
+	if (resizeWeight instanceof Number) splitPane.resizeWeight = resizeWeight
+	if (dividerLocation instanceof Number) restoreSplitPaneDividerPosition(formName, elementName, dividerLocation)
+	if (dividerSize instanceof Number) splitPane.dividerSize = dividerSize
 	if (continuousLayout) splitPane.continuousLayout = continuousLayout
 	if (bgColor && bgColor != 'transparent') {
 		splitPane.transparent = false
@@ -453,8 +454,8 @@ function initSplitPane(formName, elementName, resizeWeight, dividerLocation, div
 	} else {
 		splitPane.transparent = true
 	}
-	if (leftFormMinSize) splitPane.leftFormMinSize = leftFormMinSize
-	if (rightFormMinSize) splitPane.rightFormMinSize = rightFormMinSize
+	if (leftFormMinSize instanceof Number) splitPane.leftFormMinSize = leftFormMinSize
+	if (rightFormMinSize instanceof Number) splitPane.rightFormMinSize = rightFormMinSize
 }
 
 

@@ -66,7 +66,7 @@ function checkOperationSupported() {
 function centerPanel(element) {
 	checkOperationSupported()
 	var model = Packages.org.apache.wicket.model.Model('left: 50%;margin-left:-' + element.getWidth() / 2 + 'px;')
-	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('style', model, '')
+	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('style', model, ';')
 	unwrapElement(element).add(behavior)
 }
 
@@ -84,7 +84,7 @@ function setComponentVisibility(component, visibility) {
 	checkOperationSupported()
 	var style = visibility ? 'display: block' : 'display: none'
 	var model = Packages.org.apache.wicket.model.Model(style)
-	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('style', model, '')
+	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('style', model, ';')
 	addBehavior(behavior, component)
 }
 
@@ -100,6 +100,68 @@ function addClass(component, className) {
 	checkOperationSupported()
 	var model = Packages.org.apache.wicket.model.Model(className)
 	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('class', true, model, ' ')
+	addBehavior(behavior, component)
+}
+
+/**
+ * Provides a way to dynamically add extra CSS classes to an element or form<br>
+ * <br>
+ * Can be used to conditionally include a CSS class on an element or form
+ * 
+ * @param {RuntimeComponent|RuntimeForm} component
+ * @param {function():String} provider
+ *
+ * @properties={typeid:24,uuid:"E1477EED-6F18-4979-8D19-F58D90952903"}
+ */
+function addDynamicClass(component, provider) {
+	checkOperationSupported()
+	
+	var model = new JavaAdapter(Packages.org.apache.wicket.model.Model, { //See SVY-7933 for warning
+		getObject: function() {return provider()}
+	})
+	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('class', model, ' ')
+	addBehavior(behavior, component)
+}
+
+/**
+ * Provides a way to dynamically extend the style attribute of an element or form<br>
+ * <br>
+ * Can be used to conditionally add extra style properties on an element or form
+ * 
+ * @param {RuntimeComponent|RuntimeForm} component
+ * @param {function():String} provider
+ *
+ * @properties={typeid:24,uuid:"8CFC45C9-55A2-4D6F-9E5F-3E1042721767"}
+ */
+function addDynamicStyle(component, provider) {
+	checkOperationSupported()
+	
+	var model = new JavaAdapter(Packages.org.apache.wicket.model.Model, { //See SVY-7933 for warning
+		getObject: function() {return provider()}
+	})
+	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('style', model, ';')
+	addBehavior(behavior, component)
+}
+
+/**
+ * Provides a way to dynamically extend the value of any attribute on an element or form<br>
+ * <br>
+ * Can be used to conditionally add or extend the value of any attribute on elements or forms
+ *
+ * @param {RuntimeComponent|RuntimeForm} component
+ * @param {String} attribute
+ * @param {function():String} provider
+ * @param {String} separator Value by which to separate multiple values for the specified attribute. Default: ''
+ *
+ * @properties={typeid:24,uuid:"0B13457D-23E8-485B-B15A-BCAC456876D7"}
+ */
+function addDynamicAttribute(component, attribute, provider, separator) {
+	checkOperationSupported()
+	
+	var model = new JavaAdapter(Packages.org.apache.wicket.model.Model, { //See SVY-7933 for warning
+		getObject: function() {return provider()}
+	})
+	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender(attribute, model, separator||'')
 	addBehavior(behavior, component)
 }
 
@@ -231,7 +293,7 @@ function addResourceDependancy(url, element, disableAutoAdjustProtocol, isJSReso
 	//branching based on existence of addGlobalResourceReference on the page contributor to inject resources globally or on the current pageContributor
 	if (!element) {
 		if (getWebClientPluginAccess().getPageContributor().addGlobalJSResourceReference) {
-			if (url.indexOf(MEDIA_URL_PREFIX) == 0) {
+			if (url.indexOf(MEDIA_URL_PREFIX) === 0) {
 				url = convertToExternalURL(url, disableAutoAdjustProtocol)
 			}
 			if (isJSResource) {
@@ -265,11 +327,11 @@ function addResourceDependancy(url, element, disableAutoAdjustProtocol, isJSReso
  * @properties={typeid:24,uuid:"B8C949DD-494F-4352-9BC7-1DA7FE0A404E"}
  */
 function getExternalUrlForMedia(mediaUrl) {
-	if (mediaUrl.indexOf(MEDIA_URL_PREFIX) != 0) {
+	if (mediaUrl.indexOf(MEDIA_URL_PREFIX) !== 0) {
 		return mediaUrl
 	}
 	var media = solutionModel.getMedia(mediaUrl.substr(MEDIA_URL_PREFIX.length))
-	if (media == null) {
+	if (media === null) {
 		log.warn('Could not locate "' + mediaUrl + '" in the media library for inclusion in the Web Client markup')
 		return '#'
 	} 
@@ -314,12 +376,12 @@ function getExternalUrlForMedia(mediaUrl) {
  */
 function convertToExternalURL(url, disableAutoAdjustProtocol) { 
 	//Maybe instead we should use protocol-less URLS, like mentioned here: http://stackoverflow.com/questions/12069156/protocol-less-urls
-	if (url.indexOf(MEDIA_URL_PREFIX) != 0) {
+	if (url.indexOf(MEDIA_URL_PREFIX) !== 0) {
 		//Replace http with https when the WC is running under https, to prevent mixed content warnings in the browser
-		if (!disableAutoAdjustProtocol && url.substr(0,4) == 'http') {
+		if (!disableAutoAdjustProtocol && url.substr(0,4) === 'http') {
 			var requiredProtocol = scopes.svyNet.parseUrl(application.getServerURL()).protocol
 			var usedProtocol = scopes.svyNet.parseUrl(url).protocol
-			if (usedProtocol != requiredProtocol) {
+			if (usedProtocol !== requiredProtocol) {
 				return requiredProtocol + url.substr(usedProtocol.length)
 			}
 		}
@@ -339,7 +401,7 @@ function executeClientsideScript(script, window) {
 	checkOperationSupported()
 	if (!script) return
 	script = utils.stringTrim(script)
-	if (script.charAt(-1) != ';') {
+	if (script.charAt(-1) !== ';') {
 		script += ';'
 	}
 	//TODO: test passing null value for main window
@@ -490,7 +552,7 @@ function getFormName(element) {
  * 
  * @example <pre>
  * \/\/On the Server
- * var url = scopes.svyWebClientUtils.getCallbackUrl()
+ * var url = scopes.svyWebClientUtils.getCallbackUrl(myMethod)
  * 
  * \/\/On the client
  * $.ajax({
@@ -514,11 +576,12 @@ function getCallbackUrl(callback) {
 /**
  * @experimental: Is not covered by tests and signature might change in the future
  *  
- * Generates a JavaScript code snippet that ....
- * @param {function(String, Array<String>):*|String|undefined} callback Either a Servoy method or a qualifiedName string pointing to a method. Method's first argument receives the bodyContent, second argument the requestParams
- * @param {Array} [args] 
- * @param {Boolean} [options.showLoading]
- * @param {String} [options.mimeType]
+ * Generates a JavaScript code snippet that when invoked in the client (browser) executes the supplied callback method on the server
+ * 
+ * @param {String|function(String...)} callback Either a Servoy method or a qualifiedName string pointing to a method.
+ * @param {Array<String|Number|Boolean>} [args] String values are considered references to browser-side variables. To pass hardcoded String literals the String value needs to be quoted: '"myvalue"' or "'myValue'". All other values are considered hardcoded values as well and will get serialized using JSON
+ * @param {Boolean} [options.showLoading] Whether or not to show the Loading indicator
+ * @param {String} [options.mimeType] Forces a certain mimeType in the response
  *
  * @properties={typeid:24,uuid:"A16EEE7F-85BE-4649-8E84-1CE50E9C96A6"}
  */
@@ -561,13 +624,11 @@ function getCallbackBehavior() {
 			 * TODO: add Date support for the args param?
 			 * @param {String} qualifiedName
 			 * 
-			 * @param {Array<String|Boolean|Number>} args String values are considered variables names for clientside evaluation. 
-			 * Hardcoded string values need to be double quoted, for example '"value"' or "'value'"
-			 * Note that hardcoded values retain their type, while evaluated clientside arguments are always of type String
+			 * @param {Array<String|Boolean|Number>} args Quoted string values are considered hardcoded String values. Non-quoted String values are considered variable names to be evaluated clientside. All other values are considered hardcoded values as well and will get serialized using JSON
 			 * 
 			 * @param {String} [options.id]
 			 * 
-			 * @param {String} [options.mimeType] To force a certain miemType in the respons
+			 * @param {String} [options.mimeType] To force a certain mimeType in the response
 			 * 
 			 * @param {Boolean} [options.returnCallbackReturnValue] Whether or not to return the returnValue of the callback method as body in the HTTPResponse. 
 			 * If set to true, options.disableImmediateUpdate will be ignored 
@@ -599,17 +660,17 @@ function getCallbackBehavior() {
 				}
 				
 				var paramString = '';
-				if (args != null) {
+				if (args !== null) {
 					if (Array.isArray(args)) {
 						settings.a = [] //Array holding hardcoded param values 
 						settings.p = [] //Array holding positions of params that need to be evaluated clientside. Storing the positions so their values can be merged into the arguments array in onRequest
 						for (var index = 0; index < args.length; index++) {
 							/** @type {Object}*/
 							var value = args[index]
-							if (value != null) {
+							if (value !== null) {
 								try {
 									var val = utils.stringTrim(value.toString());
-									if (val.slice(0, 1) == val.slice(-1) && ["'",'"'].indexOf(val.slice(0,1)) != -1) { //Double quoted String value, considered a String literal
+									if (val.slice(0, 1) === val.slice(-1) && ["'",'"'].indexOf(val.slice(0,1)) !== -1) { //Double quoted String value, considered a String literal
 										settings.a[index] = val.slice(1,-1)
 									} else if ('string' !== typeof value) { //non-string value
 										settings.a[index] = val
@@ -659,7 +720,7 @@ function getCallbackBehavior() {
 				var request = requestCycle.getRequest();
 
 				var param = request.getParameter("m");  
-				if(param == null){
+				if(param === null){
 					throw scopes.svyExceptions.IllegalStateException('Invalid callback url');
 				}
 				
@@ -682,6 +743,7 @@ function getCallbackBehavior() {
 				 * }} */
 				var options = JSON.parse(urlCrypt.decryptUrlSafe(param));
 
+				var hasDeveloperProvidedArguments = Array.isArray(options.a) //Developer provided arguments when generating the callback
 				var requestArgs
 				var ps
 				if (options.f & 4) { //supplyAllArguments: also return additional params tagged onto the callback URL
@@ -692,25 +754,26 @@ function getCallbackBehavior() {
 					for (var i = 0; i < mapArray.length; i++) {
 						/** @type {Array<String>} */
 						var value = map.get(mapArray[i]);
-						if (value != null) {
+						if (value !== null) {
 							objs[mapArray[i]] = Array.prototype.slice.call(value);
 						}
 					}
-					requestArgs = [objs]
-					if (Array.isArray(options.a)) {
+					if (hasDeveloperProvidedArguments) {
 						ps = objs.p||[]
 						objs.p = options.a
 					}
-				} else if (Array.isArray(options.a)) { //Only supply the arguments as defined when generating the callback URL
-					ps = request.getParameters("p")
-					requestArgs = options.a
+					requestArgs = [objs]
+				} else if (hasDeveloperProvidedArguments) { //Only supply the arguments as defined when generating the callback URL
+					ps = request.getParameters("p") //the values specified by the developer to evaluate clientside
+					requestArgs = options.a //the hardcoded values provided by the developer
 				} else {
 					requestArgs = []
 				}
-				if (Array.isArray(options.a)) {
+				
+				if (hasDeveloperProvidedArguments && options.p.length) {
 					//Splice the argument values evaluated on the client into options.a
 					for (var index = 0; index < options.p.length; index++) {
-						options.a.splice(options.p[index], 0, ps[index])
+						options.a[options.p[index]] = ps[index]
 					}
 				}
 
@@ -722,12 +785,12 @@ function getCallbackBehavior() {
 						var br = hsr.getReader(); 
 						var tmp = null;
 						var bodyContent = ""; 
-						while ((tmp = br.readLine()) != null) {
+						while ((tmp = br.readLine()) !== null) {
 							bodyContent += tmp + "\n";
 						}
 		
-						if (bodyContent != null) { 
-							if (requestArgs == null) {
+						if (bodyContent !== null) { 
+							if (requestArgs === null) {
 								requestArgs = [bodyContent];
 							} else {
 								requestArgs.splice(0, 0, bodyContent)
@@ -761,7 +824,7 @@ function getCallbackBehavior() {
 						var stringTarget = new Packages.org.apache.wicket.request.target.basic.StringRequestTarget(mimeType, "utf-8", retval)
 						requestCycle.setRequestTarget(stringTarget);
 					} else {
-						if (hsr.getMethod() == 'GET') {
+						if (hsr.getMethod() === 'GET') {
 							log.warn('Callback received with method GET while callback is configured to not return a value')
 						}
 						/** @type {Packages.org.apache.wicket.protocol.http.WebApplication} */
@@ -778,7 +841,7 @@ function getCallbackBehavior() {
 					log.error('Exception thrown in callbackMethod', e)
 					var statusCode = plugins.http.HTTP_STATUS.SC_INTERNAL_SERVER_ERROR
 					var message = ''
-					if (typeof e == 'number') {
+					if (typeof e === 'number') {
 						statusCode = e
 					} else if (scopes.svyJSUtils.isObject(e)) {
 						statusCode = e['statusCode']
@@ -814,7 +877,7 @@ var BAP_CALLBACK_BEHAVIOR_ID = 'com.servoy.bap.callbackBehavior'
  * Utility to create callback code for both getCallbackScript and getCallbackUrl. Maybe should be inlined, as too many code branches based on usage
  * @private
  *
- * @param {Object} callback
+ * @param {String|function} callback
  * @param {Array} [args] String values are considered references to browser-side properties. To pass hardcoded String literals the String value needs to be double quoted: '"myvalue"' or "'myValue'"
  * @param {{
  * 	mimeType: String=,
@@ -847,7 +910,7 @@ function generateCallback(callback, args, options) {
 				throw scopes.svyExceptions.IllegalArgumentException('Callback param must be a Servoy defined method')
 			}
 			qualifiedName = fd.toMethodString()
-			if (['scopes','globals'].indexOf(qualifiedName.substring(0, qualifiedName.indexOf('.'))) == -1) {
+			if (['scopes','globals'].indexOf(qualifiedName.substring(0, qualifiedName.indexOf('.'))) === -1) {
 				qualifiedName = 'forms.' + qualifiedName
 			}
 			break;
