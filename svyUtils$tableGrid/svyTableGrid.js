@@ -1109,6 +1109,8 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 			} else {
 				var bits = methodString.split('.');
 				var mName = bits.pop();
+				jsFormMethod = formToAddTo.getMethod(mName);
+				if (jsFormMethod) return jsFormMethod;
 				jsFormMethod = formToAddTo.newMethod("function " + mName + "() { return " + bits.join(".") + "." + mName + ".apply(" + bits.join(".") + ", arguments); } ");
 				return jsFormMethod;
 			}
