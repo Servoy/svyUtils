@@ -108,8 +108,8 @@ function setFormHeight(form, height) {
 	if (!(form instanceof RuntimeForm)) {
 		throw scopes.svyExceptions.IllegalArgumentException('form argument is not an instance of RuntimeForm')
 	}
-	if (form.controller.view !== JSForm.RECORD_VIEW) {
-		throw scopes.svyExceptions.IllegalArgumentException('form argument is not an instance of RuntimeForm')		
+	if (form.controller.view !== JSForm.RECORD_VIEW || form.controller.view !== JSForm.LOCKED_RECORD_VIEW) {
+		throw scopes.svyExceptions.IllegalArgumentException('form argument is not a form in Record View')		
 	}
 
 	/**@type {Packages.com.servoy.j2db.smart.SwingForm}*/
