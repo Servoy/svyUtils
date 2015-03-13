@@ -228,6 +228,26 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 	 */
 	var gridColumns = new Array();
 	
+	this.baseFormName = "svyUtils$tableGridBase";
+	
+	/**
+	 * Sets the base form used when the form is created<p>
+	 * 
+	 * The form needs to inherit from forms.datasetGridBase
+	 * 
+	 * @param {String|RuntimeForm} baseForm - the name or a reference to the base form to be used
+	 */
+	this.setBaseFormName = function(baseForm) {
+		/** @type {JSForm} */		
+		var jsBaseForm = scopes.svyUI.getJSFormForReference(baseForm);
+		if (jsBaseForm) {
+			if (!scopes.svyUI.isJSFormInstanceOf(jsBaseForm, "svyUtils$tableGridBase")) {
+				throw new scopes.svyExceptions.IllegalArgumentException("Form \"" + baseForm + "\" is not an intance of \"datasetGridBase\"");
+			}
+			this.baseFormName = jsBaseForm.name;
+		}
+	}
+	
 	/**
 	 * The style of the grid
 	 * 
@@ -434,7 +454,8 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 	}
 	
 	/**
-	 * onSort methid
+	 * onSort method
+	 * @type {String}
 	 */
 	this.onSort = null;
 	
@@ -456,6 +477,33 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 		}
 		return this;
 	}
+	
+	/**
+	 * Method to be called after the form is created
+	 * @type {String}
+	 */
+	this.onFormCreated = null;
+	
+	/**
+	 * Sets a method that is fired when the actual runtime form is created<p>
+	 * 
+	 * When the method is fired it receives the RuntimeForm created as parameter<p>
+	 * 
+	 * The method can be any form or scope method or is created using the given code
+	 * 
+	 * @param {Function|String} onFormCreatedFunctionOrCode
+	 * @return {TableGrid}
+	 */
+	this.setOnFormCreated = function(onFormCreatedFunctionOrCode) {
+		if (onFormCreatedFunctionOrCode instanceof String) {
+			this.onFormCreated = onFormCreatedFunctionOrCode;
+		} else if (onFormCreatedFunctionOrCode instanceof Function) {
+			/** @type {Function} */
+			var functionRef = onFormCreatedFunctionOrCode;
+			this.onFormCreated = scopes.svySystem.convertServoyMethodToQualifiedName(functionRef);
+		}
+		return this;
+	}	
 	
 	/**
 	 * onHide method
@@ -833,7 +881,7 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 		jsForm.view = JSForm.LOCKED_TABLE_VIEW;
 		jsForm.scrollbars = this.scrollbars;
 		jsForm.transparent = this.transparent;
-		jsForm.extendsForm = solutionModel.getForm("datasetGridBase");
+		jsForm.extendsForm = solutionModel.getForm(this.baseFormName);
 		
 		if (this.onShow) jsForm.onShow = createFunctionCallMethod(jsForm, this.onShow);
 		if (this.onHide) jsForm.onHide = createFunctionCallMethod(jsForm, this.onHide);
@@ -953,6 +1001,10 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 		/** @type {RuntimeForm<svyUtils$tableGridBase>} */
 		var runtimeForm = forms[jsForm.name];
 		runtimeForm.tableGrid = this;
+		
+		if (this.onFormCreated) {
+			scopes.svySystem.callMethod(this.onFormCreated, [runtimeForm]);
+		}
 		
 		return runtimeForm;
 	}
