@@ -434,6 +434,30 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 	}
 	
 	/**
+	 * onSort methid
+	 */
+	this.onSort = null;
+	
+	/**
+	 * Sets the onSort method of this form<p>
+	 * 
+	 * The method can be any form or scope method or is created using the given code
+	 * 
+	 * @param {Function|String} onSortFunctionOrCode
+	 * @return {TableGrid}
+	 */
+	this.setOnSort = function(onSortFunctionOrCode) {
+		if (onSortFunctionOrCode instanceof String) {
+			this.onSort = onSortFunctionOrCode;
+		} else if (onSortFunctionOrCode instanceof Function) {
+			/** @type {Function} */
+			var functionRef = onSortFunctionOrCode;
+			this.onSort = scopes.svySystem.convertServoyMethodToQualifiedName(functionRef);
+		}
+		return this;
+	}
+	
+	/**
 	 * onHide method
 	 * @type {String}
 	 */
@@ -811,10 +835,11 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 		jsForm.transparent = this.transparent;
 		jsForm.extendsForm = solutionModel.getForm("datasetGridBase");
 		
-		jsForm.onShow = createFunctionCallMethod(jsForm, this.onShow);
-		jsForm.onHide = createFunctionCallMethod(jsForm, this.onHide);
-		jsForm.onRecordSelection = createFunctionCallMethod(jsForm, this.onRecordSelection);
-		jsForm.onRender = createFunctionCallMethod(jsForm, this.onRender);
+		if (this.onShow) jsForm.onShow = createFunctionCallMethod(jsForm, this.onShow);
+		if (this.onHide) jsForm.onHide = createFunctionCallMethod(jsForm, this.onHide);
+		if (this.onRecordSelection) jsForm.onRecordSelection = createFunctionCallMethod(jsForm, this.onRecordSelection);
+		if (this.onRender) jsForm.onRender = createFunctionCallMethod(jsForm, this.onRender);
+		if (this.onSort) jsForm.onSortCmd = createFunctionCallMethod(jsForm, this.onSort);
 		
 		var onDataChangeMethod = createFunctionCallMethod(jsForm, this.onDataChange);
 		var onActionMethod = createFunctionCallMethod(jsForm, this.onAction);
