@@ -218,7 +218,7 @@ function getElementsByDesigntimeProperty(form, propertyName, propertyValue, incl
 		return dtp == propertyValue;
 	}
 	
-	var components = jsForm.getComponents(includeInherited);
+	var components = jsForm.getComponents(includeInherited === false ? false : true);
 	return components.filter(filterComponents);
 }
 
