@@ -1062,7 +1062,8 @@ function unwrapElement(component) {
 		var list = new Packages.java.util.ArrayList();
 		list.add(component)
 		wicketComponent = list.get(0)
-		if (!wicketComponent.add) {
+		//Take care of some components that are wrapped another way so the ArrayList unwrapping doesn't work. For example ComboBoxes
+		if (wicketComponent instanceof Packages.org.apache.wicket.Component && !wicketComponent.add) {
 			wicketComponent = new Packages.org.mozilla.javascript.NativeJavaObject(globals, wicketComponent, new Packages.org.mozilla.javascript.JavaMembers(globals, Packages.org.apache.wicket.Component))
 		}
 	}
