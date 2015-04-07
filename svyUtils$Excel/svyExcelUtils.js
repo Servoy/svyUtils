@@ -749,7 +749,7 @@ function ServoyExcelWorkbook(template, sheetNameToUse) {
 	 * Whether the header row is frozen or not
 	 * @type {Boolean}
 	 */
-	this.freezeFirstRow = true;
+	this.freezeFirstRow = false;
 
 	/**
 	 * Whether or not all data columns should be auto sized
@@ -773,7 +773,7 @@ function ServoyExcelWorkbook(template, sheetNameToUse) {
 	 * Whether or not the data columns should be auto filtered or not
 	 * @type {Boolean}
 	 */
-	this.setAutoFilter = true;
+	this.setAutoFilter = false;
 	
 	/**
 	 * Override this method in a subclass
@@ -950,7 +950,6 @@ function FoundSetExcelWorkbook(foundset, dataproviders, headers, template, sheet
 		var numberCellStyle = this.workbook.createCellStyle();
 		numberCellStyle.cloneStyleFrom(this.rowStyle);
 		numberCellStyle.setAlignment(ALIGNMENT.RIGHT);
-		numberCellStyle.setDataFormat(this.defaultNumberFormat);
 
 		var dateCellStyle = this.workbook.createCellStyle();
 		dateCellStyle.cloneStyleFrom(this.rowStyle);
@@ -1139,7 +1138,6 @@ function DataSetExcelWorkbook(dataset, columns, headers, template, sheetNameToUs
 		var numberCellStyle = this.workbook.createCellStyle();
 		numberCellStyle.cloneStyleFrom(this.rowStyle);
 		numberCellStyle.setAlignment(ALIGNMENT.RIGHT);
-		numberCellStyle.setDataFormat(this.defaultNumberFormat);
 
 		var dateCellStyle = this.workbook.createCellStyle();
 		dateCellStyle.cloneStyleFrom(this.rowStyle);
