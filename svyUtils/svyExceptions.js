@@ -46,7 +46,7 @@ function SvyException(errorMessage) {
 	if (!(this instanceof SvyException)) {
 		log.error('SvyException subclass called without the \'new\' keyword')
 	}
-	this.message = errorMessage
+	this.message = errorMessage.substr(0,5) === 'i18n:' ? i18n.getI18NMessage(errorMessage) : errorMessage
 	this.name = this.constructor['name']
 }
 
