@@ -986,7 +986,7 @@ var initObjectMessage = (function() {
 	}
 	
 	ObjectMessage.prototype.getFormattedMessage = function() {
-		return typeof this.format.toString === 'function' ? this.format.toString() : '' + this.format
+		return this.format === undefined ? 'undefined' : this.format === null ? 'null' : typeof this.format.toString === 'function' ? this.format.toString() : '' + this.format
 	}
 
 	ObjectMessage.prototype.getParameters = function() {
