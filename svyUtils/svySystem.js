@@ -87,7 +87,17 @@ function isHeadlessClient(){
  * @properties={typeid:24,uuid:"C7915F79-3B6C-4F99-B898-D1287B6A7D36"}
  */
 function isSwingClient() {
-	return [APPLICATION_TYPES.SMART_CLIENT, APPLICATION_TYPES.RUNTIME_CLIENT].indexOf(application.getApplicationType()) >= 0;
+	return [APPLICATION_TYPES.SMART_CLIENT, APPLICATION_TYPES.RUNTIME_CLIENT].indexOf(application.getApplicationType()) !== -1;
+}
+
+/**
+ * Returns true if the client is either a Headless or Web Client, both of which execute their logic serverside
+ * @public 
+ * @return {Boolean}
+ * @properties={typeid:24,uuid:"AB51A99C-5262-4CF4-B338-CE549D417683"}
+ */
+function isServersideClient() {
+	return [APPLICATION_TYPES.WEB_CLIENT, APPLICATION_TYPES.HEADLESS_CLIENT].indexOf(application.getApplicationType()) !== -1;
 }
 
 /**
@@ -132,7 +142,6 @@ function isOSXPlatform() {
  */
 function isLinuxPlatform() {
 	return /FreeBSD|Linux/.test(application.getOSName())
-	
 }
 
 /**
