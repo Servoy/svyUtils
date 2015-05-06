@@ -1044,6 +1044,38 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 	}
 	
 	/**
+	 * Adds the grid to the given split pane
+	 * 
+	 * @param {RuntimeSplitPane} panel
+	 * @param {Number} panelNumber - 1 for left or top panel, 2 for right or bottom panel
+	 * @param {String} [formName]
+	 * 
+	 * @return {RuntimeForm<svyUtils$tableGridBase>}
+	 */
+	this.addToSplitPane = function(panel, panelNumber, formName) {
+		if (!formName && this.formName) {
+			formName = this.formName;
+		}
+		var dummyForm = solutionModel.getForm("tableGridDummy");
+		if (!dummyForm) {
+			dummyForm = solutionModel.newForm("tableGridDummy", null, null, false, 10, 10);
+		}
+		if (!panelNumber || panelNumber == 1) {
+			panel.setLeftForm(dummyForm.name);
+		} else {
+			panel.setRightForm(dummyForm.name);
+		}
+		var runtimeForm = this.createForm(formName);
+		runtimeForm.controller.loadAllRecords();
+		if (!panelNumber || panelNumber == 1) {
+			panel.setLeftForm(runtimeForm);
+		} else {
+			panel.setRightForm(runtimeForm);
+		}
+		return runtimeForm;
+	}
+	
+	/**
 	 * Returns the JSColumn type of a given column
 	 * @param {String} colName
 	 * @return {Number} dataType

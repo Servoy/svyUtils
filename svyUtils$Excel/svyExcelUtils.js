@@ -1017,6 +1017,7 @@ function FoundSetExcelWorkbook(foundset, dataproviders, headers, template, sheet
 var initFoundSetExcelWorkbook = (function() {
 	FoundSetExcelWorkbook.prototype = Object.create(ServoyExcelWorkbook.prototype, {});
 	FoundSetExcelWorkbook.prototype.constructor = FoundSetExcelWorkbook;
+	
 	/**
 	 * Returns the foundset used to create this workbook
 	 * @return {JSFoundSet}
@@ -1205,6 +1206,7 @@ function DataSetExcelWorkbook(dataset, columns, headers, template, sheetNameToUs
 var initDataSetExcelWorkbook = (function() {
 	DataSetExcelWorkbook.prototype = Object.create(ServoyExcelWorkbook.prototype, {});
 	DataSetExcelWorkbook.prototype.constructor = DataSetExcelWorkbook;
+	
 	/**
 	 * Returns the dataset used to create this workbook
 	 * @return {JSDataSet}

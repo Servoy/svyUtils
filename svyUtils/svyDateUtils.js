@@ -754,7 +754,7 @@ function isLeapYear(year) {
 }
 
 /**
- * Returns the day of the week
+ * Returns the day of the week starting with 1 on Sunday
  * 
  * @public
  * 
