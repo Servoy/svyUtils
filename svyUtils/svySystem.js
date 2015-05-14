@@ -199,6 +199,7 @@ function isMobilePlatform() {
 
 /**
  * Returns the build number of the Servoy version
+ * @public
  * @return {Number}
  * 
  * @properties={typeid:24,uuid:"B6FB2E27-B892-4B21-B911-A3F336FFA581"}
@@ -208,6 +209,54 @@ function getServoyBuildNumber() {
 	/** @type {Packages.com.servoy.j2db.plugins.IClientPluginAccess} */
 	var clientAccess = x['getClientPluginAccess']()
 	return clientAccess.getReleaseNumber()
+}
+
+/**
+ * Regex for parsing the java.version string
+ * @private 
+ *
+ * @see http://www.oracle.com/technetwork/java/javase/versioning-naming-139433.html
+ * @properties={typeid:35,uuid:"EE2F825B-3B91-407D-B3EF-AC686FD0451B",variableType:-4}
+ */
+var javaVersionParseRegex = /^\d+\.(\d+)\.(\d+)_(\d+).*$/gm
+
+/**
+ * Returns 8.0 when running Java 8 (java.version=1.8.1_45-ea)
+ * @public
+ * @return {Number}
+ * @properties={typeid:24,uuid:"47D1C559-29D0-4518-B56D-9A353EC08886"}
+ */
+function getJavaMajorVersion() {
+	/**@type {String}*/
+	var val = javaVersionParseRegex.exec(java.lang.System.getProperty('java.version'))[1]
+	javaVersionParseRegex.lastIndex = 0
+	return parseInt(val)
+}
+
+/**
+ * Returns 1.0 when running Java 8.1 (java.version=1.8.1_45-ea)
+ * @public
+ * @return {Number}
+ * @properties={typeid:24,uuid:"E6BE2E46-6F33-4640-8540-A2706931DAB1"}
+ */
+function getJavaMinorVersion() {
+	/**@type {String}*/
+	var val = javaVersionParseRegex.exec(java.lang.System.getProperty('java.version'))[2]
+	javaVersionParseRegex.lastIndex = 0
+	return parseInt(val)
+}
+
+/**
+ * Returns 45.0 when running Java 8 update 45 (java.version=1.8.1_45-ea)
+ * @public
+ * @return {Number}
+ * @properties={typeid:24,uuid:"BAB91917-C4BD-4AB0-8510-1C6019F20145"}
+ */
+function getJavaUpdateVersion() {
+	/**@type {String}*/
+	var val = javaVersionParseRegex.exec(java.lang.System.getProperty('java.version'))[3]
+	javaVersionParseRegex.lastIndex = 0
+	return parseInt(val)
 }
 
 /**
@@ -395,6 +444,7 @@ function callMethod(qualifiedName, args, context) {
 }
 
 /**
+ * @public
  * @param {String} qualifiedName
  * @param {*} [context]
  * @return {*}
