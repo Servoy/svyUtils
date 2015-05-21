@@ -266,6 +266,23 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 	}
 	
 	/**
+	 * The style class of the grid form
+	 * 
+	 * @type {String}
+	 */
+	this.styleClass = null;
+	
+	/**
+	 * Sets the style class of this grid form
+	 * @param {String} [styleClass]
+	 * @return {TableGrid}
+	 */
+	this.setStyleClass = function(styleClass) {
+		this.styleClass = styleClass;
+		return this;
+	}	
+	
+	/**
 	 * The width of the form
 	 * 
 	 * @type {Number}
@@ -883,6 +900,8 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 		jsForm.transparent = this.transparent;
 		jsForm.extendsForm = solutionModel.getForm(this.baseFormName);
 		
+		if (this.styleClass) jsForm.styleClass = this.styleClass;
+		
 		if (this.onShow) jsForm.onShow = createFunctionCallMethod(jsForm, this.onShow);
 		if (this.onHide) jsForm.onHide = createFunctionCallMethod(jsForm, this.onHide);
 		if (this.onRecordSelection) jsForm.onRecordSelection = createFunctionCallMethod(jsForm, this.onRecordSelection);
@@ -930,6 +949,9 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 					jsComponent.editable = this.editable ? (gridColumn.editable === false ? false : true) : (gridColumn.editable === true ? true : false);
 					if (gridColumn.valueListName) {
 						jsComponent.valuelist = solutionModel.getValueList(gridColumn.valueListName);
+					}
+					if (gridColumn.selectOnEnter == true) {
+						jsComponent.selectOnEnter = true;
 					}
 					if (gridColumn.scrollbars) {
 						jsComponent.scrollbars = gridColumn.scrollbars;
@@ -1742,6 +1764,22 @@ function GridColumn(dataProviderName, columnIndex) {
 		this.scrollbars = scrollBars;
 		return this;
 	}
+	
+	/**
+	 * The selectOnEnter property of this column
+	 * @type {Boolean}
+	 */
+	this.selectOnEnter = false;
+	
+	/**
+	 * Sets the selectOnEnter property of this column
+	 * @param {Boolean} selectOnEnter
+	 * @return {GridColumn} this
+	 */
+	this.setSelectOnEnter = function(selectOnEnter) {
+		this.selectOnEnter = selectOnEnter;
+		return this;
+	}	
 	
 	/**
 	 * The tooltip text of this column
