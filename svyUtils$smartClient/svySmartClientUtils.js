@@ -69,6 +69,7 @@ function getSmartClientPluginAccess() {
 }
 
 /**
+ * TODO: deprecate as of Servoy 8, see {@link https://support.servoy.com/browse/SVY-7804}
  * @param {RuntimeComponent} element
  * @return {String}
 
@@ -122,4 +123,18 @@ function setFormHeight(form, height) {
 	var preferredWidth = panel.getPreferredSize().width
 	panel.setPreferredSize(new Packages.java.awt.Dimension(preferredWidth, height))
 	panel.revalidate()
+}
+
+/**
+ * Sets the caret color of a TextField or TextArea<br>
+ * <br>
+ * @param {RuntimeTextField|RuntimeTextArea} element
+ * @param {String} [color] A CSS Hex Color value, like #45A38F. When not specified, the fgcolor of the element is used by default.
+ *
+ * @properties={typeid:24,uuid:"806E5302-B6C7-4F08-8FA5-9075971FD587"}
+ */
+function setCaretColor(element, color) {
+	/**@type {Packages.javax.swing.JTextField}*/
+	var textField = unwrapElement(element)
+	textField.setCaretColor(java.awt.Color.decode(color||element.fgcolor))	
 }
