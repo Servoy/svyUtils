@@ -576,6 +576,7 @@ function getElementMarkupId(element) {
 }
 
 /**
+ * TODO: deprecate as of Servoy 8, see {@link https://support.servoy.com/browse/SVY-7804}
  * @param {RuntimeComponent} element
  * @return {String}
  *
