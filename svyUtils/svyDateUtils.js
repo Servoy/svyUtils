@@ -474,6 +474,64 @@ function createDateTimeSearchString(start, end) {
 }
 
 /**
+ * Calculates someone's age from the given birthdate
+ * 
+ * @param {Date} birthdate the date of birth
+ * @param {Date} [compareDate] optional date to calculate from; if not given, the current date will be used
+ * 
+ * @return {{years: Number, months: Number, days: Number}}
+ *
+ * @properties={typeid:24,uuid:"CBDA6831-16E8-46F8-8C04-A3233037D7B5"}
+ */
+function getAge(birthdate, compareDate) {
+	if (!compareDate) compareDate = new Date();
+	
+	if (compareDate < birthdate) {
+		return {years: 0, months: 0, days: 0};
+	}
+
+	var years, months, days;
+
+	var birthDay = java.util.Calendar.getInstance();
+	birthDay.setTimeInMillis(birthdate.getTime());
+	
+	var now = java.util.Calendar.getInstance();
+	now.setTimeInMillis(compareDate.getTime());
+	
+	years = now.get(java.util.Calendar.YEAR) - birthDay.get(java.util.Calendar.YEAR);
+	
+	var currMonth = now.get(java.util.Calendar.MONTH) + 1;
+	var birthMonth = birthDay.get(java.util.Calendar.MONTH) + 1;
+	months = currMonth - birthMonth;
+	if (months < 0) {
+		years--;
+		months = 12 - birthMonth + currMonth;
+		if (now.get(java.util.Calendar.DATE) < birthDay.get(java.util.Calendar.DATE)) {
+			months--;
+		}
+	} else if (months == 0 && now.get(java.util.Calendar.DATE) < birthDay.get(java.util.Calendar.DATE)) {
+		years--;
+		months = 11;
+	}
+	
+	if (now.get(java.util.Calendar.DATE) > birthDay.get(java.util.Calendar.DATE)) {
+		days = now.get(java.util.Calendar.DATE) - birthDay.get(java.util.Calendar.DATE);
+	} else if (now.get(java.util.Calendar.DATE) < birthDay.get(java.util.Calendar.DATE)) {
+		var dayOfMonth = now.get(java.util.Calendar.DAY_OF_MONTH);
+		now.add(java.util.Calendar.MONTH, -1);
+		days = now.getActualMaximum(java.util.Calendar.DAY_OF_MONTH) - birthDay.get(java.util.Calendar.DAY_OF_MONTH) + dayOfMonth;
+	} else {
+		days = 0;
+		if (months == 12) {
+			years++;
+			months = 0;
+		}
+	}
+
+	return { years: years, months: months, days: days };
+}
+
+/**
  * Creates an object with the number of days, hours, minutes and seconds between two dates
  * 
  * @param {Date} start
