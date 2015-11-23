@@ -228,6 +228,26 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 	 */
 	var gridColumns = new Array();
 	
+	this.baseFormName = "svyUtils$tableGridBase";
+	
+	/**
+	 * Sets the base form used when the form is created<p>
+	 * 
+	 * The form needs to inherit from forms.datasetGridBase
+	 * 
+	 * @param {String|RuntimeForm} baseForm - the name or a reference to the base form to be used
+	 */
+	this.setBaseFormName = function(baseForm) {
+		/** @type {JSForm} */		
+		var jsBaseForm = scopes.svyUI.getJSFormForReference(baseForm);
+		if (jsBaseForm) {
+			if (!scopes.svyUI.isJSFormInstanceOf(jsBaseForm, "svyUtils$tableGridBase")) {
+				throw new scopes.svyExceptions.IllegalArgumentException("Form \"" + baseForm + "\" is not an intance of \"datasetGridBase\"");
+			}
+			this.baseFormName = jsBaseForm.name;
+		}
+	}
+	
 	/**
 	 * The style of the grid
 	 * 
@@ -244,6 +264,23 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 		this.style = style;
 		return this;
 	}
+	
+	/**
+	 * The style class of the grid form
+	 * 
+	 * @type {String}
+	 */
+	this.styleClass = null;
+	
+	/**
+	 * Sets the style class of this grid form
+	 * @param {String} [styleClass]
+	 * @return {TableGrid}
+	 */
+	this.setStyleClass = function(styleClass) {
+		this.styleClass = styleClass;
+		return this;
+	}	
 	
 	/**
 	 * The width of the form
@@ -432,6 +469,58 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 		}
 		return this;
 	}
+	
+	/**
+	 * onSort method
+	 * @type {String}
+	 */
+	this.onSort = null;
+	
+	/**
+	 * Sets the onSort method of this form<p>
+	 * 
+	 * The method can be any form or scope method or is created using the given code
+	 * 
+	 * @param {Function|String} onSortFunctionOrCode
+	 * @return {TableGrid}
+	 */
+	this.setOnSort = function(onSortFunctionOrCode) {
+		if (onSortFunctionOrCode instanceof String) {
+			this.onSort = onSortFunctionOrCode;
+		} else if (onSortFunctionOrCode instanceof Function) {
+			/** @type {Function} */
+			var functionRef = onSortFunctionOrCode;
+			this.onSort = scopes.svySystem.convertServoyMethodToQualifiedName(functionRef);
+		}
+		return this;
+	}
+	
+	/**
+	 * Method to be called after the form is created
+	 * @type {String}
+	 */
+	this.onFormCreated = null;
+	
+	/**
+	 * Sets a method that is fired when the actual runtime form is created<p>
+	 * 
+	 * When the method is fired it receives the RuntimeForm created as parameter<p>
+	 * 
+	 * The method can be any form or scope method or is created using the given code
+	 * 
+	 * @param {Function|String} onFormCreatedFunctionOrCode
+	 * @return {TableGrid}
+	 */
+	this.setOnFormCreated = function(onFormCreatedFunctionOrCode) {
+		if (onFormCreatedFunctionOrCode instanceof String) {
+			this.onFormCreated = onFormCreatedFunctionOrCode;
+		} else if (onFormCreatedFunctionOrCode instanceof Function) {
+			/** @type {Function} */
+			var functionRef = onFormCreatedFunctionOrCode;
+			this.onFormCreated = scopes.svySystem.convertServoyMethodToQualifiedName(functionRef);
+		}
+		return this;
+	}	
 	
 	/**
 	 * onHide method
@@ -712,7 +801,7 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 			/** @type {GridColumn} */
 			var newCol = new GridColumn(columnNames[colIndex], colIndex);
 			if (useHeaders) {
-				newCol.setHeaderText(columnHeaders[colIndex-1]);
+				newCol.setHeaderText(columnHeaders[colIndex]);
 			}
 			gridColumns.push(newCol);
 		}
@@ -809,12 +898,15 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 		jsForm.view = JSForm.LOCKED_TABLE_VIEW;
 		jsForm.scrollbars = this.scrollbars;
 		jsForm.transparent = this.transparent;
-		jsForm.extendsForm = solutionModel.getForm("datasetGridBase");
+		jsForm.extendsForm = solutionModel.getForm(this.baseFormName);
 		
-		jsForm.onShow = createFunctionCallMethod(jsForm, this.onShow);
-		jsForm.onHide = createFunctionCallMethod(jsForm, this.onHide);
-		jsForm.onRecordSelection = createFunctionCallMethod(jsForm, this.onRecordSelection);
-		jsForm.onRender = createFunctionCallMethod(jsForm, this.onRender);
+		if (this.styleClass) jsForm.styleClass = this.styleClass;
+		
+		if (this.onShow) jsForm.onShow = createFunctionCallMethod(jsForm, this.onShow);
+		if (this.onHide) jsForm.onHide = createFunctionCallMethod(jsForm, this.onHide);
+		if (this.onRecordSelection) jsForm.onRecordSelection = createFunctionCallMethod(jsForm, this.onRecordSelection);
+		if (this.onRender) jsForm.onRender = createFunctionCallMethod(jsForm, this.onRender);
+		if (this.onSort) jsForm.onSortCmd = createFunctionCallMethod(jsForm, this.onSort);
 		
 		var onDataChangeMethod = createFunctionCallMethod(jsForm, this.onDataChange);
 		var onActionMethod = createFunctionCallMethod(jsForm, this.onAction);
@@ -858,6 +950,9 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 					if (gridColumn.valueListName) {
 						jsComponent.valuelist = solutionModel.getValueList(gridColumn.valueListName);
 					}
+					if (gridColumn.selectOnEnter == true) {
+						jsComponent.selectOnEnter = true;
+					}
 					if (gridColumn.scrollbars) {
 						jsComponent.scrollbars = gridColumn.scrollbars;
 					}
@@ -873,7 +968,7 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 					if (gridColumn.mediaOptions) {
 						jsLabel.mediaOptions = gridColumn.mediaOptions;
 					}
-					if (jsLabel.onDoubleClick) {
+					if (gridColumn.onDoubleClick) {
 						jsComponent.onDoubleClick = createFunctionCallMethod(jsForm, gridColumn.onDoubleClick);
 					} else if (onDoubleClickMethod) {
 						jsLabel.onDoubleClick = onDoubleClickMethod;
@@ -929,6 +1024,10 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 		var runtimeForm = forms[jsForm.name];
 		runtimeForm.tableGrid = this;
 		
+		if (this.onFormCreated) {
+			scopes.svySystem.callMethod(this.onFormCreated, [runtimeForm]);
+		}
+		
 		return runtimeForm;
 	}
 	
@@ -960,8 +1059,41 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 				}
 			}
 		}
-		var runtimeForm = this.createForm(formName);		
+		var runtimeForm = this.createForm(formName);
+		runtimeForm.controller.loadAllRecords();
 		panel.addTab(runtimeForm, formName ? formName : null, tabText ? tabText : null, null, null, null, null, null, index >= 0 ? index : -1);
+		return runtimeForm;
+	}
+	
+	/**
+	 * Adds the grid to the given split pane
+	 * 
+	 * @param {RuntimeSplitPane} panel
+	 * @param {Number} panelNumber - 1 for left or top panel, 2 for right or bottom panel
+	 * @param {String} [formName]
+	 * 
+	 * @return {RuntimeForm<svyUtils$tableGridBase>}
+	 */
+	this.addToSplitPane = function(panel, panelNumber, formName) {
+		if (!formName && this.formName) {
+			formName = this.formName;
+		}
+		var dummyForm = solutionModel.getForm("tableGridDummy");
+		if (!dummyForm) {
+			dummyForm = solutionModel.newForm("tableGridDummy", null, null, false, 10, 10);
+		}
+		if (!panelNumber || panelNumber == 1) {
+			panel.setLeftForm(dummyForm.name);
+		} else {
+			panel.setRightForm(dummyForm.name);
+		}
+		var runtimeForm = this.createForm(formName);
+		runtimeForm.controller.loadAllRecords();
+		if (!panelNumber || panelNumber == 1) {
+			panel.setLeftForm(runtimeForm);
+		} else {
+			panel.setRightForm(runtimeForm);
+		}
 		return runtimeForm;
 	}
 	
@@ -1108,6 +1240,8 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 			} else {
 				var bits = methodString.split('.');
 				var mName = bits.pop();
+				jsFormMethod = formToAddTo.getMethod(mName);
+				if (jsFormMethod) return jsFormMethod;
 				jsFormMethod = formToAddTo.newMethod("function " + mName + "() { return " + bits.join(".") + "." + mName + ".apply(" + bits.join(".") + ", arguments); } ");
 				return jsFormMethod;
 			}
@@ -1630,6 +1764,22 @@ function GridColumn(dataProviderName, columnIndex) {
 		this.scrollbars = scrollBars;
 		return this;
 	}
+	
+	/**
+	 * The selectOnEnter property of this column
+	 * @type {Boolean}
+	 */
+	this.selectOnEnter = false;
+	
+	/**
+	 * Sets the selectOnEnter property of this column
+	 * @param {Boolean} selectOnEnter
+	 * @return {GridColumn} this
+	 */
+	this.setSelectOnEnter = function(selectOnEnter) {
+		this.selectOnEnter = selectOnEnter;
+		return this;
+	}	
 	
 	/**
 	 * The tooltip text of this column

@@ -132,11 +132,18 @@ function StringToByteArray(string) {
 /**
  * Tests if a given value for the given dataprovider already exists in the provided datasource
  * 
+ * @deprecated will be removed in version 7.0. This method has been renamed from isValueUnique,<br>
+ * but the result is the opposite now of what it's current name suggests. Use <code>dataSourceHasValue</code><br>
+ * instead which in contrast to this method returns true, if the datasource already contains the<br>
+ * value asked for, so <b>exactly the opposite of this method!</b>
+ * 
  * @param {JSRecord|JSFoundSet|String} datasource
  * @param {String} dataproviderName - the name of the dataprovider that should be tested for uniqueness
  * @param {Object} value - the value that should be unique in the given dataprovider
  * @param {String[]} [extraQueryColumns] - optional array of additional dataproviders that can be used in the unique query
  * @param {Object[]} [extraQueryValues] - optional array of additional values that can be used in the unique query
+ * 
+ * @return {Boolean} true if the datasource <b>does not contain</b> the value asked for
  *
  * @properties={typeid:24,uuid:"460E5007-852E-4143-82FD-6840DA430FC0"}
  */
@@ -175,7 +182,58 @@ function datasourceHasValue(datasource, dataproviderName, value, extraQueryColum
 		}
 	}
 	var dataset = databaseManager.getDataSetByQuery(query, 1);
-	return dataset.getValue(1,1) == 0
+	return (dataset.getValue(1,1) == 0)
+}
+
+/**
+ * Tests if a given value for the given dataprovider already exists in the provided datasource
+ * 
+ * @param {JSRecord|JSFoundSet|String} datasource
+ * @param {String} dataproviderName - the name of the dataprovider that should be tested for uniqueness
+ * @param {Object} value - the value that should be unique in the given dataprovider
+ * @param {String[]} [extraQueryColumns] - optional array of additional dataproviders that can be used in the unique query
+ * @param {Object[]} [extraQueryValues] - optional array of additional values that can be used in the unique query
+ * 
+ * @return {Boolean} true if the datasource already does contain the value asked for
+ *
+ * @properties={typeid:24,uuid:"A5D17E06-BD6B-4CAA-8764-58C8F4C27D35"}
+ */
+function dataSourceHasValue(datasource, dataproviderName, value, extraQueryColumns, extraQueryValues) {
+	if (!datasource || !dataproviderName) {
+		throw new scopes.svyExceptions.IllegalArgumentException("no parameters provided to scopes.svyDataUtils.datasourceHasValue(foundsetOrRecord, dataproviderName, value)");
+	}
+	/** @type {String} */
+	var dataSource = (datasource instanceof String) ? datasource : datasource.getDataSource();
+	var pkNames = databaseManager.getTable(dataSource).getRowIdentifierColumnNames();
+	var query = databaseManager.createSelect(dataSource);
+	query.result.add(query.getColumn(pkNames[0]).count);
+
+	if (value == null) {
+		query.where.add(query.getColumn(dataproviderName).isNull);
+	} else if (value instanceof UUID) {
+		query.where.add(query.getColumn(dataproviderName).eq(value.toString()));
+	} else {
+		query.where.add(query.getColumn(dataproviderName).eq(value));
+	}
+	if (extraQueryColumns || extraQueryValues) {
+		if (!Array.isArray(extraQueryColumns) || !Array.isArray(extraQueryValues)) {
+			throw scopes.svyExceptions.IllegalArgumentException("extraQueryColumns and extraQueryValues parameters are not both an Array");
+		}
+		if (extraQueryColumns.length != extraQueryValues.length) {
+			throw scopes.svyExceptions.IllegalArgumentException("size of extraQueryColumns and extraQueryValues parameters do not match");
+		}
+		for (var j = 0; j < extraQueryColumns.length; j++) {
+			if (extraQueryValues[j] == null) {
+				query.where.add(query.getColumn(extraQueryColumns[j]).isNull);
+			} else if (extraQueryValues[j] instanceof UUID) {
+				query.where.add(query.getColumn(extraQueryColumns[j]).eq(extraQueryValues[j].toString()));
+			} else {
+				query.where.add(query.getColumn(extraQueryColumns[j]).eq(extraQueryValues[j]));
+			}
+		}
+	}
+	var dataset = databaseManager.getDataSetByQuery(query, 1);
+	return !(dataset.getValue(1,1) == 0)
 }
 
 /**
@@ -586,6 +644,79 @@ function getDataproviderValueInDB(record, dataProviderId) {
 		}
 	}
 	return record[dataProviderId];
+}
+
+/**
+ * Dumps all data of either all or the given tables of the given server to csv files and zips them.<p>
+ * 
+ * All possible table filters will be applied.
+ * 
+ * @public 
+ * 
+ * @version 6.1
+ * @since Feb 4, 2015
+ * @author patrick
+ *
+ * @param {String} serverName - the server to dump
+ * @param {Array<String>} [tablesToUse] - if given, only these tables will be exported
+ * 
+ * @return {plugins.file.JSFile} zipFile - the zip file created
+ *
+ * @properties={typeid:24,uuid:"148D1F46-6615-4ED4-A3D6-BD03B1D39932"}
+ */
+function createDataDump(serverName, tablesToUse) {
+	if (!tablesToUse) {
+		tablesToUse = databaseManager.getTableNames(serverName);
+	}
+
+	try {
+		var tempDir = plugins.file.createTempFile("data_dump_", "");
+		tempDir.deleteFile();
+		var success = plugins.file.createFolder(tempDir);
+		if (!success) {
+			throw new scopes.svyExceptions.IllegalStateException("Failed to create temp dir \"" + tempDir.getAbsolutePath() + "\"");
+		}
+		for (var i = 0; i < tablesToUse.length; i++) {
+			var fs = databaseManager.getFoundSet(serverName, tablesToUse[i]);
+			fs.loadAllRecords();
+			
+			if (!utils.hasRecords(fs)) continue;
+			
+			var fsQuery = databaseManager.getSQL(fs, true);
+			var fsQueryParams = databaseManager.getSQLParameters(fs, true);
+			var jsTable = databaseManager.getTable(fs);
+			var dataProviderIds = jsTable.getColumnNames();
+			var pkColumns = jsTable.getRowIdentifierColumnNames();
+			var qualifiedDataproviderIds = [];
+			for (var d = 0; d < dataProviderIds.length; d++) {
+				qualifiedDataproviderIds.push(tablesToUse[i] + "." + dataProviderIds[d]);
+			}
+			for (var p = 0; p < pkColumns.length; p++) {
+				pkColumns[p] = tablesToUse[i] + "." + pkColumns[p];
+			}
+			
+			var pkArgToReplace = "select " + pkColumns.join(", ");
+			fsQuery = utils.stringReplace(fsQuery, pkArgToReplace, "select " + qualifiedDataproviderIds.join(", "));
+			
+			var dataset = databaseManager.getDataSetByQuery(serverName, fsQuery, fsQueryParams, -1);
+			var exportFile = plugins.file.convertToJSFile(tempDir.getAbsolutePath() + java.io.File.separator + tablesToUse[i] + ".csv");
+			if (fs) {
+				var textData = dataset.getAsText(";", "\n", "\"", true);
+				if (textData.substring(textData.length-1) == "\n") {
+					//remove last empty line if present
+					textData = textData.substring(0, textData.length-1);
+				}
+				success = plugins.file.writeTXTFile(exportFile, textData);
+				if (!success) {
+					throw new scopes.svyExceptions.IllegalStateException("Failed to write to file \"" + exportFile.getAbsolutePath() + "\"");
+				}
+			}
+		}
+		var zipFile = scopes.svyIO.zip(tempDir);
+		return zipFile;
+	} catch (e) {
+		throw new scopes.svyExceptions.SvyException("Error creating data dump: " + e.message);
+	}
 }
 
 /**

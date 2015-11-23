@@ -86,15 +86,15 @@ function unzip(fileToUnzip, targetFile) {
 			} while (targetFile.exists());
 		}
 	}
-	
+
 	if (!targetFile.exists()) {
 		targetFile.mkdirs();
 	}
-	
+
 	try {
 		var zipFile = new java.util.zip.ZipFile(fileToUnzip.getAbsolutePath());
 		var zipEntries = zipFile.entries();
-		
+
 		while (zipEntries.hasMoreElements()) {
 			/** @type {java.util.zip.ZipEntry} */
 			var zipEntry = zipEntries.nextElement();
@@ -112,11 +112,11 @@ function unzip(fileToUnzip, targetFile) {
 				var is = zipFile.getInputStream(zipEntry);
 				/** @type {java.io.OutputStream} */
 				var fos = new java.io.FileOutputStream(jsFile.getAbsolutePath());
-				
+
 				/** @type {java.nio.channels.ReadableByteChannel} */
 				var inputChannel = java.nio.channels.Channels.newChannel(is);
 				/** @type {java.nio.channels.WritableByteChannel} */
-				var outputChannel = java.nio.channels.Channels.newChannel(fos);		
+				var outputChannel = java.nio.channels.Channels.newChannel(fos);
 
 				channelCopy(inputChannel, outputChannel);
 
@@ -127,12 +127,20 @@ function unzip(fileToUnzip, targetFile) {
 		}
 	} catch (e) {
 		// IO Exception
-		log.error("Failed to unzip file \"{}\": ", fileToUnzip.getAbsolutePath(), e.message);
+		log.error("Failed to unzip file \"{}\": {}", fileToUnzip.getAbsolutePath(), e.message);
 		return null;
+	} finally {
+		if (zipFile) {
+			try {
+				zipFile.close();
+			} catch (e) {
+			}
+		}
 	}
-	
+
 	return targetFile;
 }
+
 
 /**
  * Zips the given file or directory<p>
@@ -230,7 +238,7 @@ function zip(fileToZip, targetFile, filenamesToStoreUncompressed) {
 		zos = null;
 	}
 	catch(e) {
-		log.error("Error zipping file \"{}\"", fileToZip.getAbsolutePath(), e);
+		log.error("Error zipping file \"{}\": {}", fileToZip.getAbsolutePath(), e.message);
 		throw e;
 	} finally {
 		try {

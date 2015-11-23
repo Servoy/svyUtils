@@ -8,7 +8,7 @@
  * @private 
  * @properties={typeid:35,uuid:"09288A13-7587-40CD-B8DF-36AD6EEC8D34",variableType:-4}
  */
-var log = scopes.svyLogManager.getLogger('com.servoy.bap.application.core')
+var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.application.core')
 
 /**
  * @private
@@ -93,9 +93,14 @@ function initModules(startupArguments) {
 				}
 			}
 			
-			form.moduleInit.call(null, startupArguments);
-			scopes.svyEventManager.fireEvent(this, APPLICATION_EVENT_TYPES.MODULE_INITIALIZED, [form])
-			log.debug('Initialized module ' + (form.getId() ? form.getId() : "[no ID provided for moduleDefinition \"" + moduleDefName + "\"]") + ' version ' + form.getVersion());
+			//	Process module with error handling
+			try {
+				form.moduleInit.call(null, startupArguments);
+				scopes.svyEventManager.fireEvent(this, APPLICATION_EVENT_TYPES.MODULE_INITIALIZED, [form])
+				log.debug('Initialized module ' + (form.getId() ? form.getId() : "[no ID provided for moduleDefinition \"" + moduleDefName + "\"]") + ' version ' + form.getVersion());
+			}catch(e){
+				log.error("Error initializing module '"+moduleDefName+"'. Module may not function properly: " + e.toString());
+			}
 			stack.pop()
 			processed[moduleDefName] = null
 		}
