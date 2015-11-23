@@ -116,8 +116,6 @@ function setFormHeight(form, height) {
 	/**@type {Packages.com.servoy.j2db.smart.SwingForm}*/
 	var unwrappedForm = unwrapElement(form)
 
-	//CHECKME: why is this typing needed? Seems like Packages.com.servoy.j2db.smart.SwingForm is not recognized
-	/**@type {Packages.javax.swing.JComponent}*/
 	var panel = unwrappedForm.getViewport().getComponents()[0]
 	
 	var preferredWidth = panel.getPreferredSize().width
@@ -137,4 +135,25 @@ function setCaretColor(element, color) {
 	/**@type {Packages.javax.swing.JTextField}*/
 	var textField = unwrapElement(element)
 	textField.setCaretColor(java.awt.Color.decode(color||element.fgcolor))	
+}
+
+/**
+ * Shows a busy cursor until {@link #releaseGUI()} is called<br>
+ * <br>
+ * When calling blockGUI multple times, {@link #releaseGUI()} needs to be called an equal number of times before the normal cursor is restored<br>
+ * <br>
+ * @param {String} [reason] Optional text to display in the statusbar
+ *
+ * @properties={typeid:24,uuid:"19760794-E5D8-47A2-988B-92744749E035"}
+ */
+function blockGUI(reason) {
+	getSmartClientPluginAccess().blockGUI(reason||'')
+}
+
+/**
+ * See {@link #blockGUI()}
+ * @properties={typeid:24,uuid:"56CAC498-BB6F-4F05-8DEE-FF1FC0D81A65"}
+ */
+function releaseGUI() {
+	getSmartClientPluginAccess().releaseGUI()
 }
