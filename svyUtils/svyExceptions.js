@@ -32,7 +32,8 @@ var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.exceptions')
 
 /**
  * General exception holding exception message, i18n key and arguments
- *
+ * 
+ * @public
  * Subclassed by specific exceptions
  *
  * @param {String} errorMessage
@@ -52,7 +53,8 @@ function SvyException(errorMessage) {
 
 /**
  * Raised when an argument is not legal
- *
+ * 
+ * @public
  * @param {String} errorMessage
  *
  * @constructor
@@ -71,7 +73,8 @@ function IllegalArgumentException(errorMessage) {
 
 /**
  * Raised when performing an operation that is not supported
- *
+ * 
+ * @public
  * @param {String} errorMessage
  *
  * @constructor
@@ -89,6 +92,7 @@ function UnsupportedOperationException(errorMessage) {
 /**
  * Raised when a runtime state is not legal
  *
+ * @public
  * @param {String} errorMessage
  *
  * @constructor
@@ -107,8 +111,9 @@ function IllegalStateException(errorMessage) {
 
 /**
  * Raised when a method marked as @abstract is called
- *
- * @param {String} errorMessage
+ * 
+ * @public
+ * @param {String} [errorMessage]
  *
  * @constructor
  * @extends {IllegalStateException}
@@ -119,11 +124,26 @@ function AbstractMethodInvocationException(errorMessage) {
 	if (!(this instanceof AbstractMethodInvocationException)) {
 		return new AbstractMethodInvocationException(errorMessage)
 	}
+	
+	if (!errorMessage) {
+		var ex
+		try {
+			throw new Error()
+		} catch (e) {
+			ex = e
+		}
+		var stack = ex.stack.split('\n', 2)
+		if (stack.length > 1) {
+			errorMessage = 'Abstract method ' + stack[1].slice(stack[1].lastIndexOf('(') + 1, -2) + ' is not implemented'
+		}
+	}
+
 	IllegalStateException.call(this, errorMessage);
 }
 
 /**
  * Wrapper around ServoyException to make it a JavaScript Error instance
+ * @public
  * @constructor 
  * @extends {SvyException}
  * @param {ServoyException} servoyException
@@ -143,8 +163,10 @@ function ServoyError(servoyException) {
 }
 
 /**
-  * @properties={typeid:35,uuid:"36364157-A05A-4806-B13E-DA08DD8C27D6",variableType:-4}
-  */
+ * @private
+ * @SuppressWarnings(unused)
+ * @properties={typeid:35,uuid:"36364157-A05A-4806-B13E-DA08DD8C27D6",variableType:-4}
+ */
 var init = function() {
 	SvyException.prototype = Object.create(Error.prototype);
 	SvyException.prototype.constructor = SvyException
