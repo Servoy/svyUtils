@@ -458,7 +458,6 @@ function initSplitPane(formName, elementName, resizeWeight, dividerLocation, div
 	if (rightFormMinSize instanceof Number) splitPane.rightFormMinSize = rightFormMinSize
 }
 
-
 /**
  * Persists the position of the splitpane divider to be used by {@link #restoreSplitPaneDividerPosition()} in a next user session
  * @param {String} formName
