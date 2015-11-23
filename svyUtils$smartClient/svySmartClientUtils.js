@@ -15,9 +15,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
- /**
-  * @private
-  *
+/**
+ * @private
+ *
  * @properties={typeid:24,uuid:"38714D53-CA5A-4E36-B1F0-F93EE01EFB61"}
  */
  function checkOperationSupported() {
@@ -106,6 +106,8 @@ function getFormName(element) {
  * @properties={typeid:24,uuid:"96CEA78A-7153-4BFD-A608-078E3B6CE486"}
  */
 function setFormHeight(form, height) {
+	checkOperationSupported()
+	
 	if (!(form instanceof RuntimeForm)) {
 		throw scopes.svyExceptions.IllegalArgumentException('form argument is not an instance of RuntimeForm')
 	}
@@ -132,9 +134,33 @@ function setFormHeight(form, height) {
  * @properties={typeid:24,uuid:"806E5302-B6C7-4F08-8FA5-9075971FD587"}
  */
 function setCaretColor(element, color) {
+	checkOperationSupported()
+	
 	/**@type {Packages.javax.swing.JTextField}*/
 	var textField = unwrapElement(element)
 	textField.setCaretColor(java.awt.Color.decode(color||element.fgcolor))	
+}
+
+/**
+ * Sets the foreground color of the placeholder text on an element
+ * 
+ * @param {RuntimeTextField|RuntimeTextArea|RuntimeHtmlArea|RuntimePassword|RuntimeRtfArea} element
+ * @param {String} color A hex representation of a color, like #FF0096
+ * 
+ * @return {boolean} whether the font color was set succesfully
+ *
+ * @properties={typeid:24,uuid:"ADF4C5CE-349B-4A2D-B2B5-C002E62D4EED"}
+ */
+function setPlaceholderFontColor(element, color) {
+	checkOperationSupported()
+	
+	/**@type {Packages.javax.swing.JTextComponent}*/
+	var el = unwrapElement(element)
+	if (el instanceof Packages.javax.swing.JTextComponent) {
+		Packages.org.jdesktop.xswingx.PromptSupport.setForeground(java.awt.Color.decode(color), el)
+		return true
+	}
+	return false
 }
 
 /**
@@ -147,6 +173,7 @@ function setCaretColor(element, color) {
  * @properties={typeid:24,uuid:"19760794-E5D8-47A2-988B-92744749E035"}
  */
 function blockGUI(reason) {
+	checkOperationSupported()
 	getSmartClientPluginAccess().blockGUI(reason||'')
 }
 
@@ -155,5 +182,6 @@ function blockGUI(reason) {
  * @properties={typeid:24,uuid:"56CAC498-BB6F-4F05-8DEE-FF1FC0D81A65"}
  */
 function releaseGUI() {
+	checkOperationSupported()
 	getSmartClientPluginAccess().releaseGUI()
 }
