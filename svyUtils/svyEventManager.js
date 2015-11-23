@@ -246,14 +246,40 @@ function addListener(obj, eventType, eventHandler) {
 function removeListener(obj, eventType, eventHandler) {
 	var objectString = convertObjectToString(obj)
 	var actionString = convertObjectToString(eventHandler)
+
 	if (events[objectString]) {
 		if (events[objectString][eventType]) {
 			var idx = getActionIdx(objectString, eventType, actionString);
 			if (idx >= 0) {
-				events[objectString][eventType].splice(idx, 1);
+				events[objectString][eventType].splice(idx, 1)
+				
+				//Cleanup entries if they don't contain any handlers anymore
+				if (!events[objectString][eventType].length) {
+					delete events[objectString][eventType]
+					if (!Object.keys(events[objectString]).length) {
+						delete events[objectString]
+					}
+				}
 			}
 		}
 	}
+}
+
+/**
+ * Method to check wheter or not there are listeners registered on the specified object for the specified event
+ * 
+ * @param {*|String} obj The object for which to check the listeners
+ * @param {String} eventType The event identifier
+ * 
+ * @return {Boolean}
+ * 
+ * @public
+ *
+ * @properties={typeid:24,uuid:"AC4A2D34-5C5D-46B5-B15E-716758716F66"}
+ */
+function hasListeners(obj, eventType) {
+	var objectString = convertObjectToString(obj)
+	return events[objectString] && events[objectString][eventType] ? true : false
 }
 
 /**
