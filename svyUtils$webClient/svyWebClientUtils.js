@@ -92,7 +92,7 @@ function centerPanel(element) {
  * Sets the visibility of components in the browser. This means that all the markup is included, but is also hidden.
  * Note: uses the CSS display property and not the CSS visibility property, as Servoy uses the visibility property internally
  * 
- * @param {RuntimeComponent} component
+ * @param {RuntimeComponent|RuntimeForm} component
  * @param {Boolean} visibility
  *
  * @properties={typeid:24,uuid:"8421ED23-0497-4D0F-9CEE-71F543FF0838"}
@@ -559,7 +559,7 @@ function setRendered(element) {
 	if (tmp instanceof Packages.com.servoy.j2db.ui.IProviderStylePropertyChanges) {
 		/** @type {Packages.com.servoy.j2db.ui.IProviderStylePropertyChanges} */
 		var tmp2 = tmp
-		tmp2.getStylePropertyChanges().setRendered();
+		tmp2.getStylePropertyChanges().setRendered()
 	}
 }
 
@@ -1031,8 +1031,12 @@ function getWebClientPluginAccess() {
 function addBehavior(behavior, component) {
 	/**@type {Packages.org.apache.wicket.Component}*/
 	var target = component ? unwrapElement(component) : getWebClientPluginAccess().getPageContributor()
-	
 	target.add(behavior)
+	if (target instanceof Packages.com.servoy.j2db.ui.IProviderStylePropertyChanges) {
+		/** @type {Packages.com.servoy.j2db.ui.IProviderStylePropertyChanges} */
+		var tmp = target
+		tmp.getStylePropertyChanges().setChanged()
+	}
 }
 
 /**
@@ -1203,4 +1207,34 @@ function updateUI(milliseconds) {
  */
 function updateUIResume(body, requestParams) {
    c();
+}
+
+/**
+ * Forces a TableView header to update, so any header texts that depend on display tags are rerendered
+ * @param {RuntimeForm} form
+ * @return {Boolean} Whether update was successful
+ *
+ * @properties={typeid:24,uuid:"C801BA0C-30B7-4DC8-9FB4-7ED03A1676A1"}
+ */
+function forceTableViewColumnHeaderWithTagsUpdate(form) {
+	checkOperationSupported()
+	var component = scopes.svyWebClientUtils.unwrapElement(form)
+	/** @type {Packages.com.servoy.j2db.server.headlessclient.WebForm}*/
+	var webForm = component.findParent(Packages.com.servoy.j2db.IFormUIInternal)
+	
+	if(webForm) {
+		/**@type {Packages.org.apache.wicket.markup.html.WebMarkupContainer}*/
+		var servoyWebForm = webForm.get('servoywebform')
+		if (servoyWebForm) {
+			/**@type {Packages.com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView}*/
+			var view = servoyWebForm.get('View')
+			if (view) {
+				/**@type {Packages.com.servoy.j2db.server.headlessclient.dataui.SortableCellViewHeaders}*/
+				var header = view.get('header')
+				header.getStylePropertyChanges().setChanged()
+				return true
+			}
+		}
+	}
+	return false
 }
