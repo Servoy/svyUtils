@@ -101,3 +101,14 @@ function testExceptions() {
 //		application.output(ex.columnNumber)
 	}
 }
+
+/**
+ * @properties={typeid:24,uuid:"0B3AC698-4E7D-45F1-ACFD-C1F256B79924"}
+ */
+function testAbstractMethodInvocationException() {
+	try {
+		throw new scopes.svyExceptions.AbstractMethodInvocationException()
+	} catch (e) {
+		jsunit.assertEquals('Abstract method testAbstractMethodInvocationException is not implemented', e.message)
+	}
+}
