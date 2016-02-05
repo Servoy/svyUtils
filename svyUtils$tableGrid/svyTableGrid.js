@@ -22,7 +22,7 @@
  *
  * @properties={typeid:35,uuid:"5AF56C14-530F-4513-99EE-3F8943EF0A7E",variableType:-4}
  */
-var logger = scopes.svyLogManager.getLogger("com.servoy.bap.datasetgrid");
+var logger = scopes.svyLogManager.getLogger("com.servoy.bap.svytablegrid");
 
 /**
  * Creates a TableGrid from the given dataset
@@ -236,16 +236,30 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 	 * The form needs to inherit from forms.datasetGridBase
 	 * 
 	 * @param {String|RuntimeForm} baseForm - the name or a reference to the base form to be used
+	 * @return {TableGrid}
 	 */
 	this.setBaseFormName = function(baseForm) {
 		/** @type {JSForm} */		
 		var jsBaseForm = scopes.svyUI.getJSFormForReference(baseForm);
 		if (jsBaseForm) {
-			if (!scopes.svyUI.isJSFormInstanceOf(jsBaseForm, "svyUtils$tableGridBase")) {
-				throw new scopes.svyExceptions.IllegalArgumentException("Form \"" + baseForm + "\" is not an intance of \"datasetGridBase\"");
-			}
 			this.baseFormName = jsBaseForm.name;
 		}
+		return this;
+	}
+	
+	/**
+	 * Sets the widths of all columns to the values provided in the array
+	 * 
+	 * @type {Array<Number>} colWidths
+	 * @return {TableGrid}
+	 */
+	this.setColumnWidths = function(colWidths) {
+		if (colWidths.length == gridColumns.length) {
+			for (var c = 0; c < gridColumns.length; c++) {
+				gridColumns[c].width = colWidths[c];
+			}
+		}
+		return this;
 	}
 	
 	/**
@@ -899,6 +913,10 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 		jsForm.scrollbars = this.scrollbars;
 		jsForm.transparent = this.transparent;
 		jsForm.extendsForm = solutionModel.getForm(this.baseFormName);
+		
+		if (jsForm.getVariable("tableGrid") == null) {
+			jsForm.newVariable("tableGrid", JSVariable.MEDIA);
+		}
 		
 		if (this.styleClass) jsForm.styleClass = this.styleClass;
 		
