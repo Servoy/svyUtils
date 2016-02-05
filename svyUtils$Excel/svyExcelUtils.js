@@ -207,6 +207,22 @@ var SHEET_PANE = {
 }
 
 /**
+ * Possible cell types
+ * 
+ * @enum 
+ * 
+ * @properties={typeid:35,uuid:"9FF3C911-31DA-416B-86DE-13A8F69ADD96",variableType:-4}
+ */
+var CELL_TYPE = {
+	BLANK: Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BLANK,
+	BOOLEAN: Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BOOLEAN,
+	ERROR: Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_ERROR,
+	FORMULA: Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_FORMULA,
+	NUMERIC: Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC,
+	STRING: Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_STRING
+}
+
+/**
  * Returns an empty ExcelWorkbook
  * 
  * @public 
@@ -1422,6 +1438,9 @@ var initExcelSheet = (function() {
 	 * @param {Number} [endRow]
 	 * @param {Number} [startColumn]
 	 * @param {Number} [endColumn]
+	 * 
+	 * @return {JSDataSet}
+	 * 
 	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.getSheetData = function(firstRowHasColumnNames, startRow, endRow, startColumn, endColumn) {
@@ -2167,6 +2186,86 @@ var initExcelCell = (function() {
 	ExcelCell.prototype.getCellFormula = function() {
 		return this.cell.getCellFormula();
 	}
+	
+	/**
+	 * Returns the value cell<p>
+	 * 
+	 * Blank cells return null, boolean cells integers,
+	 * formula and error cells null
+	 * 
+	 * @return {Object} value
+	 * 
+	 * @this {ExcelCell}
+	 */
+	ExcelCell.prototype.getCellValue = function() {
+		var cellType = this.cell.getCellType();
+		if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BLANK) {
+			return null;
+		} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BOOLEAN) {
+			return this.cell.getBooleanCellValue() ? 1 : 0;
+		} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC) {
+			return this.cell.getNumericCellValue();
+		} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_STRING) {
+			return this.cell.getStringCellValue();
+		} else {
+			return null;
+		}
+	}
+	
+	/**
+	 * Returns the type of cell as any of the CELL_TYPE enum values
+	 * @return {Number} 
+	 * @this {ExcelCell}
+	 */
+	ExcelCell.prototype.getCellType = function() {
+		return this.cell.getCellType();
+	}
+	
+	/**
+	 * Returns the boolean cell value if the cell is a boolean type cell, null otherwise
+	 * @return {Boolean} 
+	 * @this {ExcelCell}
+	 */
+	ExcelCell.prototype.getBooleanCellValue = function() {
+		if (this.cell.getCellType() == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BOOLEAN) {
+			return this.cell.getBooleanCellValue();
+		} else {
+			return null;
+		}
+	}	
+	
+	/**
+	 * Returns the numeric cell value as a Date if the cell is a numeric type cell, null otherwise
+	 * @return {Date} 
+	 * @this {ExcelCell}
+	 */
+	ExcelCell.prototype.getDateCellValue = function() {
+		if (this.cell.getCellType() == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC) {
+			return new Date(this.cell.getDateCellValue().getTime());
+		} else {
+			return null;
+		}
+	}	
+	
+	/**
+	 * Returns the comment of the cell as an object
+	 * @return {{author: String, comment: String, isVisible: Boolean}} 
+	 * @this {ExcelCell}
+	 */
+	ExcelCell.prototype.getCellComment = function() {
+		var comment = this.cell.getCellComment();
+		if (!comment) {
+			return null;
+		}
+		var result = {author: null, comment: null, isVisible: false};
+		result.author = comment.getAuthor();
+		result.isVisible = comment.isVisible();
+		var commentString = comment.getString();
+		if (commentString) {
+			result.comment = commentString.getString();
+		}
+		return result;
+	}	
 	
 	/**
 	 * Sets the value of this cell
