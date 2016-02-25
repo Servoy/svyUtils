@@ -256,7 +256,7 @@ var init_Docx = (function() {
 	 * Reads the template again and replaces all placeholders
 	 * Note: all changes made to the document prior to this call are lost
 	 * 
-	 * @param {Object<String>} scriptable
+	 * @param {Object} scriptable
 	 * @param {String} [placeholderStartTag]
 	 * @param {String} [placeholderEndTag]
 	 * @this {Docx}
@@ -293,6 +293,86 @@ var init_Docx = (function() {
 			var placeHolderClosed = false;
 
 			var runList = paragraph.getRuns();
+			
+			function getImageType(contentType) {
+				if (contentType == 'image/png') {
+					return Packages.org.apache.poi.xwpf.usermodel.XWPFDocument.PICTURE_TYPE_PNG;
+				} else if (contentType == 'image/jpg') {
+					return Packages.org.apache.poi.xwpf.usermodel.XWPFDocument.PICTURE_TYPE_JPEG;
+				} else if (contentType == 'image/tif') {
+					return Packages.org.apache.poi.xwpf.usermodel.XWPFDocument.PICTURE_TYPE_TIFF;
+				} else if (contentType == 'image/tiff') {
+					return Packages.org.apache.poi.xwpf.usermodel.XWPFDocument.PICTURE_TYPE_TIFF;
+				} else if (contentType == 'image/bmp') {
+					return Packages.org.apache.poi.xwpf.usermodel.XWPFDocument.PICTURE_TYPE_BMP;
+				} else if (contentType == 'image/gif') {
+					return Packages.org.apache.poi.xwpf.usermodel.XWPFDocument.PICTURE_TYPE_GIF;
+				} else {
+					return Packages.org.apache.poi.xwpf.usermodel.XWPFDocument.PICTURE_TYPE_PNG;
+				}
+			}
+			
+			function replaceValue(name) {
+				var value = scriptable[name];
+				var bais;
+				var jsImage;
+				if (!value) {
+					run.setText(beforePlaceHolderText + '' + afterPlaceHolderText, 0);
+				} else if (value instanceof Number) {
+					/** @type {Number} */
+					var numValue = value;
+					value = utils.numberFormat(numValue, i18n.getDefaultNumberFormat());
+					runTextInternal = beforePlaceHolderText + value + afterPlaceHolderText;
+					run.setText(runTextInternal, 0);
+				} else if (value instanceof Date) {
+					/** @type {Date} */			
+					var dateValue = value;
+					value = utils.dateFormat(dateValue, i18n.getDefaultNumberFormat());
+					runTextInternal = beforePlaceHolderText + value + afterPlaceHolderText;
+					run.setText(runTextInternal, 0);					
+				} else if (value instanceof Array || value instanceof plugins.file.JSFile) {
+					//byte array or file
+					jsImage = plugins.images.getImage(value);
+					bais = new java.io.ByteArrayInputStream(value);
+					run.setText(beforePlaceHolderText, 0);
+					run.addPicture(
+						bais, 
+						getImageType(jsImage.getContentType()),
+						'image',
+						jsImage.getWidth() * 9525,
+						jsImage.getHeight()) * 9525;
+					if (afterPlaceHolderText) run.setText(afterPlaceHolderText, 0);
+				} else if (value instanceof String && value.substring(0, 9) == 'media:///') {
+					//image media
+					var jsMedia = solutionModel.getMedia(value);
+					bais = new java.io.ByteArrayInputStream(jsMedia.bytes);
+					run.setText(beforePlaceHolderText, 0);
+					run.addPicture(
+						bais, 
+						getImageType(jsImage.getContentType()),
+						'image',
+						Packages.org.apache.poi.util.Units.toEMU(jsImage.getWidth()),
+						Packages.org.apache.poi.util.Units.toEMU(jsImage.getHeight()));
+					if (afterPlaceHolderText) run.setText(afterPlaceHolderText, 1);
+				} else {
+					var stringParts = value.split("\n");
+					runTextInternal = beforePlaceHolderText;
+					if (runTextInternal) run.setText(beforePlaceHolderText, 0);
+					for (var sp = 0; sp < stringParts.length; sp++) {
+						if (!runTextInternal) {
+							run.setText(stringParts[sp], 0);
+						} else {
+							run.setText(stringParts[sp]);
+						}
+						runTextInternal += stringParts[sp];
+						if (stringParts.length > 1 && sp < stringParts.length - 1) {								
+							run.addBreak();
+						}
+					}
+					runTextInternal += afterPlaceHolderText;
+					run.setText(afterPlaceHolderText);
+				}
+			}
 
 			for (var r = 0; r < runList.size(); r++) {
 				run = runList.get(r);
@@ -344,14 +424,16 @@ var init_Docx = (function() {
 						 * 3. set the run's text
 						 * 4. reset variables used
 						 */
-						placeHolderName = placeHolderName.replace(placeHolderName, scriptable[placeHolderName] ? scriptable[placeHolderName] : '');
-						runTextInternal = beforePlaceHolderText + placeHolderName + afterPlaceHolderText;
-						run.setText(runTextInternal ? runTextInternal : '', 0);
-						placeHolderName = null;
 						placeHolderOpenend = false;
-						placeHolderClosed = false;
+						if (runTextInternal.indexOf(placeholderStartTag) >= 0) {
+							replaceValue(placeHolderName);
+						} else {
+							replaceValue(placeHolderName);
+						}
 						beforePlaceHolderText = null;
+						placeHolderName = null;
 						afterPlaceHolderText = null;
+						placeHolderClosed = false;
 					} else if (placeHolderOpenend) {
 						/**
 						 * Placeholder is "open", but run is finished
@@ -449,7 +531,7 @@ function testWordReplacement() {
 		
 		var placeholders = {
 			date: utils.dateFormat(new Date(), 'EEE, dd. MMM yyyy'),
-			companyname: 'Apple Computer Inc.',
+			companyname: 'Apple Computer Inc.\nCompaq\nIBM',
 			contactname: 'Tim Cook',
 			address: '1, Infinite Loop',
 			postalcode: 12345,
@@ -461,7 +543,8 @@ function testWordReplacement() {
 			from_city: 'Amsterdam',
 			from_phone: '+31 33 455 9877',
 			from_email: '+31 84 883 2297',
-			date$timestamp: utils.dateFormat(new Date(), 'dd.MM.yyyy HH:mm')
+			date$timestamp: utils.dateFormat(new Date(), 'dd.MM.yyyy HH:mm'),
+			image: plugins.file.readFile(plugins.file.convertToJSFile('c:\\Temp\\image.png'))
 		}
 		
 		var placeholdersInDoc = docx.findPlaceholders('%%');
