@@ -223,6 +223,58 @@ var CELL_TYPE = {
 }
 
 /**
+ * Possible paper sizes for a PrintSetup
+ * 
+ * @enum
+ *  
+ * @properties={typeid:35,uuid:"B7BD0408-60E3-48E2-B263-4A185F7AF05D",variableType:-4}
+ */
+var PAPER_SIZE = {
+	A3_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.A3_PAPERSIZE,
+	A4_EXTRA_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.A4_EXTRA_PAPERSIZE,
+	A4_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.A4_PAPERSIZE,
+	A4_PLUS_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.A4_PLUS_PAPERSIZE,
+	A4_ROTATED_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.A4_ROTATED_PAPERSIZE,
+	A4_SMALL_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.A4_SMALL_PAPERSIZE,
+	A4_TRANSVERSE_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.A4_TRANSVERSE_PAPERSIZE,
+	A5_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.A5_PAPERSIZE,
+	B4_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.B4_PAPERSIZE,
+	B5_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.B5_PAPERSIZE,
+	ELEVEN_BY_SEVENTEEN_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.ELEVEN_BY_SEVENTEEN_PAPERSIZE,
+	ENVELOPE_10_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.ENVELOPE_10_PAPERSIZE,
+	ENVELOPE_9_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.ENVELOPE_9_PAPERSIZE,
+	ENVELOPE_C3_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.ENVELOPE_C3_PAPERSIZE,
+	ENVELOPE_C4_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.ENVELOPE_C4_PAPERSIZE,
+	ENVELOPE_C5_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.ENVELOPE_C5_PAPERSIZE,
+	ENVELOPE_C6_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.ENVELOPE_C6_PAPERSIZE,
+	ENVELOPE_CS_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.ENVELOPE_CS_PAPERSIZE,
+	ENVELOPE_DL_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.ENVELOPE_DL_PAPERSIZE,
+	ENVELOPE_MONARCH_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.ENVELOPE_MONARCH_PAPERSIZE,
+	EXECUTIVE_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.EXECUTIVE_PAPERSIZE,
+	FOLIO8_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.FOLIO8_PAPERSIZE,
+	LEDGER_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.LEDGER_PAPERSIZE,
+	LEGAL_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.LEGAL_PAPERSIZE,
+	LETTER_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.LETTER_PAPERSIZE,
+	LETTER_ROTATED_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.LETTER_ROTATED_PAPERSIZE,
+	LETTER_SMALL_PAGESIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.LETTER_SMALL_PAGESIZE,
+	NOTE8_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.NOTE8_PAPERSIZE,
+	PRINTER_DEFAULT_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.PRINTER_DEFAULT_PAPERSIZE,
+	QUARTO_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.QUARTO_PAPERSIZE,
+	STATEMENT_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.STATEMENT_PAPERSIZE,
+	TABLOID_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.TABLOID_PAPERSIZE,
+	TEN_BY_FOURTEEN_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.TEN_BY_FOURTEEN_PAPERSIZE
+}
+
+/**
+ * @type {PrintSetup}
+ * 
+ * @private 
+ *
+ * @properties={typeid:35,uuid:"67212952-2D5F-421C-8B00-72026DF20A66",variableType:-4}
+ */
+var defaultPrintSetup;
+
+/**
  * Returns an empty ExcelWorkbook
  * 
  * @public 
@@ -475,7 +527,11 @@ var initExcelWorkbook = (function() {
 	 */
 	ExcelWorkbook.prototype.createSheet = function(sheetName) {
 		var sName = Packages.org.apache.poi.ss.util.WorkbookUtil.createSafeSheetName(sheetName);
-		return new ExcelSheet(this.wb.createSheet(sName));
+		var result = new ExcelSheet(this.wb.createSheet(sName));
+		if (defaultPrintSetup) {
+			result.setPrintSetup(defaultPrintSetup);
+		}
+		return result;
 	}
 	
 	/**
@@ -1363,6 +1419,15 @@ var initExcelSheet = (function() {
 	}
 	
 	/**
+	 * Show automatic page breaks or not
+	 * @param {Boolean} autoBreaks
+	 * @this {ExcelSheet}
+	 */
+	ExcelSheet.prototype.setAutoBreaks = function(autoBreaks) {
+		this.sheet.setAutobreaks(autoBreaks);
+	}
+	
+	/**
 	 * Enable filtering for a range of cells
 	 * 
 	 * @param {Number} startRow - one based
@@ -1561,6 +1626,27 @@ var initExcelSheet = (function() {
 			startColumn - 1,
 			endColumn - 1
 		));
+	}
+	
+	/**
+	 * Sets the print setup for this sheet
+	 * @param {PrintSetup} printSetup
+	 * @return {ExcelSheet}
+	 * @this {ExcelSheet}
+	 */
+	ExcelSheet.prototype.setPrintSetup = function(printSetup) {
+		var setup = this.sheet.getPrintSetup();
+		if (printSetup.copies != null) setup.setCopies(printSetup.copies);
+		if (printSetup.draft != null) setup.setDraft(printSetup.draft);
+		if (printSetup.fitHeight != null) setup.setFitHeight(printSetup.fitHeight);
+		if (printSetup.fitWidth != null) setup.setFitWidth(printSetup.fitWidth);
+		if (printSetup.fitHeight != null || printSetup.fitWidth != null) {
+			this.sheet.setAutobreaks(true);
+		}
+		if (printSetup.landscape != null) setup.setLandscape(printSetup.landscape);
+		if (printSetup.noColor != null) setup.setNoColor(printSetup.noColor);
+		if (printSetup.paperSize != null) setup.setPaperSize(printSetup.paperSize);
+		return this;
 	}
 }());
 
@@ -2316,6 +2402,147 @@ var initExcelCell = (function() {
 }());
 
 /**
+ * @private 
+ * @properties={typeid:24,uuid:"CC5515E0-17A5-4BFB-9FC1-EBD3905BED3B"}
+ */
+function PrintSetup() {
+	
+	/**
+	 * The number of copies
+	 * @type {Number}
+	 */
+	this.copies = null;
+	
+	/**
+	 * Whether it is in draft mode
+	 * @type {Boolean}
+	 */
+	this.draft = null;
+	
+	/**
+	 * The number of pages high to fit the sheet in
+	 * @type {Number}
+	 */
+	this.fitHeight = null;
+	
+	/**
+	 * The number of pages high to fit the sheet in
+	 * @type {Number}
+	 */
+	this.fitWidth = null;
+	
+	/**
+	 * Whether to print in landscape
+	 * @type {Boolean}
+	 */
+	this.landscape = null;
+	
+	/**
+	 * Whether it is black and white
+	 * @type {Boolean}
+	 */
+	this.noColor = null;
+	
+	/**
+	 * The paper size
+	 * @type {Number}
+	 */
+	this.paperSize = null;
+}
+
+/**
+ * @private
+ * 
+ * @SuppressWarnings(unused)
+ *
+ * @properties={typeid:35,uuid:"14D0D0B4-7177-4710-BF29-B3148E41E5DD",variableType:-4}
+ */
+var initPrintSetup = (function() {
+	PrintSetup.prototype = Object.create(Object.prototype, {});
+	PrintSetup.prototype.constructor = PrintSetup;
+	
+	/**
+	 * Sets the number of copies
+	 * @param {Number} x
+	 * @return {PrintSetup}
+	 * @this {PrintSetup}
+	 */
+	PrintSetup.prototype.setCopies = function(x) {
+		if (x instanceof Number && x > 0) {
+			this.copies = x;
+		}
+		return this;
+	}
+	
+	/**
+	 * Set whether it is in draft mode
+	 * @param {Boolean} isDraft
+	 * @return {PrintSetup}
+	 * @this {PrintSetup}
+	 */
+	PrintSetup.prototype.setDraft = function(isDraft) {
+		this.draft = isDraft;
+		return this;
+	}
+	
+	/**
+	 * Set the number of pages high to fit the sheet in
+	 * @param {Number} numberOfPagesHigh
+	 * @return {PrintSetup}
+	 * @this {PrintSetup}
+	 */
+	PrintSetup.prototype.setFitHeight = function(numberOfPagesHigh) {
+		this.fitHeight = numberOfPagesHigh;
+		return this;
+	}	
+	
+	/**
+	 * Set the number of pages wide to fit the sheet in
+	 * @param {Number} numberOfPagesWide
+	 * @return {PrintSetup}
+	 * @this {PrintSetup}
+	 */
+	PrintSetup.prototype.setFitWidth = function(numberOfPagesWide) {
+		this.fitWidth = numberOfPagesWide;
+		return this;
+	}	
+	
+	/**
+	 * Set whether to print in landscape
+	 * @param {Boolean} isLandscape
+	 * @return {PrintSetup}
+	 * @this {PrintSetup}
+	 */
+	PrintSetup.prototype.setLandscape = function(isLandscape) {
+		this.landscape = isLandscape;
+		return this;
+	}	
+	
+	/**
+	 * Set whether it is black and white
+	 * @param {Boolean} mono
+	 * @return {PrintSetup}
+	 * @this {PrintSetup}
+	 */
+	PrintSetup.prototype.setNoColor = function(mono) {
+		this.noColor = mono;
+		return this;
+	}	
+	
+	/**
+	 * Set the paper size as any of the PAPER_SIZE enum values
+	 * @param {Number} size
+	 * @return {PrintSetup}
+	 * @this {PrintSetup}
+	 */
+	PrintSetup.prototype.setPaperSize = function(size) {
+		this.paperSize = size;
+		return this;
+	}	
+
+}());
+
+/**
  * Converts a cell reference (e.g. "B4:AK234" or "C6") to an object holding first and last row and column
  * 
  * @public 
@@ -2353,6 +2580,34 @@ function getRangeFromCellReference(cellReference) {
 function getCellReferenceFromRange(firstRow, lastRow, firstColumn, lastColumn) {
 	var range = new Packages.org.apache.poi.ss.util.CellRangeAddress(firstRow - 1, lastRow - 1, firstColumn - 1, lastColumn - 1);
 	return range.formatAsString();
+}
+
+/**
+ * Creates a PrintSetup object that can be used in ExcelSheet.setPrintSetup() 
+ * or to set the default print setup used when workbooks are created from
+ * FoundSet or DataSet
+ * 
+ * @public 
+ * 
+ * @return {PrintSetup}
+ * 
+ * @properties={typeid:24,uuid:"4F18E917-4B3D-48F5-ADEE-A3F6B9183B3E"}
+ */
+function createPrintSetup() {
+	return new PrintSetup();
+}
+
+/**
+ * Sets the default print setup used when workbooks are created from FoundSet or DataSet
+ * 
+ * @public 
+ * 
+ * @param {PrintSetup} setup
+ *
+ * @properties={typeid:24,uuid:"AD3003E7-10F1-4FC5-92A9-F484437C58BD"}
+ */
+function setDefaultPrintSetup(setup) {
+	defaultPrintSetup = setup;
 }
 
 /**
