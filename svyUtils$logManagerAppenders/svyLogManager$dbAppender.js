@@ -36,6 +36,7 @@
  * 			datasource: "db:/my_db/log_events",
  * 			userId: globals.myUserId,
  * 			dbMapping: { eventTimeColumnName: "event_time", loggerColumnName: "logger_name", logLevelColumnName: "log_level", logMessageColumnName: "log_message", userIdColumName: "user_id", solutionColumnName: "solution_name" },
+ * 			customColumns: null,
  * 			PatternLayout: {
  * 				pattern: ""
  * 			}
@@ -250,6 +251,8 @@ function getAppenderConfigObject(datasource, dbMapping) {
 		name: "DbAppender",
 		datasource: datasource,
 		dbMapping: { eventTimeColumnName: dbMapping.eventTimeColumnName, loggerColumnName: dbMapping.logLevelColumnName, logLevelColumnName: dbMapping.logLevelColumnName, logMessageColumnName: dbMapping.logMessageColumnName, userIdColumName: dbMapping.userIdColumName, solutionColumnName: dbMapping.solutionColumnName },
+		userId: null,
+		customColumns: null,
 		PatternLayout: {
 			pattern: "%5level %logger{1.} - %msg"
 		}
