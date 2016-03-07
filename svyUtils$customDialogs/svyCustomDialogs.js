@@ -1908,7 +1908,7 @@ function buildDialogForm(customDialog) {
 		if (labelTextParts.length > 1) {
 			if (!labelComp.height) {
 				if (styleHelper) {
-					labelComp.height = styleHelper.getFontHeight(font) * labelTextParts.length + customDialog.rowSpacing;
+					labelComp.height = (styleHelper.getFontHeight(font) + 2) * labelTextParts.length + customDialog.rowSpacing;
 				} else {
 					labelComp.height = customDialog.defaultFieldHeight * labelTextParts.length
 				}
@@ -1937,8 +1937,6 @@ function buildDialogForm(customDialog) {
 			labelWidth += 30;
 			if (labelWidth > maxFieldWidth) maxFieldWidth = labelWidth;
 		}
-		
-		//make sure 
 		
 		//make sure a label text fits the box
 		if (comp instanceof Label) {
@@ -2351,19 +2349,100 @@ function createCombobox(label, values, realValues) {
 }
 
 /**
- * @param {String} title
- * @param {String} message
- * @param {...String} buttons
+ * Shows a message dialog with the specified title, message and a customizable set of buttons.
+ * 
+ * @param {String} title the dialog title
+ * @param {String} message the message to show
+ * @param {...String} buttons the buttons
  *
  * @properties={typeid:24,uuid:"20CA7B49-684E-4698-A26F-0EEFE1662889"}
  */
 function showInfoDialog(title, message, buttons) {
-	return showDefaultDialog(arguments, DEFAULT_ICON.INFO);
+	if (application.getApplicationType() != APPLICATION_TYPES.WEB_CLIENT) {
+		return plugins.dialogs.showInfoDialog(title, message, buttons);
+	} else {
+		return showDefaultDialog(arguments, DEFAULT_ICON.INFO);
+	}
+}
+
+/**
+ * Shows a message dialog with the specified title, message and a customizable set of buttons.
+ * 
+ * @param {String} title the dialog title
+ * @param {String} message the message to show
+ * @param {...String} buttons the buttons
+ *
+ * @properties={typeid:24,uuid:"7101235B-6191-448F-82DE-8C8E722C431C"}
+ */
+function showQuestionDialog(title, message, buttons) {
+	if (application.getApplicationType() != APPLICATION_TYPES.WEB_CLIENT) {
+		return plugins.dialogs.showQuestionDialog(title, message, buttons);
+	} else {
+		var questionIcon = javaIconToByteArray(Packages.javax.swing.UIManager.getIcon("OptionPane.questionIcon"));
+		return showDefaultDialog(arguments, questionIcon);
+	}
+}
+
+/**
+ * Shows a message dialog with the specified title, message and a customizable set of buttons.
+ * 
+ * @param {String} title the dialog title
+ * @param {String} message the message to show
+ * @param {...String} buttons the buttons
+ *
+ * @properties={typeid:24,uuid:"A640E147-B068-458B-8578-0DAF431E0AD4"}
+ */
+function showWarningDialog(title, message, buttons) {
+	if (application.getApplicationType() != APPLICATION_TYPES.WEB_CLIENT) {
+		return plugins.dialogs.showWarningDialog(title, message, buttons);
+	} else {
+		return showDefaultDialog(arguments, DEFAULT_ICON.WARNING);
+	}
+}
+
+/**
+ * Shows a message dialog with the specified title, message and a customizable set of buttons.
+ * 
+ * @param {String} title the dialog title
+ * @param {String} message the message to show
+ * @param {...String} buttons the buttons
+ *
+ * @properties={typeid:24,uuid:"6387273F-868D-424E-9164-EDAFF7052A53"}
+ */
+function showErrorDialog(title, message, buttons) {
+	if (application.getApplicationType() != APPLICATION_TYPES.WEB_CLIENT) {
+		return plugins.dialogs.showErrorDialog(title, message, buttons);
+	} else {
+		return showDefaultDialog(arguments, DEFAULT_ICON.ERROR);
+	}
+}
+
+/**
+ * Shows an input dialog where the user can enter data. Returns the entered data, or nothing when canceled.
+ * 
+ * @param {String} title the dialog title
+ * @param {String} message the message to show
+ * @param {String} initialValue initial value for the input field
+ *
+ * @properties={typeid:24,uuid:"475D9BA4-0945-445B-AB64-C9A9C8F44BA3"}
+ */
+function showInputDialog(title, message, initialValue) {
+	if (application.getApplicationType() != APPLICATION_TYPES.WEB_CLIENT) {
+		return plugins.dialogs.showInputDialog(title, message, initialValue)
+	} else {
+		var questionIcon = javaIconToByteArray(Packages.javax.swing.UIManager.getIcon("OptionPane.questionIcon"));
+		var cd = createCustomDialog("svyFrameworkStyle", title, message, questionIcon);
+		cd.addTextField(null, initialValue).setWidth(250);
+		cd.addButton(i18n.getI18NMessage('servoy.button.ok'));
+		cd.addButton(i18n.getI18NMessage('servoy.button.cancel'));
+		var result = cd.showDialog();
+		return result.getResult() ? result.getResult()[0] : null;
+	}
 }
 
 /**
  * @param aArguments
- * @param {String} icon
+ * @param {String|byte[]} icon
  * @private 
  *
  * @properties={typeid:24,uuid:"49B6D9FD-8962-49B0-ACF2-39600F13C161"}
@@ -2374,17 +2453,19 @@ function showDefaultDialog(aArguments, icon) {
 	args = args[0];
 	var title = args[0];
 	var message = args[1];
+	
 	var btns = [];
 	for (var i = 2; i < args.length; i++) {
 		btns.push(createButton(args[i]));
 	}
-	var cd = createCustomDialog("dialogs_default", title, message, icon, btns);
-	return cd.showDialog();
+	var cd = createCustomDialog("svyFrameworkStyle", title, message, icon, btns);
+	var result = cd.showDialog();
+	return result.buttonClicked ? result.buttonClicked.text : null;
 }
 
 /**
  * @param {String|byte[]|plugins.file.JSFile} iconArgs
- * 
+ * @return {JSMedia}
  * @private 
  *
  * @properties={typeid:24,uuid:"9F7C4EF8-0974-4EAD-8BB5-5E3260639C5E"}
@@ -2457,7 +2538,6 @@ function resolveText(textToResolve) {
  */
 function getStyleHelper(styleName) {
 	var style;
-	
 	if (styleName) {
 		style = solutionModel.getStyle(styleName);
 		if (!style) {
@@ -2466,6 +2546,40 @@ function getStyleHelper(styleName) {
 	}
 	
 	return new StyleHelper(style ? style.text : "", styleName);
+}
+
+/**
+ * Gets the bytes of an ImageIcon
+ * @param {Packages.javax.swing.Icon} icon
+ * @return {byte[]}
+ * 
+ * @private 
+ *
+ * @properties={typeid:24,uuid:"DB1EF9C2-F6B3-45C0-8E69-C87FB983EDCF"}
+ */
+function javaIconToByteArray(icon) {
+	var bufferedImage;
+	if (icon instanceof Packages.java.swing.ImageIcon) {
+		/** @type {Packages.javax.swing.ImageIcon} */
+		var imageIcon = icon;
+	    var awtImage = imageIcon.getImage();
+	    bufferedImage = new java.awt.image.BufferedImage(awtImage.getWidth(null), awtImage.getHeight(null), java.awt.image.BufferedImage.TYPE_INT_RGB);
+	    var graphics2D = bufferedImage.createGraphics();
+        graphics2D.drawImage(awtImage, null, null);
+	} else {
+	    var iconWidth = icon.getIconWidth();
+	    var iconHeight = icon.getIconHeight();
+	    var graphicsEnvironment = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment();
+	    var defaultScreenDevice = graphicsEnvironment.getDefaultScreenDevice();
+	    var defaultScreenConfiguration = defaultScreenDevice.getDefaultConfiguration();
+	    bufferedImage = defaultScreenConfiguration.createCompatibleImage(iconWidth, iconHeight, java.awt.Transparency.TRANSLUCENT);
+	    var graphics = bufferedImage.createGraphics();
+	    icon.paintIcon(null, graphics, 0, 0);
+	    graphics.dispose();
+	}
+	var baos = new java.io.ByteArrayOutputStream();
+    Packages.javax.imageio.ImageIO.write(bufferedImage, "png", baos);
+    return baos.toByteArray();
 }
 
 /**
