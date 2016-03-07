@@ -333,26 +333,27 @@ var init_Docx = (function() {
 				} else if (value instanceof Array || value instanceof plugins.file.JSFile) {
 					//byte array or file
 					jsImage = plugins.images.getImage(value);
+					var resolution = getImageResolution(jsImage.getData());
 					bais = new java.io.ByteArrayInputStream(value);
 					run.setText(beforePlaceHolderText, 0);
-					run.addPicture(
-						bais, 
+					run.addPicture(bais,
 						getImageType(jsImage.getContentType()),
 						'image',
-						jsImage.getWidth() * 9525,
-						jsImage.getHeight()) * 9525;
+						Packages.org.apache.poi.util.Units.toEMU(jsImage.getWidth() / (resolution / 96) / (96/72)), // jsImage.getWidth() * 9525,
+						Packages.org.apache.poi.util.Units.toEMU(jsImage.getHeight() / (resolution / 96) / (96/72))) // * 9525;
 					if (afterPlaceHolderText) run.setText(afterPlaceHolderText, 0);
 				} else if (value instanceof String && value.substring(0, 9) == 'media:///') {
 					//image media
 					var jsMedia = solutionModel.getMedia(value);
+					var jsMediaResolution = getImageResolution(jsMedia.bytes);
 					bais = new java.io.ByteArrayInputStream(jsMedia.bytes);
 					run.setText(beforePlaceHolderText, 0);
 					run.addPicture(
 						bais, 
 						getImageType(jsImage.getContentType()),
 						'image',
-						Packages.org.apache.poi.util.Units.toEMU(jsImage.getWidth()),
-						Packages.org.apache.poi.util.Units.toEMU(jsImage.getHeight()));
+						Packages.org.apache.poi.util.Units.toEMU(jsImage.getWidth() / (jsMediaResolution / 96) / (96/72)),
+						Packages.org.apache.poi.util.Units.toEMU(jsImage.getHeight() / (jsMediaResolution / 96) / (96/72)));
 					if (afterPlaceHolderText) run.setText(afterPlaceHolderText, 1);
 				} else {
 					var stringParts = value.split("\n");
@@ -523,45 +524,6 @@ function regExpEscape(text) {
 }
 
 /**
- * @properties={typeid:24,uuid:"2433AEA1-FFAD-41E5-8F53-8902FCF3C64A"}
- */
-function testWordReplacement() {
-	try {
-		var docx = createDocx("c:\\Temp\\test.docx");
-		
-		var placeholders = {
-			date: utils.dateFormat(new Date(), 'EEE, dd. MMM yyyy'),
-			companyname: 'Apple Computer Inc.\nCompaq\nIBM',
-			contactname: 'Tim Cook',
-			address: '1, Infinite Loop',
-			postalcode: 12345,
-			city: 'Cupertino',
-			salutation: 'Dear Tim',
-			from_name: 'Servoy B.V.',
-			from_address: 'Fred. Roeskestraat 97c',
-			from_postalcode: '1076 EC',
-			from_city: 'Amsterdam',
-			from_phone: '+31 33 455 9877',
-			from_email: '+31 84 883 2297',
-			date$timestamp: utils.dateFormat(new Date(), 'dd.MM.yyyy HH:mm'),
-			image: plugins.file.readFile(plugins.file.convertToJSFile('c:\\Temp\\image.png'))
-		}
-		
-		var placeholdersInDoc = docx.findPlaceholders('%%');
-		for (var p = 0; p < placeholdersInDoc.length; p++) {
-			application.output('Found placeholder ' + placeholdersInDoc[p][1]);
-		}
-		
-		docx.replaceTags(placeholders);
-		docx.writeToFile('c:\\Temp\\replaced.docx');
-		docx.writeToFileAsPdf('c:\\Temp\\replaced.pdf');
-		
-	} catch (e) {
-		application.output(e.message);
-	}
-}
-
-/**
  * Experimental and currently not used
  *
  * @param {Packages.org.apache.poi.xwpf.usermodel.XWPFParagraph} clone
@@ -598,4 +560,19 @@ function cloneParagraph(clone, source) {
 function cloneRun(originalRun, newRun) {
 	var rPr = newRun.getCTR().isSetRPr() ? newRun.getCTR().getRPr() : newRun.getCTR().addNewRPr();
 	rPr.set(originalRun.getCTR().getRPr());
+}
+
+/**
+ * @private 
+ * @param {byte[]} input
+ * @properties={typeid:24,uuid:"2165A72A-E714-4EC0-AEBF-ACB2B60044E8"}
+ */
+function getImageResolution(input) {
+	var imageInfo = Packages.com.lowagie.text.Image;
+	var image = imageInfo.getInstance(input);
+	if (image.getDpiX() == image.getDpiY() && image.getDpiX() > 0) {
+		return image.getDpiX();
+	} else {
+		return 96;
+	}
 }
