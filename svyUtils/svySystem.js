@@ -267,6 +267,41 @@ function getSolutionDeepLinkWebClient(solutionName, methodName, args){
 }
 
 /**
+ * Gets the NG Client deep link URL for the specified solution
+ * 
+ * @param {String} warName
+ * @param {String} [solutionName]
+ * @param {String} [methodName]
+ * @param {Object} [args]
+ * @return {String}
+ * @public 
+ * @properties={typeid:24,uuid:"493977A5-AB79-4123-B73A-C64A224E166B"}
+ */
+function getSolutionDeepLinkNGClient(warName, solutionName, methodName, args){
+	if(!solutionName){
+		solutionName = application.getSolutionName();
+	}
+	var params = [];
+	if(methodName){
+		params.push('m='+methodName);
+	}
+	if(args){
+		for(var name in args){
+			/** @type {Array<String>} */
+			var values = args[name];
+			for(var j in values){
+				params.push(name +'=' + values[j]);
+			}
+		}
+	}
+	var link = application.getServerURL() + '/'+warName+'/solutions/'+solutionName+'/index.html?' ;
+	if(params.length){
+		link +=   params.join('&');
+	}
+	return link;
+}
+
+/**
  * Sets the value for the defined user property. Setting is persistent. Persistence is implementation-specific
  * @param {String} name
  * @param {String} value

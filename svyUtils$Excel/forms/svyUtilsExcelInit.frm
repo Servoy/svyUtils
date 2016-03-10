@@ -1,4 +1,12 @@
 extendsID:"14E1D5B3-5DA2-40A5-BCF1-FA15EE0D714B",
+items:[
+{
+height:100,
+partType:5,
+typeid:19,
+uuid:"B8CC058E-00ED-4A48-BBEC-DF749894563B"
+}
+],
 name:"svyUtilsExcelInit",
 typeid:3,
 uuid:"8BE51838-8DBB-4BAC-8B09-5FA03C98894E"

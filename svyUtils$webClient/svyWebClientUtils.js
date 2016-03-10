@@ -110,13 +110,14 @@ function addClass(component, className) {
  * 
  * @param {RuntimeComponent|RuntimeForm} component
  * @param {function():String} provider
+ *	
  *
  * @properties={typeid:24,uuid:"E1477EED-6F18-4979-8D19-F58D90952903"}
  */
 function addDynamicClass(component, provider) {
 	checkOperationSupported()
 	
-	var model = new JavaAdapter(Packages.org.apache.wicket.model.Model, { //See SVY-7933 for warning
+	var model = new Packages.org.mozilla.javascript.JavaAdapter(Packages.org.apache.wicket.model.Model, { //See SVY-7933 for warning
 		getObject: function() {return provider()}
 	})
 	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('class', model, ' ')
@@ -136,7 +137,7 @@ function addDynamicClass(component, provider) {
 function addDynamicStyle(component, provider) {
 	checkOperationSupported()
 	
-	var model = new JavaAdapter(Packages.org.apache.wicket.model.Model, { //See SVY-7933 for warning
+	var model = new Packages.org.mozilla.javascript.JavaAdapter(Packages.org.apache.wicket.model.Model, { //See SVY-7933 for warning
 		getObject: function() {return provider()}
 	})
 	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('style', model, ';')
@@ -158,7 +159,7 @@ function addDynamicStyle(component, provider) {
 function addDynamicAttribute(component, attribute, provider, separator) {
 	checkOperationSupported()
 	
-	var model = new JavaAdapter(Packages.org.apache.wicket.model.Model, { //See SVY-7933 for warning
+	var model = new Packages.org.mozilla.javascript.JavaAdapter(Packages.org.apache.wicket.model.Model, { //See SVY-7933 for warning
 		getObject: function() {return provider()}
 	})
 	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender(attribute, model, separator||'')
@@ -315,7 +316,9 @@ function addResourceDependancy(url, element, disableAutoAdjustProtocol, isJSReso
 				}
 			})
 		)
+		
 		addBehavior(contributor, element)
+		
 	}
 }
 
@@ -578,7 +581,7 @@ function getCallbackUrl(callback) {
  *  
  * Generates a JavaScript code snippet that when invoked in the client (browser) executes the supplied callback method on the server
  * 
- * @param {String|function(String...)} callback Either a Servoy method or a qualifiedName string pointing to a method.
+ * @param {String|function(String, Array)} callback Either a Servoy method or a qualifiedName string pointing to a method.
  * @param {Array<String|Number|Boolean>} [args] String values are considered references to browser-side variables. To pass hardcoded String literals the String value needs to be quoted: '"myvalue"' or "'myValue'". All other values are considered hardcoded values as well and will get serialized using JSON
  * @param {Boolean} [options.showLoading] Whether or not to show the Loading indicator
  * @param {String} [options.mimeType] Forces a certain mimeType in the response
@@ -1115,7 +1118,7 @@ function updateUI(milliseconds) {
 	checkOperationSupported()
 	if (scopes.svySystem.isWebClient()) {
       c = new Continuation();
-      executeClientsideScript(getCallbackScript(updateUIResume, null, null)); //Sending in extra params to get rid of warning, see SVY-5955
+      executeClientsideScript(getCallbackScript(updateUIResume)); 
       terminator();
    } else {
       application.updateUI(milliseconds)
