@@ -479,7 +479,7 @@ function createDateTimeSearchString(start, end) {
  * @param {Date} birthdate the date of birth
  * @param {Date} [compareDate] optional date to calculate from; if not given, the current date will be used
  * 
- * @return {{years: Number, months: Number, days: Number}}
+ * @return {{years: Number, months: Number, days: Number}} the age with number of years, months and days
  *
  * @properties={typeid:24,uuid:"CBDA6831-16E8-46F8-8C04-A3233037D7B5"}
  */
@@ -812,19 +812,28 @@ function isLeapYear(year) {
 }
 
 /**
- * Returns the day of the week starting with 1 on Sunday
+ * Returns the day of the week
  * 
  * @public
  * 
  * @param {Date} date
+ * @param {Boolean} [useISO8601] if true, the ISO-8601 convention (where Monday is the first day of the week) is used
  *
  * @return {Number} dayOfWeek
  * 
  * @properties={typeid:24,uuid:"B7A77C91-7F99-4ED1-978B-1CB61D953249"}
  */
-function getDayOfWeek(date) {
+function getDayOfWeek(date, useISO8601) {
 	calendar.setTimeInMillis(date.getTime());
-	return calendar.get(java.util.Calendar.DAY_OF_WEEK);
+	var dow = calendar.get(java.util.Calendar.DAY_OF_WEEK);
+	if (useISO8601) {
+		if (dow == 1) {
+			dow = 7;
+		} else {
+			dow = dow - 1;
+		}
+	}
+	return dow;
 }
 
 /**

@@ -57,6 +57,22 @@ function checkOperationSupported() {
 }
 
 /**
+ * Helper method to get the wrapper div component on elements if the element has one
+ * 
+ * @private 
+ * 
+ * @param {RuntimeComponent|RuntimeForm} component
+ * @return {Packages.org.apache.wicket.Component}
+ *
+ * @properties={typeid:24,uuid:"CFBBDB4C-5616-4974-A180-4A66C98D4209"}
+ */
+function getUwrappedComponentOrWrapperComponent(component) {
+	var unwrappedElement = unwrapElement(component)
+	var parent = unwrappedElement.getParent()
+	return parent instanceof Packages.com.servoy.j2db.server.headlessclient.WrapperContainer ? parent : unwrappedElement //See SVY-8013 for warning
+}
+
+/**
  * Centers a (tab)panel within its container through CSS. Tabpanel should left anchored only
  * TODO: checks to see if tabpanel is not left/right anchored and if it that supported orientation
  * @param {RuntimeTabPanel} element
@@ -65,6 +81,7 @@ function checkOperationSupported() {
  */
 function centerPanel(element) {
 	checkOperationSupported()
+	element = getUwrappedComponentOrWrapperComponent(element)
 	var model = Packages.org.apache.wicket.model.Model('left: 50%;margin-left:-' + element.getWidth() / 2 + 'px;')
 	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('style', model, ';')
 	unwrapElement(element).add(behavior)
@@ -75,7 +92,7 @@ function centerPanel(element) {
  * Sets the visibility of components in the browser. This means that all the markup is included, but is also hidden.
  * Note: uses the CSS display property and not the CSS visibility property, as Servoy uses the visibility property internally
  * 
- * @param {RuntimeComponent} component
+ * @param {RuntimeComponent|RuntimeForm} component
  * @param {Boolean} visibility
  *
  * @properties={typeid:24,uuid:"8421ED23-0497-4D0F-9CEE-71F543FF0838"}
@@ -93,11 +110,17 @@ function setComponentVisibility(component, visibility) {
  * 
  * @param {RuntimeComponent|RuntimeForm} component
  * @param {String} className
+ * @param {Boolean} [addToWrapper] See {@link #addStyle()} for parameter details. Default=false
  *
  * @properties={typeid:24,uuid:"BEF22467-35CD-4397-B10C-4BBE9789DD17"}
  */
-function addClass(component, className) {
+function addClass(component, className, addToWrapper) {
 	checkOperationSupported()
+	
+	if (addToWrapper) {
+		component = getUwrappedComponentOrWrapperComponent(component)
+	}
+	
 	var model = Packages.org.apache.wicket.model.Model(className)
 	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('class', true, model, ' ')
 	addBehavior(behavior, component)
@@ -110,17 +133,53 @@ function addClass(component, className) {
  * 
  * @param {RuntimeComponent|RuntimeForm} component
  * @param {function():String} provider
+ * @param {Boolean} [addToWrapper] See {@link #addStyle()} for parameter details. Default=false
  *	
  *
  * @properties={typeid:24,uuid:"E1477EED-6F18-4979-8D19-F58D90952903"}
  */
-function addDynamicClass(component, provider) {
+function addDynamicClass(component, provider, addToWrapper) {
 	checkOperationSupported()
+	
+	if (addToWrapper) {
+		component = getUwrappedComponentOrWrapperComponent(component)
+	}
 	
 	var model = new Packages.org.mozilla.javascript.JavaAdapter(Packages.org.apache.wicket.model.Model, { //See SVY-7933 for warning
 		getObject: function() {return provider()}
 	})
 	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('class', model, ' ')
+	addBehavior(behavior, component)
+}
+
+/**
+ * Adds additional Style attributes to the component<br/>
+ * <br/>
+ * Note that certain elements are encapsulated in a wrapper for positioning purposes.<br/>
+ * This means that if the desired changes are related to positioning of the element,<br/>
+ * they need to be made on the wrapper.<br/>
+ * In order to do so, specify true for the addToWrapper parameter<br/>
+ * <br/>
+ * 
+ * @example <pre>//Changing positioning of an element
+ * scopes.svyWebClientUtils.addStyle(elements.myElement, 'top: 10%, left: 10%, right: 10%, bottom: 10%', true)
+ * </pre>
+ * 
+ * @param {RuntimeComponent|RuntimeForm} component
+ * @param {String} style
+ * @param {Boolean} [addToWrapper] Whether or not to apply the style to the positioning wrapper div if the component has one. Default=false
+ *
+ * @properties={typeid:24,uuid:"4552B165-A0C8-48A8-883B-FA447ABBA68B"}
+ */
+function addStyle(component, style, addToWrapper) {
+	checkOperationSupported()
+	
+	if (addToWrapper) {
+		component = getUwrappedComponentOrWrapperComponent(component)
+	}
+	
+	var model = Packages.org.apache.wicket.model.Model(style)
+	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('style', true, model, ';')
 	addBehavior(behavior, component)
 }
 
@@ -131,11 +190,16 @@ function addDynamicClass(component, provider) {
  * 
  * @param {RuntimeComponent|RuntimeForm} component
  * @param {function():String} provider
+ * @param {Boolean} [addToWrapper] See {@link #addStyle()} for parameter details. Default=false
  *
  * @properties={typeid:24,uuid:"8CFC45C9-55A2-4D6F-9E5F-3E1042721767"}
  */
-function addDynamicStyle(component, provider) {
+function addDynamicStyle(component, provider, addToWrapper) {
 	checkOperationSupported()
+	
+	if (addToWrapper) {
+		component = getUwrappedComponentOrWrapperComponent(component)
+	}
 	
 	var model = new Packages.org.mozilla.javascript.JavaAdapter(Packages.org.apache.wicket.model.Model, { //See SVY-7933 for warning
 		getObject: function() {return provider()}
@@ -152,7 +216,7 @@ function addDynamicStyle(component, provider) {
  * @param {RuntimeComponent|RuntimeForm} component
  * @param {String} attribute
  * @param {function():String} provider
- * @param {String} separator Value by which to separate multiple values for the specified attribute. Default: ''
+ * @param {String} [separator] Value by which to separate multiple values for the specified attribute. Default: ''
  *
  * @properties={typeid:24,uuid:"0B13457D-23E8-485B-B15A-BCAC456876D7"}
  */
@@ -498,7 +562,7 @@ function setRendered(element) {
 	if (tmp instanceof Packages.com.servoy.j2db.ui.IProviderStylePropertyChanges) {
 		/** @type {Packages.com.servoy.j2db.ui.IProviderStylePropertyChanges} */
 		var tmp2 = tmp
-		tmp2.getStylePropertyChanges().setRendered();
+		tmp2.getStylePropertyChanges().setRendered()
 	}
 }
 
@@ -515,6 +579,7 @@ function getElementMarkupId(element) {
 }
 
 /**
+ * TODO: deprecate as of Servoy 8, see {@link https://support.servoy.com/browse/SVY-7804}
  * @param {RuntimeComponent} element
  * @return {String}
  *
@@ -970,6 +1035,11 @@ function addBehavior(behavior, component) {
 	/**@type {Packages.org.apache.wicket.Component}*/
 	var target = component ? unwrapElement(component) : getWebClientPluginAccess().getPageContributor()
 	target.add(behavior)
+	if (target instanceof Packages.com.servoy.j2db.ui.IProviderStylePropertyChanges) {
+		/** @type {Packages.com.servoy.j2db.ui.IProviderStylePropertyChanges} */
+		var tmp = target
+		tmp.getStylePropertyChanges().setChanged()
+	}
 }
 
 /**
@@ -1000,6 +1070,10 @@ function unwrapElement(component) {
 		var list = new Packages.java.util.ArrayList();
 		list.add(component)
 		wicketComponent = list.get(0)
+		//Take care of some components that are wrapped another way so the ArrayList unwrapping doesn't work. For example ComboBoxes
+		if (wicketComponent instanceof Packages.org.apache.wicket.Component && !wicketComponent.add) {
+			wicketComponent = new Packages.org.mozilla.javascript.NativeJavaObject(globals, wicketComponent, new Packages.org.mozilla.javascript.JavaMembers(globals, Packages.org.apache.wicket.Component))
+	}
 	}
 	return wicketComponent
 }
@@ -1136,4 +1210,33 @@ function updateUI(milliseconds) {
  */
 function updateUIResume(body, requestParams) {
    c();
+}
+/**
+ * Forces a TableView header to update, so any header texts that depend on display tags are rerendered
+ * @param {RuntimeForm} form
+ * @return {Boolean} Whether update was successful
+ *
+ * @properties={typeid:24,uuid:"C801BA0C-30B7-4DC8-9FB4-7ED03A1676A1"}
+ */
+function forceTableViewColumnHeaderWithTagsUpdate(form) {
+	checkOperationSupported()
+	var component = scopes.svyWebClientUtils.unwrapElement(form)
+	/** @type {Packages.com.servoy.j2db.server.headlessclient.WebForm}*/
+	var webForm = component.findParent(Packages.com.servoy.j2db.IFormUIInternal)
+	
+	if(webForm) {
+		/**@type {Packages.org.apache.wicket.markup.html.WebMarkupContainer}*/
+		var servoyWebForm = webForm.get('servoywebform')
+		if (servoyWebForm) {
+			/**@type {Packages.com.servoy.j2db.server.headlessclient.dataui.WebCellBasedView}*/
+			var view = servoyWebForm.get('View')
+			if (view) {
+				/**@type {Packages.com.servoy.j2db.server.headlessclient.dataui.SortableCellViewHeaders}*/
+				var header = view.get('header')
+				header.getStylePropertyChanges().setChanged()
+				return true
+			}
+		}
+	}
+	return false
 }

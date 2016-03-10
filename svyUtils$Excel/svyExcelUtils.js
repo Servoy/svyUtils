@@ -23,6 +23,18 @@
 var logger = scopes.svyLogManager.getLogger("com.servoy.bap.svyexcelutils");
 
 /**
+ * Possible file formats used instead of templates when creating empty workbooks
+ * 
+ * @enum
+ *
+ * @properties={typeid:35,uuid:"C88BEC59-8BE3-4FE8-BA92-B13A8B507858",variableType:-4}
+ */
+var FILE_FORMAT = {
+	XLS: 1,
+	XLSX: 2
+}
+
+/**
  * Colors from the Excel color palette
  * 
  * @enum
@@ -195,6 +207,74 @@ var SHEET_PANE = {
 }
 
 /**
+ * Possible cell types
+ * 
+ * @enum 
+ * 
+ * @properties={typeid:35,uuid:"9FF3C911-31DA-416B-86DE-13A8F69ADD96",variableType:-4}
+ */
+var CELL_TYPE = {
+	BLANK: Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BLANK,
+	BOOLEAN: Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BOOLEAN,
+	ERROR: Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_ERROR,
+	FORMULA: Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_FORMULA,
+	NUMERIC: Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC,
+	STRING: Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_STRING
+}
+
+/**
+ * Possible paper sizes for a PrintSetup
+ * 
+ * @enum
+ *  
+ * @properties={typeid:35,uuid:"B7BD0408-60E3-48E2-B263-4A185F7AF05D",variableType:-4}
+ */
+var PAPER_SIZE = {
+	A3_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.A3_PAPERSIZE,
+	A4_EXTRA_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.A4_EXTRA_PAPERSIZE,
+	A4_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.A4_PAPERSIZE,
+	A4_PLUS_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.A4_PLUS_PAPERSIZE,
+	A4_ROTATED_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.A4_ROTATED_PAPERSIZE,
+	A4_SMALL_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.A4_SMALL_PAPERSIZE,
+	A4_TRANSVERSE_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.A4_TRANSVERSE_PAPERSIZE,
+	A5_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.A5_PAPERSIZE,
+	B4_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.B4_PAPERSIZE,
+	B5_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.B5_PAPERSIZE,
+	ELEVEN_BY_SEVENTEEN_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.ELEVEN_BY_SEVENTEEN_PAPERSIZE,
+	ENVELOPE_10_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.ENVELOPE_10_PAPERSIZE,
+	ENVELOPE_9_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.ENVELOPE_9_PAPERSIZE,
+	ENVELOPE_C3_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.ENVELOPE_C3_PAPERSIZE,
+	ENVELOPE_C4_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.ENVELOPE_C4_PAPERSIZE,
+	ENVELOPE_C5_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.ENVELOPE_C5_PAPERSIZE,
+	ENVELOPE_C6_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.ENVELOPE_C6_PAPERSIZE,
+	ENVELOPE_CS_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.ENVELOPE_CS_PAPERSIZE,
+	ENVELOPE_DL_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.ENVELOPE_DL_PAPERSIZE,
+	ENVELOPE_MONARCH_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.ENVELOPE_MONARCH_PAPERSIZE,
+	EXECUTIVE_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.EXECUTIVE_PAPERSIZE,
+	FOLIO8_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.FOLIO8_PAPERSIZE,
+	LEDGER_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.LEDGER_PAPERSIZE,
+	LEGAL_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.LEGAL_PAPERSIZE,
+	LETTER_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.LETTER_PAPERSIZE,
+	LETTER_ROTATED_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.LETTER_ROTATED_PAPERSIZE,
+	LETTER_SMALL_PAGESIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.LETTER_SMALL_PAGESIZE,
+	NOTE8_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.NOTE8_PAPERSIZE,
+	PRINTER_DEFAULT_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.PRINTER_DEFAULT_PAPERSIZE,
+	QUARTO_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.QUARTO_PAPERSIZE,
+	STATEMENT_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.STATEMENT_PAPERSIZE,
+	TABLOID_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.TABLOID_PAPERSIZE,
+	TEN_BY_FOURTEEN_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.TEN_BY_FOURTEEN_PAPERSIZE
+}
+
+/**
+ * @type {PrintSetup}
+ * 
+ * @private 
+ *
+ * @properties={typeid:35,uuid:"67212952-2D5F-421C-8B00-72026DF20A66",variableType:-4}
+ */
+var defaultPrintSetup;
+
+/**
  * Returns an empty ExcelWorkbook
  * 
  * @public 
@@ -284,7 +364,7 @@ function getWorkbook(original) {
  * @param {JSFoundSet} foundset - the foundset
  * @param {Array<String>} dataproviders - the dataproviders to be used for the excel sheet
  * @param {Array<String>} [headers] - the text to be used as column headers
- * @param {String|plugins.file.JSFile} [template] - a file or media URL pointing to an existing Excel workbook
+ * @param {String|plugins.file.JSFile|Number} [template] either file or media URL pointing to an existing Excel to be used as template or one of the FILE_FORMAT constants when creating empty workbooks
  * @param {String} [sheetNameToUse] - when a template is used, this is the name of the sheet to be filled
  * 
  * @return {FoundSetExcelWorkbook}
@@ -305,7 +385,7 @@ function createWorkbookFromFoundSet(foundset, dataproviders, headers, template, 
  * @param {JSDataSet} dataset - the dataset
  * @param {Array<Number>} [columns] - the column numbers to be included in the sheet
  * @param {Array<String>} [headers] - the text to be used as column headers
- * @param {String|plugins.file.JSFile} [template] - a file or media URL pointing to an existing Excel workbook
+ * @param {String|plugins.file.JSFile|Number} [template] either file or media URL pointing to an existing Excel to be used as template or one of the FILE_FORMAT constants when creating empty workbooks
  * @param {String} [sheetNameToUse] - when a template is used, this is the name of the sheet to be filled
  * 
  * @return {DataSetExcelWorkbook}
@@ -323,7 +403,7 @@ function createWorkbookFromDataSet(dataset, columns, headers, template, sheetNam
  * 
  * @public 
  *
- * @param {String|plugins.file.JSFile} [template]
+ * @param {String|plugins.file.JSFile|Number} [template] either an existing Excel file as template or one of the FILE_FORMAT constants when creating empty workbooks
  * 
  * @example <pre>
  * // Create workbook and sheet
@@ -388,28 +468,39 @@ function ExcelWorkbook(template) {
 
 	/**
 	 * The internal workbook object
-	 * @type {Packages.org.apache.poi.hssf.usermodel.HSSFWorkbook}
+	 * @type {Packages.org.apache.poi.ss.usermodel.Workbook}
 	 */
 	this.wb = null;
 
 	if (!template) {
-		this.wb = new Packages.org.apache.poi.hssf.usermodel.HSSFWorkbook();
+		template = FILE_FORMAT.XLS;
+	}
+
+	//workbook factory
+	var factory = Packages.org.apache.poi.ss.usermodel.WorkbookFactory;
+
+	if (template instanceof Number) {
+		/** @type {Number} */
+		var format = template;
+		if (format == FILE_FORMAT.XLS) {
+			this.wb = new Packages.org.apache.poi.hssf.usermodel.HSSFWorkbook();
+		} else {
+			this.wb = new Packages.org.apache.poi.xssf.usermodel.XSSFWorkbook();
+		}
 	} else if (template instanceof String) {
 		/** @type {String} */
 		var filePathOrUrl = template;
 		if (filePathOrUrl.indexOf("media:///") >= 0) {
 			var wbData = plugins.http.getMediaData(filePathOrUrl);
 			var bis = new java.io.ByteArrayInputStream(wbData);
-			this.wb = new Packages.org.apache.poi.hssf.usermodel.HSSFWorkbook(bis);
+			this.wb = factory.create(bis);
 		} else {
-			var fis = new java.io.FileInputStream(new java.io.File(plugins.file.convertToJSFile(filePathOrUrl).getAbsolutePath()));
-			this.wb = new Packages.org.apache.poi.hssf.usermodel.HSSFWorkbook(fis);
+			this.wb = factory.create(new java.io.File(plugins.file.convertToJSFile(filePathOrUrl).getAbsolutePath()));
 		}
 	} else if (template instanceof plugins.file.JSFile) {
 		/** @type {plugins.file.JSFile} */
 		var jsFile = template;
-		var jsfis = new java.io.FileInputStream(new java.io.File(jsFile.getAbsolutePath()));
-		this.wb = new Packages.org.apache.poi.hssf.usermodel.HSSFWorkbook(jsfis);
+		this.wb = factory.create(new java.io.File(jsFile.getAbsolutePath()));
 	} else {
 		throw new scopes.svyExceptions.IllegalArgumentException("Wrong arguments provided for ExcelWorkbook");
 	}
@@ -436,7 +527,11 @@ var initExcelWorkbook = (function() {
 	 */
 	ExcelWorkbook.prototype.createSheet = function(sheetName) {
 		var sName = Packages.org.apache.poi.ss.util.WorkbookUtil.createSafeSheetName(sheetName);
-		return new ExcelSheet(this.wb.createSheet(sName));
+		var result = new ExcelSheet(this.wb.createSheet(sName));
+		if (defaultPrintSetup) {
+			result.setPrintSetup(defaultPrintSetup);
+		}
+		return result;
 	}
 	
 	/**
@@ -567,7 +662,6 @@ var initExcelWorkbook = (function() {
 	 * @this {ExcelWorkbook}
 	 */
 	ExcelWorkbook.prototype.createCellStyle = function() {
-		/** @type {Packages.org.apache.poi.hssf.usermodel.HSSFCellStyle} */
 		var cs = this.wb.createCellStyle();
 		return new ExcelCellStyle(cs, this.wb);
 	}
@@ -580,7 +674,6 @@ var initExcelWorkbook = (function() {
 	 * @this {ExcelWorkbook}
 	 */
 	ExcelWorkbook.prototype.cloneCellStyle = function(cellStyle) {
-		/** @type {Packages.org.apache.poi.hssf.usermodel.HSSFCellStyle} */
 		var cs = this.wb.createCellStyle();
 		var result = new ExcelCellStyle(cs, this.wb);
 		result.cloneStyleFrom(cellStyle);
@@ -663,7 +756,7 @@ var initExcelWorkbook = (function() {
  * @constructor 
  * @extends {ExcelWorkbook}
  * @private 
- * @param template
+ * @param {String|plugins.file.JSFile|Number} [template] either an existing Excel file as template or one of the FILE_FORMAT constants when creating empty workbooks
  * @param {String} sheetNameToUse
  *
  * @properties={typeid:24,uuid:"62218771-88C9-4D58-954C-4B39A92F8513"}
@@ -724,7 +817,7 @@ function ServoyExcelWorkbook(template, sheetNameToUse) {
 	 * @type {ExcelSheet}
 	 */
 	this.sheet = null;
-	if (template) {
+	if (template && !(template instanceof Number)) {
 		if (sheetNameToUse) {
 			this.sheet = this.workbook.getSheet(sheetNameToUse);
 			if (!this.sheet) {
@@ -884,7 +977,7 @@ var initServoyExcelWorkbook = (function() {
  * @param {JSFoundSet} foundset - the foundset
  * @param {Array<String>} dataproviders - the dataproviders to be used for the excel sheet
  * @param {Array<String>} [headers] - the text to be used as column headers
- * @param {String|plugins.file.JSFile} [template] - a file or media URL pointing to an existing Excel workbook
+ * @param {String|plugins.file.JSFile|Number} [template] either file or media URL pointing to an existing Excel to be used as template or one of the FILE_FORMAT constants when creating empty workbooks
  * @param {String} [sheetNameToUse] - when a template is used, this is the name of the sheet to be filled
  *
  * @properties={typeid:24,uuid:"98D3A864-3E94-47AD-99E6-4B77046BDFEC"}
@@ -1038,7 +1131,7 @@ var initFoundSetExcelWorkbook = (function() {
  * @param {JSDataSet} dataset - the dataset
  * @param {Array<Number>} [columns] - the column numbers to be included in the sheet
  * @param {Array<String>} [headers] - the text to be used as column headers
- * @param {String|plugins.file.JSFile} [template] - a file or media URL pointing to an existing Excel workbook
+ * @param {String|plugins.file.JSFile|Number} [template] either file or media URL pointing to an existing Excel to be used as template or one of the FILE_FORMAT constants when creating empty workbooks
  * @param {String} [sheetNameToUse] - when a template is used, this is the name of the sheet to be filled
  * 
  * @example <pre>
@@ -1222,7 +1315,7 @@ var initDataSetExcelWorkbook = (function() {
  * @constructor
  * @private
  *
- * @param {org.apache.poi.ss.usermodel.Sheet} sheet
+ * @param {Packages.org.apache.poi.ss.usermodel.Sheet} sheet
  *
  * @properties={typeid:24,uuid:"FABA242D-23EC-4265-88C8-224CD2EB0146"}
  */
@@ -1230,7 +1323,7 @@ function ExcelSheet(sheet) {
 	
 	/**
 	 * The internal sheet object
-	 * @type {org.apache.poi.ss.usermodel.Sheet}
+	 * @type {Packages.org.apache.poi.ss.usermodel.Sheet}
 	 */
 	this.sheet = sheet;
 	
@@ -1261,7 +1354,7 @@ var initExcelSheet = (function() {
 			 * @this {ExcelSheet}
 			 */
 			set: function(x) {
-				/** @type {Packages.org.apache.poi.hssf.usermodel.HSSFWorkbook} */
+				/** @type {Packages.org.apache.poi.ss.usermodel.Workbook} */
 				var wb = this.sheet.getWorkbook();
 				var sheetIndex = wb.getSheetIndex(this.sheet);
 				wb.setSheetName(sheetIndex, Packages.org.apache.poi.ss.util.WorkbookUtil.createSafeSheetName(x));
@@ -1271,6 +1364,7 @@ var initExcelSheet = (function() {
 	/**
 	 * Create a new row within the sheet (one based)
 	 * @param {Number} row
+	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.createRow = function(row) {
 		return new ExcelRow(this.sheet.createRow(row - 1));
@@ -1280,9 +1374,12 @@ var initExcelSheet = (function() {
 	 * Inserts a new row at the given position (one based)
 	 * @param {Number} row
 	 * @return {ExcelRow} insertedRow
+	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.insertRowAt = function(row) {
-		this.sheet.shiftRows(row - 1, this.sheet.getLastRowNum(), 1);
+		if (row-1 <= this.sheet.getLastRowNum()) {
+			this.sheet.shiftRows(row - 1, this.sheet.getLastRowNum() == 0 ? this.sheet.getPhysicalNumberOfRows() : this.sheet.getLastRowNum(), 1);
+		}
 		return new ExcelRow(this.sheet.createRow(row - 1));
 	}
 	
@@ -1292,6 +1389,7 @@ var initExcelSheet = (function() {
 	 * 
 	 * @param {Number} colSplit - the column where the split occurs (one based)
 	 * @param {Number} rowSplit - the row where the split occurs (one based)
+	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.createFreezePane = function(colSplit, rowSplit) {
 		this.sheet.createFreezePane(colSplit - 1, rowSplit - 1);
@@ -1314,9 +1412,19 @@ var initExcelSheet = (function() {
 	 * Adjusts the column width to fit the contents.<p>
 	 * This process can be relatively slow on large sheets, so this should normally only be called once per column, at the end of your processing.
 	 * @param {Number} column - the column index (one based)
+	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.autoSizeColumn = function(column) {
 		this.sheet.autoSizeColumn(column - 1);
+	}
+	
+	/**
+	 * Show automatic page breaks or not
+	 * @param {Boolean} autoBreaks
+	 * @this {ExcelSheet}
+	 */
+	ExcelSheet.prototype.setAutoBreaks = function(autoBreaks) {
+		this.sheet.setAutobreaks(autoBreaks);
 	}
 	
 	/**
@@ -1326,6 +1434,7 @@ var initExcelSheet = (function() {
 	 * @param {Number} startColumn - one based
 	 * @param {Number} endRow - one based
 	 * @param {Number} endColumn - one based
+	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.setAutoFilter = function(startRow, startColumn, endRow, endColumn) {
 		var range = new Packages.org.apache.poi.ss.util.CellRangeAddress(startRow - 1, endRow - 1, startColumn - 1, endColumn - 1);
@@ -1337,6 +1446,7 @@ var initExcelSheet = (function() {
 	 * 
 	 * @param {Number} row - one based
 	 * @param {Number} column - one based
+	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.getCell = function(row, column) {
 		/** @type {Packages.org.apache.poi.ss.usermodel.Row} */
@@ -1350,6 +1460,7 @@ var initExcelSheet = (function() {
 	/**
 	 * Gets the first row on the sheet
 	 * @return {Number} the number of the first logical row on the sheet, one based
+	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.getFirstRowNum = function() {
 		return this.sheet.getFirstRowNum() + 1;
@@ -1358,6 +1469,7 @@ var initExcelSheet = (function() {
 	/**
 	 * Gets the number last row on the sheet. Owing to idiosyncrasies in the excel file format, if the result of calling this method is one, you can't tell if that means there are no rows on the sheet, or one at position one. For that case, additionally call getPhysicalNumberOfRows() to tell if there is a row at position one or not.
 	 * @return {Number} the number of the last row contained in this sheet, one based
+	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.getLastRowNum = function() {
 		return this.sheet.getLastRowNum() + 1;
@@ -1366,6 +1478,7 @@ var initExcelSheet = (function() {
 	/**
 	 * Returns the number of physically defined rows (NOT the number of rows in the sheet)
 	 * @return {Number} the number of physically defined rows in this sheet
+	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.getPhysicalNumberOfRows = function() {
 		return this.sheet.getPhysicalNumberOfRows();
@@ -1374,6 +1487,7 @@ var initExcelSheet = (function() {
 	/**
 	 * Returns the logical row (not physical) 1-based. If you ask for a row that is not defined you get a null.
 	 * @return {ExcelRow} ExcelRow representing the row number or null if its not defined on the sheet
+	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.getRow = function(row) {
 		var r = this.sheet.getRow(row - 1);
@@ -1389,6 +1503,10 @@ var initExcelSheet = (function() {
 	 * @param {Number} [endRow]
 	 * @param {Number} [startColumn]
 	 * @param {Number} [endColumn]
+	 * 
+	 * @return {JSDataSet}
+	 * 
+	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.getSheetData = function(firstRowHasColumnNames, startRow, endRow, startColumn, endColumn) {
 		/** @type {Packages.org.apache.poi.ss.usermodel.Row} */
@@ -1440,6 +1558,7 @@ var initExcelSheet = (function() {
 		}
 		for (var i = startRow; i <= endRow; i++) {
 			row = this.sheet.getRow(i);
+			if (row == null || row.getPhysicalNumberOfCells()) continue;
 			rowData = [];
 			for (var c = startColumn; c <= endColumn; c++) {
 				cell = row.getCell(c);
@@ -1457,6 +1576,7 @@ var initExcelSheet = (function() {
 	/**
 	 * Returns the data in the given row as an Array
 	 * @return {Array}
+	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.getRowData = function(row) {
 		/** @type {Packages.org.apache.poi.ss.usermodel.Row} */
@@ -1475,6 +1595,7 @@ var initExcelSheet = (function() {
 	 * Set the visibility state for a given column.
 	 * @param {Number} column - the column to get (1-based)
 	 * @param {Boolean} hidden - the visiblity state of the column
+	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.setColumnHidden = function(column, hidden) {
 		this.sheet.setColumnHidden(column - 1, hidden);
@@ -1485,6 +1606,7 @@ var initExcelSheet = (function() {
 	 * @param {Number} startRow
 	 * @param {Number} endRow
 	 * @param {Number} n
+	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.shiftRows = function(startRow, endRow, n) {
 		this.sheet.shiftRows(startRow, endRow, n);
@@ -1496,6 +1618,7 @@ var initExcelSheet = (function() {
 	 * @param {Number} startColumn
 	 * @param {Number} endRow
 	 * @param {Number} endColumn
+	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.addMergedRegion = function(startRow, startColumn, endRow, endColumn) {
 		this.sheet.addMergedRegion(new Packages.org.apache.poi.ss.util.CellRangeAddress(startRow - 1, 
@@ -1503,6 +1626,27 @@ var initExcelSheet = (function() {
 			startColumn - 1,
 			endColumn - 1
 		));
+	}
+	
+	/**
+	 * Sets the print setup for this sheet
+	 * @param {PrintSetup} printSetup
+	 * @return {ExcelSheet}
+	 * @this {ExcelSheet}
+	 */
+	ExcelSheet.prototype.setPrintSetup = function(printSetup) {
+		var setup = this.sheet.getPrintSetup();
+		if (printSetup.copies != null) setup.setCopies(printSetup.copies);
+		if (printSetup.draft != null) setup.setDraft(printSetup.draft);
+		if (printSetup.fitHeight != null) setup.setFitHeight(printSetup.fitHeight);
+		if (printSetup.fitWidth != null) setup.setFitWidth(printSetup.fitWidth);
+		if (printSetup.fitHeight != null || printSetup.fitWidth != null) {
+			this.sheet.setAutobreaks(true);
+		}
+		if (printSetup.landscape != null) setup.setLandscape(printSetup.landscape);
+		if (printSetup.noColor != null) setup.setNoColor(printSetup.noColor);
+		if (printSetup.paperSize != null) setup.setPaperSize(printSetup.paperSize);
+		return this;
 	}
 }());
 
@@ -1512,8 +1656,8 @@ var initExcelSheet = (function() {
  * @constructor
  * @private
  *
- * @param {Packages.org.apache.poi.hssf.usermodel.HSSFCellStyle} style
- * @param {Packages.org.apache.poi.hssf.usermodel.HSSFWorkbook} workbook
+ * @param {Packages.org.apache.poi.ss.usermodel.CellStyle} style
+ * @param {Packages.org.apache.poi.ss.usermodel.Workbook} workbook
  *
  * @properties={typeid:24,uuid:"7AC10C4F-3D57-4E31-883D-769B02E88CA3"}
  */
@@ -1527,13 +1671,13 @@ function ExcelCellStyle(style, workbook) {
 	
 	/**
 	 * The internal style object
-	 * @type {org.apache.poi.hssf.usermodel.HSSFCellStyle}
+	 * @type {Packages.org.apache.poi.ss.usermodel.CellStyle}
 	 */
 	this.cellStyle = style;
 	
 	/**
 	 * The internal workbook object
-	 * @type {Packages.org.apache.poi.hssf.usermodel.HSSFWorkbook}
+	 * @type {Packages.org.apache.poi.ss.usermodel.Workbook}
 	 */
 	this.workbook = workbook;
 	
@@ -1634,7 +1778,7 @@ var initExcelCellStyle = (function() {
 	 * @this {ExcelCellStyle}
 	 */
 	ExcelCellStyle.prototype.setDataFormat = function(format) {
-		/** @type {org.apache.poi.ss.usermodel.DataFormat} */
+		/** @type {Packages.org.apache.poi.ss.usermodel.DataFormat} */
 		var f = this.workbook.createDataFormat();
 		this.cellStyle.setDataFormat(f.getFormat(format));
 		return this;
@@ -1800,7 +1944,7 @@ var initExcelCellStyle = (function() {
 	
 	/**
 	 * Returns the internal cell style object
-	 * @return {org.apache.poi.hssf.usermodel.HSSFCellStyle}
+	 * @return {Packages.org.apache.poi.ss.usermodel.CellStyle}
 	 * @this {ExcelCellStyle}
 	 */
 	ExcelCellStyle.prototype.getCellStyle = function() {
@@ -1813,10 +1957,11 @@ var initExcelCellStyle = (function() {
 	 * @this {ExcelCellStyle}
 	 */
 	ExcelCellStyle.prototype.getFont = function() {
-		/** @type {ExcelFont} */
 		var result = this.fontInternal;
 		if (!this.fontInternal) {
-			result = this.fontInternal = new ExcelFont(this.cellStyle.getFont(this.workbook));
+			var fIndex = this.cellStyle.getFontIndex();
+			var f = this.workbook.getFontAt(fIndex);
+			result = this.fontInternal = new ExcelFont(f);
 		}
 		return result;
 	}
@@ -1900,16 +2045,16 @@ function ExcelFont(font) {
 	 * Whether the font is bold or not
 	 * @type {Boolean}
 	 */
-	this.isBold = (font.getBoldweight() == Packages.org.apache.poi.hssf.usermodel.HSSFFont.BOLDWEIGHT_BOLD);
+	this.isBold = (font.getBoldweight() == Packages.org.apache.poi.ss.usermodel.Font.BOLDWEIGHT_BOLD);
 	Object.defineProperty(this, "isBold", {
 			get: function() {
-				return (font.getBoldweight() == Packages.org.apache.poi.hssf.usermodel.HSSFFont.BOLDWEIGHT_BOLD);
+				return (font.getBoldweight() == Packages.org.apache.poi.ss.usermodel.Font.BOLDWEIGHT_BOLD);
 			},
 			set: function(x) {
 				if (x === true) {
-					font.setBoldweight(Packages.org.apache.poi.hssf.usermodel.HSSFFont.BOLDWEIGHT_BOLD);
+					font.setBoldweight(Packages.org.apache.poi.ss.usermodel.Font.BOLDWEIGHT_BOLD);
 				} else {
-					font.setBoldweight(Packages.org.apache.poi.hssf.usermodel.HSSFFont.BOLDWEIGHT_NORMAL);
+					font.setBoldweight(Packages.org.apache.poi.ss.usermodel.Font.BOLDWEIGHT_NORMAL);
 				}
 			}
 		});
@@ -2129,6 +2274,86 @@ var initExcelCell = (function() {
 	}
 	
 	/**
+	 * Returns the value cell<p>
+	 * 
+	 * Blank cells return null, boolean cells integers,
+	 * formula and error cells null
+	 * 
+	 * @return {Object} value
+	 * 
+	 * @this {ExcelCell}
+	 */
+	ExcelCell.prototype.getCellValue = function() {
+		var cellType = this.cell.getCellType();
+		if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BLANK) {
+			return null;
+		} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BOOLEAN) {
+			return this.cell.getBooleanCellValue() ? 1 : 0;
+		} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC) {
+			return this.cell.getNumericCellValue();
+		} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_STRING) {
+			return this.cell.getStringCellValue();
+		} else {
+			return null;
+		}
+	}
+	
+	/**
+	 * Returns the type of cell as any of the CELL_TYPE enum values
+	 * @return {Number} 
+	 * @this {ExcelCell}
+	 */
+	ExcelCell.prototype.getCellType = function() {
+		return this.cell.getCellType();
+	}
+	
+	/**
+	 * Returns the boolean cell value if the cell is a boolean type cell, null otherwise
+	 * @return {Boolean} 
+	 * @this {ExcelCell}
+	 */
+	ExcelCell.prototype.getBooleanCellValue = function() {
+		if (this.cell.getCellType() == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BOOLEAN) {
+			return this.cell.getBooleanCellValue();
+		} else {
+			return null;
+		}
+	}	
+	
+	/**
+	 * Returns the numeric cell value as a Date if the cell is a numeric type cell, null otherwise
+	 * @return {Date} 
+	 * @this {ExcelCell}
+	 */
+	ExcelCell.prototype.getDateCellValue = function() {
+		if (this.cell.getCellType() == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC) {
+			return new Date(this.cell.getDateCellValue().getTime());
+		} else {
+			return null;
+		}
+	}	
+	
+	/**
+	 * Returns the comment of the cell as an object
+	 * @return {{author: String, comment: String, isVisible: Boolean}} 
+	 * @this {ExcelCell}
+	 */
+	ExcelCell.prototype.getCellComment = function() {
+		var comment = this.cell.getCellComment();
+		if (!comment) {
+			return null;
+		}
+		var result = {author: null, comment: null, isVisible: false};
+		result.author = comment.getAuthor();
+		result.isVisible = comment.isVisible();
+		var commentString = comment.getString();
+		if (commentString) {
+			result.comment = commentString.getString();
+		}
+		return result;
+	}	
+	
+	/**
 	 * Sets the value of this cell
 	 * @param {String|Number|Date} value
 	 * @param {ExcelCellStyle} [style] optional style
@@ -2177,6 +2402,147 @@ var initExcelCell = (function() {
 }());
 
 /**
+ * @private 
+ * @properties={typeid:24,uuid:"CC5515E0-17A5-4BFB-9FC1-EBD3905BED3B"}
+ */
+function PrintSetup() {
+	
+	/**
+	 * The number of copies
+	 * @type {Number}
+	 */
+	this.copies = null;
+	
+	/**
+	 * Whether it is in draft mode
+	 * @type {Boolean}
+	 */
+	this.draft = null;
+	
+	/**
+	 * The number of pages high to fit the sheet in
+	 * @type {Number}
+	 */
+	this.fitHeight = null;
+	
+	/**
+	 * The number of pages high to fit the sheet in
+	 * @type {Number}
+	 */
+	this.fitWidth = null;
+	
+	/**
+	 * Whether to print in landscape
+	 * @type {Boolean}
+	 */
+	this.landscape = null;
+	
+	/**
+	 * Whether it is black and white
+	 * @type {Boolean}
+	 */
+	this.noColor = null;
+	
+	/**
+	 * The paper size
+	 * @type {Number}
+	 */
+	this.paperSize = null;
+}
+
+/**
+ * @private
+ * 
+ * @SuppressWarnings(unused)
+ *
+ * @properties={typeid:35,uuid:"14D0D0B4-7177-4710-BF29-B3148E41E5DD",variableType:-4}
+ */
+var initPrintSetup = (function() {
+	PrintSetup.prototype = Object.create(Object.prototype, {});
+	PrintSetup.prototype.constructor = PrintSetup;
+	
+	/**
+	 * Sets the number of copies
+	 * @param {Number} x
+	 * @return {PrintSetup}
+	 * @this {PrintSetup}
+	 */
+	PrintSetup.prototype.setCopies = function(x) {
+		if (x instanceof Number && x > 0) {
+			this.copies = x;
+		}
+		return this;
+	}
+	
+	/**
+	 * Set whether it is in draft mode
+	 * @param {Boolean} isDraft
+	 * @return {PrintSetup}
+	 * @this {PrintSetup}
+	 */
+	PrintSetup.prototype.setDraft = function(isDraft) {
+		this.draft = isDraft;
+		return this;
+	}
+	
+	/**
+	 * Set the number of pages high to fit the sheet in
+	 * @param {Number} numberOfPagesHigh
+	 * @return {PrintSetup}
+	 * @this {PrintSetup}
+	 */
+	PrintSetup.prototype.setFitHeight = function(numberOfPagesHigh) {
+		this.fitHeight = numberOfPagesHigh;
+		return this;
+	}	
+	
+	/**
+	 * Set the number of pages wide to fit the sheet in
+	 * @param {Number} numberOfPagesWide
+	 * @return {PrintSetup}
+	 * @this {PrintSetup}
+	 */
+	PrintSetup.prototype.setFitWidth = function(numberOfPagesWide) {
+		this.fitWidth = numberOfPagesWide;
+		return this;
+	}	
+	
+	/**
+	 * Set whether to print in landscape
+	 * @param {Boolean} isLandscape
+	 * @return {PrintSetup}
+	 * @this {PrintSetup}
+	 */
+	PrintSetup.prototype.setLandscape = function(isLandscape) {
+		this.landscape = isLandscape;
+		return this;
+	}	
+	
+	/**
+	 * Set whether it is black and white
+	 * @param {Boolean} mono
+	 * @return {PrintSetup}
+	 * @this {PrintSetup}
+	 */
+	PrintSetup.prototype.setNoColor = function(mono) {
+		this.noColor = mono;
+		return this;
+	}	
+	
+	/**
+	 * Set the paper size as any of the PAPER_SIZE enum values
+	 * @param {Number} size
+	 * @return {PrintSetup}
+	 * @this {PrintSetup}
+	 */
+	PrintSetup.prototype.setPaperSize = function(size) {
+		this.paperSize = size;
+		return this;
+	}	
+
+}());
+
+/**
  * Converts a cell reference (e.g. "B4:AK234" or "C6") to an object holding first and last row and column
  * 
  * @public 
@@ -2217,6 +2583,34 @@ function getCellReferenceFromRange(firstRow, lastRow, firstColumn, lastColumn) {
 }
 
 /**
+ * Creates a PrintSetup object that can be used in ExcelSheet.setPrintSetup() 
+ * or to set the default print setup used when workbooks are created from
+ * FoundSet or DataSet
+ * 
+ * @public 
+ * 
+ * @return {PrintSetup}
+ * 
+ * @properties={typeid:24,uuid:"4F18E917-4B3D-48F5-ADEE-A3F6B9183B3E"}
+ */
+function createPrintSetup() {
+	return new PrintSetup();
+}
+
+/**
+ * Sets the default print setup used when workbooks are created from FoundSet or DataSet
+ * 
+ * @public 
+ * 
+ * @param {PrintSetup} setup
+ *
+ * @properties={typeid:24,uuid:"AD3003E7-10F1-4FC5-92A9-F484437C58BD"}
+ */
+function setDefaultPrintSetup(setup) {
+	defaultPrintSetup = setup;
+}
+
+/**
  * Gets the value of a cell depending on its data type
  * 
  * @private
@@ -2243,11 +2637,9 @@ function getCellData(cell) {
 }
 
 /**
- * TODO: enter a method description
- * 
  * @private
  * 
- * @param {Packages.org.apache.poi.hssf.usermodel.HSSFWorkbook} workbook
+ * @param {Packages.org.apache.poi.ss.usermodel.Workbook} workbook
  * @param {String} fontString
  *
  * @properties={typeid:24,uuid:"D4B36866-2A56-4144-A0C1-826652CC8A76"}

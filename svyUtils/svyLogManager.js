@@ -986,7 +986,7 @@ var initObjectMessage = (function() {
 	}
 	
 	ObjectMessage.prototype.getFormattedMessage = function() {
-		return typeof this.format.toString === 'function' ? this.format.toString() : '' + this.format
+		return this.format === undefined ? 'undefined' : this.format === null ? 'null' : typeof this.format.toString === 'function' ? this.format.toString() : '' + this.format
 	}
 
 	ObjectMessage.prototype.getParameters = function() {
@@ -1696,6 +1696,12 @@ function getLogger(loggerName, messageFactory) {
 			}
 		}
 		statusLogger.trace('Getting parent for "{}"', loggerName)
+		/*
+		 * FIXME: The parent lookup is looking for instantiated loggers only. 
+		 * If configuration is provided for a parent logger, but it is not yet instantiated, the parent lookup doesn't take this into account and continues onto the rootlogger.
+		 * 
+		 * This ties into other TODO's about shared LoggerConfigs: There should only be LoggerConfigs instantiated for logger defined in the configuration: all Loggers (re)use the closest LoggerConfig
+		 */
 		var parentName = loggerName
 		var parent
 		while (!parent && parentName) {

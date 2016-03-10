@@ -385,7 +385,7 @@ var CHAR_SETS = {
  * @properties={typeid:24,uuid:"B288B4EC-BC90-4ABA-9C2E-E45E600BF7D6"}
  */
 function readFile(file, lineCallback, charset) {
-	if (!file.exists() || file.isFile()) {
+	if (!file.exists() || !file.isFile()) {
 		throw new FileNotFoundException(null, file)
 	}
     var fis = new Packages.java.io.FileInputStream(file);
