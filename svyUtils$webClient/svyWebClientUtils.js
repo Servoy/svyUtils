@@ -67,9 +67,15 @@ function checkOperationSupported() {
  * @properties={typeid:24,uuid:"CFBBDB4C-5616-4974-A180-4A66C98D4209"}
  */
 function getUwrappedComponentOrWrapperComponent(component) {
+	/** @type {Packages.org.apache.wicket.Component} */
 	var unwrappedElement = unwrapElement(component)
 	var parent = unwrappedElement.getParent()
-	return parent instanceof Packages.com.servoy.j2db.server.headlessclient.WrapperContainer ? parent : unwrappedElement //See SVY-8013 for warning
+	if (parent instanceof Packages.com.servoy.j2db.server.headlessclient.WrapperContainer) {
+		return parent;
+	} else {
+		return unwrappedElement;
+	}
+//	return parent instanceof Packages.com.servoy.j2db.server.headlessclient.WrapperContainer ? parent : unwrappedElement //See SVY-8013 for warning
 }
 
 /**
@@ -1221,8 +1227,10 @@ function updateUIResume(body, requestParams) {
 function forceTableViewColumnHeaderWithTagsUpdate(form) {
 	checkOperationSupported()
 	var component = scopes.svyWebClientUtils.unwrapElement(form)
+	/** @type {java.lang.Class} */
+	var classToFind = Packages.com.servoy.j2db.IFormUIInternal;
 	/** @type {Packages.com.servoy.j2db.server.headlessclient.WebForm}*/
-	var webForm = component.findParent(Packages.com.servoy.j2db.IFormUIInternal)
+	var webForm = component.findParent(classToFind)
 	
 	if(webForm) {
 		/**@type {Packages.org.apache.wicket.markup.html.WebMarkupContainer}*/
