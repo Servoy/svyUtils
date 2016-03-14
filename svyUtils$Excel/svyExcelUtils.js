@@ -279,11 +279,13 @@ var defaultPrintSetup;
  * 
  * @public 
  * 
+ * @param {String|plugins.file.JSFile|Number} [template] either an existing Excel file as template or one of the FILE_FORMAT constants when creating empty workbooks
+ * 
  * @return {ExcelWorkbook}
  * 
  * @example <pre>
  * // Create workbook and sheet
- * var workbook = scopes.svyExcelUtils.createWorkbook();
+ * var workbook = scopes.svyExcelUtils.createWorkbook(scopes.svyExcelUtils.FILE_FORMAT.XLSX);
  * var sheet = workbook.createSheet("Test");
  * 
  * // Create style for the header
@@ -335,8 +337,8 @@ var defaultPrintSetup;
  *
  * @properties={typeid:24,uuid:"CCF85B3E-E45B-4797-9A45-06C679BD252B"}
  */
-function createWorkbook() {
-	return new ExcelWorkbook();
+function createWorkbook(template) {
+	return new ExcelWorkbook(template);
 }
 
 /**
@@ -407,7 +409,7 @@ function createWorkbookFromDataSet(dataset, columns, headers, template, sheetNam
  * 
  * @example <pre>
  * // Create workbook and sheet
- * var workbook = new scopes.svyExcelUtils.Workbook();
+ * var workbook = new scopes.svyExcelUtils.Workbook(scopes.svyExcelUtils.FILE_FORMAT.XLSX);
  * var sheet = workbook.createSheet("Test");
  * 
  * // Create style for the header
