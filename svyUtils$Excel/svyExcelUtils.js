@@ -1560,7 +1560,7 @@ var initExcelSheet = (function() {
 		}
 		for (var i = startRow; i <= endRow; i++) {
 			row = this.sheet.getRow(i);
-			if (row == null || row.getPhysicalNumberOfCells()) continue;
+			if (row == null || !row.getPhysicalNumberOfCells()) continue;
 			rowData = [];
 			for (var c = startColumn; c <= endColumn; c++) {
 				cell = row.getCell(c);
