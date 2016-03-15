@@ -612,7 +612,7 @@ function getDateFormat(style, locale) {
  * @properties={typeid:24,uuid:"D9F78345-D31D-4A79-8C28-230F7BC467B4"}
  */
 function getDayDifference(start, end) {
-	return Math.ceil(((end.getTime() - start.getTime()) / 86400000));
+	return Math.floor(((end.getTime() - start.getTime()) / 86400000));
 }
 
 /**
