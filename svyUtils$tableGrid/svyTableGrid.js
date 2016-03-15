@@ -47,7 +47,7 @@ function createTableGridFromDataset(dataset, columnHeaders, dataproviders, colum
 				if (!dataset.getColumnType(x)) {
 					throw new scopes.svyDataUtils.SvyDataException("Failed to create TableGrid because no column types were given");
 				}
-				this.columnTypes.push(dataset.getColumnType(x));
+				columnTypes.push(dataset.getColumnType(x));
 			}
 		}
 		var formName = "tablegrid_" + utils.stringReplace(application.getUUID().toString(), "-", "_");
