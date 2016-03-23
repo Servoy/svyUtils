@@ -71,6 +71,15 @@ var DEFAULT_ICON = {
 var terminator = (application.getApplicationType() == APPLICATION_TYPES.WEB_CLIENT ? new Continuation() : null);
 
 /**
+ * @private
+ * 
+ * @type {Array<String>}
+ *
+ * @properties={typeid:35,uuid:"407A0348-1735-47A4-B977-E8F7E566A1C6",variableType:-4}
+ */
+var formStack = [];
+
+/**
  * Method to terminate the current method execution after capturing a Continuation.
  * 
  * @private 
@@ -104,7 +113,7 @@ function CustomDialog(styleName, dialogTitle, dialogMessage, dialogIcon, dialogB
 	 * 
 	 * @type {String}
 	 */
-	this.formName = "dialogpro_" + application.getUUID().toString().replace(/-/g, "_");
+	this.formName = "svyCustomDialog_" + application.getUUID().toString().replace(/-/g, "_");
 	
 	/**
 	 * The JSForm
@@ -235,7 +244,7 @@ function CustomDialog(styleName, dialogTitle, dialogMessage, dialogIcon, dialogB
 	 * 
 	 * @type {String}
 	 */
-	this.styleName = styleName;
+	this.styleName = styleName ? styleName : null;
 	
 	/**
 	 * Gets / Sets the title of the dialog (defaults to the solution name)
@@ -1474,7 +1483,7 @@ var init_TextField = (function() {
 		if (this.valueListName) {
 			textField.valuelist = solutionModel.getValueList(this.valueListName);
 		} else if (this.valueListValues.length > 0) {
-			var jsValueList = solutionModel.newValueList("dialogpro_valuelist_" + this.instanceId, JSValueList.CUSTOM_VALUES);
+			var jsValueList = solutionModel.newValueList("svyCustomDialog_valuelist_" + this.instanceId, JSValueList.CUSTOM_VALUES);
 			jsValueList.customValues = this.valueListValues
 			textField.valuelist = jsValueList;
 			//make sure a component with value list shows all values
@@ -1895,6 +1904,8 @@ function buildDialogForm(customDialog) {
 	
 	var jsForm = solutionModel.newForm(customDialog.formName, null, null, false, 10, 10);
 	customDialog.jsForm = jsForm;
+	
+	addToFormStack(customDialog.formName);
 		
 	var y = customDialog.insets.top + (customDialog.header ? customDialog.header.height : 0);
 	var webclientExtraPixels = application.getApplicationType() == APPLICATION_TYPES.WEB_CLIENT ? 5 : 0;
@@ -2106,7 +2117,7 @@ function buildDialogForm(customDialog) {
 /**
  * Creates and returns a CustomDialog
  * 
- * @param {String} styleName the name of the style to be used
+ * @param {String} [styleName] the name of the style to be used
  * @param {String} [title] the title of the dialog
  * @param {String} [message] an optional message that is shown on top of the dialog
  * @param {String|byte[]|plugins.file.JSFile} [icon] an optional dialog icon (see the DEFAULT_ICON constant for pre-defined icons)
@@ -2366,6 +2377,60 @@ function createCombobox(label, values, realValues) {
 }
 
 /**
+ * Show a form in a modal dialog
+ *
+ * @param {String|RuntimeForm} formToShow
+ * @param {Number} [x]
+ * @param {Number} [y]
+ * @param {Number} [width]
+ * @param {Number} [height]
+ * @param {String} [title]
+ * @param {Boolean} [resizable]
+ * @param {Boolean} [showTextToolbar]
+ * @param {String} [windowName]
+ *
+ * @properties={typeid:24,uuid:"BD1320BF-A042-4C45-B609-7B8A0340A7EA"}
+ */
+function showFormInDialog(formToShow, x, y, width, height, title, resizable, showTextToolbar, windowName) {
+	if (!windowName) windowName = "svyCustomDialog_" + application.getUUID().toString().replace(/-/g, "_");
+	
+	var window = application.createWindow(windowName, JSWindow.MODAL_DIALOG);
+	if (x == null) x = -1;
+	if (y == null) y = -1;
+	if (width == null) width = -1;
+	if (height == null) height = -1;
+	
+	window.setInitialBounds(x, y, width, height);
+	window.title = title;
+	if (resizable != undefined) window.resizable = resizable;
+	if (showTextToolbar === true) window.showTextToolbar(showTextToolbar);
+	
+	if (application.getApplicationType() == APPLICATION_TYPES.WEB_CLIENT) {
+		/** @type {String} */
+		var originalFormName = formToShow;
+		if (formToShow instanceof RuntimeForm) {
+			originalFormName = formToShow.controller.getName();
+		}
+		var jsFormOriginal = solutionModel.getForm(originalFormName);
+		var jsForm = solutionModel.newForm(windowName, jsFormOriginal);
+		jsForm.newVariable("continuation", JSVariable.MEDIA);
+		var onHide = jsForm.newMethod("function onHide(event) { _super.onHide(); if (continuation) { continuation(); } }");
+		jsForm.onHide = onHide;
+		
+		addToFormStack(windowName);
+		
+		forms[windowName]["continuation"] = new Continuation();
+		
+		window.show(forms[windowName]);
+		return terminateCurrentMethodExecution();
+	} else {
+		window.show(formToShow);
+		return this;
+	}
+}
+
+
+/**
  * Shows a message dialog with the specified title, message and a customizable set of buttons.
  * 
  * @param {String} title the dialog title
@@ -2458,6 +2523,32 @@ function showInputDialog(title, message, initialValue) {
 }
 
 /**
+ * @private
+ *
+ * @param {String} formName
+ *
+ * @properties={typeid:24,uuid:"7DBD9017-B29B-4C9D-A869-BDEE3CD7B3B5"}
+ */
+function addToFormStack(formName) {
+	var success;
+	for (var i = 0; i < formStack.length; i++) {
+		success = history.removeForm(formStack[i]);
+		if (!success) {
+			logger.warn('Couldn\'t remove form "' + formStack[i] + '" from history');
+			continue;
+		}
+		success = solutionModel.removeForm(formStack[i]);
+		if (!success) {
+			logger.warn('Couldn\'t remove form "' + formStack[i] + '"');
+			continue;
+		}
+		logger.debug('Cleaned up customDialog form "' + formStack[i] + '"');
+		formStack.splice(i, 1);
+	}
+	formStack.push(formName);
+}
+
+/**
  * @param aArguments
  * @param {String|byte[]} icon
  * @private 
@@ -2509,19 +2600,19 @@ function getIconFromArgs(iconArgs) {
 			if (!jsFileFromString.exists()) {
 				throw new scopes.svyExceptions.IllegalArgumentException("Can't find media \"" + iconArgs + "\"");
 			}
-			media = solutionModel.newMedia("dialogpro_media_" + application.getUUID().toString().replace(/-/g, "_"), jsFileFromString.getBytes());
+			media = solutionModel.newMedia("svyCustomDialog_media_" + application.getUUID().toString().replace(/-/g, "_"), jsFileFromString.getBytes());
 		}
 	} else if (iconArgs instanceof Array) {
 		/** @type {byte[]} */
 		var iconArgsBytes = iconArgs;
-		media = solutionModel.newMedia("dialogpro_media_" + application.getUUID().toString().replace(/-/g, "_"), iconArgsBytes);
+		media = solutionModel.newMedia("svyCustomDialog_media_" + application.getUUID().toString().replace(/-/g, "_"), iconArgsBytes);
 	} else if (iconArgs instanceof plugins.file.JSFile) {
 		/** @type {plugins.file.JSFile} */
 		var iconArgsFile = iconArgs;
 		if (!iconArgsFile.exists()) {
 			throw new scopes.svyExceptions.IllegalArgumentException("Can't find media \"" + iconArgs + "\"");
 		}
-		media = solutionModel.newMedia("dialogpro_media_" + application.getUUID().toString().replace(/-/g, "_"), iconArgsFile.getBytes());
+		media = solutionModel.newMedia("svyCustomDialog_media_" + application.getUUID().toString().replace(/-/g, "_"), iconArgsFile.getBytes());
 	} else {
 		throw new scopes.svyExceptions.IllegalArgumentException("Can't get media from arguments " + iconArgs);
 	}
