@@ -137,6 +137,13 @@ function CustomDialog(styleName, dialogTitle, dialogMessage, dialogIcon, dialogB
 	this.buttonClicked = null;
 	
 	/**
+	 * The text of the button clicked
+	 * 
+	 * @type {String}
+	 */
+	this.buttonClickedText = null;	
+	
+	/**
 	 * Gets / Sets the spacing in pixel between the dialog's content and the buttons
 	 * 
 	 * @type {Number}
@@ -259,6 +266,13 @@ function CustomDialog(styleName, dialogTitle, dialogMessage, dialogIcon, dialogB
 	 * @type {String}
 	 */
 	this.message = dialogMessage;
+	
+	/**
+	 * An object that can be used to store any kind of data
+	 * 
+	 * @type {Object}
+	 */
+	this.customProperties = null;
 }
 
 /**
@@ -269,6 +283,16 @@ function CustomDialog(styleName, dialogTitle, dialogMessage, dialogIcon, dialogB
 var init_CustomDialog = (function() {
 	CustomDialog.prototype = Object.create(CustomDialog.prototype);
 	CustomDialog.prototype.constructor = CustomDialog;
+	
+	Object.defineProperty(CustomDialog.prototype, 'buttonClickedText', {
+		get: function() {
+			if (this.buttonClicked) {
+				return this.buttonClicked.text;
+			} else {
+				return null;
+			}
+		}
+	});
 
 	/**
 	 * Adds a button to this dialog
@@ -289,11 +313,53 @@ var init_CustomDialog = (function() {
 	 * Adds a component to this dialog
 	 * 
 	 * @param {DialogComponent} component
+	 * @return {CustomDialog}
 	 * @this {CustomDialog}
 	 */
 	CustomDialog.prototype.addComponent = function(component) {
 		this.components.push(component);
+		return this;
 	}
+	
+	/**
+	 * Adds a custom property to this dialog
+	 * 
+	 * @param {String} key
+	 * @param {Object} value
+	 * @return {CustomDialog}
+	 * @this {CustomDialog}
+	 */
+	CustomDialog.prototype.addCustomProperty = function(key, value) {
+		if (this.customProperties == null) {
+			this.customProperties = {};
+		}
+		this.customProperties[key] = value;
+		return this;
+	}
+	
+	/**
+	 * Returns the custom property with the given key
+	 * 
+	 * @param {String} key
+	 * @return {Object}
+	 * @this {CustomDialog}
+	 */
+	CustomDialog.prototype.getCustomPropertyValue = function(key) {
+		if (this.customProperties == null) {
+			return null;
+		}
+		return this.customProperties[key];
+	}
+	
+	/**
+	 * Returns the custom properties as an Object<key, value>
+	 * 
+	 * @return {Object}
+	 * @this {CustomDialog}
+	 */
+	CustomDialog.prototype.getCustomProperties = function() {
+		return this.customProperties;
+	}	
 	
 	/**
 	 * Adds a label to this dialog
@@ -430,11 +496,15 @@ var init_CustomDialog = (function() {
 	 * @param {String} [label]
 	 * @param {Array<String>|JSDataSet} [values]
 	 * @param {Array} [realValues]
+	 * @param {Object} [initialValue]
 	 * @return {Combobox}
 	 * @this {CustomDialog}
 	 */
-	CustomDialog.prototype.addCombobox = function(label, values, realValues) {
+	CustomDialog.prototype.addCombobox = function(label, values, realValues, initialValue) {
 		var cb = createCombobox(label, values, realValues);
+		if (initialValue) {
+			cb.setInitialValue(initialValue);
+		}
 		this.addComponent(cb);
 		return cb;
 	} 
@@ -1385,7 +1455,12 @@ function TextField() {
 	 */
 	this.format = null;
 	
-	var _titleText = null;
+	/**
+	 * The horizontal alignment
+	 * 
+	 * @type {Number}
+	 */
+	this.horizontalAlignment = null;
 	
 	/**
 	 * The onDataChangeMethod for this component
@@ -1410,6 +1485,7 @@ function TextField() {
 	 * @type {String}
 	 */
 	this.titleText = null;	
+	var _titleText = null;
 	
 	Object.defineProperty(this, "titleText", {
 		get: function() {
@@ -1473,6 +1549,9 @@ var init_TextField = (function() {
 		if (this.format) {
 			textField.format = this.format;
 		}
+		if (this.horizontalAlignment != null) {
+			textField.horizontalAlignment = this.horizontalAlignment;
+		}		
 		if (this.editable) {
 			textField.editable = true;
 		} else {
@@ -1503,7 +1582,7 @@ var init_TextField = (function() {
 		
 		//onDataChange method?
 		if (this.onDataChangeMethod) {
-			var jsOnDataChangeMethod = customDialog.jsForm.newMethod("function onDataChange_" + this.instanceId + "(oldValue, newValue, event) { scopes.svySystem.callMethod('" + this.onDataChangeMethod + "', [oldValue, newValue, event, customDialog]) }");
+			var jsOnDataChangeMethod = customDialog.jsForm.newMethod("function onDataChange_" + this.instanceId + "(oldValue, newValue, event) { return scopes.svySystem.callMethod('" + this.onDataChangeMethod + "', [oldValue, newValue, event, customDialog, customDialog.getComponent(event.getElementName())]) }");
 			textField.onDataChange = jsOnDataChangeMethod;
 		}
 		return textField;
@@ -1519,7 +1598,7 @@ var init_TextField = (function() {
 
 	/**
 	 * Sets the onDataChange method for this component<p>
-	 * The onDataChange method receives the CustomDialog object as last parameter
+	 * The onDataChange method receives the CustomDialog and the DialogComponent object as last parameters
 	 * 
 	 * @param {Function} onDataChangeMethod
 	 * @this {TextField}
@@ -1592,6 +1671,18 @@ var init_TextField = (function() {
 		this.format = format;
 		return this;
 	}
+	
+	/**
+	 * Sets the horizontal alignment of this component
+	 * 
+	 * @param {Number} alignment
+	 * @return {TextField}
+	 * @this {TextField}
+	 */
+	TextField.prototype.setHorizontalAlignment = function(alignment) {
+		this.horizontalAlignment = alignment;
+		return this;
+	}	
 	
 	/**
 	 * Sets the value list of this component
@@ -1963,7 +2054,7 @@ function buildDialogForm(customDialog) {
 			labelWidth += webclientExtraPixels;
 			//leave space for checkbox
 			labelWidth += 30;
-			if (labelWidth > maxFieldWidth) maxFieldWidth = labelWidth;
+			if (labelWidth > (maxLabelWidth + maxFieldWidth)) maxFieldWidth = labelWidth - maxLabelWidth;
 		}
 		
 		//make sure a label text fits the box
@@ -2121,7 +2212,7 @@ function buildDialogForm(customDialog) {
  * @param {String} [title] the title of the dialog
  * @param {String} [message] an optional message that is shown on top of the dialog
  * @param {String|byte[]|plugins.file.JSFile} [icon] an optional dialog icon (see the DEFAULT_ICON constant for pre-defined icons)
- * @param {Array<Button>} [buttons] an optional array of buttons
+ * @param {Array<Button>|Array<String>} [buttons] an optional array of buttons
  * @param {Array<DialogComponent>} [components] an optional array of components
  * 
  * @example 
@@ -2175,7 +2266,18 @@ function buildDialogForm(customDialog) {
  * @properties={typeid:24,uuid:"9C095F21-2C15-4E12-870A-5D63B8F7BB1A"}
  */
 function createCustomDialog(styleName, title, message, icon, buttons, components) {
-	return new CustomDialog(styleName, title, message, icon, buttons, components);
+	/** @type {Array<Button>} */
+	var btnsToAdd = [];
+	if (buttons instanceof Array && buttons.length > 0 && buttons[0] instanceof String) {
+		for (var s = 0; s < buttons.length; s++) {
+			/** @type {String} */
+			var buttonLabel = buttons[s];
+			btnsToAdd.push(createButton(buttonLabel));
+		}
+	} else {
+		btnsToAdd = buttons;
+	}
+	return new CustomDialog(styleName, title, message, icon, btnsToAdd, components);
 }
 
 /**
@@ -2441,6 +2543,10 @@ function showFormInDialog(formToShow, x, y, width, height, title, resizable, sho
  */
 function showInfoDialog(title, message, buttons) {
 	if (application.getApplicationType() != APPLICATION_TYPES.WEB_CLIENT) {
+		/** @type {Array<String>} */
+		var buttonArgs = Array.prototype.slice.call(arguments);
+		buttonArgs.splice(0, 2);
+		buttons = buttonArgs;
 		return plugins.dialogs.showInfoDialog(title, message, buttons);
 	} else {
 		return showDefaultDialog(arguments, DEFAULT_ICON.INFO);
@@ -2458,6 +2564,10 @@ function showInfoDialog(title, message, buttons) {
  */
 function showQuestionDialog(title, message, buttons) {
 	if (application.getApplicationType() != APPLICATION_TYPES.WEB_CLIENT) {
+		/** @type {Array<String>} */
+		var buttonArgs = Array.prototype.slice.call(arguments);
+		buttonArgs.splice(0, 2);
+		buttons = buttonArgs;
 		return plugins.dialogs.showQuestionDialog(title, message, buttons);
 	} else {
 		var questionIcon = javaIconToByteArray(Packages.javax.swing.UIManager.getIcon("OptionPane.questionIcon"));
@@ -2476,6 +2586,10 @@ function showQuestionDialog(title, message, buttons) {
  */
 function showWarningDialog(title, message, buttons) {
 	if (application.getApplicationType() != APPLICATION_TYPES.WEB_CLIENT) {
+		/** @type {Array<String>} */
+		var buttonArgs = Array.prototype.slice.call(arguments);
+		buttonArgs.splice(0, 2);
+		buttons = buttonArgs;
 		return plugins.dialogs.showWarningDialog(title, message, buttons);
 	} else {
 		return showDefaultDialog(arguments, DEFAULT_ICON.WARNING);
