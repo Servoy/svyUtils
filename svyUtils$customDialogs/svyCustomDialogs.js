@@ -1644,20 +1644,26 @@ var init_TextField = (function() {
 			textField.valuelist = jsValueList;
 			//make sure a component with value list shows all values
 			if (this.valueListValues.length > 0 && [JSField.CHECKS, JSField.LISTBOX, JSField.MULTISELECT_LISTBOX, JSField.RADIOS].indexOf(this.displayType) != -1) {
+				var sHelper = getStyleHelper(customDialog.styleName);
 				if ([JSField.LISTBOX, JSField.MULTISELECT_LISTBOX].indexOf(this.displayType) != -1) {
 					//list boxes don't need to be that high; 15pixels per row is an estimate...
-					textField.height = 15 * this.valueListValues.split("\n").length + 5;
+					textField.height = sHelper.getFontHeight(sHelper.getFontString("field")) * this.valueListValues.split("\n").length + 5;
 				} else if (this.displayType == JSField.RADIOS) {
-					var sHelper = getStyleHelper(customDialog.styleName);
-					var listEntries = this.valueListValues.split("\n");
-					var maxEntryWidth = 0;
-					for (var v = 0; v < listEntries.length; v++) {
-						var entryWidth = sHelper.getTextWidth(sHelper.getFontString("radio"), '          ' + listEntries[v]);
-						if (entryWidth > maxEntryWidth) maxEntryWidth = entryWidth;
+					var numOfRows;
+					if (application.getApplicationType() == APPLICATION_TYPES.SMART_CLIENT) {
+						var listEntries = this.valueListValues.split("\n");
+						var maxEntryWidth = 0;
+						for (var v = 0; v < listEntries.length; v++) {
+							var entryWidth = sHelper.getTextWidth(sHelper.getFontString("radio"), '          ' + listEntries[v]);
+							if (entryWidth > maxEntryWidth) maxEntryWidth = entryWidth;
+						}
+						var entriesPerRow = Math.floor(width / maxEntryWidth);
+						numOfRows = Math.ceil(this.valueListValues.split("\n").length / entriesPerRow);
+						textField.height = textField.height * numOfRows + (numOfRows * 2);
+					} else {
+						numOfRows = Math.ceil(sHelper.getTextWidth(sHelper.getFontString("radio"), this.valueListValues.split("\n").join('  ')) / width);
+						textField.height = textField.height * numOfRows;						
 					}
-					var entriesPerRow = Math.floor(width / maxEntryWidth);
-					var numOfRows = Math.ceil(this.valueListValues.split("\n").length / entriesPerRow);
-					textField.height = textField.height * numOfRows + (numOfRows * 2);
 				} else {
 					textField.height = textField.height * this.valueListValues.split("\n").length;
 				}
