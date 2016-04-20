@@ -39,15 +39,31 @@ var logger = scopes.svyLogManager.getLogger("com.servoy.bap.svytablegrid");
  * @properties={typeid:24,uuid:"1120352D-21A4-4D1E-B93C-EB1FC853A444"}
  */
 function createTableGridFromDataset(dataset, columnHeaders, dataproviders, columnTypes) {
+	function guessColumnType(colIndex) {
+		for (var d = 1; d <= dataset.getMaxRowIndex(); d++) {
+			var colValue = dataset.getValue(d, colIndex);
+			if (!colValue && d > 100) {
+				return null;
+			}
+			if (colValue instanceof Number) return JSColumn.NUMBER;
+			else if (colValue instanceof Date) return JSColumn.DATETIME;
+			else return JSColumn.TEXT;
+		}
+	}
+	
 	try {
 		var datasource;
 		if (!columnTypes) {
 			columnTypes = new Array();
 			for (var x = 1; x <= dataset.getMaxColumnIndex(); x++) {
-				if (!dataset.getColumnType(x)) {
-					throw new scopes.svyDataUtils.SvyDataException("Failed to create TableGrid because no column types were given");
+				var type = dataset.getColumnType(x);
+				if (!type) {
+					type = guessColumnType(x);
+					if (!type) {
+						throw new scopes.svyDataUtils.SvyDataException("Failed to create TableGrid because no column types were given");
+					}
 				}
-				columnTypes.push(dataset.getColumnType(x));
+				columnTypes.push(type);
 			}
 		}
 		var formName = "tablegrid_" + utils.stringReplace(application.getUUID().toString(), "-", "_");
@@ -516,16 +532,24 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 	this.onFormCreated = null;
 	
 	/**
+	 * Optional arguments to the onFormCreated method
+	 * @type {Array<*>}
+	 */
+	this.onFormCreatedArgs = [];
+	
+	/**
 	 * Sets a method that is fired when the actual runtime form is created<p>
 	 * 
-	 * When the method is fired it receives the RuntimeForm created as parameter<p>
+	 * When the method is fired it receives the RuntimeForm created as parameter
+	 * before the option method arguments<p>
 	 * 
 	 * The method can be any form or scope method or is created using the given code
 	 * 
 	 * @param {Function|String} onFormCreatedFunctionOrCode
+	 * @param {Array<*>} [onFormCreatedMethodArgs] optional method args
 	 * @return {TableGrid}
 	 */
-	this.setOnFormCreated = function(onFormCreatedFunctionOrCode) {
+	this.setOnFormCreated = function(onFormCreatedFunctionOrCode, onFormCreatedMethodArgs) {
 		if (onFormCreatedFunctionOrCode instanceof String) {
 			this.onFormCreated = onFormCreatedFunctionOrCode;
 		} else if (onFormCreatedFunctionOrCode instanceof Function) {
@@ -533,8 +557,9 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 			var functionRef = onFormCreatedFunctionOrCode;
 			this.onFormCreated = scopes.svySystem.convertServoyMethodToQualifiedName(functionRef);
 		}
+		if (onFormCreatedMethodArgs) this.onFormCreatedArgs = onFormCreatedMethodArgs;
 		return this;
-	}	
+	}
 	
 	/**
 	 * onHide method
@@ -1043,7 +1068,7 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 		runtimeForm.tableGrid = this;
 		
 		if (this.onFormCreated) {
-			scopes.svySystem.callMethod(this.onFormCreated, [runtimeForm]);
+			scopes.svySystem.callMethod(this.onFormCreated, [runtimeForm].concat(this.onFormCreatedArgs));
 		}
 		
 		return runtimeForm;
