@@ -279,7 +279,7 @@ var defaultPrintSetup;
  * 
  * @public 
  * 
- * @param {String|plugins.file.JSFile|Number} [template] either an existing Excel file as template or one of the FILE_FORMAT constants when creating empty workbooks
+ * @param {String|plugins.file.JSFile|Number} [templateOrFileType] either an existing Excel file as template or one of the FILE_FORMAT constants when creating empty workbooks
  * 
  * @return {ExcelWorkbook}
  * 
@@ -337,8 +337,8 @@ var defaultPrintSetup;
  *
  * @properties={typeid:24,uuid:"CCF85B3E-E45B-4797-9A45-06C679BD252B"}
  */
-function createWorkbook(template) {
-	return new ExcelWorkbook(template);
+function createWorkbook(templateOrFileType) {
+	return new ExcelWorkbook(templateOrFileType);
 }
 
 /**
@@ -359,22 +359,22 @@ function getWorkbook(original) {
 /**
  * Creates an ExcelWorkbook from the given foundset<p>
  * 
- * If a template is provided, the foundset will be inserted in the given sheet
+ * If a templateOrFileType is provided, the foundset will be inserted in the given sheet
  * 
  * @public 
  * 
  * @param {JSFoundSet} foundset - the foundset
  * @param {Array<String>} dataproviders - the dataproviders to be used for the excel sheet
  * @param {Array<String>} [headers] - the text to be used as column headers
- * @param {String|plugins.file.JSFile|Number} [template] either file or media URL pointing to an existing Excel to be used as template or one of the FILE_FORMAT constants when creating empty workbooks
+ * @param {String|plugins.file.JSFile|Number} [templateOrFileType] either file or media URL pointing to an existing Excel to be used as templateOrFileType or one of the FILE_FORMAT constants when creating empty workbooks
  * @param {String} [sheetNameToUse] - when a template is used, this is the name of the sheet to be filled
  * 
  * @return {FoundSetExcelWorkbook}
  *
  * @properties={typeid:24,uuid:"23327BCA-78A2-43C8-8017-66EB9AF6AEFA"}
  */
-function createWorkbookFromFoundSet(foundset, dataproviders, headers, template, sheetNameToUse) {
-	return new FoundSetExcelWorkbook(foundset, dataproviders, headers, template, sheetNameToUse);
+function createWorkbookFromFoundSet(foundset, dataproviders, headers, templateOrFileType, sheetNameToUse) {
+	return new FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileType, sheetNameToUse);
 }
 
 /**
@@ -387,15 +387,15 @@ function createWorkbookFromFoundSet(foundset, dataproviders, headers, template, 
  * @param {JSDataSet} dataset - the dataset
  * @param {Array<Number>} [columns] - the column numbers to be included in the sheet
  * @param {Array<String>} [headers] - the text to be used as column headers
- * @param {String|plugins.file.JSFile|Number} [template] either file or media URL pointing to an existing Excel to be used as template or one of the FILE_FORMAT constants when creating empty workbooks
+ * @param {String|plugins.file.JSFile|Number} [templateOrFileType] either file or media URL pointing to an existing Excel to be used as template or one of the FILE_FORMAT constants when creating empty workbooks
  * @param {String} [sheetNameToUse] - when a template is used, this is the name of the sheet to be filled
  * 
  * @return {DataSetExcelWorkbook}
  *
  * @properties={typeid:24,uuid:"8C20858C-E1C9-4639-ABD7-15B516BA369B"}
  */
-function createWorkbookFromDataSet(dataset, columns, headers, template, sheetNameToUse) {
-	return new DataSetExcelWorkbook(dataset, columns, headers, template, sheetNameToUse);
+function createWorkbookFromDataSet(dataset, columns, headers, templateOrFileType, sheetNameToUse) {
+	return new DataSetExcelWorkbook(dataset, columns, headers, templateOrFileType, sheetNameToUse);
 }
 
 /**
@@ -405,7 +405,7 @@ function createWorkbookFromDataSet(dataset, columns, headers, template, sheetNam
  * 
  * @public 
  *
- * @param {String|plugins.file.JSFile|Number} [template] either an existing Excel file as template or one of the FILE_FORMAT constants when creating empty workbooks
+ * @param {String|plugins.file.JSFile|Number} [templateOrFileType] either an existing Excel file as template or one of the FILE_FORMAT constants when creating empty workbooks
  * 
  * @example <pre>
  * // Create workbook and sheet
@@ -461,11 +461,11 @@ function createWorkbookFromDataSet(dataset, columns, headers, template, sheetNam
  * 
  * @properties={typeid:24,uuid:"397FC940-8B31-44D7-BE4A-AA02A65A8981"}
  */
-function ExcelWorkbook(template) {
+function ExcelWorkbook(templateOrFileType) {
 	
 	if (!(this instanceof ExcelWorkbook)) {
 		logger.warn("ExcelWorkbook constructor called without the \"new\" keyword");
-		return new ExcelWorkbook(template);
+		return new ExcelWorkbook(templateOrFileType);
 	}
 
 	/**
@@ -474,24 +474,24 @@ function ExcelWorkbook(template) {
 	 */
 	this.wb = null;
 
-	if (!template) {
-		template = FILE_FORMAT.XLS;
+	if (!templateOrFileType) {
+		templateOrFileType = FILE_FORMAT.XLS;
 	}
 
 	//workbook factory
 	var factory = Packages.org.apache.poi.ss.usermodel.WorkbookFactory;
 
-	if (template instanceof Number) {
+	if (templateOrFileType instanceof Number) {
 		/** @type {Number} */
-		var format = template;
+		var format = templateOrFileType;
 		if (format == FILE_FORMAT.XLS) {
 			this.wb = new Packages.org.apache.poi.hssf.usermodel.HSSFWorkbook();
 		} else {
 			this.wb = new Packages.org.apache.poi.xssf.usermodel.XSSFWorkbook();
 		}
-	} else if (template instanceof String) {
+	} else if (templateOrFileType instanceof String) {
 		/** @type {String} */
-		var filePathOrUrl = template;
+		var filePathOrUrl = templateOrFileType;
 		if (filePathOrUrl.indexOf("media:///") >= 0) {
 			var wbData = plugins.http.getMediaData(filePathOrUrl);
 			var bis = new java.io.ByteArrayInputStream(wbData);
@@ -499,9 +499,9 @@ function ExcelWorkbook(template) {
 		} else {
 			this.wb = factory.create(new java.io.File(plugins.file.convertToJSFile(filePathOrUrl).getAbsolutePath()));
 		}
-	} else if (template instanceof plugins.file.JSFile) {
+	} else if (templateOrFileType instanceof plugins.file.JSFile) {
 		/** @type {plugins.file.JSFile} */
-		var jsFile = template;
+		var jsFile = templateOrFileType;
 		this.wb = factory.create(new java.io.File(jsFile.getAbsolutePath()));
 	} else {
 		throw new scopes.svyExceptions.IllegalArgumentException("Wrong arguments provided for ExcelWorkbook");
@@ -758,19 +758,19 @@ var initExcelWorkbook = (function() {
  * @constructor 
  * @extends {ExcelWorkbook}
  * @private 
- * @param {String|plugins.file.JSFile|Number} [template] either an existing Excel file as template or one of the FILE_FORMAT constants when creating empty workbooks
+ * @param {String|plugins.file.JSFile|Number} [templateOrFileType] either an existing Excel file as template or one of the FILE_FORMAT constants when creating empty workbooks
  * @param {String} sheetNameToUse
  *
  * @properties={typeid:24,uuid:"62218771-88C9-4D58-954C-4B39A92F8513"}
  */
-function ServoyExcelWorkbook(template, sheetNameToUse) {
+function ServoyExcelWorkbook(templateOrFileType, sheetNameToUse) {
 	
 	if (!(this instanceof ServoyExcelWorkbook)) {
 		logger.warn("ServoyExcelWorkbook constructor called without the \"new\" keyword");
-		return new ServoyExcelWorkbook(template, sheetNameToUse);
+		return new ServoyExcelWorkbook(templateOrFileType, sheetNameToUse);
 	}
 	
-	ExcelWorkbook.call(this, template);
+	ExcelWorkbook.call(this, templateOrFileType);
 	
 	/**
 	 * The style used for the header of the data
@@ -812,14 +812,14 @@ function ServoyExcelWorkbook(template, sheetNameToUse) {
 	 * The ExcelWorkbook created
 	 * @type {ExcelWorkbook}
 	 */
-	this.workbook = new ExcelWorkbook(template);	
+	this.workbook = new ExcelWorkbook(templateOrFileType);	
 	
 	/**
 	 * The ExcelSheet used or created
 	 * @type {ExcelSheet}
 	 */
 	this.sheet = null;
-	if (template && !(template instanceof Number)) {
+	if (templateOrFileType && !(templateOrFileType instanceof Number)) {
 		if (sheetNameToUse) {
 			this.sheet = this.workbook.getSheet(sheetNameToUse);
 			if (!this.sheet) {
@@ -979,19 +979,19 @@ var initServoyExcelWorkbook = (function() {
  * @param {JSFoundSet} foundset - the foundset
  * @param {Array<String>} dataproviders - the dataproviders to be used for the excel sheet
  * @param {Array<String>} [headers] - the text to be used as column headers
- * @param {String|plugins.file.JSFile|Number} [template] either file or media URL pointing to an existing Excel to be used as template or one of the FILE_FORMAT constants when creating empty workbooks
+ * @param {String|plugins.file.JSFile|Number} [templateOrFileType] either file or media URL pointing to an existing Excel to be used as template or one of the FILE_FORMAT constants when creating empty workbooks
  * @param {String} [sheetNameToUse] - when a template is used, this is the name of the sheet to be filled
  *
  * @properties={typeid:24,uuid:"98D3A864-3E94-47AD-99E6-4B77046BDFEC"}
  */
-function FoundSetExcelWorkbook(foundset, dataproviders, headers, template, sheetNameToUse) {
+function FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileType, sheetNameToUse) {
 	
 	if (!(this instanceof FoundSetExcelWorkbook)) {
 		logger.warn("FoundSetExcelWorkbook constructor called without the \"new\" keyword");
-		return new FoundSetExcelWorkbook(foundset, dataproviders, headers, template);
+		return new FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileType);
 	}
 	
-	ServoyExcelWorkbook.call(this, template, sheetNameToUse);
+	ServoyExcelWorkbook.call(this, templateOrFileType, sheetNameToUse);
 	
 	/**
 	 * @type {Boolean}
@@ -1134,7 +1134,7 @@ var initFoundSetExcelWorkbook = (function() {
  * @param {JSDataSet} dataset - the dataset
  * @param {Array<Number>} [columns] - the column numbers to be included in the sheet
  * @param {Array<String>} [headers] - the text to be used as column headers
- * @param {String|plugins.file.JSFile|Number} [template] either file or media URL pointing to an existing Excel to be used as template or one of the FILE_FORMAT constants when creating empty workbooks
+ * @param {String|plugins.file.JSFile|Number} [templateOrFileType] either file or media URL pointing to an existing Excel to be used as template or one of the FILE_FORMAT constants when creating empty workbooks
  * @param {String} [sheetNameToUse] - when a template is used, this is the name of the sheet to be filled
  * 
  * @example <pre>
@@ -1167,14 +1167,14 @@ var initFoundSetExcelWorkbook = (function() {
  *
  * @properties={typeid:24,uuid:"EF4F46C2-684F-4589-97A0-CFF3338833F8"}
  */
-function DataSetExcelWorkbook(dataset, columns, headers, template, sheetNameToUse) {
+function DataSetExcelWorkbook(dataset, columns, headers, templateOrFileType, sheetNameToUse) {
 	
 	if (!(this instanceof DataSetExcelWorkbook)) {
 		logger.warn("DataSetExcelWorkbook constructor called without the \"new\" keyword");
-		return new DataSetExcelWorkbook(dataset, columns, headers, template);
+		return new DataSetExcelWorkbook(dataset, columns, headers, templateOrFileType);
 	}
 	
-	ServoyExcelWorkbook.call(this, template, sheetNameToUse);
+	ServoyExcelWorkbook.call(this, templateOrFileType, sheetNameToUse);
 	
 	/**
 	 * The dataset used to create this workbook

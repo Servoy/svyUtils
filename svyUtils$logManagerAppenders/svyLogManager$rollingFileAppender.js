@@ -32,7 +32,7 @@
  * 			}
  * 		}, {
  * 			type: "scopes.svyLogManager$rollingFileAppender.RollingFileAppender",
- * 			name: "DbAppender",
+ * 			name: "RollingFileAppender",
  * 			fileName: "logs/application.log",
  * 			maxFileSize: 10 * 1024 * 1024,
  * 			maxBackupIndex: 5,
@@ -43,7 +43,7 @@
  * 		loggers: {
  * 			root: {
  * 				level: "warn",
- * 				AppenderRef: [{ref: "DbAppender"}, {ref: "ApplicationOutput"}]
+ * 				AppenderRef: [{ref: "RollingFileAppender"}, {ref: "ApplicationOutput"}]
  * 			}
  * 		}
  * 	});
