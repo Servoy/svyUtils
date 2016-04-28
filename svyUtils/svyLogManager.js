@@ -466,6 +466,23 @@ function loadConfig(configuration) {
 var namedAppenders = {}
 
 /**
+ * Returns the appender with the given name (ref)
+ * @param {String} appenderName
+ * @return {AbstractAppender}
+ * @public 
+ *
+ * @properties={typeid:24,uuid:"4775201B-7B56-4EB9-9634-808BF39708BA"}
+ */
+function getAppender(appenderName) {
+	var result = getAppenderForRef({ref: appenderName});
+	if (result) {
+		return result.appender;
+	} else {
+		return null;
+	}
+}
+
+/**
  * @private 
  * @param {{ref: String, level: String=}} appenderRef
  * 
@@ -710,7 +727,7 @@ var initParameterizedMessageFactory = (function() {
  * @properties={typeid:35,uuid:"87FC8503-D5E5-4BB7-B777-3CC94617BAD7",variableType:-4}
  */
 var defaultMessageFactory = new ParameterizedMessageFactory()
-	
+
 /* ---------------------------------Message------------------------------------- */
 /**
  * TODO: documentation
@@ -998,7 +1015,6 @@ var initObjectMessage = (function() {
 	}
 }())
 
-
 /* ----------------------------------Loggers------------------------------------ */
 /**
  * TODO: the mechanism of Logger and LoggerConfig can be optimized even further: 
@@ -1117,15 +1133,21 @@ var initLoggerConfig = (function(){
 	 * @param {Level} [level]
 	 */
 	LoggerConfig.prototype.addAppender = function(appender, level) {
-		if (appender instanceof AbstractAppender) {
-			if (!(this.appenders.indexOf(appender) != -1)) {
-				this.appenders.push({appender: appender, level: level ? level : null});
-				//appender.setAddedToLogger(this);
-				this.invalidateAppenderCache();
-			}
-		} else {
+		if (!(appender instanceof AbstractAppender)) {
 			statusLogger.error("Logger.addAppender: appender supplied ('{}') is not a subclass of Appender", appender);
+			return;
 		}
+		if (level && !(level instanceof Level)) {
+			statusLogger.error("Logger.addAppender: level supplied ('{}') is not a subclass of Level", level);
+			return;
+		}
+		for (var x = this.appenders.length - 1 ; x >= 0 ; x--) {
+			if (this.appenders[x].appender.appenderName == appender.appenderName) {
+				return;
+			}
+		}
+		this.appenders.push({appender: appender, level: level ? level : null});
+		this.invalidateAppenderCache();
 	};
 	
 	/**
@@ -1158,9 +1180,10 @@ var initLoggerConfig = (function(){
 	 * @param {AbstractAppender} appender
 	 */
 	LoggerConfig.prototype.removeAppender = function(appender) {
-		var i = this.appenders.indexOf(appender)
-		if (i != -1) {
-			this.appenders.splice(i,1)
+		for (var x = this.appenders.length - 1 ; x >= 0 ; x--) {
+			if (this.appenders[x].appender.appenderName == appender.appenderName) {
+				this.appenders.splice(x,1)
+			}
 		}
 		//appender.setRemovedFromLogger(this);
 		this.invalidateAppenderCache();
@@ -1391,6 +1414,8 @@ function Logger(internal, messageFactory) {
 	 * but all this without exposing a public setter method
 	 */
 	var customMessageFactory = messageFactory
+	
+	var isRoot = (this.name === ROOT_LOGGER_NAME);
 
 	/**
 	 * Generic logging method<br>
@@ -1570,13 +1595,139 @@ function Logger(internal, messageFactory) {
 	this.isFatalEnabled = function() {
 		return Level.FATAL.intLevel >= internal.effectiveLevel.intLevel;
 	}
+	
+	/**
+	 * Returns whether additivity is enabled for this logger.
+	 * @return {Boolean}
+	 * @public 
+	 */
+	this.getAdditivity = function() {
+		var logger = loggers[internal.name];
+		return logger.getAdditivity();
+	}
 
 	/**
+	 * Returns the name of this logger
 	 * @public
 	 */
 	this.getName = function() {
 		return internal.name
 	}
+	
+	/**
+	 * Sets whether appender additivity is enabled (the default) or disabled. 
+	 * If set to false, this particular logger will not inherit any appenders 
+	 * form its ancestors. Any descendant of this logger, however, will inherit 
+	 * from its ancestors as normal, unless its own additivity is explicitly set to false.
+	 * @param {Boolean} additivity
+	 * @return {Logger}
+	 * @public
+	 */
+	this.setAdditivity = function(additivity) {
+		var logger = loggers[internal.name];
+		logger.setAdditivity(additivity);
+		return this;
+	}
+	
+	/**
+	 * Sets the level. Log messages of a lower level than level will not be logged. Default value is DEBUG.
+	 * @param {String|Level} level
+	 * @return {Logger}
+	 * @public 
+	 */
+	this.setLevel = function(level) {
+		var levelToSet = level;
+		if (level instanceof String) {
+			/** @type {String} */
+			var levelString = level;
+			levelToSet = Level.toLevel(levelString);
+		}
+		// Having a level of null on the root logger would be very bad.
+		if (isRoot && level === null) {
+			statusLogger.error("Logger.setLevel: you cannot set the level of the root logger to null");
+		} else if (levelToSet instanceof Level) {
+			var logger = loggers[internal.name];
+			logger.setLevel(levelToSet);
+		} else {
+			statusLogger.error("Logger.setLevel: level supplied to logger {} is not an instance of Level", internal.name);
+		}
+		return this;
+	};
+	
+	/**
+	 * Adds an appender to this logger
+	 * @param {AbstractAppender} appender
+	 * @param {String|Level} [level]
+	 * @return {Logger}
+	 * @public 
+	 */
+	this.addAppender = function(appender, level) {
+		var levelToSet = level;
+		if (level instanceof String) {
+			/** @type {String} */
+			var levelString = level;
+			levelToSet = Level.toLevel(levelString);
+		}
+		if (! (appender instanceof AbstractAppender)) {
+			statusLogger.error("Logger.addAppender: appender supplied ('{}') is not a subclass of Appender", appender);
+			return this;
+		} else if (levelToSet && ! (levelToSet instanceof Level)) {
+			statusLogger.error("Logger.addAppender: level supplied ('{}') is not a subclass of Level", levelToSet);
+			return this;
+		}
+		var logger = loggers[internal.name];
+		logger.addAppender(appender, levelToSet);
+		return this;
+	};
+	
+	/**
+	 * Removes an appender from this logger
+	 * @param {AbstractAppender} appender
+	 * @return {Logger}
+	 * @public 
+	 */
+	this.removeAppender = function(appender) {
+		if (appender instanceof AbstractAppender) {
+			var logger = loggers[internal.name];
+			logger.removeAppender(appender);
+		} else {
+			statusLogger.error("Logger.removeAppender: appender supplied ('{}') is not a subclass of Appender", appender);
+		}
+		return this;
+	};
+	
+	/**
+	 * Removes all appenders from this logger
+	 * @return {Logger}
+	 * @public 
+	 */
+	this.removeAllAppenders = function() {
+		var logger = loggers[internal.name];
+		logger.removeAllAppenders();
+		return this;		
+	}
+
+	/**
+	 * Returns the level explicitly set for this logger or null if none has been set
+	 * @return {Level}
+	 * @public 
+	 */
+	this.getLevel = function() {
+		var logger = loggers[internal.name];
+		return logger.getLevel();
+	};
+
+	/**
+	 * Returns the level at which the logger is operating. This is either the level 
+	 * explicitly set on the logger or, if no level has been set, the effective 
+	 * level of the logger's parent.
+	 * @return {Level}
+	 * @public 
+	 */
+	this.getEffectiveLevel = function() {
+		var logger = loggers[internal.name];
+		return logger.effectiveLevel
+	};	
 }
 
 /** 
@@ -1588,7 +1739,7 @@ function Logger(internal, messageFactory) {
  * @properties={typeid:35,uuid:"0F49DC42-01BC-4720-B19F-DA1B30BF9D1E",variableType:-4}
  */
 var loggers = {};
-	
+
 /**
 * @public
 * @type {String}
@@ -1596,7 +1747,7 @@ var loggers = {};
 * @properties={typeid:35,uuid:"7AA018E7-ACA9-4215-9117-597DF91D7D16"}
 */
 var ROOT_LOGGER_NAME = "root"
-	
+
 /**
  * @private
  * @properties={typeid:35,uuid:"EC4E9958-AA1E-4F91-9612-FEEB50E4CFA9",variableType:-4}
@@ -1719,6 +1870,24 @@ function getLogger(loggerName, messageFactory) {
 	//TODO: add warnings when returning existing logger and a messageFactory was provided that is different than the one with which the logger was previously requested.
 	//See checkMessageFactory in Log4J's AbstractLogger 
 	return loggers[loggerName].externalLogger;
+}
+
+/**
+ * Returns all loggers created
+ * @return {Array<Logger>}
+ * @properties={typeid:24,uuid:"68414983-8B0C-498D-B34B-EE66037B03DF"}
+ */
+function getLoggers() {
+	var result = [];
+	for (var i in loggers) {
+		result.push(loggers[i].externalLogger);
+	}
+	function sortLoggers(l1, l2) {
+		if (l1.getName() > l2.getName()) return 1;
+		else if (l1.getName() < l2.getName()) return -1;
+		else return 0;
+	}
+	return result.sort(sortLoggers);
 }
 
 /* ---------------------------------Logging events------------------------------------- */

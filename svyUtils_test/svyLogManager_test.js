@@ -27,6 +27,12 @@ function setUp() {
 				AppenderRef: {
 					ref: "ApplicationOutputAppender"
 				}
+			}, {
+				name: "com.servoy.bap.test.3",
+				additivity: true,
+				AppenderRef: {
+					ref: "ApplicationOutputAppender"
+				}
 			}],
 			root: {
 				level: "error",
@@ -256,4 +262,51 @@ function testAdditivity() {
 	scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length = 0
 	testLogger2.error('hello')
 	jsunit.assertEquals(2, scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length)
+}
+
+/**
+ * 
+ * @properties={typeid:24,uuid:"3B6004AC-EC5E-42E3-ACED-D4BB19B342FB"}
+ */
+function testLoggerMethods() {
+	scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length = 0
+	var testLogger3 = scopes.svyLogManager.getLogger('com.servoy.bap.test.3');
+	jsunit.assertNull(testLogger3.getLevel() ? testLogger3.getLevel().toString() : null, null);
+	jsunit.assertEquals(scopes.svyLogManager.Level.DEBUG.toString(), testLogger3.getEffectiveLevel().toString());
+	testLogger3.info('hello logger3')
+	jsunit.assertEquals(2, scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length);
+	testLogger3.setAdditivity(false);
+	testLogger3.info('hello logger3');
+	//we don't inherit appenders anymore, so only one message logged
+	jsunit.assertEquals(3, scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length);
+	//setting the level up
+	testLogger3.setLevel('warn');
+	jsunit.assertEquals(scopes.svyLogManager.Level.WARN.toString(), testLogger3.getEffectiveLevel().toString());
+	jsunit.assertEquals(scopes.svyLogManager.Level.WARN.toString(), testLogger3.getLevel().toString());
+	//should be ignored
+	testLogger3.info('hello logger3');
+	jsunit.assertEquals(3, scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length);
+	//should be logged
+	testLogger3.warn('hello logger3');
+	jsunit.assertEquals(4, scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length);
+	//setting the level down
+	testLogger3.setLevel('info');
+	testLogger3.info('hello logger3');
+	jsunit.assertEquals(5, scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length);
+	testLogger3.warn('hello logger3');
+	jsunit.assertEquals(6, scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length);
+	testLogger3.debug('hello logger3');
+	jsunit.assertEquals(6, scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length);
+	//remove all appenders
+	testLogger3.removeAllAppenders();
+	testLogger3.error('hello logger3');
+	jsunit.assertEquals(6, scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length);
+	//get appender
+	var appender = scopes.svyLogManager.getAppender('ApplicationOutputAppender');
+	jsunit.assertEquals('ApplicationOutputAppender', appender.appenderName);
+	//add it
+	testLogger3.addAppender(appender);
+	testLogger3.error('hello logger3');
+	jsunit.assertEquals(7, scopes.svyUnitTestUtils.logMessages.ApplicationOutputAppender.length);
+	
 }
