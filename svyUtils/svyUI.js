@@ -126,8 +126,8 @@ function getJSFormHierarchy(form) {
  * TODO: cleanup, use utility functions, extend to also take RuntimeForm (just to be complete)
  * Returns true if the form is extending the parent form 
  * 
- * @param {JSForm|String} form
- * @param {JSForm|String} parentForm
+ * @param {RuntimeForm|JSForm|String} form
+ * @param {RuntimeForm|JSForm|String} parentForm
  * 
  * @throws {scopes.svyExceptions.IllegalArgumentException}
  * 
