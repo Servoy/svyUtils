@@ -396,6 +396,7 @@ function Event(type, source, data) {
 	
 	/**
 	 * Gets a string representation of the Object
+	 * @public 
 	 * @return {String}
 	 * @override 
 	 */
