@@ -533,12 +533,12 @@ function getAppenderForRef(appenderRef) {
  * @properties={typeid:24,uuid:"CA46514A-47F4-4DF0-B880-6033387B96E2"}
  */
 function getPluginInstance(type, configNode) {
-	var clazz = logPlugins[type]
+	var clazz = logPlugins[type];
 	
 	/** @type {PLUGIN_FACTORY_TYPE_DEF} */
-	var factory = clazz['PluginFactory']
-	var args = []
-	var plugin
+	var factory = clazz['PluginFactory'];
+	var args = [];
+	var plugin = null;
 	for (var i = 0; i < factory.parameters.length; i++) { //Find the values in configNode for all the parameters specified by the factory
 		var param = factory.parameters[i]
 		if (configNode.hasOwnProperty(param.configName)) { //configNode attribute matches named parameter, for example "name"
@@ -562,14 +562,31 @@ function getPluginInstance(type, configNode) {
 					break;
 			}
 		} else { //configNode Attribute matches parameter type, for example attribute 'PatternLayout' matches parameter of type 'AbstractLayout'
-			var keys = Object.keys(configNode)
-			var paramSet = false
+			var keys = Object.keys(configNode);
+			var paramSet = false;
 			for (var j = 0; j < keys.length; j++) {
 				plugin = logPlugins[keys[j]]
-				if (plugin && plugin.prototype instanceof param.type) {
-					args.push(getPluginInstance(keys[j], configNode[keys[j]]))
-					paramSet = true
+				if (plugin) {
+					switch (typeof param.type) {
+						case 'string':
+						case 'boolean':		
+						case 'number':
+							args.push(null);
+							paramSet = true;
+							break;
+						default:
+							if (param.type == null) {
+								args.push(null)
+							} else {
+								if (plugin && plugin.prototype instanceof param.type) {
+									args.push(getPluginInstance(keys[j], configNode[keys[j]]))
+									paramSet = true
+								}
+							}
+							break;
+					}
 				}
+				
 			}
 			if (!paramSet) {
 				args.push(undefined)
@@ -798,6 +815,7 @@ var initAbstractMessage = (function(){
 	
 	/**
 	 * @public
+	 * @return {Array<*>}
 	 */
 	AbstractMessage.prototype.getParameters = function(){
 		return this.parameters

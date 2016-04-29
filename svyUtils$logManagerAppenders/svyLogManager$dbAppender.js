@@ -36,10 +36,10 @@
  * 			datasource: "db:/my_db/log_events",
  * 			userId: globals.myUserId,
  * 			dbMapping: { eventTimeColumnName: "event_time", loggerColumnName: "logger_name", logLevelColumnName: "log_level", logMessageColumnName: "log_message", userIdColumName: "user_id", solutionColumnName: "solution_name" },
- * 			customColumns: null,
- * 			PatternLayout: {
- * 				pattern: ""
- * 			}
+ * 			customColumns: [{columnName: 'my_custom_field', value: 'Hello'} , {columnName: 'my_custom_field_2', value: 'scopes.test.getMyValue'}, {columnName: 'my_custom_field_3'}],
+ *			PatternLayout: {
+ *				pattern: "%msg"
+ *			}
  * 		}],
  * 		loggers: {
  * 			root: {
@@ -48,6 +48,14 @@
  * 			}
  * 		}
  * 	});
+ * 
+ * If PatternLayout is used, values for custom columns can be provided as parameters to the logger methods:
+ * 
+ * logger.debug('This is a {} {} message', 'Hello', 'World', {my_custom_field: 'abc', my_custom_field_2: 'def'});
+ * 
+ * This will result in the message 'This is a Hello World message' and 'abc' will be written to the column 
+ * 'my_custom_field' and 'def' to 'my_custom_field_2'. If no values are provided as parameters, the default
+ * value or function call will be used instead.
  * 
  */
 
@@ -113,7 +121,7 @@ function DbAppender(datasource, dbMapping, userId) {
 	/**
 	 * Array of custom columns that can be configured with fixed values, variables or Function calls
 	 * 
-	 * @type {Array<{columnName: String, value: Object|Function}>}
+	 * @type {Array<{columnName: String, value: Object|Function=}>}
 	 */
 	this.customColumns = [];
 	
@@ -163,6 +171,9 @@ var initDbAppender = (function() {
 		
 		var record = this.foundset.getRecord(this.foundset.newRecord());
 
+		var params = loggingEvent.message.getParameters();
+		/** @type {Object<*>} */
+		var customFieldValues = params ? params.pop() : null;
 		if (this.dbMapping.eventTimeColumnName) record[this.dbMapping.eventTimeColumnName] = loggingEvent.timeStamp;
 		if (this.dbMapping.logLevelColumnName) record[this.dbMapping.logLevelColumnName] = loggingEvent.level.intLevel;
 		if (this.dbMapping.logLevelNameColumnName) record[this.dbMapping.logLevelNameColumnName] = loggingEvent.level.name;
@@ -175,7 +186,9 @@ var initDbAppender = (function() {
 			for (var c = 0; c < this.customColumns.length; c++) {
 				var col = this.customColumns[c];
 				var value;
-				if (col.value instanceof Function) {
+				if (customFieldValues && customFieldValues.hasOwnProperty(col.columnName)) {
+					value = customFieldValues[col.columnName];
+				} else if (col.value instanceof Function) {
 					/** @type {Function} */
 					var colFun = col.value;
 					value = colFun(loggingEvent);
@@ -189,6 +202,8 @@ var initDbAppender = (function() {
 		var success = databaseManager.saveData(record);
 		if (!success) {
 			scopes.svyLogManager.getStatusLogger().error("DbAppender failed to save log message to datasource \"" + this.datasource + "\"");
+		} else {
+			this.foundset.clear();
 		}
 	}
 
@@ -229,7 +244,7 @@ var initDbAppender = (function() {
 		create: function(name, layout, datasource, dbMapping, userId, customColumns) {
 			var retval = new DbAppender(datasource, dbMapping, userId);
 			retval.setName(name);
-			retval.setLayout(layout);
+			if (layout) retval.setLayout(layout);
 			if (customColumns) retval.customColumns = customColumns;
 			return retval;
 		}
