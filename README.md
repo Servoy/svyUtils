@@ -26,4 +26,4 @@ Eager to fix a bug or introduce a new feature? Clone the repository and issue a 
 
 License
 -------
-svyUtils is licensed under LGPL
+svyUtils is licensed under the MIT license
