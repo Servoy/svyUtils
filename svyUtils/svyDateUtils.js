@@ -620,7 +620,7 @@ function getDateFormat(style, locale) {
  * @properties={typeid:24,uuid:"D9F78345-D31D-4A79-8C28-230F7BC467B4"}
  */
 function getDayDifference(start, end) {
-	return Math.floor(((end.getTime() - start.getTime()) / 86400000));
+	return Math.ceil(((end.getTime() - start.getTime()) / 86400000));
 }
 
 /**
@@ -664,6 +664,48 @@ function getMonthNames(locale) {
 	var monthNames = dfs.getMonths();
 	monthNames.pop();
 	return monthNames;
+}
+
+/**
+ * Creates a string for uses in Servoy between searches from two given dates. 
+ * For example: "2006-01-01...2006-09-27|yyyy-MM-dd".
+ * 
+ * @public 
+ * 
+ * @param {Date} dateFrom
+ * @param {Date} dateTo
+ *
+ * @properties={typeid:24,uuid:"9D62A1EC-AC90-457E-8282-1CFEA2C46CD7"}
+ */
+function getSearchStringDateBetween(dateFrom, dateTo) {
+	var format = 'yyyy-MM-dd HH:mm:ss';
+	var from = new Date(dateFrom.getTime());
+	from.setHours(0);
+	from.setMinutes(0);
+	from.setSeconds(0);
+	from.setMilliseconds(0);
+	var to = new Date(dateTo.getTime());
+	to.setHours(23);
+	to.setMinutes(59);
+	to.setSeconds(59);
+	to.setMilliseconds(999);
+	return utils.dateFormat(from, format) + "..." + utils.dateFormat(to, format) + "|" + format;
+}
+
+/**
+ * Creates a string for uses in Servoy between searches from two given dates including the exact given time. 
+ * For example: "2006-01-01 10:23:15...2006-09-27 11:15:45|yyyy-MM-dd HH:mm:ss".
+ * 
+ * @public 
+ * 
+ * @param {Date} dateFrom
+ * @param {Date} dateTo
+ *
+ * @properties={typeid:24,uuid:"4D35B83B-4AFB-418B-9721-0FC549879D4D"}
+ */
+function getSearchStringDateTimeBetween(dateFrom, dateTo) {
+	var format = 'yyyy-MM-dd HH:mm:ss';
+	return utils.dateFormat(dateFrom, format) + "..." + utils.dateFormat(dateTo, format) + "|" + format;
 }
 
 /**
