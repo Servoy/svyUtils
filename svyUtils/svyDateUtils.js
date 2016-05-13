@@ -680,15 +680,9 @@ function getMonthNames(locale) {
 function getSearchStringDateBetween(dateFrom, dateTo) {
 	var format = 'yyyy-MM-dd HH:mm:ss';
 	var from = new Date(dateFrom.getTime());
-	from.setHours(0);
-	from.setMinutes(0);
-	from.setSeconds(0);
-	from.setMilliseconds(0);
+	from.setHours(0, 0, 0, 0);
 	var to = new Date(dateTo.getTime());
-	to.setHours(23);
-	to.setMinutes(59);
-	to.setSeconds(59);
-	to.setMilliseconds(999);
+	to.setHours(23, 59, 59, 999);
 	return utils.dateFormat(from, format) + "..." + utils.dateFormat(to, format) + "|" + format;
 }
 
