@@ -35,7 +35,6 @@
  */
 var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.date')
 
-
 /**
  * A java.util.Calendar instance used to do the math
  * @private
@@ -97,10 +96,21 @@ var TODAY_END;
  * @properties={typeid:35,uuid:"EDBB02A9-A782-415A-927B-D3B5BDE9BA55",variableType:-4}
  */
 var initTodayVars = (function() {
+	setTodayVars();
+	plugins.scheduler.addJob('svyDateUtils$setTodayVars', TODAY_START, setTodayVars, 1000 * 60 * 60 * 24);
+}());
+
+/**
+ * 
+ * @private
+ *
+ * @properties={typeid:24,uuid:"032931C2-A251-47E0-BD6D-E855DFFE7755"}
+ */
+function setTodayVars() {
 	var now = new Date();
 	TODAY_START = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
 	TODAY_END = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-}());
+}
 
 /**
  * Adds the value of the given field to the given date
@@ -620,7 +630,10 @@ function getDateFormat(style, locale) {
  * @properties={typeid:24,uuid:"D9F78345-D31D-4A79-8C28-230F7BC467B4"}
  */
 function getDayDifference(start, end) {
-	return Math.ceil(((end.getTime() - start.getTime()) / 86400000));
+	var startUtc = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate());
+	var endUtc = Date.UTC(end.getFullYear(), end.getMonth(), end.getDate());
+	var diff = Math.abs((startUtc.valueOf() - endUtc.valueOf()) / (24 * 60 * 60 * 1000));
+	return diff;
 }
 
 /**
