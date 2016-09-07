@@ -1653,10 +1653,10 @@ var init_TextField = (function() {
 			//make sure a component with value list shows all values
 			if (this.valueListValues.length > 0 && [JSField.CHECKS, JSField.LISTBOX, JSField.MULTISELECT_LISTBOX, JSField.RADIOS].indexOf(this.displayType) != -1) {
 				var sHelper = getStyleHelper(customDialog.styleName);
-				if ([JSField.LISTBOX, JSField.MULTISELECT_LISTBOX].indexOf(this.displayType) != -1) {
+				if (!this.height && [JSField.LISTBOX, JSField.MULTISELECT_LISTBOX].indexOf(this.displayType) != -1) {
 					//list boxes don't need to be that high; 15pixels per row is an estimate...
 					textField.height = sHelper.getFontHeight(sHelper.getFontString("field")) * this.valueListValues.split("\n").length + 5;
-				} else if (this.displayType == JSField.RADIOS) {
+				} else if (!this.height && this.displayType == JSField.RADIOS) {
 					var numOfRows;
 					if (application.getApplicationType() == APPLICATION_TYPES.SMART_CLIENT) {
 						var listEntries = this.valueListValues.split("\n");
@@ -1672,7 +1672,7 @@ var init_TextField = (function() {
 						numOfRows = Math.ceil(sHelper.getTextWidth(sHelper.getFontString("radio"), this.valueListValues.split("\n").join('  ')) / width);
 						textField.height = textField.height * numOfRows;						
 					}
-				} else {
+				} else if (!this.height) {
 					textField.height = textField.height * this.valueListValues.split("\n").length;
 				}
 				this.labelAlignment = SM_ALIGNMENT.TOP;
@@ -2697,8 +2697,7 @@ function showQuestionDialog(title, message, buttons) {
 		buttons = buttonArgs;
 		return plugins.dialogs.showQuestionDialog(title, message, buttons);
 	} else {
-		var questionIcon = javaIconToByteArray(Packages.javax.swing.UIManager.getIcon("OptionPane.questionIcon"));
-		return showDefaultDialog(arguments, questionIcon);
+		return showDefaultDialog(arguments, DEFAULT_ICON.INFO);
 	}
 }
 
