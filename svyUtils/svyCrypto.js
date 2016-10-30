@@ -30,7 +30,7 @@
 var log = scopes.svyLogManager.getLogger("com.servoy.bap.svyCrypto");
 
 /**
- * Suppoprted algorith names
+ * Supported algorithms
  * 
  * @public 
  * @enum 
@@ -249,19 +249,17 @@ function decryptPBE(value, secretPassPhrase, options){
 
 /**
  * @private  
- * 
  * @param {String} value
  * @param {EncryptionOptions} [options]
  * @return {String}
- * 
- *
  * @properties={typeid:24,uuid:"B9D632D6-B698-4973-AD8B-DC371D1E5ED3"}
  * @SuppressWarnings(wrongparameters)
  */
-function encryptInternal(value, options){
+function encryptInternal(value, options){	
 	if(!options){
 		options = createOptions();
 	}
+	log.info(options)
 	var bytes = string2Bytes(value);
 	var key = getKey(options.getKey(),options);
 	var cipher = getCipher(options);
@@ -290,7 +288,7 @@ function decryptInternal(value, options){
 	var key = getKey(options.getKey(),options);
 	cipher.init(Packages.javax.crypto.Cipher.DECRYPT_MODE, key);
 	var result = new java.lang.String(cipher.doFinal(bytes)).toString();
-//	application.output("Decrypted <"+result+"> from <"+value+">",LOGGINGLEVEL.DEBUG);
+//	log.debug("Decrypted <"+result+"> from <"+value+">");
 	return result;
 }
 
@@ -469,7 +467,6 @@ function string2Bytes(str){
 }
 
 /**
- * TODO Move to utils scope and make 
  * @private 
  * @param {Array<byte>} bytes
  * @return {String}
@@ -488,7 +485,7 @@ function base64EncodeAsString(bytes){
  */
 function base64DecodeAsBytes(encodedStr){
 	var b64 = new Packages.org.apache.commons.codec.binary.Base64();
-	return b64.decode(encodedStr);	// TODO: surpress invalid warning
+	return b64.decode(encodedStr);
 }
 
 /**
