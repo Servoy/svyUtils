@@ -44,6 +44,21 @@ var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.system')
 var LINE_SEPARATOR = Packages.java.lang.System.getProperty("line.separator");
 
 /**
+ * Tests if the current client is an NG Client
+ * 
+ * @return {Boolean}
+ * @public 
+ * @properties={typeid:24,uuid:"6C703B72-7251-4112-B5CB-495FE79C1B06"}
+ */
+function isNGClient () {
+	try {
+		return APPLICATION_TYPES.NG_CLIENT && application.getApplicationType() === APPLICATION_TYPES.NG_CLIENT
+	} catch (e) {
+		return false;
+	}
+}
+
+/**
  * Tests if the current client is Web Client
  * 
  * @return {Boolean}
