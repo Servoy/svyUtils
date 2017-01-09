@@ -1,18 +1,26 @@
 /*
- * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2013 Servoy BV 
+ * The MIT License
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2016 Servoy BV 
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * 
  */
 
 /*
@@ -67,9 +75,15 @@ function checkOperationSupported() {
  * @properties={typeid:24,uuid:"CFBBDB4C-5616-4974-A180-4A66C98D4209"}
  */
 function getUwrappedComponentOrWrapperComponent(component) {
+	/** @type {Packages.org.apache.wicket.Component} */
 	var unwrappedElement = unwrapElement(component)
 	var parent = unwrappedElement.getParent()
-	return parent instanceof Packages.com.servoy.j2db.server.headlessclient.WrapperContainer ? parent : unwrappedElement //See SVY-8013 for warning
+	if (parent instanceof Packages.com.servoy.j2db.server.headlessclient.WrapperContainer) {
+		return parent;
+	} else {
+		return unwrappedElement;
+	}
+//	return parent instanceof Packages.com.servoy.j2db.server.headlessclient.WrapperContainer ? parent : unwrappedElement //See SVY-8013 for warning
 }
 
 /**
@@ -134,6 +148,7 @@ function addClass(component, className, addToWrapper) {
  * @param {RuntimeComponent|RuntimeForm} component
  * @param {function():String} provider
  * @param {Boolean} [addToWrapper] See {@link #addStyle()} for parameter details. Default=false
+ *	
  *
  * @properties={typeid:24,uuid:"E1477EED-6F18-4979-8D19-F58D90952903"}
  */
@@ -144,7 +159,7 @@ function addDynamicClass(component, provider, addToWrapper) {
 		component = getUwrappedComponentOrWrapperComponent(component)
 	}
 	
-	var model = new JavaAdapter(Packages.org.apache.wicket.model.Model, { //See SVY-7933 for warning
+	var model = new Packages.org.mozilla.javascript.JavaAdapter(Packages.org.apache.wicket.model.Model, { //See SVY-7933 for warning
 		getObject: function() {return provider()}
 	})
 	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('class', model, ' ')
@@ -200,7 +215,7 @@ function addDynamicStyle(component, provider, addToWrapper) {
 		component = getUwrappedComponentOrWrapperComponent(component)
 	}
 	
-	var model = new JavaAdapter(Packages.org.apache.wicket.model.Model, { //See SVY-7933 for warning
+	var model = new Packages.org.mozilla.javascript.JavaAdapter(Packages.org.apache.wicket.model.Model, { //See SVY-7933 for warning
 		getObject: function() {return provider()}
 	})
 	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender('style', model, ';')
@@ -222,7 +237,7 @@ function addDynamicStyle(component, provider, addToWrapper) {
 function addDynamicAttribute(component, attribute, provider, separator) {
 	checkOperationSupported()
 	
-	var model = new JavaAdapter(Packages.org.apache.wicket.model.Model, { //See SVY-7933 for warning
+	var model = new Packages.org.mozilla.javascript.JavaAdapter(Packages.org.apache.wicket.model.Model, { //See SVY-7933 for warning
 		getObject: function() {return provider()}
 	})
 	var behavior = new Packages.org.apache.wicket.behavior.AttributeAppender(attribute, model, separator||'')
@@ -379,7 +394,9 @@ function addResourceDependancy(url, element, disableAutoAdjustProtocol, isJSReso
 				}
 			})
 		)
+		
 		addBehavior(contributor, element)
+		
 	}
 }
 
@@ -643,7 +660,7 @@ function getCallbackUrl(callback) {
  *  
  * Generates a JavaScript code snippet that when invoked in the client (browser) executes the supplied callback method on the server
  * 
- * @param {String|function(String...)} callback Either a Servoy method or a qualifiedName string pointing to a method.
+ * @param {String|function(String, Array)} callback Either a Servoy method or a qualifiedName string pointing to a method.
  * @param {Array<String|Number|Boolean>} [args] String values are considered references to browser-side variables. To pass hardcoded String literals the String value needs to be quoted: '"myvalue"' or "'myValue'". All other values are considered hardcoded values as well and will get serialized using JSON
  * @param {Boolean} [options.showLoading] Whether or not to show the Loading indicator
  * @param {String} [options.mimeType] Forces a certain mimeType in the response
@@ -1070,7 +1087,7 @@ function unwrapElement(component) {
 		//Take care of some components that are wrapped another way so the ArrayList unwrapping doesn't work. For example ComboBoxes
 		if (wicketComponent instanceof Packages.org.apache.wicket.Component && !wicketComponent.add) {
 			wicketComponent = new Packages.org.mozilla.javascript.NativeJavaObject(globals, wicketComponent, new Packages.org.mozilla.javascript.JavaMembers(globals, Packages.org.apache.wicket.Component))
-		}
+	}
 	}
 	return wicketComponent
 }
@@ -1189,7 +1206,7 @@ function updateUI(milliseconds) {
 	checkOperationSupported()
 	if (scopes.svySystem.isWebClient()) {
       c = new Continuation();
-      executeClientsideScript(getCallbackScript(updateUIResume, null, null)); //Sending in extra params to get rid of warning, see SVY-5955
+      executeClientsideScript(getCallbackScript(updateUIResume)); 
       terminator();
    } else {
       application.updateUI(milliseconds)
@@ -1208,7 +1225,6 @@ function updateUI(milliseconds) {
 function updateUIResume(body, requestParams) {
    c();
 }
-
 /**
  * Forces a TableView header to update, so any header texts that depend on display tags are rerendered
  * @param {RuntimeForm} form
@@ -1219,8 +1235,10 @@ function updateUIResume(body, requestParams) {
 function forceTableViewColumnHeaderWithTagsUpdate(form) {
 	checkOperationSupported()
 	var component = scopes.svyWebClientUtils.unwrapElement(form)
+	/** @type {java.lang.Class} */
+	var classToFind = Packages.com.servoy.j2db.IFormUIInternal;
 	/** @type {Packages.com.servoy.j2db.server.headlessclient.WebForm}*/
-	var webForm = component.findParent(Packages.com.servoy.j2db.IFormUIInternal)
+	var webForm = component.findParent(classToFind)
 	
 	if(webForm) {
 		/**@type {Packages.org.apache.wicket.markup.html.WebMarkupContainer}*/

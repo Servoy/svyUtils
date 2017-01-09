@@ -1,5 +1,13 @@
 encapsulation:46,
 extendsID:"14E1D5B3-5DA2-40A5-BCF1-FA15EE0D714B",
+items:[
+{
+height:100,
+partType:5,
+typeid:19,
+uuid:"E7AF1B3B-B4CF-4FB4-9D0C-D24B5D893540"
+}
+],
 name:"svyUtilsWebClientInit",
 typeid:3,
 uuid:"E93B826D-BA04-444B-B005-5E64ECD78FDF"
