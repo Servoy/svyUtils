@@ -154,20 +154,20 @@ function AbstractMethodInvocationException(errorMessage) {
  * @public
  * @constructor 
  * @extends {SvyException}
- * @param {ServoyException} servoyException
+ * @param {ServoyException|Packages.java.lang.Exception} exception
  *
  * @properties={typeid:24,uuid:"6A71126C-BFF3-422A-ADB4-2574AB0BFEF2"}
  */
-function ServoyError(servoyException) {
+function ServoyError(exception) {
 	if (!(this instanceof ServoyError)) {
-		return new ServoyError(servoyException)
+		return new ServoyError(exception)
 	}
 	/**
 	 * @protected 
 	 */
-	this.ex = servoyException
-	SvyException.call(this, servoyException.getMessage());
-	this.name = servoyException instanceof DataException ? 'DataException' : 'ServoyException'
+	this.ex = exception
+	SvyException.call(this, exception.getMessage());
+	this.name = exception instanceof DataException ? 'DataException' : exception instanceof ServoyException ? 'ServoyException' : 'Exception'
 }
 
 /**
@@ -205,10 +205,18 @@ var init = function() {
 	
 	Object.defineProperty(ServoyError.prototype, 'stack', {
 		get: function() {
-			return this.ex.getScriptStackTrace()
+			if (typeof this.ex.getScriptStackTrace === 'function') {
+				return this.ex.getScriptStackTrace()
+			} else if (typeof this.ex.getStackTrace === 'function') {
+				return this.ex.getStackTrace()
+			}
 		}
 	})
 	ServoyError.prototype.unwrap = function() {
 		return this.ex
+	}
+	
+	ServoyError.prototype.toString = function() {
+		return this.getMessage()
 	}
 }()

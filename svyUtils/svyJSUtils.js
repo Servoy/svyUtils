@@ -30,7 +30,7 @@
  * @properties={typeid:24,uuid:"8B942664-6C9B-48AD-B0AA-DC9C9E411BCD"}
  */
 function isObject(object) {
-	return Object.prototype.toString.call(object) == '[object Object]'
+	return Object.prototype.toString.call(object) === '[object Object]'
 }
 
 /**

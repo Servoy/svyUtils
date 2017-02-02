@@ -345,7 +345,7 @@ function getJSFormHeight(form, includePrintParts) {
  */
 function getRuntimeTableViewRowHeight(form) {
 	var jsForm = getJSFormForReference(form)
-	if (jsForm.view != JSForm.LOCKED_TABLE_VIEW) {
+	if (jsForm.view !== JSForm.LOCKED_TABLE_VIEW) {
 		throw new scopes.svyExceptions.IllegalArgumentException('Must be called with a form in TableView view')
 	}
 	
