@@ -1525,6 +1525,10 @@ var initExcelSheet = (function() {
 		var row;
 		var cell, rowData;
 		
+		if (this.sheet.getPhysicalNumberOfRows() == 0) {
+			return databaseManager.createEmptyDataSet(0, 0);
+		}
+		
 		if (!startRow) {
 			startRow = this.sheet.getFirstRowNum();
 		} else {
@@ -1532,7 +1536,18 @@ var initExcelSheet = (function() {
 		}
 		if (!startColumn) {
 			row = this.sheet.getRow(startRow);
-			startColumn = row.getFirstCellNum();
+			if (!row) {
+				for (var r = startRow; r <= this.sheet.getPhysicalNumberOfRows(); r++) {
+					row = this.sheet.getRow(r);
+					if (row) {
+						startRow = r;
+						startColumn = row.getFirstCellNum();
+						break;
+					}
+				}
+			} else {
+				startColumn = row.getFirstCellNum();
+			}
 		} else {
 			startColumn -= 1;
 		}
@@ -1545,7 +1560,17 @@ var initExcelSheet = (function() {
 			endColumn -= 1;
 		} else {
 			row = this.sheet.getRow(startRow);
-			endColumn = row.getLastCellNum() - 1;
+			if (!row) {
+				for (var rr = startRow; rr <= this.sheet.getPhysicalNumberOfRows(); rr++) {
+					row = this.sheet.getRow(rr);
+					if (row) {
+						startColumn = row.getLastCellNum() - 1;
+						break;
+					}
+				}
+			} else {
+				endColumn = row.getLastCellNum() - 1;
+			}
 		}
 		
 		var dataset;
