@@ -3,7 +3,7 @@
 	<name>svyUtils</name>
 	<comment></comment>
 	<projects>
-		<project>svyGoogleResources</project>
+		<project>resources</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
