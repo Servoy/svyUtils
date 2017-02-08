@@ -35,6 +35,18 @@ var algorithm = scopes.svyCrypto.ALGORITHM_NAMES.AES;
 var plainText = 'Hello World';
 
 /**
+ * @type {Array<byte>}
+ *
+ * @properties={typeid:35,uuid:"7E823D8F-1D25-4437-B386-24AEBE25C021",variableType:-4}
+ */
+var plainImage;
+/**
+ * @type {String}
+ *
+ * @properties={typeid:35,uuid:"CD5727F1-850A-45E7-BBA2-97170C29925C"}
+ */
+var encryptedImage;
+/**
  * The encrypted value
  * @private 
  * @type {String}
@@ -54,13 +66,20 @@ var encrypted = '';
 var key = '';
 
 /**
- * @type {String}
+ * The initialization vector required for AES/PBE only
+ * This generated unique for each message and passed when decrypting
+ * 
+ * @private 
+ * @type {String} Base-64 encoded string
  *
- * @properties={typeid:35,uuid:"05F4F19C-17D5-4E69-BE9C-FA6A632D0E7B"}
+ * @properties={typeid:35,uuid:"05F4F19C-17D5-4E69-BE9C-FA6A632D0E7B",variableType:-4}
  */
 var initializationVector = null;
 
+
 /**
+ * Secret Pass Phrase to use for PBE schemes
+ * @private 
  * @type {String}
  *
  * @properties={typeid:35,uuid:"1CD6FC49-2476-45EC-9B22-84949A130537"}
@@ -69,6 +88,7 @@ var secretPassPhrase = null;
 
 
 /**
+ * UI Options for web notifications
  * @private 
  * @properties={typeid:35,uuid:"8A4E44D8-6A68-4C69-A357-D6D3A158FCE2",variableType:-4}
  */
@@ -81,7 +101,11 @@ var toastrOptions = {
 	"hideDuration": "300"
 	
 };
+
+
 /**
+ * Generates a key for the specified algorithm
+ * @private 
  * @properties={typeid:24,uuid:"B066A1EC-DDD3-4BB6-9B4E-0692152D743A"}
  */
 function generateKey(){
@@ -89,6 +113,8 @@ function generateKey(){
 }
 
 /**
+ * Converts the plain text into encrypted text using the specified algorithm and encryption scheme
+ * @private 
  * @properties={typeid:24,uuid:"225B64FB-D8F9-480C-87D4-25319D05D6AC"}
  */
 function encrypt(){
@@ -107,12 +133,18 @@ function encrypt(){
 	
 	// encryption options
 	var options = scopes.svyCrypto.createOptions()
-		.setAlgorithmName(algorithm)
-		.setKey(key);
+		.setAlgorithmName(algorithm);
+	if(useKey){
+		options.setKey(key);
+	}
 	
 	// Here's where the magic happens
 	var message = scopes.svyCrypto.encrypt(plainText,options,secretPassPhrase);
+	
+	// resulting text (base-64-encoded)
 	encrypted = message.getValue();
+	
+	// A random Init. Vector which must be stored for EACH message
 	initializationVector = message.getIVString();
 	
 	// clear plain text
@@ -120,15 +152,90 @@ function encrypt(){
 }
 
 /**
+ * @private 
+ * Converts encrypted text back into plain text
  * @properties={typeid:24,uuid:"BB4D6FBC-161F-4160-AC68-83881DCE538B"}
  */
 function decrypt(){
+	
+	// set options
 	var options = scopes.svyCrypto.createOptions()
-	.setAlgorithmName(algorithm)
-	.setKey(key);
+		.setAlgorithmName(algorithm);
+	if(useKey){
+		options.setKey(key);
+	}
 
+	// convert to plain text
 	plainText = scopes.svyCrypto.decryptAsString(encrypted,options,secretPassPhrase,initializationVector);
+	
+	// clear encrypted message and IV
 	encrypted = null;
+	initializationVector = null;
+}
+
+/**
+ * Encrypt the image bytes
+ * 
+ * @private 
+ * @properties={typeid:24,uuid:"4A5CE628-FF00-4FC1-8E7E-31DD4851FAA3"}
+ */
+function encryptImage(){
+	
+	// validate image
+	if(!plainImage){
+		plugins.webnotificationsToastr.error('Please upload an image file','No image Specified',toastrOptions);
+		return;
+	}
+	
+	// validate key
+	if(useKey && !key){
+		plugins.webnotificationsToastr.error('Please enter or generate a valid key','No Key Specified',toastrOptions);
+		return;
+	}
+	
+	// validate passphrase
+	if(usePassphrase && !secretPassPhrase){
+		plugins.webnotificationsToastr.error('Please enter a secret passphrase','No Passphrase',toastrOptions);
+		return;
+	}
+	
+	// encryption options
+	var options = scopes.svyCrypto.createOptions()
+		.setAlgorithmName(algorithm);
+	if(useKey){
+		options.setKey(key);
+	}
+	
+	// Here's where the magic happens
+	var message = scopes.svyCrypto.encrypt(plainImage,options,secretPassPhrase);
+	
+	// resulting text (base-64-encoded)
+	encryptedImage = message.getValue();
+	
+	// A random Init. Vector which must be stored for EACH message
+	initializationVector = message.getIVString();
+	
+	// clear plain image
+	plainImage = null;
+}
+
+/**
+ * @properties={typeid:24,uuid:"8F6D639F-4BC1-4924-820F-4CAC32F19449"}
+ */
+function decryptImage(){
+
+	// set options
+	var options = scopes.svyCrypto.createOptions()
+		.setAlgorithmName(algorithm);
+	if(useKey){
+		options.setKey(key);
+	}
+
+	// convert to plain text
+	plainImage = scopes.svyCrypto.decrypt(encryptedImage,options,secretPassPhrase,initializationVector);
+	
+	// clear encrypted message and IV
+	encryptedImage = null;
 	initializationVector = null;
 }
 
@@ -152,30 +259,24 @@ function onDataChangeAlgorithm(oldValue, newValue, event) {
 }
 
 /**
- * Perform the element default action.
- *
- * @param {JSEvent} event the event that triggered the action
- *
+ * Toggle passphrase vs key-based
  * @private
  *
  * @properties={typeid:24,uuid:"973155CD-6BC2-4464-8B81-81EF94925F05"}
  */
-function onActionUseKey(event) {
+function onActionUseKey() {
 	usePassphrase = !useKey ? 1 : 0;
 	secretPassPhrase = null;
 	updateUI();
 }
 
 /**
- * Perform the element default action.
- *
- * @param {JSEvent} event the event that triggered the action
- *
+ * Toggle passphrase vs key-based
  * @private
  *
  * @properties={typeid:24,uuid:"E6D0195C-DDF3-4B2B-ACB2-812AD3601AF0"}
  */
-function onActionUsePass(event) {
+function onActionUsePass() {
 	useKey = !usePassphrase ? 1 : 0;
 	key = null;
 	updateUI();
@@ -185,6 +286,8 @@ function onActionUsePass(event) {
 }
 
 /**
+ * Update the UI of the form based on current states
+ * @private 
  * @properties={typeid:24,uuid:"8FB34FC7-41DD-445C-A88B-31C149966375"}
  */
 function updateUI(){
@@ -210,8 +313,27 @@ function showIVInfo() {
 	'It must be used when using AES algorithm in combination with secret passphrase (non-key) encryption';
 	
 	var title = 'What is Initialization Vector?';
-	
-	
-	
+
 	plugins.webnotificationsToastr.info(msg,title, toastrOptions);
+}
+
+/**
+ * Upload an image
+ * 
+ * @private
+ *
+ * @properties={typeid:24,uuid:"7E6AFC47-55B0-4600-81BB-C9A70DFD68B1"}
+ */
+function uploadImage() {
+	plugins.file.showFileOpenDialog(onFileUpload);
+}
+/**
+ * @private 
+ * @param {Array<plugins.file.JSFile>} files
+ * @properties={typeid:24,uuid:"64F419CC-B9CE-419B-9557-AC2E972950FE"}
+ */
+function onFileUpload(files){
+	if(files && files.length){
+		plainImage = files[0].getBytes();
+	}
 }
