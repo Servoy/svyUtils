@@ -2659,11 +2659,11 @@ function setDefaultPrintSetup(setup) {
 function getCellData(cell) {
 	var result = null;
 	var cellType = cell.getCellType();
-	if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_STRING) {
+	if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_STRING || (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_FORMULA && cell.getCachedFormulaResultType() == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_STRING)) {
 		result = cell.getStringCellValue();
-	} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BOOLEAN) {
+	} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BOOLEAN || (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_FORMULA && cell.getCachedFormulaResultType() == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BOOLEAN)) {
 		result = cell.getBooleanCellValue() ? 1 : 0;
-	} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC) {
+	} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC || (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_FORMULA && cell.getCachedFormulaResultType() == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC)) {
 		if (Packages.org.apache.poi.ss.usermodel.DateUtil.isCellDateFormatted(cell)) {
 			result = new Date(cell.getDateCellValue().getTime());
 		} else {
