@@ -418,21 +418,37 @@ function EncryptionOptions(){
 	}
 	
 	/**
+	 * @public 
+	 * @return {Array<byte>}
+	 */
+	this.getKey = function(){
+		return key.getEncoded();
+	}
+	
+	/**
 	 * Returns the base-64-encoded String version of the key
 	 * @public 
 	 * @return {String} 
 	 */
-	this.getKey = function(){
+	this.getKeyAsString = function(){
 		return base64EncodeAsString(key.getEncoded());
 	}
 	
 	/**
 	 * @public 
-	 * @param {String} keyString The base-64-encoded String version of this key
+	 * @param {String|Array<byte>} newKey bytes or the base-64-encoded String version of this key
 	 * @return {EncryptionOptions} This options object
 	 */
-	this.setKey = function(keyString){
-		key = !keyString ? null : getKey(keyString,this);
+	this.setKey = function(newKey){
+		if(!newKey){
+			key = null;
+		}
+		else {
+		
+			/** @type {Array<byte>} */
+			var bytes = newKey instanceof String ? base64DecodeAsBytes(newKey.toString()) : newKey;		
+			key = getKey(bytes,this);
+		}
 		return this;
 	}
 	
@@ -540,16 +556,16 @@ function base64DecodeAsBytes(encodedStr){
 
 /**
  * @private 
- * @param {String} str
+ * @param {Array<byte>} key
  * @param {EncryptionOptions} options
  * @return {Packages.javax.crypto.SecretKey}
  * @properties={typeid:24,uuid:"ECE26AC1-99BA-48B7-B9DF-7E60263D04B6"}
  */
-function getKey(str, options){
+function getKey(key, options){
 	if(!options){
 		options = createOptions();
 	}
-	return new Packages.javax.crypto.spec.SecretKeySpec(base64DecodeAsBytes(str), options.getAlgorithmName());
+	return new Packages.javax.crypto.spec.SecretKeySpec(key, options.getAlgorithmName());
 }
 
 /**
