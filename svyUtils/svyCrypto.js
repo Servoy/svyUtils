@@ -496,6 +496,8 @@ function EncryptionOptions(){
 	 */
 	this.generateKey = function(){
 		var generator = Packages.javax.crypto.KeyGenerator.getInstance(algorithmName);
+		// TODO consider 256
+//		generator.init(256);
 		key = generator.generateKey();
 		return this;
 	}
