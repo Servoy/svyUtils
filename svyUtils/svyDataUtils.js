@@ -719,6 +719,376 @@ function createDataDump(serverName, tablesToUse) {
 	}
 }
 
+
+/**
+ * @public  
+ * Parses a CSV file
+ * 
+ * Taken from http://papaparse.com/
+ * @param {String} csvText
+ * @param {{delimiter: String=, newline: String=, firstRowHasColumnNames: Boolean=, textQualifier: String=, comments: String=, preview: Number=, fastMode: Boolean=}} [config]
+ * 
+ * @return {{columnNames: Array, data: Array, errors: Array, meta: {delimiter: String, linebreak: String, aborted: Boolean, truncated: Boolean, cursor: Number}}}
+ *
+ * @properties={typeid:24,uuid:"9CCF0CB0-85D7-4987-AE9D-30D53067DA38"}
+ */
+function parseCSV(csvText, config)
+{
+	if (!(csvText instanceof String)) {
+		throw "Input must be a string";
+	}
+	
+	// Unpack the config object
+	config = config || {};
+	var delim = config.delimiter;
+	var newline = config.newline;
+	var comments = config.comments || "#";
+	var preview = config.preview;
+	var fastMode = config.fastMode;
+	var firstRowHasColumnNames = config.firstRowHasColumnNames || true;
+	var qualifier = config.textQualifier || '"';
+	
+	var RECORD_SEP = String.fromCharCode(30);
+	var UNIT_SEP = String.fromCharCode(31);
+	
+	var DefaultDelimiter = ",";
+	
+	function guessDelimiter(input)
+	{
+		var delimChoices = [",", "\t", "|", ";", RECORD_SEP, UNIT_SEP];
+		var bestDelim, bestDelta, fieldCountPrevRow;
+
+		for (var i = 0; i < delimChoices.length; i++)
+		{
+			var delimGuess = delimChoices[i];
+			var delta = 0, avgFieldCount = 0;
+			fieldCountPrevRow = undefined;
+
+			var prev = parseCSV(input, {
+				delimiter: delimGuess,
+				preview: 10
+			});
+
+			for (var j = 0; j < prev.data.length; j++)
+			{
+				var fieldCount = prev.data[j].length;
+				avgFieldCount += fieldCount;
+
+				if (typeof fieldCountPrevRow === 'undefined')
+				{
+					fieldCountPrevRow = fieldCount;
+					continue;
+				}
+				else if (fieldCount > 1)
+				{
+					delta += Math.abs(fieldCount - fieldCountPrevRow);
+					fieldCountPrevRow = fieldCount;
+				}
+			}
+
+			avgFieldCount /= prev.data.length;
+
+			if ((typeof bestDelta === 'undefined' || delta < bestDelta)
+				&& avgFieldCount > 1.99)
+			{
+				bestDelta = delta;
+				bestDelim = delimGuess;
+			}
+		}
+
+		return {
+			successful: !!bestDelim,
+			bestDelimiter: bestDelim
+		}
+	}
+	
+	/**
+	 * @param {String} input
+	 * @return {String}
+	 */
+	function guessLineEndings(input)
+	{
+		input = input.substr(0, 1024*1024);	// max length 1 MB
+
+		var r = input.split('\r');
+
+		if (r.length == 1)
+			return '\n';
+
+		var numWithN = 0;
+		for (var i = 0; i < r.length; i++)
+		{
+			if (r[i][0] == '\n')
+				numWithN++;
+		}
+
+		return numWithN >= r.length / 2 ? '\r\n' : '\r';
+	}
+
+	// Newline must be valid: \r, \n, or \r\n
+	if (newline != '\n' && newline != '\r' && newline != '\r\n')
+		newline = '\n';
+
+	// We're gonna need these at the Parser scope
+	var cursor = 0;
+	var aborted = false;
+
+	/**
+	 * @param {String} input
+	 * @param {Number} [baseIndex]
+	 * @param {Boolean} [ignoreLastRow]
+	 * 
+	 * @return {{columnNames: Array, data: Array, errors: Array, meta: {delimiter: String, linebreak: String, aborted: Boolean, truncated: Boolean, cursor: Number}}}
+	 */
+	function parse(input, baseIndex, ignoreLastRow)
+	{
+		if (!delim)
+		{
+			var delimGuessResult = guessDelimiter(input);
+			if (delimGuessResult.successful)
+				delim = delimGuessResult.bestDelimiter;
+			else
+			{
+				delim = DefaultDelimiter;
+			}
+		}
+		
+		if (!newline) {
+			newline = guessLineEndings(input);
+		}
+		
+		var inputLen = input.length,
+			delimLen = delim.length,
+			newlineLen = newline.length,
+			commentsLen = comments.length;
+		
+		/** @type {Array} */
+		var colNames = [];
+
+		// Establish starting state
+		cursor = 0;
+		var data = [], errors = [], row = [], lastCursor = 0;
+
+		if (!input)
+			return returnable();
+
+		if (fastMode || (fastMode !== false && input.indexOf(qualifier) === -1))
+		{
+			var rows = input.split(newline);
+			for (var i = 0; i < rows.length; i++)
+			{
+				row = rows[i];
+				cursor += row.length;
+				if (i !== rows.length - 1)
+					cursor += newline.length;
+				else if (ignoreLastRow)
+					return returnable();
+				if (comments && row.substr(0, commentsLen) == comments)
+					continue;
+				pushRow(row.split(delim));
+				if (preview && i >= preview)
+				{
+					data = data.slice(0, preview);
+					return returnable(true);
+				}
+			}
+			return returnable();
+		}
+
+		var nextDelim = input.indexOf(delim, cursor);
+		var nextNewline = input.indexOf(newline, cursor);
+
+		// Parser loop
+		for (;;)
+		{
+			// Field has opening quote
+			if (input[cursor] == qualifier)
+			{
+				// Start our search for the closing quote where the cursor is
+				var quoteSearch = cursor;
+
+				// Skip the opening quote
+				cursor++;
+
+				for (;;)
+				{
+					// Find closing quote
+					quoteSearch = input.indexOf(qualifier, quoteSearch+1);
+
+					if (quoteSearch === -1)
+					{
+						if (!ignoreLastRow) {
+							// No closing quote... what a pity
+							errors.push({
+								type: "Quotes",
+								code: "MissingQuotes",
+								message: "Quoted field unterminated",
+								row: data.length,	// row has yet to be inserted
+								index: cursor
+							});
+						}
+						return finish();
+					}
+
+					if (quoteSearch === inputLen-1)
+					{
+						// Closing quote at EOF
+						var value = input.substring(cursor, quoteSearch).replace(/''/g, qualifier);
+						return finish(value);
+					}
+
+					// If this quote is escaped, it's part of the data; skip it
+					if (input[quoteSearch+1] == qualifier)
+					{
+						quoteSearch++;
+						continue;
+					}
+
+					if (input[quoteSearch+1] == delim)
+					{
+						// Closing quote followed by delimiter
+						row.push(input.substring(cursor, quoteSearch).replace(/''/g, qualifier));
+						cursor = quoteSearch + 1 + delimLen;
+						nextDelim = input.indexOf(delim, cursor);
+						nextNewline = input.indexOf(newline, cursor);
+						break;
+					}
+
+					if (input.substr(quoteSearch+1, newlineLen) === newline)
+					{
+						// Closing quote followed by newline
+						row.push(input.substring(cursor, quoteSearch).replace(/''/g, qualifier));
+						saveRow(quoteSearch + 1 + newlineLen);
+						nextDelim = input.indexOf(delim, cursor);	// because we may have skipped the nextDelim in the quoted field
+
+						if (preview && data.length >= preview)
+							return returnable(true);
+
+						break;
+					}
+				}
+
+				continue;
+			}
+
+			// Comment found at start of new line
+			if (comments && row.length === 0 && input.substr(cursor, commentsLen) === comments)
+			{
+				if (nextNewline == -1)	// Comment ends at EOF
+					return returnable();
+				cursor = nextNewline + newlineLen;
+				nextNewline = input.indexOf(newline, cursor);
+				nextDelim = input.indexOf(delim, cursor);
+				continue;
+			}
+
+			// Next delimiter comes before next newline, so we've reached end of field
+			if (nextDelim !== -1 && (nextDelim < nextNewline || nextNewline === -1))
+			{
+				row.push(input.substring(cursor, nextDelim));
+				cursor = nextDelim + delimLen;
+				nextDelim = input.indexOf(delim, cursor);
+				continue;
+			}
+
+			// End of row
+			if (nextNewline !== -1)
+			{
+				row.push(input.substring(cursor, nextNewline));
+				saveRow(nextNewline + newlineLen);
+
+				if (preview && data.length >= preview)
+					return returnable(true);
+
+				continue;
+			}
+
+			break;
+		}
+
+
+		return finish();
+
+
+		/**
+		 * @param {Object} rowToPush
+		 */
+		function pushRow(rowToPush)
+		{
+			if (firstRowHasColumnNames && colNames.length == 0) {
+				colNames = rowToPush;
+			} else {
+				data.push(rowToPush);
+			}
+			lastCursor = cursor;
+		}
+
+		/**
+		 * Appends the remaining input from cursor to the end into
+		 * row, saves the row, calls step, and returns the results.
+		 * 
+		 * @param {String} [finishValue]
+		 * @return {{columnNames: Array, data: Array, errors: Array, meta: {delimiter: String, linebreak: String, aborted: Boolean, truncated: Boolean, cursor: Number}}}
+		 */
+		function finish(finishValue)
+		{
+			if (ignoreLastRow)
+				return returnable();
+			row.push(finishValue);
+			cursor = inputLen;	// important in case parsing is paused
+			pushRow(row);
+			return returnable();
+		}
+
+		// Appends the current row to the results. It sets the cursor
+		// to newCursor and finds the nextNewline. The caller should
+		// take care to execute user's step function and check for
+		// preview and end parsing if necessary.
+		function saveRow(newCursor)
+		{
+			cursor = newCursor;
+			pushRow(row);
+			row = [];
+			nextNewline = input.indexOf(newline, cursor);
+		}
+
+		/**
+		 * Returns an object with the results, errors, and meta.
+		 * @param {Boolean} [stopped]
+		 * @return {{columnNames: Array, data: Array, errors: Array, meta: {delimiter: String, linebreak: String, aborted: Boolean, truncated: Boolean, cursor: Number}}}
+		 */
+		function returnable(stopped)
+		{
+			return {
+				columnNames: colNames,
+				data: data,
+				errors: errors,
+				meta: {
+					delimiter: delim,
+					linebreak: newline,
+					aborted: aborted,
+					truncated: !!stopped,
+					cursor: lastCursor + (baseIndex || 0)
+				}
+			};
+		}
+	};
+
+	// Sets the abort flag
+	this.abort = function()
+	{
+		aborted = true;
+	};
+
+	// Gets the cursor position
+	this.getCharIndex = function()
+	{
+		return cursor;
+	};
+	
+	return parse(csvText);
+}
+
 /**
  * Point prototypes to superclasses
  * @private 
