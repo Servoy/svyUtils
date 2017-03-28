@@ -753,7 +753,7 @@ function parseCSV(csvText, config)
 	var comments = config.comments || "#";
 	var preview = config.preview;
 	var fastMode = config.fastMode;
-	var firstRowHasColumnNames = config.firstRowHasColumnNames || true;
+	var firstRowHasColumnNames = config.firstRowHasColumnNames !== false;
 	var qualifier = config.textQualifier || '"';
 	
 	var RECORD_SEP = String.fromCharCode(30);
