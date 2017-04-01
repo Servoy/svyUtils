@@ -2643,7 +2643,7 @@ function showFormInDialog(formToShow, x, y, width, height, title, resizable, sho
 		var jsFormOriginal = solutionModel.getForm(originalFormName);
 		var jsForm = solutionModel.newForm(windowName, jsFormOriginal);
 		jsForm.newVariable("continuation", JSVariable.MEDIA);
-		var onHide = jsForm.newMethod("function onHide(event) { _super.onHide(); if (continuation) { continuation(); } }");
+		var onHide = jsForm.newMethod("function onHide(event) { if (_super.onHide) { _super.onHide(); } if (continuation) { continuation(); } }");
 		jsForm.onHide = onHide;
 		
 		addToFormStack(windowName);
