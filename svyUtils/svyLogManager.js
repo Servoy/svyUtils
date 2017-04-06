@@ -256,8 +256,55 @@ var currentConfig = defaultConfig
 /**
  * Load the logging configuration<br>
  * Call with null to reset to the default configuration<br>
- * <br>
+ * 
  * @public
+ * <br> {String} <b>[configuration.status]</b> 
+ * <br> {String} <b>[configuration.plugins]</b> List of used plugins. You must list here all the types of appender plugin used. 
+ * <br> Example 
+ * <br> <i>scopes.svyLogManager$rollingFileAppender.RollingFileAppender, scopes.svyLogManager$dbAppender.DbAppender</i>
+ * <br> 
+ * <br> {Array<{type: String, name:String, Layout: AbstractLayout=}>} <b>[configuration.appenders]</b> List of appender instances. You can add multiple instances of the same appender type.
+ * <br> Example <i>[{ 
+				type: "ApplicationOutputAppender",
+				name: "ApplicationOutput",
+				PatternLayout: {
+					pattern: "[%thread] %solution %f c %c %5level %logger{1.} - %msg"
+				}
+			}, {
+				type: "scopes.svyLogManager$rollingFileAppender.RollingFileAppender",
+				name: "RollingFileAppender",
+				fileName: "myLogs/myAppLog.log",
+				maxFileSize: 1024 * 1024 * 5,
+				maxBackupIndex: 5,
+				RollingPatternLayout: {
+					pattern: "%date %5level %30logger - %msg"
+				}
+			}]</i>
+ * <br> 
+ * <br> {String} <b>[configuration.appenders.type]</b> Type of the appender plugin
+ * <br> {String} <b>[configuration.appenders.name]</b> Appender name identifier. Named appender may be referenced from AppenderRef.ref of the root or any other logger.
+ * <br> {AbstractLayout} <b>[configuration.appenders.<i>Layout</i>]</b> The layout constructor determines the layout of the log message. Available layout constructors are <b><i>
+ * 		PatternLayout, SimpleLayout, XmlLayout, JsonLayout, NullLayout, HttpPostDataLayout </i></b>. 
+ * <br> Example
+ * <br> <i> PatternLayout: { pattern: "[%thread] %solution %f c %c %5level %logger{1.} - %msg" } </i> 
+ * <br> 
+ * <br> {Array} <b>[configuration.loggers.logger]</b> List of loggers
+ * <br> {String} <b>[configuration.loggers.logger.name]</b> The logger name
+ * <br> {String} <b>[configuration.loggers.logger.level]</b> The logger level. Possible values: <b><i>fatal, error, warn, debug, info, trace</i></b>.
+ * <br> {Boolean} <b>[configuration.loggers.logger.Additivity]</b>
+ * <br> {{ref:String, level:String=}} [configuration.loggers.logger.AppenderRef]</b> List of appender references. 
+ * <br> Example: 
+ * <br> <i> {
+			ref: "",
+			level: "error"
+		} </i>
+ * <br> 
+ * <br> {String} <b>[configuration.loggers.logger.AppenderRef.ref]</b> The name of the appender used by this logger. The appender name must be listed in the appenders object.
+ * <br> {String} <b>[configuration.loggers.logger.AppenderRef.level]</b> Optional, overrule the logger's level for the specific appender reference.
+ * <br> {String} <b>[configuration.loggers.root.level]</b> Root logger log level
+ * <br> {{ref:String, level:String=}} <b>[configuration.loggers.root.AppenderRef]</b> List of appender references for the root logger. 
+ * <br> {String} <b>[configuration.loggers.root.AppenderRef.ref]</b> The name of the appender used by the root logger. The appender name must be listed in the appenders object.
+ * <br> {String} <b>[configuration.loggers.root.AppenderRef.level]</b> Optional, overrule the logger's level for the specific appender reference.
  * @param {CONFIG_TYPE_DEF} configuration
  * @example <pre>scopes.svyLogManager.loadConfig({
  *  status: "error", 
@@ -1478,6 +1525,14 @@ function Logger(internal, messageFactory) {
 	 * @public
 	 * @param {AbstractMessage|String|Object|*} message
 	 * @param {Error|ServoyException|*...} [messageParamsOrException]
+	 * 
+	 * @example <pre>
+	 * var log = scopes.svyLogManager.getLogger('com.servoy.example');
+	 * log.trace("Logged user {} has complete the action {}", security.getUserName(), "log a trace message");
+	 * 
+	 * var e = new Error("My error message");
+	 * log.trace("Logging the exception message: {} ", e);
+	 * </pre> 
 	 */
 	this.trace = function(message, messageParamsOrException) {
 		if (Level.TRACE.intLevel >= internal.effectiveLevel.intLevel) {
@@ -1492,13 +1547,22 @@ function Logger(internal, messageFactory) {
 	 * @public
 	 * @param {AbstractMessage|String|Object|*} message
 	 * @param {Error|ServoyException|*...} [messageParamsOrException]
+	 * 
+	 * @example <pre>
+	 * var log = scopes.svyLogManager.getLogger('com.servoy.example');
+	 * log.debug("Logged user {} has complete the action {}", security.getUserName(), "log a debug message");
+	 * 
+	 * var e = new Error("My error message");
+	 * log.debug("Logging the exception message: {} ", e);
+	 * </pre>
+	 * 
 	 */
 	this.debug = function(message, messageParamsOrException) {
 		if (Level.DEBUG.intLevel >= internal.effectiveLevel.intLevel) {
 			var args = Array.prototype.slice.call(arguments)
 			args.unshift(Level.DEBUG)
 			this.log.apply(this, args)
-		}			
+		}
 	}
 	/**
 	 * Logs a message and optionally an error at level INFO<br>
@@ -1506,6 +1570,14 @@ function Logger(internal, messageFactory) {
 	 * @public
 	 * @param {AbstractMessage|String|Object|*} message
 	 * @param {Error|ServoyException|*...} [messageParamsOrException]
+	 * 
+	 * @example <pre>
+	 * var log = scopes.svyLogManager.getLogger('com.servoy.example');
+	 * log.info("Logged user {} has complete the action {}", security.getUserName(), "log an info message");
+	 * 
+	 * var e = new Error("My error message");
+	 * log.info("Logging the exception message: {} ", e);
+	 * </pre>
 	 */
 	this.info = function(message, messageParamsOrException) {
 		if (Level.INFO.intLevel >= internal.effectiveLevel.intLevel) {
@@ -1520,7 +1592,15 @@ function Logger(internal, messageFactory) {
 	 * @public
 	 * @param {AbstractMessage|String|Object|*} message
 	 * @param {Error|ServoyException|*...} [messageParamsOrException]
-	  */
+	 * 
+	 * @example <pre>
+	 * var log = scopes.svyLogManager.getLogger('com.servoy.example');
+	 * log.warn("Logged user {} has complete the action {}", security.getUserName(), "log a warn message");
+	 * 
+	 * var e = new Error("My error message");
+	 * log.warn("Logging the exception message: {} ", e);
+	 * </pre>
+	 */
 	this.warn = function(message, messageParamsOrException) {
 		if (Level.WARN.intLevel >= internal.effectiveLevel.intLevel) {
 			var args = Array.prototype.slice.call(arguments)
@@ -1534,6 +1614,14 @@ function Logger(internal, messageFactory) {
 	 * @public
 	 * @param {AbstractMessage|String|Object|*} message
 	 * @param {Error|ServoyException|*...} [messageParamsOrException]
+	 * 
+	 * @example <pre>
+	 * var log = scopes.svyLogManager.getLogger('com.servoy.example');
+	 * log.error("Logged user {} has complete the action {}", security.getUserName(), "log an error message");
+	 * 
+	 * var e = new Error("My error message");
+	 * log.error("Logging the exception message: {} ", e);
+	 * </pre>
 	 */
 	this.error = function(message, messageParamsOrException) {
 		if (Level.ERROR.intLevel >= internal.effectiveLevel.intLevel) {
@@ -1548,6 +1636,14 @@ function Logger(internal, messageFactory) {
 	 * @public
 	 * @param {AbstractMessage|String|Object|*} message
 	 * @param {Error|ServoyException|*...} [messageParamsOrException]
+	 * 
+	 * @example <pre>
+	 * var log = scopes.svyLogManager.getLogger('com.servoy.example');
+	 * log.fatal("Logged user {} has complete the action {}", security.getUserName(), "log a fatal message");
+	 * 
+	 * var e = new Error("My error message");
+	 * log.fatal("Logging the exception message: {} ", e);
+	 * </pre>
 	 */
 	this.fatal = function(message, messageParamsOrException) {
 		if (Level.FATAL.intLevel >= internal.effectiveLevel.intLevel) {
@@ -2870,11 +2966,24 @@ var initPatternLayout = (function() {
 		 */
 		PatternLayout.prototype.format = function(loggingEvent) {
 			//TODO: for every logged message the entire config is parsed again. Maybe need to cache something to improve performance
-			var regex = /%(-?[0-9]+)?(\.?[0-9]+)?(message|msg|logger|date|level|relative|thread|solution|[cdfmnprts%])(\{([^\}]+)\})?|([^%]+)/;
+			var regex = /%(-?[0-9]+)?(\.?[0-9]+)?(message|msg|logger|date|level|relative|thread|solution|[cdflmnprtsM%])(\{([^\}]+)\})?|([^%]+)/;
 			var formattedString = "";
 			/** @type {Array<String>} */
 			var result;
 			var searchString = this.pattern;
+			var scriptTrace;
+			
+			// if does require a scriptTrace
+			var regexScriptTrace = /%(-?[0-9]+)?(\.?[0-9]+)?([lM%])(\{([^\}]+)\})?|([^%]+)/;
+			if (regexScriptTrace.test(searchString)) {
+				try {
+					var exception = new ServoyException();
+					scriptTrace = exception.getScriptStackTrace();
+					scriptTrace = scriptTrace.slice(scriptTrace.lastIndexOf("svyLogManager.js"));	// remove svyLogManager stack;
+				} catch (e) {
+					// TODO log the exception ?
+				}
+			}
 
 			// Cannot use regex global flag since it doesn't work with exec in IE5
 			while ( (result = regex.exec(searchString))) {
@@ -2994,6 +3103,15 @@ var initPatternLayout = (function() {
 								replacement = val;
 							}
 							break;
+						case 'l': 	// at line
+							// TODO check if scriptTrace exists ?
+							replacement = scriptTrace.slice(scriptTrace.indexOf("at"), scriptTrace.indexOf(")") + 1);
+							break;
+						case 'M': // Method name
+							// TODO check if scriptTrace exists ?
+							var methodIndex = scriptTrace.indexOf("(") + 1;
+							replacement = scriptTrace.slice(methodIndex, scriptTrace.indexOf(")"));
+							break;
 						case 'n': // New line
 							replacement = NEW_LINE;
 							break;
@@ -3076,9 +3194,8 @@ var initPatternLayout = (function() {
 			 * @param {AbstractLayout} pattern
 			 */
 			create: function(pattern) {
-				var retval = new PatternLayout()
-				retval.pattern = pattern
-				return retval
+				var retval = new PatternLayout(pattern);
+				return retval;
 			}
 		}
 	}()
