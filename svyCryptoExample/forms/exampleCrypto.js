@@ -113,8 +113,7 @@ function generateKey(){
 }
 
 /**
- * Converts the plain text into encrypted text using the specified algorithm and encryption scheme
- * @private 
+ * Converts the plain text into encrypted text using the specified algorithm and encryption scheme 
  * @properties={typeid:24,uuid:"225B64FB-D8F9-480C-87D4-25319D05D6AC"}
  */
 function encrypt(){
@@ -138,6 +137,7 @@ function encrypt(){
 		options.setKey(key);
 	}
 	
+	
 	// Here's where the magic happens
 	var message = scopes.svyCrypto.encrypt(plainText,options,secretPassPhrase);
 	
@@ -151,8 +151,7 @@ function encrypt(){
 	plainText = null;
 }
 
-/**
- * @private 
+/** 
  * Converts encrypted text back into plain text
  * @properties={typeid:24,uuid:"BB4D6FBC-161F-4160-AC68-83881DCE538B"}
  */
