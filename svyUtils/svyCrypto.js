@@ -43,6 +43,19 @@ var ALGORITHM_NAMES = {
 };
 
 /**
+ * Supported Hashing algorithms
+ * @public 
+ * @enum 
+ * @see getHash
+ * @properties={typeid:35,uuid:"D6259ED3-FB2A-4DB7-A5CF-F377457184EE",variableType:-4}
+ */
+var HASH_ALGORITHM_NAMES = {
+	MD5:"MD5",
+	SHA_1:"SHA-1",
+	SHA_256:"SHA-256"
+}
+
+/**
  * BASE-64-ENCODED KEYS (used internally)
  * @private 
  * 
@@ -586,4 +599,55 @@ function getCipher(options){
 		default:
 			throw "Unsupported Algorithm: " + options.getAlgorithmName();
 	}
+}
+/**
+ * Converts a string or byte array to a hashed message using SHA-256
+ * 
+ * @public   
+ * @param {String|Array<byte>} value The string or bytes to hash
+ * @param {String} algorithm Supported hash algorithms: [MD5,SHA-1,SHA-256]
+ * @return {String} The hashed bytes in Base-64 encoded string
+ *
+ * @properties={typeid:24,uuid:"EBE4DD92-6DDC-4EBE-9B70-57BF1593BF20"}
+ */
+function getHash(value, algorithm){
+	/** @type {Array<byte>} */
+	var bytes = value instanceof String ? string2Bytes(value) : value;
+	var digest = Packages.java.security.MessageDigest.getInstance(algorithm);
+	return base64EncodeAsString(digest.digest(bytes));
+}
+/**
+ * Converts a string or byte array to a hashed message using MD5
+ * 
+ * @public 
+ * @param {String|Array<byte>} value The string or bytes to hash
+ * @return {String} The hashed bytes in Base-64 encoded string
+ * @properties={typeid:24,uuid:"18C4993F-CDE6-412A-A735-1BEB18AF8405"}
+ */
+function getMD5(value){
+	return getHash(value,'MD5');
+}
+
+/**
+ * Converts a string or byte array to a hashed message using SHA-1
+ * 
+ * @public 
+ * @param {String|Array<byte>} value The string or bytes to hash
+ * @return {String} The hashed bytes in Base-64 encoded string
+ * @properties={typeid:24,uuid:"579860FF-5364-4857-9BFB-A12303F39775"}
+ */
+function getSHA1(value){
+	return getHash(value,'SHA-1');
+}
+
+/**
+ * Converts a string or byte array to a hashed message using SHA-256
+ * 
+ * @public 
+ * @param {String|Array<byte>} value The string or bytes to hash
+ * @return {String} The hashed bytes in Base-64 encoded string
+ * @properties={typeid:24,uuid:"675B518E-31CF-4BCE-99F1-ADB40997870D"}
+ */
+function getSHA256(value){
+	return getHash(value,'SHA-256');
 }
