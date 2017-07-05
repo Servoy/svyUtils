@@ -3191,7 +3191,7 @@ var initPatternLayout = (function() {
 			],
 			
 			/**
-			 * @param {AbstractLayout} pattern
+			 * @param {String} pattern
 			 */
 			create: function(pattern) {
 				var retval = new PatternLayout(pattern);
