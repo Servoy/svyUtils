@@ -114,6 +114,8 @@ function getJSDataSetByQueryAsync(query, maxReturnedRows, onSuccess, onError) {
 }
 
 /**
+ * @deprecated Use {@link #scopes#svyDataUtils#byteArrayToString} instead
+ * 
  * Converts a byte[] to String<br>
  * <br>
  * @param {byte[]} bytes
@@ -127,6 +129,21 @@ function ByteArrayToString(bytes, encoding) {
 }
 
 /**
+ * Converts a byte[] to String<br>
+ * <br>
+ * @param {byte[]} bytes
+ * @param {String} [encoding] Optional param to specify the encoding/chartset to use. See {@link scopes#svyIO#CHAR_SETS} for possible values. Default: scopes.svyIO.CHAR_SETS.UTF_8
+ * @return {String}
+ * 
+ * @properties={typeid:24,uuid:"A7AD4F97-3CC5-46DB-9FE0-E2BE2580FCDF"}
+ */
+function byteArrayToString(bytes, encoding) {
+	return new java.lang.String(bytes, encoding|scopes.svyIO.CHAR_SETS.UTF_8).toString()
+}
+
+/**
+ * @deprecated Use {@link #scopes#svyDataUtils#stringToByteArray} instead
+ * 
  * Converts a String to byte[]<br>
  * <br>
  * @param {String} string
@@ -138,59 +155,14 @@ function StringToByteArray(string) {
 }
 
 /**
- * Tests if a given value for the given dataprovider already exists in the provided datasource
+ * Converts a String to byte[]<br>
+ * <br>
+ * @param {String} string
  * 
- * @deprecated will be removed in version 7.0. This method has been renamed from isValueUnique,<br>
- * but the result is the opposite now of what it's current name suggests. Use <code>dataSourceHasValue</code><br>
- * instead which in contrast to this method returns true, if the datasource already contains the<br>
- * value asked for, so <b>exactly the opposite of this method!</b>
- * 
- * @param {JSRecord|JSFoundSet|String} datasource
- * @param {String} dataproviderName - the name of the dataprovider that should be tested for uniqueness
- * @param {Object} value - the value that should be unique in the given dataprovider
- * @param {String[]} [extraQueryColumns] - optional array of additional dataproviders that can be used in the unique query
- * @param {Object[]} [extraQueryValues] - optional array of additional values that can be used in the unique query
- * 
- * @return {Boolean} true if the datasource <b>does not contain</b> the value asked for
- *
- * @properties={typeid:24,uuid:"460E5007-852E-4143-82FD-6840DA430FC0"}
+ * @properties={typeid:24,uuid:"3A38D37F-4BC4-4315-BA0C-2743A8E2C0C1"}
  */
-function datasourceHasValue(datasource, dataproviderName, value, extraQueryColumns, extraQueryValues) {
-	if (!datasource || !dataproviderName) {
-		throw new scopes.svyExceptions.IllegalArgumentException("no parameters provided to scopes.svyDataUtils.datasourceHasValue(foundsetOrRecord, dataproviderName, value)");
-	}
-	/** @type {String} */
-	var dataSource = (datasource instanceof String) ? datasource : datasource.getDataSource();
-	var pkNames = databaseManager.getTable(dataSource).getRowIdentifierColumnNames();
-	var query = databaseManager.createSelect(dataSource);
-	query.result.add(query.getColumn(pkNames[0]).count);
-
-	if (value == null) {
-		query.where.add(query.getColumn(dataproviderName).isNull);
-	} else if (value instanceof UUID) {
-		query.where.add(query.getColumn(dataproviderName).eq(value.toString()));
-	} else {
-		query.where.add(query.getColumn(dataproviderName).eq(value));
-	}
-	if (extraQueryColumns || extraQueryValues) {
-		if (!Array.isArray(extraQueryColumns) || !Array.isArray(extraQueryValues)) {
-			throw scopes.svyExceptions.IllegalArgumentException("extraQueryColumns and extraQueryValues parameters are not both an Array");
-		}
-		if (extraQueryColumns.length != extraQueryValues.length) {
-			throw scopes.svyExceptions.IllegalArgumentException("size of extraQueryColumns and extraQueryValues parameters do not match");
-		}
-		for (var j = 0; j < extraQueryColumns.length; j++) {
-			if (extraQueryValues[j] == null) {
-				query.where.add(query.getColumn(extraQueryColumns[j]).isNull);
-			} else if (extraQueryValues[j] instanceof UUID) {
-				query.where.add(query.getColumn(extraQueryColumns[j]).eq(extraQueryValues[j].toString()));
-			} else {
-				query.where.add(query.getColumn(extraQueryColumns[j]).eq(extraQueryValues[j]));
-			}
-		}
-	}
-	var dataset = databaseManager.getDataSetByQuery(query, 1);
-	return (dataset.getValue(1,1) == 0)
+function stringToByteArray(string) {
+	return new java.lang.String(string).getBytes()
 }
 
 /**

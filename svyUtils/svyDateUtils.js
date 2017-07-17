@@ -1097,6 +1097,8 @@ function getDecimalHours(date) {
 }
 
 /**
+ * @deprecated
+ * 
  * Creates a DateTime object that can be used to chain methods of this class<br>
  * as for example <code>dateTimeObject.addDays(5).toStartOfDay().date</code>
  * 

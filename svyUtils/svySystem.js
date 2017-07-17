@@ -383,6 +383,8 @@ function getSolutionDeepLinkNGClient(warName, solutionName, methodName, args){
 }
 
 /**
+ * @deprecated To be moved to another new Servoy extension
+ * 
  * Sets the value for the defined user property. Setting is persistent. Persistence is implementation-specific
  * @param {String} name
  * @param {String} value
@@ -394,6 +396,8 @@ function setUserProperty(name, value){
 }
 
 /**
+ * @deprecated To be moved to another new Servoy extension
+ * 
  * Gets the value for the defined user property
  *  
  * @param {String} name

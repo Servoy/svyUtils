@@ -454,6 +454,8 @@ function deepCopyJSForm(newFormName, original, prefix) {
 }
 
 /**
+ * @deprecated To be moved to another new Servoy extension
+ * 
  * Convenient method to set multiple properties of a SplitPane in one go
  * 
  * @param {String} formName
@@ -489,6 +491,8 @@ function initSplitPane(formName, elementName, resizeWeight, dividerLocation, div
 }
 
 /**
+ * @deprecated To be moved to another new Servoy extension
+ * 
  * Persists the position of the splitpane divider to be used by {@link #restoreSplitPaneDividerPosition()} in a next user session
  * @param {String} formName
  * @param {String} elementName
@@ -505,6 +509,8 @@ function persistSplitPaneDividerPosition(formName, elementName) {
 }
 
 /**
+ * @deprecated To be moved to another new Servoy extension
+ * 
  * Restores the position of the splitpane divider persisted by {@link #persistSplitPaneDividerPosition()} between user sessions
  * @param {String} formName
  * @param {String} elementName
@@ -524,6 +530,8 @@ function restoreSplitPaneDividerPosition(formName, elementName, position) {
 }
 
 /**
+ * @deprecated
+ * 
  * Return forms (1-level depth) which are contained in the specified form
  * @param {RuntimeForm} form
  * @return {Array<RuntimeForm>}
@@ -534,6 +542,8 @@ function getContainedForms(form){
 }
 
 /**
+ * @deprecated
+ * 
  * @public 
  * @param {RuntimeForm} form
  * @return {Array<RuntimeTabPanel|RuntimeSplitPane|RuntimeAccordionPanel>}
