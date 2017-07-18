@@ -1,3 +1,4 @@
+deprecated:"To be moved to another new Servoy extension",
 encapsulation:60,
 name:"defaultUserPropertyPersistenceImpl",
 navigatorID:"-1",

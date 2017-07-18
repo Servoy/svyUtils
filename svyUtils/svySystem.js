@@ -468,6 +468,8 @@ function getUserProperty(name){
 }
 
 /**
+ * @deprecated To be moved to another new Servoy extension
+ * 
  * Cached form for default user properties persistence implementation
  * 
  * @private 
@@ -479,6 +481,8 @@ function getUserProperty(name){
 var userPropPersistenceImpl;
 
 /**
+ * @deprecated To be moved to another new Servoy extension
+ * 
  * Gets the service provider implementation for the user property persistence mechanism
  * 
  * @private
