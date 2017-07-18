@@ -29,26 +29,29 @@
  */
 
 /**
- * @private 
+ * @private
+ * 
+ * @SuppressWarnings(unused)
  *
  * @properties={typeid:35,uuid:"663420E6-0054-46C0-A328-5257365E0057",variableType:-4}
  */
-var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.io')
+var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.io');
 
 /**
- * <pre>Opens a file from the file system using the default viewer for the fileType on the current platform. (.txt with editor, .pdf with pdf reader, .doc with word, etc.)
+ * Opens a file from the file system using the default viewer for the fileType on the current platform. (.txt with editor, .pdf with pdf reader, .doc with word, etc.)
  * 
- * TODO: Support opening in the WC: either plugins.file.writeFile, but required to read the content first or showUrl, if file is accessible from the outside (see deprecated globals.svy_utl_open_file())
- * TODO: test Linux support: SampleCode suggests using xdg-open here: https://www.servoy.com/forum/viewtopic.php?f=15&t=15237&p=81646&hilit=application+getosname+and+linux#p81653
- * TODO param {String} [mimeType] Required for usage in the Web Client. Used by the browser to determine how to open the file
- * </pre> 
+ * @public
+ * 
  * @param {plugins.file.JSFile|String} file The file that will be opened
  *
  * @properties={typeid:24,uuid:"95C45F79-F469-4542-BB8B-BE226010D8B1"}
  */
 function openFileWithDefaultViewer(file) {
+	// TODO: Support opening in the WC: either plugins.file.writeFile, but required to read the content first or showUrl, if file is accessible from the outside (see deprecated globals.svy_utl_open_file())
+	// TODO: test Linux support: SampleCode suggests using xdg-open here: https://www.servoy.com/forum/viewtopic.php?f=15&t=15237&p=81646&hilit=application+getosname+and+linux#p81653
+	// TODO param {String} [mimeType] Required for usage in the Web Client. Used by the browser to determine how to open the file
 	if (!scopes.svySystem.isSwingClient()) {
-		throw new scopes.svyExceptions.UnsupportedOperationException('Operation only supported in Smart or Runtime Client')
+		throw new scopes.svyExceptions.UnsupportedOperationException('Operation only supported in Smart or Runtime Client');
 	}
 	var osName = application.getOSName();
 	/** @type {String} */
@@ -63,22 +66,21 @@ function openFileWithDefaultViewer(file) {
 	} else if (/Mac/.test(osName)) {
 		application.executeProgram('open', [filePath]);
 	}
-	//What if no match?
+	// What if no match?
 }
 
 /**
- * Unzips the given file to the given target file<p>
- * 
+ * Unzips the given file to the given target file<br>
+ * <br>
  * If no target file is given, all files in fileToUnzip will<br>
  * be extracted to a directory with the same name as the zip file
+ * 
+ * @public
  * 
  * @param {plugins.file.JSFile} fileToUnzip
  * @param {plugins.file.JSFile} [targetFile]
  * 
  * @return {plugins.file.JSFile} targetFile
- * 
- * @author patrick
- * @since 2012-10-15
  * 
  * @properties={typeid:24,uuid:"1453D732-A0CE-46B0-9EEE-81D656E61940"}
  */
@@ -86,10 +88,10 @@ function unzip(fileToUnzip, targetFile) {
 	var zipFilePath = fileToUnzip.getAbsolutePath();
 	var fileSeparator = java.io.File.separator;
 	if (!targetFile) {
-		targetFile = plugins.file.convertToJSFile(zipFilePath.substr(0, zipFilePath.lastIndexOf(".")));
+		targetFile = plugins.file.convertToJSFile(zipFilePath.substr(0, zipFilePath.lastIndexOf('.')));
 		if (targetFile.exists()) {
 			do {
-				targetFile = plugins.file.convertToJSFile(targetFile.getAbsolutePath() + "-1");
+				targetFile = plugins.file.convertToJSFile(targetFile.getAbsolutePath() + '-1');
 			} while (targetFile.exists());
 		}
 	}
@@ -106,7 +108,7 @@ function unzip(fileToUnzip, targetFile) {
 			/** @type {java.util.zip.ZipEntry} */
 			var zipEntry = zipEntries.nextElement();
 			var zipEntryName = zipEntry.getName();
-			zipEntryName = utils.stringReplace(zipEntryName, "/", java.io.File.separator);
+			zipEntryName = utils.stringReplace(zipEntryName, '/', java.io.File.separator);
 			if (zipEntry.isDirectory()) {
 				var zipDir = plugins.file.convertToJSFile(targetFile.getAbsolutePath() + fileSeparator + zipEntryName);
 				zipDir.mkdirs();
@@ -134,7 +136,7 @@ function unzip(fileToUnzip, targetFile) {
 		}
 	} catch (e) {
 		// IO Exception
-		log.error("Failed to unzip file \"{}\": {}", fileToUnzip.getAbsolutePath(), e.message);
+		log.error('Failed to unzip file "{}": {}', fileToUnzip.getAbsolutePath(), e.message);
 		return null;
 	} finally {
 		if (zipFile) {
@@ -150,12 +152,14 @@ function unzip(fileToUnzip, targetFile) {
 
 
 /**
- * Zips the given file or directory<p>
+ * Zips the given file or directory<br>
+ * <br>
+ * The zip file will either be written to the given target file<br>
+ * or a zip file is created using the same name and location as the original file<br>
+ * <br>
+ * NOTE: if the target file already exists, it will be <b>deleted</b>
  * 
- * The zip file will either be written to the given target file
- * or a zip file is created using the same name and location as the original file<p>
- * 
- * Note: if the target file already exists, it will be <b>deleted</b>
+ * @public
  * 
  * @param {plugins.file.JSFile} fileToZip
  * @param {plugins.file.JSFile} [targetFile]
@@ -164,16 +168,13 @@ function unzip(fileToUnzip, targetFile) {
  * @return {plugins.file.JSFile} zipFile
  * 
  * @throws {Error}
- * 
- * @author patrick
- * @since 2012-10-15
  *
  * @properties={typeid:24,uuid:"9D6CECAE-ACD0-497F-9994-355861A2DE24"}
  */
 function zip(fileToZip, targetFile, filenamesToStoreUncompressed) {
 	var filePath = fileToZip.getAbsolutePath();
 	if (!targetFile) {
-		targetFile = plugins.file.convertToJSFile(filePath + ".zip");
+		targetFile = plugins.file.convertToJSFile(filePath + '.zip');
 	}
 	
 	if (targetFile.exists()) {
@@ -203,7 +204,7 @@ function zip(fileToZip, targetFile, filenamesToStoreUncompressed) {
 				}
 				if (!files || files.length == 0) {
 					// empty directory
-					zipOutputStream.putNextEntry(new java.util.zip.ZipEntry(file.getPath().substring(base.getPath().length + 1) + "/"));
+					zipOutputStream.putNextEntry(new java.util.zip.ZipEntry(file.getPath().substring(base.getPath().length + 1) + '/'));
 				}
 			} else {
 				/** @type {java.io.InputStream} */
@@ -214,7 +215,7 @@ function zip(fileToZip, targetFile, filenamesToStoreUncompressed) {
 				} else {
 					entryPath = file.getPath().substring(base.getPath().length + 1);
 				}
-				entryPath = utils.stringReplace(entryPath, java.io.File.separator, "/");
+				entryPath = utils.stringReplace(entryPath, java.io.File.separator, '/');
 				var entry = new java.util.zip.ZipEntry(entryPath);
 				
 				if (filenamesToStoreUncompressed && filenamesToStoreUncompressed.indexOf(file.getName()) != -1) {
@@ -243,9 +244,8 @@ function zip(fileToZip, targetFile, filenamesToStoreUncompressed) {
 		
 		zos.close();
 		zos = null;
-	}
-	catch(e) {
-		log.error("Error zipping file \"{}\": {}", fileToZip.getAbsolutePath(), e.message);
+	} catch(e) {
+		log.error('Error zipping file "{}": {}', fileToZip.getAbsolutePath(), e.message);
 		throw e;
 	} finally {
 		try {
@@ -265,10 +265,8 @@ function zip(fileToZip, targetFile, filenamesToStoreUncompressed) {
 /**
  * Creates a MD5 or SHA1 hash of a given file
  * 
- * @version 6.0
- * @since Sep 12, 2014
- * @author patrick
- * 
+ * @public
+ *  
  * @param {String|plugins.file.JSFile} file - the file to calculate a hash for
  * @param {String} [algorithm] - one of the HASH_ALGORITHM constants, defaults to SHA1
  * 
@@ -277,7 +275,7 @@ function zip(fileToZip, targetFile, filenamesToStoreUncompressed) {
  * @properties={typeid:24,uuid:"02BA9E89-FD80-4C2A-AE16-4CE3F105302C"}
  */
 function calculateHash(file, algorithm) {
-	if (!algorithm) algorithm = "SHA-1";
+	if (!algorithm) algorithm = 'SHA-1';
 
 	try {
 		var jsSourceFile;
@@ -287,27 +285,32 @@ function calculateHash(file, algorithm) {
 			jsSourceFile = file;
 		}
 		
-		if (!jsSourceFile.exists()) return null;
+		if (!jsSourceFile.exists()) {
+			return null;
+		}
 
 		var md = java.security.MessageDigest.getInstance(algorithm);
 		md.update(jsSourceFile.getBytes());
 		var digestBytes = md.digest();
 
-		var HEXES = "0123456789abcdef";
+		var HEXES = '0123456789abcdef';
 		var hex = new java.lang.StringBuilder(2 * digestBytes.length);
 		for (var i = 0; i < digestBytes.length; i++) {
-			hex.append(HEXES.charAt( (digestBytes[i] & 0xF0) >> 4)).append(HEXES.charAt( (digestBytes[i] & 0x0F)));
+			hex.append(HEXES.charAt((digestBytes[i] & 0xF0) >> 4)).append(HEXES.charAt((digestBytes[i] & 0x0F)));
 		}
 
 		return hex.toString();
 	} catch (e) {
-		log.error("Error calculating Hash for file \"" + file.getAbsolutePath() + "\": " + e.message);
+		log.error('Error calculating Hash for file "' + file.getAbsolutePath() + '": ' + e.message);
 		return null;
 	}
 }
 
 /**
  * Hash algorithms that are supported in calculateHash()
+ * 
+ * @public
+ * 
  * @enum
  *
  * @properties={typeid:35,uuid:"DA2141EB-E8D0-431D-9241-0392E2051BC9",variableType:-4}
@@ -319,19 +322,16 @@ var HASH_ALGORITHM = {
 	SHA256: "SHA-256",
 	SHA384: "SHA-384",	
 	SHA512: "SHA-512"
-}
+};
 
 /**
  * Copies streams
  * 
+ * @private
+ * 
  * @param {java.nio.channels.ReadableByteChannel} src
  * @param {java.nio.channels.WritableByteChannel} dest
  * 
- * @private 
- * 
- * @author patrick
- * @since 2012-10-15
- *
  * @properties={typeid:24,uuid:"8E3DD438-43FB-4499-A7B4-0D00F4956E90"}
  */
 function channelCopy(src, dest) {
@@ -356,7 +356,10 @@ function channelCopy(src, dest) {
 }
 
 /**
+ * @public
+ * 
  * @enum
+ * 
  * @properties={typeid:35,uuid:"C217D4B1-1E19-439C-B056-8CE6D4C0C14F",variableType:-4}
  */
 var CHAR_SETS = {
@@ -372,10 +375,13 @@ var CHAR_SETS = {
 	UTF_16LE: 'UTF-16LE',
 	/**Sixteen-bit Unicode Transformation Format, byte order specified by a mandatory initial byte-order mark (either order accepted on input, big-endian used on output.)*/	
 	UTF_16: 'UTF-16'
-}
+};
 
 /**
  * Reads the content of a file line by line, without reading the entire file into memory
+ * 
+ * @public
+ * 
  * @param {plugins.file.JSFile} file
  * @param {Function} lineCallback function that gets called for each line. Receives the line content as first argument. Return false from the callback to stop further reading
  * @param {String} [charset] See {@link CHAR_SETS}. Default CHAR_SETS.UTF_8
@@ -402,11 +408,11 @@ function readFile(file, lineCallback, charset) {
     try {
         while ((line = br.readLine())) {
             if(lineCallback(line) === false) {
-            	break
+            	break;
             }
         }
      } catch (e) {
-        throw new IOException('ERROR reading file "' + file.getName() + '": ' + e)
+        throw new IOException('ERROR reading file \'' + file.getName() + '\': ' + e);
      } finally {
         br.close();
      	fis = null;
@@ -418,40 +424,46 @@ function readFile(file, lineCallback, charset) {
 //TODO: add readXMLFile(...) according to this: https://www.servoy.com/forum/viewtopic.php?f=12&t=14666&sid=90df09038b66e906882586b6943681f7&p=105766#p105766
 
 /**
+ * @public
+ * 
  * @param {plugins.file.JSFile} file
- * @throws {IOException}
+ * 
  * @return {Number} The number of lines in the file. -1 in case of an issue getting the number of lines in the file
+ * 
+ * @throws {IOException}
+ * 
  * @properties={typeid:24,uuid:"EEFD9AA1-68B5-4DD9-8C4D-AE0EE2488F28"}
  */
 function getLineCountForFile(file) {
 	if (!file.exists() || !file.isFile()) {
-		throw new FileNotFoundException(null, file)
+		throw new FileNotFoundException(null, file);
 	}
 	try {
 		var fr = new Packages.java.io.FileReader(file);
-		var lnr = new Packages.java.io.LineNumberReader(fr)
+		var lnr = new Packages.java.io.LineNumberReader(fr);
 		while (lnr.readLine() != null) {
 		}
 	    return lnr.getLineNumber(); 
 	} catch (e) {
-		log.error('Error getting max lines for file "{}"', file.getName(), e)
+		log.error('Error getting max lines for file "{}"', file.getName(), e);
 	} finally {
 		lnr.close();
-		fr.close()
+		fr.close();
 	}
-	return -1
+	return -1;
 }
 
 /**
  * Buffered file writer that can be used to write to a file in chunks instead of holding the file's content completely in memory
  * 
- * @constructor 
+ * @public
  * 
- * @since 08.01.2015
- * @author patrick
- *
  * @param {String|plugins.file.JSFile} pathOrFile
  * @param {Boolean} [append] if true (default), then data will be written to the end of the file rather than the beginning
+ * 
+ * @throws {java.io.IOException}
+ * 
+ * @constructor
  * 
  * @example <pre>
  * var fs = datasources.db.example_data.customers.getFoundSet();
@@ -482,19 +494,18 @@ function getLineCountForFile(file) {
  *          bufferedWriter.close();
  *     }
  * }</pre>
- * 
- * @throws {java.io.IOException}
  *
  * @properties={typeid:24,uuid:"9F518CA2-AF03-4B84-8AD3-87059862C8F0"}
  */
 function BufferedWriter(pathOrFile, append) {
-	
 	if (!(this instanceof BufferedWriter)) {
-		log.warn("scopes.svyIO.BufferedWriter: Constructor functions should be called with the \"new\" keyword!");
+		log.warn('scopes.svyIO.BufferedWriter: Constructor functions should be called with the "new" keyword!');
 		return new BufferedWriter(pathOrFile, append);
 	}
 
-	if (append === undefined) append = true;
+	if (append === undefined) {
+		append = true;
+	}
 
 	var filePath = null;
 	if (pathOrFile instanceof String) {
@@ -513,8 +524,11 @@ function BufferedWriter(pathOrFile, append) {
 	}
 	
 	/**
-	 * Writes the given String<br>
-	 * If the given value is a Date or a Number
+	 * Writes the given String if the given value is a Date or a Number
+	 * 
+	 * @param stringToWrite
+	 * 
+	 * @public
 	 * 
 	 * @throws {java.io.IOException}
 	 */
@@ -524,8 +538,7 @@ function BufferedWriter(pathOrFile, append) {
 				/** @type {Date} */
 				var dateValue = stringToWrite;
 				stringToWrite = utils.dateFormat(dateValue, i18n.getDefaultDateFormat());
-			}
-			else if (stringToWrite instanceof Number) {
+			} else if (stringToWrite instanceof Number) {
 				/** @type {Number} */
 				var numValue = stringToWrite;
 				stringToWrite = utils.numberFormat(numValue, i18n.getDefaultNumberFormat());
@@ -543,6 +556,8 @@ function BufferedWriter(pathOrFile, append) {
 	 * Not all platforms use the newline character ('\n') to terminate lines. Calling this method to terminate<br>
 	 * each output line is therefore preferred to writing a newline character directly.
 	 * 
+	 * @public
+	 * 
 	 * @throws {java.io.IOException}
 	 */
 	this.newLine = function() {
@@ -555,6 +570,8 @@ function BufferedWriter(pathOrFile, append) {
 	
 	/**
 	 * Closes the stream
+	 * 
+	 * @public
 	 * 
 	 * @throws {java.io.IOException}
 	 */
@@ -571,16 +588,15 @@ function BufferedWriter(pathOrFile, append) {
 /**
  * Returns true if the given file is currently opened by the user
  * 
+ * @public
+ * 
  * @param {plugins.file.JSFile} file
  * 
- * @author patick
- * @since 11.09.2012
- *
  * @properties={typeid:24,uuid:"61CAFF50-B7A8-499D-8008-4B8457A3E2F6"}
  */
 function isFileOpen(file) {
 	if (!file.exists() || !file.isFile()) {
-		throw new FileNotFoundException(null, file)
+		throw new FileNotFoundException(null, file);
 	}
 	var result;
 	if (scopes.svySystem.isWindowsPlatform()) {
@@ -590,7 +606,7 @@ function isFileOpen(file) {
 		var originalfilePath = file.getAbsolutePath();
 		var parentFolder = file.getParentFile().getAbsolutePath();
 		var testFileName = application.getUUID().toString();
-		var newName = parentFolder + "\\" + testFileName;
+		var newName = parentFolder + '\\' + testFileName;
 		var newFile = plugins.file.convertToJSFile(newName);
 		result = file.renameTo(newName);
 		if (result) {
@@ -601,7 +617,7 @@ function isFileOpen(file) {
 		}
 	} else {
 		//Unix
-		result = application.executeProgram("lsof", [file.getAbsolutePath()]);
+		result = application.executeProgram('lsof', [file.getAbsolutePath()]);
 		if (result && result.length > 0) {
 			return true;
 		} else {
@@ -613,6 +629,8 @@ function isFileOpen(file) {
 /**
  * Creates a readable file size from the given number of bytes
  * 
+ * @public
+ * 
  * @param {Number} size
  * @param {Number} [numberOfDigits]
  * 
@@ -622,74 +640,85 @@ function isFileOpen(file) {
  */
 function humanizeFileSize(size, numberOfDigits) {
 	if (!size || size < 0) {
-		return "0 bytes";
+		return '0 bytes';
 	}
 	if (!numberOfDigits || numberOfDigits < 0) {
 		numberOfDigits = 1;
 	}
-	if (size >= (1024*1024*1024*1024*1024)) {
-		return utils.numberFormat(size/(1024*1024*1024*1024*1024), numberOfDigits) + " PB";
-	} else if (size >= (1024*1024*1024*1024)) {
-		return utils.numberFormat(size/(1024*1024*1024*1024), numberOfDigits) + " TB";
-	} else if (size >= (1024*1024*1024)) {
-		return utils.numberFormat(size/(1024*1024*1024), numberOfDigits) + " GB";		
-	} else if (size >= (1024*1024)) {
-		return utils.numberFormat(size/(1024*1024), numberOfDigits) + " MB";			
+	if (size >= (1024 * 1024 * 1024 * 1024 * 1024)) {
+		return utils.numberFormat(size / (1024 * 1024 * 1024 * 1024 * 1024), numberOfDigits) + ' PB';
+	} else if (size >= (1024 * 1024 * 1024 * 1024)) {
+		return utils.numberFormat(size / (1024 * 1024 * 1024 * 1024), numberOfDigits) + ' TB';
+	} else if (size >= (1024 * 1024 * 1024)) {
+		return utils.numberFormat(size / (1024 * 1024 * 1024), numberOfDigits) + ' GB';		
+	} else if (size >= (1024 * 1024)) {
+		return utils.numberFormat(size / (1024 * 1024), numberOfDigits) + ' MB';			
 	} else if (size >= 1024) {
-		return utils.numberFormat(size/1024, numberOfDigits) + " kB";		
+		return utils.numberFormat(size / 1024, numberOfDigits) + ' kB';		
 	} else {
-		return size + "bytes";
+		return size + 'bytes';
 	}
 }
 
 /**
  * Raised for failed or interrupted I/O operations
  * 
+ * @public
+ * 
  * @param {String} [errorMessage]
  * 
  * @constructor
+ * 
  * @extends {scopes.svyExceptions.SvyException}
- * @author patrick
  *
  * @properties={typeid:24,uuid:"E0E2B56B-84B6-4A26-940A-A9EBB9F20CC3"}
  */
 function IOException(errorMessage) {
-	scopes.svyExceptions.SvyException.call(this, errorMessage||'IO Exception');
+	scopes.svyExceptions.SvyException.call(this, errorMessage || 'IO Exception');
 }
 
 /**
  * The given file could not be found
+ * 
+ * @public
  *
  * @param {String} [errorMessage]
  * @param {plugins.file.JSFile} [file]
  *
  * @constructor
+ * 
  * @extends {IOException}
+ * 
  * @properties={typeid:24,uuid:"9C109983-5E2B-4549-9431-E039E7CFACCD"}
  */
 function FileNotFoundException(errorMessage, file) {
-
 	/**
 	 * The file that could not be found
+	 * 
+	 * @public
+	 * 
 	 * @type {plugins.file.JSFile}
 	 */
 	this.file = file;
-	IOException.call(this, errorMessage||'File not found');
+	IOException.call(this, errorMessage || 'File not found');
 }
 
 /**
  * Point prototypes to superclasses
- * @protected 
+ * 
+ * @private
+ * 
+ * @SuppressWarnings(unused)
  *
  * @properties={typeid:35,uuid:"DAF325B1-1E2C-46A6-92C8-D4B2631B15E1",variableType:-4}
  */
 var init = function() {
 	IOException.prototype = Object.create(scopes.svyExceptions.SvyException.prototype);
-	IOException.prototype.constructor = IOException
+	IOException.prototype.constructor = IOException;
 	
 	FileNotFoundException.prototype = Object.create(IOException.prototype);
-	FileNotFoundException.prototype.constructor = FileNotFoundException
-}()
+	FileNotFoundException.prototype.constructor = FileNotFoundException;
+}();
 
 /*
  * TODO: add file writer stuff:
