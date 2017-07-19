@@ -209,6 +209,8 @@ var init = function() {
 				return this.ex.getScriptStackTrace()
 			} else if (typeof this.ex.getStackTrace === 'function') {
 				return this.ex.getStackTrace()
+			} else {
+				return null;
 			}
 		}
 	})

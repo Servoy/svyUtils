@@ -535,7 +535,7 @@ function getContainedForms(form){
 
 /**
  * @public 
- * @param {Runtime} form
+ * @param {RuntimeForm} form
  * @return {Array<RuntimeTabPanel|RuntimeSplitPane|RuntimeAccordionPanel>}
  * @properties={typeid:24,uuid:"6457D6B0-0AEF-4C2B-B791-D13244DC132A"}
  */
