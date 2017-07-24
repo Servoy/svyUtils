@@ -2187,6 +2187,30 @@ function buildDialogForm(customDialog) {
 				maxFieldWidth = labelWidth;
 			}
 		}
+		
+		if (comp instanceof TextField) {
+			/** @type {TextField} */
+			var textFieldComp = comp;
+			var valueWidth;
+			if (textFieldComp.valueListName) {
+				var valueListDs = application.getValueListItems(textFieldComp.valueListName);
+				for (var vlds = 1; vlds <= valueListDs.getMaxRowIndex(); vlds++) {
+					var row = valueListDs.getRowAsArray(vlds);
+					valueWidth = styleHelper ? styleHelper.getTextWidth(styleHelper.getFontString(textFieldComp.getStyleClass()), row[0]) + 20 : 0;
+					if (valueWidth > maxFieldWidth) maxFieldWidth = valueWidth;
+				}
+			} else if (textFieldComp.valueListValues) {
+				var valueListEntries = textFieldComp.valueListValues.split('\n');
+				for (var vlv = 0; vlv < valueListEntries.length; vlv++) {
+					var displayValue = valueListEntries[vlv];
+					if (displayValue.indexOf('|') !== -1) {
+						displayValue = displayValue.split('|')[0];
+					}
+					valueWidth = styleHelper ? styleHelper.getTextWidth(styleHelper.getFontString(textFieldComp.getStyleClass()), displayValue) + 20 : 0;
+					if (valueWidth > maxFieldWidth) maxFieldWidth = valueWidth;
+				}
+			}
+		}
 	}
 	
 	//the max content width could be bigger than label and field columns together
