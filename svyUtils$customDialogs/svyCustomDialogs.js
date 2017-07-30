@@ -31,6 +31,15 @@
 var logger = scopes.svyLogManager.getLogger("com.servoy.bap.customdialogs");
 
 /**
+ * The name of the style to use if no style is provided
+ * 
+ * @type {String}
+ *
+ * @properties={typeid:35,uuid:"87B61E19-09ED-4ECC-9084-DA147B0CB086"}
+ */
+var DEFAULT_STYLE;
+
+/**
  * The button orientation
  * @enum 
  * @properties={typeid:35,uuid:"59FE4D9A-8BD5-4330-B3F9-C1EFF7D9E0D8",variableType:-4}
@@ -259,7 +268,7 @@ function CustomDialog(styleName, dialogTitle, dialogMessage, dialogIcon, dialogB
 	 * 
 	 * @type {String}
 	 */
-	this.styleName = styleName ? styleName : null;
+	this.styleName = styleName ? styleName : DEFAULT_STYLE || null;
 	
 	/**
 	 * Gets / Sets the title of the dialog (defaults to the solution name)
@@ -2667,7 +2676,7 @@ function showFormInDialog(formToShow, x, y, width, height, title, resizable, sho
 		var jsFormOriginal = solutionModel.getForm(originalFormName);
 		var jsForm = solutionModel.newForm(windowName, jsFormOriginal);
 		jsForm.newVariable("continuation", JSVariable.MEDIA);
-		var onHide = jsForm.newMethod("function onHide(event) { if (_super.onHide) { _super.onHide(); } if (continuation) { continuation(); } }");
+		var onHide = jsForm.newMethod("function onHide(event) { _super.onHide(); if (continuation) { continuation(); } }");
 		jsForm.onHide = onHide;
 		
 		addToFormStack(windowName);
@@ -2777,11 +2786,74 @@ function showInputDialog(title, message, initialValue) {
 		return plugins.dialogs.showInputDialog(title, message, initialValue)
 	} else {
 		var questionIcon = javaIconToByteArray(Packages.javax.swing.UIManager.getIcon("OptionPane.questionIcon"));
-		var cd = createCustomDialog("svyFrameworkStyle", title, message, questionIcon);
+		var cd = createCustomDialog(DEFAULT_STYLE, title, message, questionIcon);
 		cd.addTextField(null, initialValue).setWidth(250);
 		cd.addButton(i18n.getI18NMessage('servoy.button.ok'));
 		cd.addButton(i18n.getI18NMessage('servoy.button.cancel'));
 		var result = cd.showDialog();
+		return result.getResult() ? result.getResult()[0] : null;
+	}
+}
+
+/**
+ * Shows a selection dialog, where the user can select an entry from a list of options. Returns the selected entry, or nothing when canceled.
+ * 
+ * @param {String} title the dialog title
+ * @param {String} message the message to show
+ * @param {String|Array<String>} valueListNameOrDisplayValues either the name of a value list or an array of items to display
+ * @param {Array} [realValues] optional array of return values, not used when a value list name is provided
+ *
+ * @properties={typeid:24,uuid:"D3780ED7-154A-460F-B309-F37C059D1920"}
+ */
+function showSelectDialog(title, message, valueListNameOrDisplayValues, realValues) {
+	var /** @type {Array<String>} */ 
+		displayValues = [],
+		/** @type {Array<*>} */ 
+		returnValues = [],
+		/** @type {String} */
+		valueListName,
+		result;
+	
+	if (valueListNameOrDisplayValues instanceof Array) {
+		displayValues = valueListNameOrDisplayValues;
+		if (!realValues) {
+			returnValues = displayValues;
+		} else {
+			returnValues = realValues;
+		}
+	} else {
+		valueListName = valueListNameOrDisplayValues
+		var valueListItems = application.getValueListItems(valueListName);
+		if (valueListItems) {
+			for (var i = 1; i <= valueListItems.getMaxRowIndex(); i++) {
+				displayValues.push(valueListItems.getValue(i, 1));
+				returnValues.push(valueListItems.getValue(i, 2));			
+			}
+		}
+	}
+	
+	if (application.getApplicationType() != APPLICATION_TYPES.WEB_CLIENT) {
+		result = plugins.dialogs.showSelectDialog(title, message, displayValues);
+		if (result != null) {
+			for (var e = 0; e < displayValues.length; e++) {
+				if (displayValues[e] == result) {
+					return returnValues[e];
+				}
+			}
+		}
+		return null;
+	} else {
+		var questionIcon = javaIconToByteArray(Packages.javax.swing.UIManager.getIcon("OptionPane.questionIcon"));
+		var cd = createCustomDialog(DEFAULT_STYLE, title, message, questionIcon);
+		var comboBox = cd.addCombobox(null);
+		comboBox.setEditable(false);
+		comboBox.setValueListItems(displayValues, returnValues);
+		if (displayValues) {
+			comboBox.setInitialValue(displayValues[0]);
+		}
+		cd.addButton(i18n.getI18NMessage('servoy.button.ok'));
+		cd.addButton(i18n.getI18NMessage('servoy.button.cancel'));
+		result = cd.showDialog();
 		return result.getResult() ? result.getResult()[0] : null;
 	}
 }
@@ -2813,6 +2885,19 @@ function addToFormStack(formName) {
 }
 
 /**
+ * Sets the default style name used
+ * 
+ * @param {String} styleName
+ * 
+ * @public 
+ *
+ * @properties={typeid:24,uuid:"10DC08FE-A6CD-48AC-987D-A3C193A5747B"}
+ */
+function setDefaultStyleName(styleName) {
+	DEFAULT_STYLE = styleName;
+}
+
+/**
  * @param aArguments
  * @param {String|byte[]} icon
  * @private 
@@ -2830,7 +2915,7 @@ function showDefaultDialog(aArguments, icon) {
 	for (var i = 2; i < args.length; i++) {
 		btns.push(createButton(args[i]));
 	}
-	var cd = createCustomDialog("svyFrameworkStyle", title, message, icon, btns);
+	var cd = createCustomDialog(DEFAULT_STYLE, title, message, icon, btns);
 	var result = cd.showDialog();
 	return result.buttonClicked ? result.buttonClicked.text : null;
 }
