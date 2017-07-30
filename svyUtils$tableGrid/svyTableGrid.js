@@ -1,18 +1,26 @@
 /*
- * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2013 Servoy BV 
+ * The MIT License
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2016 Servoy BV 
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * 
  */
 
 /**
@@ -39,15 +47,31 @@ var logger = scopes.svyLogManager.getLogger("com.servoy.bap.svytablegrid");
  * @properties={typeid:24,uuid:"1120352D-21A4-4D1E-B93C-EB1FC853A444"}
  */
 function createTableGridFromDataset(dataset, columnHeaders, dataproviders, columnTypes) {
+	function guessColumnType(colIndex) {
+		for (var d = 1; d <= dataset.getMaxRowIndex(); d++) {
+			var colValue = dataset.getValue(d, colIndex);
+			if (!colValue && d > 100) {
+				return null;
+			}
+			if (colValue instanceof Number) return JSColumn.NUMBER;
+			else if (colValue instanceof Date) return JSColumn.DATETIME;
+			else return JSColumn.TEXT;
+		}
+	}
+	
 	try {
 		var datasource;
 		if (!columnTypes) {
 			columnTypes = new Array();
 			for (var x = 1; x <= dataset.getMaxColumnIndex(); x++) {
-				if (!dataset.getColumnType(x)) {
-					throw new scopes.svyDataUtils.SvyDataException("Failed to create TableGrid because no column types were given");
+				var type = dataset.getColumnType(x);
+				if (!type) {
+					type = guessColumnType(x);
+					if (!type) {
+						throw new scopes.svyDataUtils.SvyDataException("Failed to create TableGrid because no column types were given");
+					}
 				}
-				this.columnTypes.push(dataset.getColumnType(x));
+				columnTypes.push(type);
 			}
 		}
 		var formName = "tablegrid_" + utils.stringReplace(application.getUUID().toString(), "-", "_");
@@ -516,16 +540,24 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 	this.onFormCreated = null;
 	
 	/**
+	 * Optional arguments to the onFormCreated method
+	 * @type {Array<*>}
+	 */
+	this.onFormCreatedArgs = [];
+	
+	/**
 	 * Sets a method that is fired when the actual runtime form is created<p>
 	 * 
-	 * When the method is fired it receives the RuntimeForm created as parameter<p>
+	 * When the method is fired it receives the RuntimeForm created as parameter
+	 * before the option method arguments<p>
 	 * 
 	 * The method can be any form or scope method or is created using the given code
 	 * 
 	 * @param {Function|String} onFormCreatedFunctionOrCode
+	 * @param {Array<*>} [onFormCreatedMethodArgs] optional method args
 	 * @return {TableGrid}
 	 */
-	this.setOnFormCreated = function(onFormCreatedFunctionOrCode) {
+	this.setOnFormCreated = function(onFormCreatedFunctionOrCode, onFormCreatedMethodArgs) {
 		if (onFormCreatedFunctionOrCode instanceof String) {
 			this.onFormCreated = onFormCreatedFunctionOrCode;
 		} else if (onFormCreatedFunctionOrCode instanceof Function) {
@@ -533,8 +565,9 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 			var functionRef = onFormCreatedFunctionOrCode;
 			this.onFormCreated = scopes.svySystem.convertServoyMethodToQualifiedName(functionRef);
 		}
+		if (onFormCreatedMethodArgs) this.onFormCreatedArgs = onFormCreatedMethodArgs;
 		return this;
-	}	
+	}
 	
 	/**
 	 * onHide method
@@ -1043,7 +1076,7 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 		runtimeForm.tableGrid = this;
 		
 		if (this.onFormCreated) {
-			scopes.svySystem.callMethod(this.onFormCreated, [runtimeForm]);
+			scopes.svySystem.callMethod(this.onFormCreated, [runtimeForm].concat(this.onFormCreatedArgs));
 		}
 		
 		return runtimeForm;

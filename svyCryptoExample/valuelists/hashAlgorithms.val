@@ -1,0 +1,8 @@
+addEmptyValue:1,
+customValues:"MD5\r\
+SHA-1\r\
+SHA-256\r\
+",
+name:"hashAlgorithms",
+typeid:34,
+uuid:"53E1D17A-D6A4-4570-92D3-26A1678A696D"

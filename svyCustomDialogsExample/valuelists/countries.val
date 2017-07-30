@@ -1,0 +1,10 @@
+addEmptyValue:1,
+dataProviderID1:"country",
+dataSource:"db:/example_data/customers",
+name:"countries",
+returnDataProviders:1,
+showDataProviders:1,
+sortOptions:"country asc",
+typeid:34,
+uuid:"810035CD-A8BC-420A-9037-43AFEC90115D",
+valueListType:1

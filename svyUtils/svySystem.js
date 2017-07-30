@@ -1,18 +1,26 @@
 /*
- * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2013 Servoy BV 
+ * The MIT License
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2016 Servoy BV 
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * 
  */
 
 /*
@@ -34,6 +42,21 @@ var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.system')
  * @properties={typeid:35,uuid:"F50B6DEE-B591-4691-934C-64F76B86A9AC"}
  */
 var LINE_SEPARATOR = Packages.java.lang.System.getProperty("line.separator");
+
+/**
+ * Tests if the current client is an NG Client
+ * 
+ * @return {Boolean}
+ * @public 
+ * @properties={typeid:24,uuid:"6C703B72-7251-4112-B5CB-495FE79C1B06"}
+ */
+function isNGClient () {
+	try {
+		return APPLICATION_TYPES.NG_CLIENT && application.getApplicationType() === APPLICATION_TYPES.NG_CLIENT
+	} catch (e) {
+		return false;
+	}
+}
 
 /**
  * Tests if the current client is Web Client

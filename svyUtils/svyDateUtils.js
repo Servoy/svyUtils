@@ -1,18 +1,26 @@
 /*
- * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2013 Servoy BV 
+ * The MIT License
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2016 Servoy BV 
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * 
  */
 
 /* 
@@ -26,7 +34,6 @@
  * @properties={typeid:35,uuid:"45890609-A12D-49D1-A195-43BA3CAE4093",variableType:-4}
  */
 var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.date')
-
 
 /**
  * A java.util.Calendar instance used to do the math
@@ -89,10 +96,21 @@ var TODAY_END;
  * @properties={typeid:35,uuid:"EDBB02A9-A782-415A-927B-D3B5BDE9BA55",variableType:-4}
  */
 var initTodayVars = (function() {
+	setTodayVars();
+	plugins.scheduler.addJob('svyDateUtils$setTodayVars', TODAY_START, setTodayVars, 1000 * 60 * 60 * 24);
+}());
+
+/**
+ * 
+ * @private
+ *
+ * @properties={typeid:24,uuid:"032931C2-A251-47E0-BD6D-E855DFFE7755"}
+ */
+function setTodayVars() {
 	var now = new Date();
 	TODAY_START = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
 	TODAY_END = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999);
-}());
+}
 
 /**
  * Adds the value of the given field to the given date
@@ -612,7 +630,10 @@ function getDateFormat(style, locale) {
  * @properties={typeid:24,uuid:"D9F78345-D31D-4A79-8C28-230F7BC467B4"}
  */
 function getDayDifference(start, end) {
-	return Math.ceil(((end.getTime() - start.getTime()) / 86400000));
+	var startUtc = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate());
+	var endUtc = Date.UTC(end.getFullYear(), end.getMonth(), end.getDate());
+	var diff = Math.abs((startUtc.valueOf() - endUtc.valueOf()) / (24 * 60 * 60 * 1000));
+	return diff;
 }
 
 /**
@@ -656,6 +677,42 @@ function getMonthNames(locale) {
 	var monthNames = dfs.getMonths();
 	monthNames.pop();
 	return monthNames;
+}
+
+/**
+ * Creates a string for uses in Servoy between searches from two given dates. 
+ * For example: "2006-01-01...2006-09-27|yyyy-MM-dd".
+ * 
+ * @public 
+ * 
+ * @param {Date} dateFrom
+ * @param {Date} dateTo
+ *
+ * @properties={typeid:24,uuid:"9D62A1EC-AC90-457E-8282-1CFEA2C46CD7"}
+ */
+function getSearchStringDateBetween(dateFrom, dateTo) {
+	var format = 'yyyy-MM-dd HH:mm:ss';
+	var from = new Date(dateFrom.getTime());
+	from.setHours(0, 0, 0, 0);
+	var to = new Date(dateTo.getTime());
+	to.setHours(23, 59, 59, 999);
+	return utils.dateFormat(from, format) + "..." + utils.dateFormat(to, format) + "|" + format;
+}
+
+/**
+ * Creates a string for uses in Servoy between searches from two given dates including the exact given time. 
+ * For example: "2006-01-01 10:23:15...2006-09-27 11:15:45|yyyy-MM-dd HH:mm:ss".
+ * 
+ * @public 
+ * 
+ * @param {Date} dateFrom
+ * @param {Date} dateTo
+ *
+ * @properties={typeid:24,uuid:"4D35B83B-4AFB-418B-9721-0FC549879D4D"}
+ */
+function getSearchStringDateTimeBetween(dateFrom, dateTo) {
+	var format = 'yyyy-MM-dd HH:mm:ss';
+	return utils.dateFormat(dateFrom, format) + "..." + utils.dateFormat(dateTo, format) + "|" + format;
 }
 
 /**

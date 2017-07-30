@@ -1,7 +1,26 @@
 /*
- * Core Application logic.
- * Provides:
- * - Module initialization with dependencies
+ * The MIT License
+ * 
+ * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2016 Servoy BV 
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * 
  */
 
 /**
@@ -45,11 +64,11 @@ function initModules(startupArguments) {
 	for (var i = 0; i < mods.length; i++) {
 		var id = forms[mods[i].name].getId()
 		if (!id) {
-			log.error("Module ID not provided on '" + mods[i].name + "'. Skipping the Module definition")
+			log.error("Module ID not provided on '{}'. Skipping the Module definition", mods[i].name)
 			continue
 		}
 		if (moduleDefNameById.hasOwnProperty(id)) {
-			log.error("Duplicate module ID '" + id + "' found: '" + moduleDefNameById[id] + "' and '" + mods[i].name + "' use the same ID. Skipping the latter")
+			log.error("Duplicate module ID '{}' found: '{}' and '{}' use the same ID. Skipping the latter", id, moduleDefNameById[id], mods[i].name)
 			continue
 		}
 		moduleDefNameById[forms[mods[i].name].getId()] = mods[i].name
@@ -61,7 +80,7 @@ function initModules(startupArguments) {
 		
 		stack: while (stack.length) {
 			var moduleDefName = stack.slice(-1)[0]
-			log.trace('Processing moduleDefinition "' + moduleDefName + '"')
+			log.trace('Processing moduleDefinition "{}"', moduleDefName)
 			
 			if (moduleDefName in processed) {
 				stack.pop()
@@ -74,18 +93,18 @@ function initModules(startupArguments) {
 				dependencies: for (var j = 0; j < dependencies.length; j++) {
 					var name = moduleDefNameById[dependencies[j].id]
 					if (!name) {
-						log.error("Module with ID '" + dependencies[j].id + "' not found. Referenced by '" + moduleDefNameById[form.getId()] + "'")
+						log.error("Module with ID '{}' not found. Referenced by '{}'", dependencies[j].id, moduleDefNameById[form.getId()])
 						continue dependencies
 					}
 					if (name in processed) { //already processed
 						continue dependencies
 					}
-					if (stack.indexOf(name) != -1 || name === moduleDefName) { //circular reference
+					if (stack.indexOf(name) !== -1 || name === moduleDefName) { //circular reference
 						var ids = stack.map(function(value) {
 							return forms[value].getId()
 						})
 						ids.push(dependencies[j].id)
-						log.error('Circuclar module dependancies detected: ' + ids.join(' > '))
+						log.error('Circuclar module dependancies detected: {}', ids.join(' > '))
 						continue dependencies
 					}
 					stack.push(name)
@@ -93,13 +112,13 @@ function initModules(startupArguments) {
 				}
 			}
 			
-			//	Process module with error handling
+			//Process module with error handling
 			try {
 				form.moduleInit.call(null, startupArguments);
 				scopes.svyEventManager.fireEvent(this, APPLICATION_EVENT_TYPES.MODULE_INITIALIZED, [form])
-				log.debug('Initialized module ' + (form.getId() ? form.getId() : "[no ID provided for moduleDefinition \"" + moduleDefName + "\"]") + ' version ' + form.getVersion());
-			}catch(e){
-				log.error("Error initializing module '"+moduleDefName+"'. Module may not function properly: " + e.toString());
+				log.debug('Initialized module {} version {}', (form.getId() ? form.getId() : "[no ID provided for moduleDefinition \"" + moduleDefName + "\"]"), form.getVersion());
+			} catch(e) {
+				log.error("Error initializing module '{}'. Application may not function properly", moduleDefName, e)
 			}
 			stack.pop()
 			processed[moduleDefName] = null

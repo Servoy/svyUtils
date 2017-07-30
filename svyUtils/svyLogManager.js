@@ -1,18 +1,26 @@
 /*
- * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2013 Servoy BV 
+ * The MIT License
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2016 Servoy BV 
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * 
  */
 
 /*
@@ -248,8 +256,55 @@ var currentConfig = defaultConfig
 /**
  * Load the logging configuration<br>
  * Call with null to reset to the default configuration<br>
- * <br>
+ * 
  * @public
+ * <br> {String} <b>[configuration.status]</b> 
+ * <br> {String} <b>[configuration.plugins]</b> List of used plugins. You must list here all the types of appender plugin used. 
+ * <br> Example 
+ * <br> <i>scopes.svyLogManager$rollingFileAppender.RollingFileAppender, scopes.svyLogManager$dbAppender.DbAppender</i>
+ * <br> 
+ * <br> {Array<{type: String, name:String, Layout: AbstractLayout=}>} <b>[configuration.appenders]</b> List of appender instances. You can add multiple instances of the same appender type.
+ * <br> Example <i>[{ 
+				type: "ApplicationOutputAppender",
+				name: "ApplicationOutput",
+				PatternLayout: {
+					pattern: "[%thread] %solution %f c %c %5level %logger{1.} - %msg"
+				}
+			}, {
+				type: "scopes.svyLogManager$rollingFileAppender.RollingFileAppender",
+				name: "RollingFileAppender",
+				fileName: "myLogs/myAppLog.log",
+				maxFileSize: 1024 * 1024 * 5,
+				maxBackupIndex: 5,
+				RollingPatternLayout: {
+					pattern: "%date %5level %30logger - %msg"
+				}
+			}]</i>
+ * <br> 
+ * <br> {String} <b>[configuration.appenders.type]</b> Type of the appender plugin
+ * <br> {String} <b>[configuration.appenders.name]</b> Appender name identifier. Named appender may be referenced from AppenderRef.ref of the root or any other logger.
+ * <br> {AbstractLayout} <b>[configuration.appenders.<i>Layout</i>]</b> The layout constructor determines the layout of the log message. Available layout constructors are <b><i>
+ * 		PatternLayout, SimpleLayout, XmlLayout, JsonLayout, NullLayout, HttpPostDataLayout </i></b>. 
+ * <br> Example
+ * <br> <i> PatternLayout: { pattern: "[%thread] %solution %f c %c %5level %logger{1.} - %msg" } </i> 
+ * <br> 
+ * <br> {Array} <b>[configuration.loggers.logger]</b> List of loggers
+ * <br> {String} <b>[configuration.loggers.logger.name]</b> The logger name
+ * <br> {String} <b>[configuration.loggers.logger.level]</b> The logger level. Possible values: <b><i>fatal, error, warn, debug, info, trace</i></b>.
+ * <br> {Boolean} <b>[configuration.loggers.logger.Additivity]</b>
+ * <br> {{ref:String, level:String=}} [configuration.loggers.logger.AppenderRef]</b> List of appender references. 
+ * <br> Example: 
+ * <br> <i> {
+			ref: "",
+			level: "error"
+		} </i>
+ * <br> 
+ * <br> {String} <b>[configuration.loggers.logger.AppenderRef.ref]</b> The name of the appender used by this logger. The appender name must be listed in the appenders object.
+ * <br> {String} <b>[configuration.loggers.logger.AppenderRef.level]</b> Optional, overrule the logger's level for the specific appender reference.
+ * <br> {String} <b>[configuration.loggers.root.level]</b> Root logger log level
+ * <br> {{ref:String, level:String=}} <b>[configuration.loggers.root.AppenderRef]</b> List of appender references for the root logger. 
+ * <br> {String} <b>[configuration.loggers.root.AppenderRef.ref]</b> The name of the appender used by the root logger. The appender name must be listed in the appenders object.
+ * <br> {String} <b>[configuration.loggers.root.AppenderRef.level]</b> Optional, overrule the logger's level for the specific appender reference.
  * @param {CONFIG_TYPE_DEF} configuration
  * @example <pre>scopes.svyLogManager.loadConfig({
  *  status: "error", 
@@ -466,6 +521,23 @@ function loadConfig(configuration) {
 var namedAppenders = {}
 
 /**
+ * Returns the appender with the given name (ref)
+ * @param {String} appenderName
+ * @return {AbstractAppender}
+ * @public 
+ *
+ * @properties={typeid:24,uuid:"4775201B-7B56-4EB9-9634-808BF39708BA"}
+ */
+function getAppender(appenderName) {
+	var result = getAppenderForRef({ref: appenderName});
+	if (result) {
+		return result.appender;
+	} else {
+		return null;
+	}
+}
+
+/**
  * @private 
  * @param {{ref: String, level: String=}} appenderRef
  * 
@@ -516,12 +588,12 @@ function getAppenderForRef(appenderRef) {
  * @properties={typeid:24,uuid:"CA46514A-47F4-4DF0-B880-6033387B96E2"}
  */
 function getPluginInstance(type, configNode) {
-	var clazz = logPlugins[type]
+	var clazz = logPlugins[type];
 	
 	/** @type {PLUGIN_FACTORY_TYPE_DEF} */
-	var factory = clazz['PluginFactory']
-	var args = []
-	var plugin
+	var factory = clazz['PluginFactory'];
+	var args = [];
+	var plugin = null;
 	for (var i = 0; i < factory.parameters.length; i++) { //Find the values in configNode for all the parameters specified by the factory
 		var param = factory.parameters[i]
 		if (configNode.hasOwnProperty(param.configName)) { //configNode attribute matches named parameter, for example "name"
@@ -545,14 +617,31 @@ function getPluginInstance(type, configNode) {
 					break;
 			}
 		} else { //configNode Attribute matches parameter type, for example attribute 'PatternLayout' matches parameter of type 'AbstractLayout'
-			var keys = Object.keys(configNode)
-			var paramSet = false
+			var keys = Object.keys(configNode);
+			var paramSet = false;
 			for (var j = 0; j < keys.length; j++) {
 				plugin = logPlugins[keys[j]]
-				if (plugin && plugin.prototype instanceof param.type) {
-					args.push(getPluginInstance(keys[j], configNode[keys[j]]))
-					paramSet = true
+				if (plugin) {
+					switch (typeof param.type) {
+						case 'string':
+						case 'boolean':		
+						case 'number':
+							args.push(null);
+							paramSet = true;
+							break;
+						default:
+							if (param.type == null) {
+								args.push(null)
+							} else {
+								if (plugin && plugin.prototype instanceof param.type) {
+									args.push(getPluginInstance(keys[j], configNode[keys[j]]))
+									paramSet = true
+								}
+							}
+							break;
+					}
 				}
+				
 			}
 			if (!paramSet) {
 				args.push(undefined)
@@ -710,7 +799,7 @@ var initParameterizedMessageFactory = (function() {
  * @properties={typeid:35,uuid:"87FC8503-D5E5-4BB7-B777-3CC94617BAD7",variableType:-4}
  */
 var defaultMessageFactory = new ParameterizedMessageFactory()
-	
+
 /* ---------------------------------Message------------------------------------- */
 /**
  * TODO: documentation
@@ -781,6 +870,7 @@ var initAbstractMessage = (function(){
 	
 	/**
 	 * @public
+	 * @return {Array<*>}
 	 */
 	AbstractMessage.prototype.getParameters = function(){
 		return this.parameters
@@ -998,7 +1088,6 @@ var initObjectMessage = (function() {
 	}
 }())
 
-
 /* ----------------------------------Loggers------------------------------------ */
 /**
  * TODO: the mechanism of Logger and LoggerConfig can be optimized even further: 
@@ -1117,15 +1206,21 @@ var initLoggerConfig = (function(){
 	 * @param {Level} [level]
 	 */
 	LoggerConfig.prototype.addAppender = function(appender, level) {
-		if (appender instanceof AbstractAppender) {
-			if (!(this.appenders.indexOf(appender) != -1)) {
-				this.appenders.push({appender: appender, level: level ? level : null});
-				//appender.setAddedToLogger(this);
-				this.invalidateAppenderCache();
-			}
-		} else {
+		if (!(appender instanceof AbstractAppender)) {
 			statusLogger.error("Logger.addAppender: appender supplied ('{}') is not a subclass of Appender", appender);
+			return;
 		}
+		if (level && !(level instanceof Level)) {
+			statusLogger.error("Logger.addAppender: level supplied ('{}') is not a subclass of Level", level);
+			return;
+		}
+		for (var x = this.appenders.length - 1 ; x >= 0 ; x--) {
+			if (this.appenders[x].appender.appenderName == appender.appenderName) {
+				return;
+			}
+		}
+		this.appenders.push({appender: appender, level: level ? level : null});
+		this.invalidateAppenderCache();
 	};
 	
 	/**
@@ -1158,9 +1253,10 @@ var initLoggerConfig = (function(){
 	 * @param {AbstractAppender} appender
 	 */
 	LoggerConfig.prototype.removeAppender = function(appender) {
-		var i = this.appenders.indexOf(appender)
-		if (i != -1) {
-			this.appenders.splice(i,1)
+		for (var x = this.appenders.length - 1 ; x >= 0 ; x--) {
+			if (this.appenders[x].appender.appenderName == appender.appenderName) {
+				this.appenders.splice(x,1)
+			}
 		}
 		//appender.setRemovedFromLogger(this);
 		this.invalidateAppenderCache();
@@ -1391,6 +1487,8 @@ function Logger(internal, messageFactory) {
 	 * but all this without exposing a public setter method
 	 */
 	var customMessageFactory = messageFactory
+	
+	var isRoot = (this.name === ROOT_LOGGER_NAME);
 
 	/**
 	 * Generic logging method<br>
@@ -1410,8 +1508,8 @@ function Logger(internal, messageFactory) {
 			} else {
 				var args = Array.prototype.slice.call(arguments, 1)
 				var lastParam = args[args.length - 1]
-				if (lastParam instanceof ServoyException) {
-					/**@type {ServoyException}*/
+				if (lastParam instanceof ServoyException || lastParam instanceof Packages.java.lang.Exception) {
+					/**@type {ServoyException|Packages.java.lang.Exception}*/
 					var ex = lastParam
 					args[args.length - 1] = new scopes.svyExceptions.ServoyError(ex)				
 				}
@@ -1427,6 +1525,14 @@ function Logger(internal, messageFactory) {
 	 * @public
 	 * @param {AbstractMessage|String|Object|*} message
 	 * @param {Error|ServoyException|*...} [messageParamsOrException]
+	 * 
+	 * @example <pre>
+	 * var log = scopes.svyLogManager.getLogger('com.servoy.example');
+	 * log.trace("Logged user {} has complete the action {}", security.getUserName(), "log a trace message");
+	 * 
+	 * var e = new Error("My error message");
+	 * log.trace("Logging the exception message: {} ", e);
+	 * </pre> 
 	 */
 	this.trace = function(message, messageParamsOrException) {
 		if (Level.TRACE.intLevel >= internal.effectiveLevel.intLevel) {
@@ -1441,13 +1547,22 @@ function Logger(internal, messageFactory) {
 	 * @public
 	 * @param {AbstractMessage|String|Object|*} message
 	 * @param {Error|ServoyException|*...} [messageParamsOrException]
+	 * 
+	 * @example <pre>
+	 * var log = scopes.svyLogManager.getLogger('com.servoy.example');
+	 * log.debug("Logged user {} has complete the action {}", security.getUserName(), "log a debug message");
+	 * 
+	 * var e = new Error("My error message");
+	 * log.debug("Logging the exception message: {} ", e);
+	 * </pre>
+	 * 
 	 */
 	this.debug = function(message, messageParamsOrException) {
 		if (Level.DEBUG.intLevel >= internal.effectiveLevel.intLevel) {
 			var args = Array.prototype.slice.call(arguments)
 			args.unshift(Level.DEBUG)
 			this.log.apply(this, args)
-		}			
+		}
 	}
 	/**
 	 * Logs a message and optionally an error at level INFO<br>
@@ -1455,6 +1570,14 @@ function Logger(internal, messageFactory) {
 	 * @public
 	 * @param {AbstractMessage|String|Object|*} message
 	 * @param {Error|ServoyException|*...} [messageParamsOrException]
+	 * 
+	 * @example <pre>
+	 * var log = scopes.svyLogManager.getLogger('com.servoy.example');
+	 * log.info("Logged user {} has complete the action {}", security.getUserName(), "log an info message");
+	 * 
+	 * var e = new Error("My error message");
+	 * log.info("Logging the exception message: {} ", e);
+	 * </pre>
 	 */
 	this.info = function(message, messageParamsOrException) {
 		if (Level.INFO.intLevel >= internal.effectiveLevel.intLevel) {
@@ -1469,7 +1592,15 @@ function Logger(internal, messageFactory) {
 	 * @public
 	 * @param {AbstractMessage|String|Object|*} message
 	 * @param {Error|ServoyException|*...} [messageParamsOrException]
-	  */
+	 * 
+	 * @example <pre>
+	 * var log = scopes.svyLogManager.getLogger('com.servoy.example');
+	 * log.warn("Logged user {} has complete the action {}", security.getUserName(), "log a warn message");
+	 * 
+	 * var e = new Error("My error message");
+	 * log.warn("Logging the exception message: {} ", e);
+	 * </pre>
+	 */
 	this.warn = function(message, messageParamsOrException) {
 		if (Level.WARN.intLevel >= internal.effectiveLevel.intLevel) {
 			var args = Array.prototype.slice.call(arguments)
@@ -1483,6 +1614,14 @@ function Logger(internal, messageFactory) {
 	 * @public
 	 * @param {AbstractMessage|String|Object|*} message
 	 * @param {Error|ServoyException|*...} [messageParamsOrException]
+	 * 
+	 * @example <pre>
+	 * var log = scopes.svyLogManager.getLogger('com.servoy.example');
+	 * log.error("Logged user {} has complete the action {}", security.getUserName(), "log an error message");
+	 * 
+	 * var e = new Error("My error message");
+	 * log.error("Logging the exception message: {} ", e);
+	 * </pre>
 	 */
 	this.error = function(message, messageParamsOrException) {
 		if (Level.ERROR.intLevel >= internal.effectiveLevel.intLevel) {
@@ -1497,6 +1636,14 @@ function Logger(internal, messageFactory) {
 	 * @public
 	 * @param {AbstractMessage|String|Object|*} message
 	 * @param {Error|ServoyException|*...} [messageParamsOrException]
+	 * 
+	 * @example <pre>
+	 * var log = scopes.svyLogManager.getLogger('com.servoy.example');
+	 * log.fatal("Logged user {} has complete the action {}", security.getUserName(), "log a fatal message");
+	 * 
+	 * var e = new Error("My error message");
+	 * log.fatal("Logging the exception message: {} ", e);
+	 * </pre>
 	 */
 	this.fatal = function(message, messageParamsOrException) {
 		if (Level.FATAL.intLevel >= internal.effectiveLevel.intLevel) {
@@ -1570,13 +1717,139 @@ function Logger(internal, messageFactory) {
 	this.isFatalEnabled = function() {
 		return Level.FATAL.intLevel >= internal.effectiveLevel.intLevel;
 	}
+	
+	/**
+	 * Returns whether additivity is enabled for this logger.
+	 * @return {Boolean}
+	 * @public 
+	 */
+	this.getAdditivity = function() {
+		var logger = loggers[internal.name];
+		return logger.getAdditivity();
+	}
 
 	/**
+	 * Returns the name of this logger
 	 * @public
 	 */
 	this.getName = function() {
 		return internal.name
 	}
+	
+	/**
+	 * Sets whether appender additivity is enabled (the default) or disabled. 
+	 * If set to false, this particular logger will not inherit any appenders 
+	 * form its ancestors. Any descendant of this logger, however, will inherit 
+	 * from its ancestors as normal, unless its own additivity is explicitly set to false.
+	 * @param {Boolean} additivity
+	 * @return {Logger}
+	 * @public
+	 */
+	this.setAdditivity = function(additivity) {
+		var logger = loggers[internal.name];
+		logger.setAdditivity(additivity);
+		return this;
+	}
+	
+	/**
+	 * Sets the level. Log messages of a lower level than level will not be logged. Default value is DEBUG.
+	 * @param {String|Level} level
+	 * @return {Logger}
+	 * @public 
+	 */
+	this.setLevel = function(level) {
+		var levelToSet = level;
+		if (level instanceof String) {
+			/** @type {String} */
+			var levelString = level;
+			levelToSet = Level.toLevel(levelString);
+		}
+		// Having a level of null on the root logger would be very bad.
+		if (isRoot && level === null) {
+			statusLogger.error("Logger.setLevel: you cannot set the level of the root logger to null");
+		} else if (levelToSet instanceof Level) {
+			var logger = loggers[internal.name];
+			logger.setLevel(levelToSet);
+		} else {
+			statusLogger.error("Logger.setLevel: level supplied to logger {} is not an instance of Level", internal.name);
+		}
+		return this;
+	};
+	
+	/**
+	 * Adds an appender to this logger
+	 * @param {AbstractAppender} appender
+	 * @param {String|Level} [level]
+	 * @return {Logger}
+	 * @public 
+	 */
+	this.addAppender = function(appender, level) {
+		var levelToSet = level;
+		if (level instanceof String) {
+			/** @type {String} */
+			var levelString = level;
+			levelToSet = Level.toLevel(levelString);
+		}
+		if (! (appender instanceof AbstractAppender)) {
+			statusLogger.error("Logger.addAppender: appender supplied ('{}') is not a subclass of Appender", appender);
+			return this;
+		} else if (levelToSet && ! (levelToSet instanceof Level)) {
+			statusLogger.error("Logger.addAppender: level supplied ('{}') is not a subclass of Level", levelToSet);
+			return this;
+		}
+		var logger = loggers[internal.name];
+		logger.addAppender(appender, levelToSet);
+		return this;
+	};
+	
+	/**
+	 * Removes an appender from this logger
+	 * @param {AbstractAppender} appender
+	 * @return {Logger}
+	 * @public 
+	 */
+	this.removeAppender = function(appender) {
+		if (appender instanceof AbstractAppender) {
+			var logger = loggers[internal.name];
+			logger.removeAppender(appender);
+		} else {
+			statusLogger.error("Logger.removeAppender: appender supplied ('{}') is not a subclass of Appender", appender);
+		}
+		return this;
+	};
+	
+	/**
+	 * Removes all appenders from this logger
+	 * @return {Logger}
+	 * @public 
+	 */
+	this.removeAllAppenders = function() {
+		var logger = loggers[internal.name];
+		logger.removeAllAppenders();
+		return this;		
+	}
+
+	/**
+	 * Returns the level explicitly set for this logger or null if none has been set
+	 * @return {Level}
+	 * @public 
+	 */
+	this.getLevel = function() {
+		var logger = loggers[internal.name];
+		return logger.getLevel();
+	};
+
+	/**
+	 * Returns the level at which the logger is operating. This is either the level 
+	 * explicitly set on the logger or, if no level has been set, the effective 
+	 * level of the logger's parent.
+	 * @return {Level}
+	 * @public 
+	 */
+	this.getEffectiveLevel = function() {
+		var logger = loggers[internal.name];
+		return logger.effectiveLevel
+	};	
 }
 
 /** 
@@ -1588,7 +1861,7 @@ function Logger(internal, messageFactory) {
  * @properties={typeid:35,uuid:"0F49DC42-01BC-4720-B19F-DA1B30BF9D1E",variableType:-4}
  */
 var loggers = {};
-	
+
 /**
 * @public
 * @type {String}
@@ -1596,7 +1869,7 @@ var loggers = {};
 * @properties={typeid:35,uuid:"7AA018E7-ACA9-4215-9117-597DF91D7D16"}
 */
 var ROOT_LOGGER_NAME = "root"
-	
+
 /**
  * @private
  * @properties={typeid:35,uuid:"EC4E9958-AA1E-4F91-9612-FEEB50E4CFA9",variableType:-4}
@@ -1719,6 +1992,24 @@ function getLogger(loggerName, messageFactory) {
 	//TODO: add warnings when returning existing logger and a messageFactory was provided that is different than the one with which the logger was previously requested.
 	//See checkMessageFactory in Log4J's AbstractLogger 
 	return loggers[loggerName].externalLogger;
+}
+
+/**
+ * Returns all loggers created
+ * @return {Array<Logger>}
+ * @properties={typeid:24,uuid:"68414983-8B0C-498D-B34B-EE66037B03DF"}
+ */
+function getLoggers() {
+	var result = [];
+	for (var i in loggers) {
+		result.push(loggers[i].externalLogger);
+	}
+	function sortLoggers(l1, l2) {
+		if (l1.getName() > l2.getName()) return 1;
+		else if (l1.getName() < l2.getName()) return -1;
+		else return 0;
+	}
+	return result.sort(sortLoggers);
 }
 
 /* ---------------------------------Logging events------------------------------------- */
@@ -2675,11 +2966,24 @@ var initPatternLayout = (function() {
 		 */
 		PatternLayout.prototype.format = function(loggingEvent) {
 			//TODO: for every logged message the entire config is parsed again. Maybe need to cache something to improve performance
-			var regex = /%(-?[0-9]+)?(\.?[0-9]+)?(message|msg|logger|date|level|relative|thread|solution|[cdfmnprts%])(\{([^\}]+)\})?|([^%]+)/;
+			var regex = /%(-?[0-9]+)?(\.?[0-9]+)?(message|msg|logger|date|level|relative|thread|solution|[cdflmnprtsM%])(\{([^\}]+)\})?|([^%]+)/;
 			var formattedString = "";
 			/** @type {Array<String>} */
 			var result;
 			var searchString = this.pattern;
+			var scriptTrace;
+			
+			// if does require a scriptTrace
+			var regexScriptTrace = /%(-?[0-9]+)?(\.?[0-9]+)?([lM%])(\{([^\}]+)\})?|([^%]+)/;
+			if (regexScriptTrace.test(searchString)) {
+				try {
+					var exception = new ServoyException();
+					scriptTrace = exception.getScriptStackTrace();
+					scriptTrace = scriptTrace.slice(scriptTrace.lastIndexOf("svyLogManager.js"));	// remove svyLogManager stack;
+				} catch (e) {
+					// TODO log the exception ?
+				}
+			}
 
 			// Cannot use regex global flag since it doesn't work with exec in IE5
 			while ( (result = regex.exec(searchString))) {
@@ -2799,6 +3103,15 @@ var initPatternLayout = (function() {
 								replacement = val;
 							}
 							break;
+						case 'l': 	// at line
+							// TODO check if scriptTrace exists ?
+							replacement = scriptTrace.slice(scriptTrace.indexOf("at"), scriptTrace.indexOf(")") + 1);
+							break;
+						case 'M': // Method name
+							// TODO check if scriptTrace exists ?
+							var methodIndex = scriptTrace.indexOf("(") + 1;
+							replacement = scriptTrace.slice(methodIndex, scriptTrace.indexOf(")"));
+							break;
 						case 'n': // New line
 							replacement = NEW_LINE;
 							break;
@@ -2878,12 +3191,11 @@ var initPatternLayout = (function() {
 			],
 			
 			/**
-			 * @param {AbstractLayout} pattern
+			 * @param {String} pattern
 			 */
 			create: function(pattern) {
-				var retval = new PatternLayout()
-				retval.pattern = pattern
-				return retval
+				var retval = new PatternLayout(pattern);
+				return retval;
 			}
 		}
 	}()

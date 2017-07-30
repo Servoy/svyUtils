@@ -1,3 +1,28 @@
+/*
+ * The MIT License
+ * 
+ * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2016 Servoy BV 
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * 
+ */
+
 /**
  * @type {scopes.svyLogManager.Logger}
  * @private 
@@ -54,6 +79,15 @@ var DEFAULT_ICON = {
 var terminator = (application.getApplicationType() == APPLICATION_TYPES.WEB_CLIENT ? new Continuation() : null);
 
 /**
+ * @private
+ * 
+ * @type {Array<String>}
+ *
+ * @properties={typeid:35,uuid:"407A0348-1735-47A4-B977-E8F7E566A1C6",variableType:-4}
+ */
+var formStack = [];
+
+/**
  * Method to terminate the current method execution after capturing a Continuation.
  * 
  * @private 
@@ -87,7 +121,7 @@ function CustomDialog(styleName, dialogTitle, dialogMessage, dialogIcon, dialogB
 	 * 
 	 * @type {String}
 	 */
-	this.formName = "dialogpro_" + application.getUUID().toString().replace(/-/g, "_");
+	this.formName = "svyCustomDialog_" + application.getUUID().toString().replace(/-/g, "_");
 	
 	/**
 	 * The JSForm
@@ -109,6 +143,13 @@ function CustomDialog(styleName, dialogTitle, dialogMessage, dialogIcon, dialogB
 	 * @type {Button}
 	 */
 	this.buttonClicked = null;
+	
+	/**
+	 * The text of the button clicked
+	 * 
+	 * @type {String}
+	 */
+	this.buttonClickedText = null;	
 	
 	/**
 	 * Gets / Sets the spacing in pixel between the dialog's content and the buttons
@@ -139,11 +180,11 @@ function CustomDialog(styleName, dialogTitle, dialogMessage, dialogIcon, dialogB
 	this.buttons = dialogButtons || [];
 	
 	/**
-	 * Gets / Sets the horizontal spacing between the labels and the fields of the dialog. The default is 10.
+	 * Gets / Sets the horizontal spacing between the labels and the fields of the dialog. The default is 15.
 	 * 
 	 * @type {Number}
 	 */
-	this.columnSpacing = 10;
+	this.columnSpacing = 15;
 	
 	/**
 	 * Gets / Sets an array of all components added to the dialog
@@ -218,7 +259,7 @@ function CustomDialog(styleName, dialogTitle, dialogMessage, dialogIcon, dialogB
 	 * 
 	 * @type {String}
 	 */
-	this.styleName = styleName;
+	this.styleName = styleName ? styleName : null;
 	
 	/**
 	 * Gets / Sets the title of the dialog (defaults to the solution name)
@@ -233,6 +274,13 @@ function CustomDialog(styleName, dialogTitle, dialogMessage, dialogIcon, dialogB
 	 * @type {String}
 	 */
 	this.message = dialogMessage;
+	
+	/**
+	 * An object that can be used to store any kind of data
+	 * 
+	 * @type {Object}
+	 */
+	this.customProperties = null;
 }
 
 /**
@@ -243,6 +291,16 @@ function CustomDialog(styleName, dialogTitle, dialogMessage, dialogIcon, dialogB
 var init_CustomDialog = (function() {
 	CustomDialog.prototype = Object.create(CustomDialog.prototype);
 	CustomDialog.prototype.constructor = CustomDialog;
+	
+	Object.defineProperty(CustomDialog.prototype, 'buttonClickedText', {
+		get: function() {
+			if (this.buttonClicked) {
+				return this.buttonClicked.text;
+			} else {
+				return null;
+			}
+		}
+	});
 
 	/**
 	 * Adds a button to this dialog
@@ -263,11 +321,53 @@ var init_CustomDialog = (function() {
 	 * Adds a component to this dialog
 	 * 
 	 * @param {DialogComponent} component
+	 * @return {CustomDialog}
 	 * @this {CustomDialog}
 	 */
 	CustomDialog.prototype.addComponent = function(component) {
 		this.components.push(component);
+		return this;
 	}
+	
+	/**
+	 * Adds a custom property to this dialog
+	 * 
+	 * @param {String} key
+	 * @param {Object} value
+	 * @return {CustomDialog}
+	 * @this {CustomDialog}
+	 */
+	CustomDialog.prototype.addCustomProperty = function(key, value) {
+		if (this.customProperties == null) {
+			this.customProperties = {};
+		}
+		this.customProperties[key] = value;
+		return this;
+	}
+	
+	/**
+	 * Returns the custom property with the given key
+	 * 
+	 * @param {String} key
+	 * @return {Object}
+	 * @this {CustomDialog}
+	 */
+	CustomDialog.prototype.getCustomPropertyValue = function(key) {
+		if (this.customProperties == null) {
+			return null;
+		}
+		return this.customProperties[key];
+	}
+	
+	/**
+	 * Returns the custom properties as an Object<key, value>
+	 * 
+	 * @return {Object}
+	 * @this {CustomDialog}
+	 */
+	CustomDialog.prototype.getCustomProperties = function() {
+		return this.customProperties;
+	}	
 	
 	/**
 	 * Adds a label to this dialog
@@ -404,11 +504,15 @@ var init_CustomDialog = (function() {
 	 * @param {String} [label]
 	 * @param {Array<String>|JSDataSet} [values]
 	 * @param {Array} [realValues]
+	 * @param {Object} [initialValue]
 	 * @return {Combobox}
 	 * @this {CustomDialog}
 	 */
-	CustomDialog.prototype.addCombobox = function(label, values, realValues) {
+	CustomDialog.prototype.addCombobox = function(label, values, realValues, initialValue) {
 		var cb = createCombobox(label, values, realValues);
+		if (initialValue) {
+			cb.setInitialValue(initialValue);
+		}
 		this.addComponent(cb);
 		return cb;
 	} 
@@ -451,6 +555,60 @@ var init_CustomDialog = (function() {
 	CustomDialog.prototype.isFormBuilt = function() {
 		return (this.formName in forms);
 	}
+	
+	/**
+	 * Sets the default field height. The default is 25.
+	 * 
+	 * @param {Number} defaultFieldHeight
+	 * @this {CustomDialog}
+	 */
+	CustomDialog.prototype.setDefaultFieldHeight = function(defaultFieldHeight) { 
+		this.defaultFieldHeight = defaultFieldHeight;
+		return this;		
+	}	
+	
+	/**
+	 * Sets the default field width
+	 * 
+	 * @param {Number} defaultFieldWidth
+	 * @this {CustomDialog}
+	 */
+	CustomDialog.prototype.setDefaultFieldWidth = function(defaultFieldWidth) { 
+		this.defaultFieldWidth = defaultFieldWidth;
+		return this;		
+	}	
+	
+	/**
+	 * Sets the horizontal spacing between the labels and the fields of the dialog. The default is 10.
+	 * 
+	 * @param {Number} columnSpacing
+	 * @this {CustomDialog}
+	 */
+	CustomDialog.prototype.setColumnSpacing = function(columnSpacing) { 
+		this.columnSpacing = columnSpacing;
+		return this;
+	}	
+	
+	/**
+	 * Sets the resizable property of the dialog (defaults to true)
+	 * 
+	 * @param {Boolean} resizable
+	 * @this {CustomDialog}
+	 */
+	CustomDialog.prototype.setResizable = function(resizable) { 
+		this.resizable = resizable;
+		return this;		
+	}	
+	
+	/**
+	 * Sets the title of the dialog (defaults to the solution name)
+	 * 
+	 * @param {String} title
+	 * @this {CustomDialog}
+	 */
+	CustomDialog.prototype.setTitle = function(title) { 
+		this.title = title;
+	}	
 	
 	/**
 	 * Sets the icon used for this dialog
@@ -508,6 +666,7 @@ var init_CustomDialog = (function() {
 	CustomDialog.prototype.closeDialog = function() {
 		var window = application.getWindow(this.jsForm.name);
 		if (window) {
+			forms[this.jsForm.name]['allowOnHide'] = true;
 			window.destroy();
 		}
 		return this;
@@ -788,7 +947,7 @@ var init_DialogComponent = (function() {
 		this.component.name = this.name;
 		this.component.enabled = this.enabled;
 		this.component.visible = this.visible;
-		this.component.anchors = this.anchors ? this.anchors : SM_ANCHOR.EAST | SM_ANCHOR.NORTH | SM_ANCHOR.WEST;
+		this.component.anchors = this.anchors ? this.anchors : customDialog.resizable ? SM_ANCHOR.EAST | SM_ANCHOR.NORTH | SM_ANCHOR.WEST : SM_ANCHOR.DEFAULT;
 		this.setAdditionalComponentProperties(this.component);
 		if (this.styleClass) this.component.styleClass = this.getStyleClass();
 		return (lastY + this.component.height);
@@ -1055,12 +1214,24 @@ var init_Button = (function() {
 	Button.prototype.constructor = Button;
 
 	/**
+	 * Returns the styleclass of this Button
 	 * @return {String} styleClass
 	 * @override 
 	 * @this {TextField}
 	 */
 	Button.prototype.getStyleClass = function() { 
 		return "button" + (this.styleClass ? "." + this.styleClass : "");
+	}
+	
+	/**
+	 * Sets whether the dialog should be closed when the button is clicked
+	 * @param {Boolean} closeDialogOnClick
+	 * @return {Button}
+	 * @this {Button}
+	 */
+	Button.prototype.setCloseDialogOnClick = function(closeDialogOnClick) {
+		this.closeDialogOnMethodCall = closeDialogOnClick;
+		return this;
 	}
 	
 	/**
@@ -1359,7 +1530,12 @@ function TextField() {
 	 */
 	this.format = null;
 	
-	var _titleText = null;
+	/**
+	 * The horizontal alignment
+	 * 
+	 * @type {Number}
+	 */
+	this.horizontalAlignment = null;
 	
 	/**
 	 * The onDataChangeMethod for this component
@@ -1379,11 +1555,19 @@ function TextField() {
 	});	
 	
 	/**
+	 * The fields placeholder text
+	 * 
+	 * @type {String}
+	 */
+	this.placeholderText = null;
+	
+	/**
 	 * The component's titleText
 	 * 
 	 * @type {String}
 	 */
 	this.titleText = null;	
+	var _titleText = null;
 	
 	Object.defineProperty(this, "titleText", {
 		get: function() {
@@ -1447,25 +1631,48 @@ var init_TextField = (function() {
 		if (this.format) {
 			textField.format = this.format;
 		}
+		if (this.horizontalAlignment != null) {
+			textField.horizontalAlignment = this.horizontalAlignment;
+		}		
 		if (this.editable) {
 			textField.editable = true;
 		} else {
 			textField.editable = false;
+		}
+		if (this.placeholderText) {
+			textField.placeholderText = this.placeholderText;
 		}
 		
 		//value list?
 		if (this.valueListName) {
 			textField.valuelist = solutionModel.getValueList(this.valueListName);
 		} else if (this.valueListValues.length > 0) {
-			var jsValueList = solutionModel.newValueList("dialogpro_valuelist_" + this.instanceId, JSValueList.CUSTOM_VALUES);
+			var jsValueList = solutionModel.newValueList("svyCustomDialog_valuelist_" + this.instanceId, JSValueList.CUSTOM_VALUES);
 			jsValueList.customValues = this.valueListValues
 			textField.valuelist = jsValueList;
 			//make sure a component with value list shows all values
 			if (this.valueListValues.length > 0 && [JSField.CHECKS, JSField.LISTBOX, JSField.MULTISELECT_LISTBOX, JSField.RADIOS].indexOf(this.displayType) != -1) {
-				if ([JSField.LISTBOX, JSField.MULTISELECT_LISTBOX].indexOf(this.displayType) != -1) {
+				var sHelper = getStyleHelper(customDialog.styleName);
+				if (!this.height && [JSField.LISTBOX, JSField.MULTISELECT_LISTBOX].indexOf(this.displayType) != -1) {
 					//list boxes don't need to be that high; 15pixels per row is an estimate...
-					textField.height = 15 * this.valueListValues.split("\n").length + 5;
-				} else {
+					textField.height = sHelper.getFontHeight(sHelper.getFontString("field")) * this.valueListValues.split("\n").length + 5;
+				} else if (!this.height && this.displayType == JSField.RADIOS) {
+					var numOfRows;
+					if (application.getApplicationType() == APPLICATION_TYPES.SMART_CLIENT) {
+						var listEntries = this.valueListValues.split("\n");
+						var maxEntryWidth = 0;
+						for (var v = 0; v < listEntries.length; v++) {
+							var entryWidth = sHelper.getTextWidth(sHelper.getFontString("radio"), '          ' + listEntries[v]);
+							if (entryWidth > maxEntryWidth) maxEntryWidth = entryWidth;
+						}
+						var entriesPerRow = Math.floor(width / maxEntryWidth);
+						numOfRows = Math.ceil(this.valueListValues.split("\n").length / entriesPerRow);
+						textField.height = textField.height * numOfRows + (numOfRows * 2);
+					} else {
+						numOfRows = Math.ceil(sHelper.getTextWidth(sHelper.getFontString("radio"), this.valueListValues.split("\n").join('  ')) / width);
+						textField.height = textField.height * numOfRows;						
+					}
+				} else if (!this.height) {
 					textField.height = textField.height * this.valueListValues.split("\n").length;
 				}
 				this.labelAlignment = SM_ALIGNMENT.TOP;
@@ -1477,7 +1684,7 @@ var init_TextField = (function() {
 		
 		//onDataChange method?
 		if (this.onDataChangeMethod) {
-			var jsOnDataChangeMethod = customDialog.jsForm.newMethod("function onDataChange_" + this.instanceId + "(oldValue, newValue, event) { scopes.svySystem.callMethod('" + this.onDataChangeMethod + "', [oldValue, newValue, event, customDialog]) }");
+			var jsOnDataChangeMethod = customDialog.jsForm.newMethod("function onDataChange_" + this.instanceId + "(oldValue, newValue, event) { return scopes.svySystem.callMethod('" + this.onDataChangeMethod + "', [oldValue, newValue, event, customDialog, customDialog.getComponent(event.getElementName())]) }");
 			textField.onDataChange = jsOnDataChangeMethod;
 		}
 		return textField;
@@ -1493,7 +1700,7 @@ var init_TextField = (function() {
 
 	/**
 	 * Sets the onDataChange method for this component<p>
-	 * The onDataChange method receives the CustomDialog object as last parameter
+	 * The onDataChange method receives the CustomDialog and the DialogComponent object as last parameters
 	 * 
 	 * @param {Function} onDataChangeMethod
 	 * @this {TextField}
@@ -1566,6 +1773,30 @@ var init_TextField = (function() {
 		this.format = format;
 		return this;
 	}
+	
+	/**
+	 * Sets the horizontal alignment of this component
+	 * 
+	 * @param {Number} alignment
+	 * @return {TextField}
+	 * @this {TextField}
+	 */
+	TextField.prototype.setHorizontalAlignment = function(alignment) {
+		this.horizontalAlignment = alignment;
+		return this;
+	}	
+	
+	/**
+	 * Sets the placeholder text of this component
+	 * 
+	 * @param {String} placeholderText
+	 * @return {TextField}
+	 * @this {TextField}
+	 */
+	TextField.prototype.setPlaceholderText = function(placeholderText) {
+		this.placeholderText = placeholderText;
+		return this;
+	}		
 	
 	/**
 	 * Sets the value list of this component
@@ -1760,7 +1991,7 @@ var init_RadioButtonGroup = (function() {
 	 * @param {JSField} dialogComponent
 	 */
 	RadioButtonGroup.prototype.setAdditionalComponentProperties = function(dialogComponent) {
-		dialogComponent.scrollbars = SM_SCROLLBAR.VERTICAL_SCROLLBAR_NEVER;
+		dialogComponent.scrollbars = SM_SCROLLBAR.VERTICAL_SCROLLBAR_NEVER | SM_SCROLLBAR.HORIZONTAL_SCROLLBAR_NEVER;
 	}
 	
 	/**
@@ -1878,6 +2109,8 @@ function buildDialogForm(customDialog) {
 	
 	var jsForm = solutionModel.newForm(customDialog.formName, null, null, false, 10, 10);
 	customDialog.jsForm = jsForm;
+	
+	addToFormStack(customDialog.formName);
 		
 	var y = customDialog.insets.top + (customDialog.header ? customDialog.header.height : 0);
 	var webclientExtraPixels = application.getApplicationType() == APPLICATION_TYPES.WEB_CLIENT ? 5 : 0;
@@ -1935,7 +2168,7 @@ function buildDialogForm(customDialog) {
 			labelWidth += webclientExtraPixels;
 			//leave space for checkbox
 			labelWidth += 30;
-			if (labelWidth > maxFieldWidth) maxFieldWidth = labelWidth;
+			if (labelWidth > (maxLabelWidth + maxFieldWidth)) maxFieldWidth = labelWidth - maxLabelWidth;
 		}
 		
 		//make sure a label text fits the box
@@ -1952,6 +2185,30 @@ function buildDialogForm(customDialog) {
 			} else if (labelWidth > maxFieldWidth) {
 				//make sure the label fits the field column
 				maxFieldWidth = labelWidth;
+			}
+		}
+		
+		if (comp instanceof TextField) {
+			/** @type {TextField} */
+			var textFieldComp = comp;
+			var valueWidth;
+			if (textFieldComp.valueListName) {
+				var valueListDs = application.getValueListItems(textFieldComp.valueListName);
+				for (var vlds = 1; vlds <= valueListDs.getMaxRowIndex(); vlds++) {
+					var row = valueListDs.getRowAsArray(vlds);
+					valueWidth = styleHelper ? styleHelper.getTextWidth(styleHelper.getFontString(textFieldComp.getStyleClass()), row[0]) + 20 : 0;
+					if (valueWidth > maxFieldWidth) maxFieldWidth = valueWidth;
+				}
+			} else if (textFieldComp.valueListValues) {
+				var valueListEntries = textFieldComp.valueListValues.split('\n');
+				for (var vlv = 0; vlv < valueListEntries.length; vlv++) {
+					var displayValue = valueListEntries[vlv];
+					if (displayValue.indexOf('|') !== -1) {
+						displayValue = displayValue.split('|')[0];
+					}
+					valueWidth = styleHelper ? styleHelper.getTextWidth(styleHelper.getFontString(textFieldComp.getStyleClass()), displayValue) + 20 : 0;
+					if (valueWidth > maxFieldWidth) maxFieldWidth = valueWidth;
+				}
 			}
 		}
 	}
@@ -2069,9 +2326,21 @@ function buildDialogForm(customDialog) {
 	jsForm.getBodyPart().height = y + customDialog.insets.bottom;
 	jsForm.newVariable("customDialog", JSVariable.MEDIA);
 	jsForm.newVariable("continuation", JSVariable.MEDIA);
+	jsForm.newVariable("allowOnHide", JSVariable.MEDIA);
 	
 	if (customDialog.onClose == ON_CLOSE.IGNORE) {
-		var onHide = jsForm.newMethod("function onHide(event) { if (!customDialog.buttonClicked) { return false; } else { return true; } }");
+		var onHide = jsForm.newMethod("\
+			function onHide(event) { \
+				if (allowOnHide) { \
+					return true; \
+				} else if (!customDialog.buttonClicked) { \
+					return false; \
+				} else if (customDialog.buttonClicked.closeDialogOnMethodCall == false) { \
+					return false; \
+				} else { \
+					return true; \
+				} \
+			}");
 		jsForm.onHide = onHide;
 	}
 	
@@ -2082,6 +2351,7 @@ function buildDialogForm(customDialog) {
 	}
 	
 	forms[jsForm.name]["customDialog"] = customDialog;
+	forms[jsForm.name]["allowOnHide"] = false;
 	
 	return jsForm;
 }
@@ -2089,11 +2359,11 @@ function buildDialogForm(customDialog) {
 /**
  * Creates and returns a CustomDialog
  * 
- * @param {String} styleName the name of the style to be used
+ * @param {String} [styleName] the name of the style to be used
  * @param {String} [title] the title of the dialog
  * @param {String} [message] an optional message that is shown on top of the dialog
  * @param {String|byte[]|plugins.file.JSFile} [icon] an optional dialog icon (see the DEFAULT_ICON constant for pre-defined icons)
- * @param {Array<Button>} [buttons] an optional array of buttons
+ * @param {Array<Button>|Array<String>} [buttons] an optional array of buttons
  * @param {Array<DialogComponent>} [components] an optional array of components
  * 
  * @example 
@@ -2147,7 +2417,18 @@ function buildDialogForm(customDialog) {
  * @properties={typeid:24,uuid:"9C095F21-2C15-4E12-870A-5D63B8F7BB1A"}
  */
 function createCustomDialog(styleName, title, message, icon, buttons, components) {
-	return new CustomDialog(styleName, title, message, icon, buttons, components);
+	/** @type {Array<Button>} */
+	var btnsToAdd = [];
+	if (buttons instanceof Array && buttons.length > 0 && buttons[0] instanceof String) {
+		for (var s = 0; s < buttons.length; s++) {
+			/** @type {String} */
+			var buttonLabel = buttons[s];
+			btnsToAdd.push(createButton(buttonLabel));
+		}
+	} else {
+		btnsToAdd = buttons;
+	}
+	return new CustomDialog(styleName, title, message, icon, btnsToAdd, components);
 }
 
 /**
@@ -2270,7 +2551,7 @@ function createPasswordField(label, initialValue) {
 }
 
 /**
- * Creates and returns a PasswordField
+ * Creates and returns a RadioButtonGroup
  * 
  * @param {String} [label] optional label for the component; if set to null, the component will span the whole dialog, if set to an empty string, the label will be empty, but the field is shown in the fields column
  * @param {Array<String>|JSDataSet} [values] values for a custom value list as either display/real values arrays or a JSDataSet containing both
@@ -2349,6 +2630,60 @@ function createCombobox(label, values, realValues) {
 }
 
 /**
+ * Show a form in a modal dialog
+ *
+ * @param {String|RuntimeForm} formToShow
+ * @param {Number} [x]
+ * @param {Number} [y]
+ * @param {Number} [width]
+ * @param {Number} [height]
+ * @param {String} [title]
+ * @param {Boolean} [resizable]
+ * @param {Boolean} [showTextToolbar]
+ * @param {String} [windowName]
+ *
+ * @properties={typeid:24,uuid:"BD1320BF-A042-4C45-B609-7B8A0340A7EA"}
+ */
+function showFormInDialog(formToShow, x, y, width, height, title, resizable, showTextToolbar, windowName) {
+	if (!windowName) windowName = "svyCustomDialog_" + application.getUUID().toString().replace(/-/g, "_");
+	
+	var window = application.createWindow(windowName, JSWindow.MODAL_DIALOG);
+	if (x == null) x = -1;
+	if (y == null) y = -1;
+	if (width == null) width = -1;
+	if (height == null) height = -1;
+	
+	window.setInitialBounds(x, y, width, height);
+	window.title = title;
+	if (resizable != undefined) window.resizable = resizable;
+	if (showTextToolbar === true) window.showTextToolbar(showTextToolbar);
+	
+	if (application.getApplicationType() == APPLICATION_TYPES.WEB_CLIENT) {
+		/** @type {String} */
+		var originalFormName = formToShow;
+		if (formToShow instanceof RuntimeForm) {
+			originalFormName = formToShow.controller.getName();
+		}
+		var jsFormOriginal = solutionModel.getForm(originalFormName);
+		var jsForm = solutionModel.newForm(windowName, jsFormOriginal);
+		jsForm.newVariable("continuation", JSVariable.MEDIA);
+		var onHide = jsForm.newMethod("function onHide(event) { if (_super.onHide) { _super.onHide(); } if (continuation) { continuation(); } }");
+		jsForm.onHide = onHide;
+		
+		addToFormStack(windowName);
+		
+		forms[windowName]["continuation"] = new Continuation();
+		
+		window.show(forms[windowName]);
+		return terminateCurrentMethodExecution();
+	} else {
+		window.show(formToShow);
+		return this;
+	}
+}
+
+
+/**
  * Shows a message dialog with the specified title, message and a customizable set of buttons.
  * 
  * @param {String} title the dialog title
@@ -2359,6 +2694,10 @@ function createCombobox(label, values, realValues) {
  */
 function showInfoDialog(title, message, buttons) {
 	if (application.getApplicationType() != APPLICATION_TYPES.WEB_CLIENT) {
+		/** @type {Array<String>} */
+		var buttonArgs = Array.prototype.slice.call(arguments);
+		buttonArgs.splice(0, 2);
+		buttons = buttonArgs;
 		return plugins.dialogs.showInfoDialog(title, message, buttons);
 	} else {
 		return showDefaultDialog(arguments, DEFAULT_ICON.INFO);
@@ -2376,10 +2715,13 @@ function showInfoDialog(title, message, buttons) {
  */
 function showQuestionDialog(title, message, buttons) {
 	if (application.getApplicationType() != APPLICATION_TYPES.WEB_CLIENT) {
+		/** @type {Array<String>} */
+		var buttonArgs = Array.prototype.slice.call(arguments);
+		buttonArgs.splice(0, 2);
+		buttons = buttonArgs;
 		return plugins.dialogs.showQuestionDialog(title, message, buttons);
 	} else {
-		var questionIcon = javaIconToByteArray(Packages.javax.swing.UIManager.getIcon("OptionPane.questionIcon"));
-		return showDefaultDialog(arguments, questionIcon);
+		return showDefaultDialog(arguments, DEFAULT_ICON.INFO);
 	}
 }
 
@@ -2394,6 +2736,10 @@ function showQuestionDialog(title, message, buttons) {
  */
 function showWarningDialog(title, message, buttons) {
 	if (application.getApplicationType() != APPLICATION_TYPES.WEB_CLIENT) {
+		/** @type {Array<String>} */
+		var buttonArgs = Array.prototype.slice.call(arguments);
+		buttonArgs.splice(0, 2);
+		buttons = buttonArgs;
 		return plugins.dialogs.showWarningDialog(title, message, buttons);
 	} else {
 		return showDefaultDialog(arguments, DEFAULT_ICON.WARNING);
@@ -2438,6 +2784,32 @@ function showInputDialog(title, message, initialValue) {
 		var result = cd.showDialog();
 		return result.getResult() ? result.getResult()[0] : null;
 	}
+}
+
+/**
+ * @private
+ *
+ * @param {String} formName
+ *
+ * @properties={typeid:24,uuid:"7DBD9017-B29B-4C9D-A869-BDEE3CD7B3B5"}
+ */
+function addToFormStack(formName) {
+	var success;
+	for (var i = 0; i < formStack.length; i++) {
+		success = history.removeForm(formStack[i]);
+		if (!success) {
+			logger.debug('Couldn\'t remove form "' + formStack[i] + '" from history');
+			continue;
+		}
+		success = solutionModel.removeForm(formStack[i]);
+		if (!success) {
+			logger.debug('Couldn\'t remove form "' + formStack[i] + '"');
+			continue;
+		}
+		logger.debug('Cleaned up customDialog form "' + formStack[i] + '"');
+		formStack.splice(i, 1);
+	}
+	formStack.push(formName);
 }
 
 /**
@@ -2492,19 +2864,19 @@ function getIconFromArgs(iconArgs) {
 			if (!jsFileFromString.exists()) {
 				throw new scopes.svyExceptions.IllegalArgumentException("Can't find media \"" + iconArgs + "\"");
 			}
-			media = solutionModel.newMedia("dialogpro_media_" + application.getUUID().toString().replace(/-/g, "_"), jsFileFromString.getBytes());
+			media = solutionModel.newMedia("svyCustomDialog_media_" + application.getUUID().toString().replace(/-/g, "_"), jsFileFromString.getBytes());
 		}
 	} else if (iconArgs instanceof Array) {
 		/** @type {byte[]} */
 		var iconArgsBytes = iconArgs;
-		media = solutionModel.newMedia("dialogpro_media_" + application.getUUID().toString().replace(/-/g, "_"), iconArgsBytes);
+		media = solutionModel.newMedia("svyCustomDialog_media_" + application.getUUID().toString().replace(/-/g, "_"), iconArgsBytes);
 	} else if (iconArgs instanceof plugins.file.JSFile) {
 		/** @type {plugins.file.JSFile} */
 		var iconArgsFile = iconArgs;
 		if (!iconArgsFile.exists()) {
 			throw new scopes.svyExceptions.IllegalArgumentException("Can't find media \"" + iconArgs + "\"");
 		}
-		media = solutionModel.newMedia("dialogpro_media_" + application.getUUID().toString().replace(/-/g, "_"), iconArgsFile.getBytes());
+		media = solutionModel.newMedia("svyCustomDialog_media_" + application.getUUID().toString().replace(/-/g, "_"), iconArgsFile.getBytes());
 	} else {
 		throw new scopes.svyExceptions.IllegalArgumentException("Can't get media from arguments " + iconArgs);
 	}

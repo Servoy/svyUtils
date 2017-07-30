@@ -1,18 +1,26 @@
 /*
- * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2013 Servoy BV 
+ * The MIT License
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2016 Servoy BV 
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * 
  */
 
 /**
@@ -279,11 +287,13 @@ var defaultPrintSetup;
  * 
  * @public 
  * 
+ * @param {String|plugins.file.JSFile|Number} [templateOrFileType] either an existing Excel file as template or one of the FILE_FORMAT constants when creating empty workbooks
+ * 
  * @return {ExcelWorkbook}
  * 
  * @example <pre>
  * // Create workbook and sheet
- * var workbook = scopes.svyExcelUtils.createWorkbook();
+ * var workbook = scopes.svyExcelUtils.createWorkbook(scopes.svyExcelUtils.FILE_FORMAT.XLSX);
  * var sheet = workbook.createSheet("Test");
  * 
  * // Create style for the header
@@ -335,8 +345,8 @@ var defaultPrintSetup;
  *
  * @properties={typeid:24,uuid:"CCF85B3E-E45B-4797-9A45-06C679BD252B"}
  */
-function createWorkbook() {
-	return new ExcelWorkbook();
+function createWorkbook(templateOrFileType) {
+	return new ExcelWorkbook(templateOrFileType);
 }
 
 /**
@@ -357,22 +367,22 @@ function getWorkbook(original) {
 /**
  * Creates an ExcelWorkbook from the given foundset<p>
  * 
- * If a template is provided, the foundset will be inserted in the given sheet
+ * If a templateOrFileType is provided, the foundset will be inserted in the given sheet
  * 
  * @public 
  * 
  * @param {JSFoundSet} foundset - the foundset
  * @param {Array<String>} dataproviders - the dataproviders to be used for the excel sheet
  * @param {Array<String>} [headers] - the text to be used as column headers
- * @param {String|plugins.file.JSFile|Number} [template] either file or media URL pointing to an existing Excel to be used as template or one of the FILE_FORMAT constants when creating empty workbooks
+ * @param {String|plugins.file.JSFile|Number} [templateOrFileType] either file or media URL pointing to an existing Excel to be used as templateOrFileType or one of the FILE_FORMAT constants when creating empty workbooks
  * @param {String} [sheetNameToUse] - when a template is used, this is the name of the sheet to be filled
  * 
  * @return {FoundSetExcelWorkbook}
  *
  * @properties={typeid:24,uuid:"23327BCA-78A2-43C8-8017-66EB9AF6AEFA"}
  */
-function createWorkbookFromFoundSet(foundset, dataproviders, headers, template, sheetNameToUse) {
-	return new FoundSetExcelWorkbook(foundset, dataproviders, headers, template, sheetNameToUse);
+function createWorkbookFromFoundSet(foundset, dataproviders, headers, templateOrFileType, sheetNameToUse) {
+	return new FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileType, sheetNameToUse);
 }
 
 /**
@@ -385,15 +395,15 @@ function createWorkbookFromFoundSet(foundset, dataproviders, headers, template, 
  * @param {JSDataSet} dataset - the dataset
  * @param {Array<Number>} [columns] - the column numbers to be included in the sheet
  * @param {Array<String>} [headers] - the text to be used as column headers
- * @param {String|plugins.file.JSFile|Number} [template] either file or media URL pointing to an existing Excel to be used as template or one of the FILE_FORMAT constants when creating empty workbooks
+ * @param {String|plugins.file.JSFile|Number} [templateOrFileType] either file or media URL pointing to an existing Excel to be used as template or one of the FILE_FORMAT constants when creating empty workbooks
  * @param {String} [sheetNameToUse] - when a template is used, this is the name of the sheet to be filled
  * 
  * @return {DataSetExcelWorkbook}
  *
  * @properties={typeid:24,uuid:"8C20858C-E1C9-4639-ABD7-15B516BA369B"}
  */
-function createWorkbookFromDataSet(dataset, columns, headers, template, sheetNameToUse) {
-	return new DataSetExcelWorkbook(dataset, columns, headers, template, sheetNameToUse);
+function createWorkbookFromDataSet(dataset, columns, headers, templateOrFileType, sheetNameToUse) {
+	return new DataSetExcelWorkbook(dataset, columns, headers, templateOrFileType, sheetNameToUse);
 }
 
 /**
@@ -403,11 +413,11 @@ function createWorkbookFromDataSet(dataset, columns, headers, template, sheetNam
  * 
  * @public 
  *
- * @param {String|plugins.file.JSFile|Number} [template] either an existing Excel file as template or one of the FILE_FORMAT constants when creating empty workbooks
+ * @param {String|plugins.file.JSFile|Number} [templateOrFileType] either an existing Excel file as template or one of the FILE_FORMAT constants when creating empty workbooks
  * 
  * @example <pre>
  * // Create workbook and sheet
- * var workbook = new scopes.svyExcelUtils.Workbook();
+ * var workbook = new scopes.svyExcelUtils.Workbook(scopes.svyExcelUtils.FILE_FORMAT.XLSX);
  * var sheet = workbook.createSheet("Test");
  * 
  * // Create style for the header
@@ -459,11 +469,11 @@ function createWorkbookFromDataSet(dataset, columns, headers, template, sheetNam
  * 
  * @properties={typeid:24,uuid:"397FC940-8B31-44D7-BE4A-AA02A65A8981"}
  */
-function ExcelWorkbook(template) {
+function ExcelWorkbook(templateOrFileType) {
 	
 	if (!(this instanceof ExcelWorkbook)) {
 		logger.warn("ExcelWorkbook constructor called without the \"new\" keyword");
-		return new ExcelWorkbook(template);
+		return new ExcelWorkbook(templateOrFileType);
 	}
 
 	/**
@@ -472,24 +482,24 @@ function ExcelWorkbook(template) {
 	 */
 	this.wb = null;
 
-	if (!template) {
-		template = FILE_FORMAT.XLS;
+	if (!templateOrFileType) {
+		templateOrFileType = FILE_FORMAT.XLS;
 	}
 
 	//workbook factory
 	var factory = Packages.org.apache.poi.ss.usermodel.WorkbookFactory;
 
-	if (template instanceof Number) {
+	if (templateOrFileType instanceof Number) {
 		/** @type {Number} */
-		var format = template;
+		var format = templateOrFileType;
 		if (format == FILE_FORMAT.XLS) {
 			this.wb = new Packages.org.apache.poi.hssf.usermodel.HSSFWorkbook();
 		} else {
 			this.wb = new Packages.org.apache.poi.xssf.usermodel.XSSFWorkbook();
 		}
-	} else if (template instanceof String) {
+	} else if (templateOrFileType instanceof String) {
 		/** @type {String} */
-		var filePathOrUrl = template;
+		var filePathOrUrl = templateOrFileType;
 		if (filePathOrUrl.indexOf("media:///") >= 0) {
 			var wbData = plugins.http.getMediaData(filePathOrUrl);
 			var bis = new java.io.ByteArrayInputStream(wbData);
@@ -497,9 +507,9 @@ function ExcelWorkbook(template) {
 		} else {
 			this.wb = factory.create(new java.io.File(plugins.file.convertToJSFile(filePathOrUrl).getAbsolutePath()));
 		}
-	} else if (template instanceof plugins.file.JSFile) {
+	} else if (templateOrFileType instanceof plugins.file.JSFile) {
 		/** @type {plugins.file.JSFile} */
-		var jsFile = template;
+		var jsFile = templateOrFileType;
 		this.wb = factory.create(new java.io.File(jsFile.getAbsolutePath()));
 	} else {
 		throw new scopes.svyExceptions.IllegalArgumentException("Wrong arguments provided for ExcelWorkbook");
@@ -756,19 +766,19 @@ var initExcelWorkbook = (function() {
  * @constructor 
  * @extends {ExcelWorkbook}
  * @private 
- * @param {String|plugins.file.JSFile|Number} [template] either an existing Excel file as template or one of the FILE_FORMAT constants when creating empty workbooks
+ * @param {String|plugins.file.JSFile|Number} [templateOrFileType] either an existing Excel file as template or one of the FILE_FORMAT constants when creating empty workbooks
  * @param {String} sheetNameToUse
  *
  * @properties={typeid:24,uuid:"62218771-88C9-4D58-954C-4B39A92F8513"}
  */
-function ServoyExcelWorkbook(template, sheetNameToUse) {
+function ServoyExcelWorkbook(templateOrFileType, sheetNameToUse) {
 	
 	if (!(this instanceof ServoyExcelWorkbook)) {
 		logger.warn("ServoyExcelWorkbook constructor called without the \"new\" keyword");
-		return new ServoyExcelWorkbook(template, sheetNameToUse);
+		return new ServoyExcelWorkbook(templateOrFileType, sheetNameToUse);
 	}
 	
-	ExcelWorkbook.call(this, template);
+	ExcelWorkbook.call(this, templateOrFileType);
 	
 	/**
 	 * The style used for the header of the data
@@ -810,14 +820,14 @@ function ServoyExcelWorkbook(template, sheetNameToUse) {
 	 * The ExcelWorkbook created
 	 * @type {ExcelWorkbook}
 	 */
-	this.workbook = new ExcelWorkbook(template);	
+	this.workbook = new ExcelWorkbook(templateOrFileType);	
 	
 	/**
 	 * The ExcelSheet used or created
 	 * @type {ExcelSheet}
 	 */
 	this.sheet = null;
-	if (template && !(template instanceof Number)) {
+	if (templateOrFileType && !(templateOrFileType instanceof Number)) {
 		if (sheetNameToUse) {
 			this.sheet = this.workbook.getSheet(sheetNameToUse);
 			if (!this.sheet) {
@@ -977,19 +987,19 @@ var initServoyExcelWorkbook = (function() {
  * @param {JSFoundSet} foundset - the foundset
  * @param {Array<String>} dataproviders - the dataproviders to be used for the excel sheet
  * @param {Array<String>} [headers] - the text to be used as column headers
- * @param {String|plugins.file.JSFile|Number} [template] either file or media URL pointing to an existing Excel to be used as template or one of the FILE_FORMAT constants when creating empty workbooks
+ * @param {String|plugins.file.JSFile|Number} [templateOrFileType] either file or media URL pointing to an existing Excel to be used as template or one of the FILE_FORMAT constants when creating empty workbooks
  * @param {String} [sheetNameToUse] - when a template is used, this is the name of the sheet to be filled
  *
  * @properties={typeid:24,uuid:"98D3A864-3E94-47AD-99E6-4B77046BDFEC"}
  */
-function FoundSetExcelWorkbook(foundset, dataproviders, headers, template, sheetNameToUse) {
+function FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileType, sheetNameToUse) {
 	
 	if (!(this instanceof FoundSetExcelWorkbook)) {
 		logger.warn("FoundSetExcelWorkbook constructor called without the \"new\" keyword");
-		return new FoundSetExcelWorkbook(foundset, dataproviders, headers, template);
+		return new FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileType);
 	}
 	
-	ServoyExcelWorkbook.call(this, template, sheetNameToUse);
+	ServoyExcelWorkbook.call(this, templateOrFileType, sheetNameToUse);
 	
 	/**
 	 * @type {Boolean}
@@ -1043,6 +1053,7 @@ function FoundSetExcelWorkbook(foundset, dataproviders, headers, template, sheet
 		var numberCellStyle = this.workbook.createCellStyle();
 		numberCellStyle.cloneStyleFrom(this.rowStyle);
 		numberCellStyle.setAlignment(ALIGNMENT.RIGHT);
+		numberCellStyle.setDataFormat(this.defaultNumberFormat);
 
 		var dateCellStyle = this.workbook.createCellStyle();
 		dateCellStyle.cloneStyleFrom(this.rowStyle);
@@ -1131,7 +1142,7 @@ var initFoundSetExcelWorkbook = (function() {
  * @param {JSDataSet} dataset - the dataset
  * @param {Array<Number>} [columns] - the column numbers to be included in the sheet
  * @param {Array<String>} [headers] - the text to be used as column headers
- * @param {String|plugins.file.JSFile|Number} [template] either file or media URL pointing to an existing Excel to be used as template or one of the FILE_FORMAT constants when creating empty workbooks
+ * @param {String|plugins.file.JSFile|Number} [templateOrFileType] either file or media URL pointing to an existing Excel to be used as template or one of the FILE_FORMAT constants when creating empty workbooks
  * @param {String} [sheetNameToUse] - when a template is used, this is the name of the sheet to be filled
  * 
  * @example <pre>
@@ -1164,14 +1175,14 @@ var initFoundSetExcelWorkbook = (function() {
  *
  * @properties={typeid:24,uuid:"EF4F46C2-684F-4589-97A0-CFF3338833F8"}
  */
-function DataSetExcelWorkbook(dataset, columns, headers, template, sheetNameToUse) {
+function DataSetExcelWorkbook(dataset, columns, headers, templateOrFileType, sheetNameToUse) {
 	
 	if (!(this instanceof DataSetExcelWorkbook)) {
 		logger.warn("DataSetExcelWorkbook constructor called without the \"new\" keyword");
-		return new DataSetExcelWorkbook(dataset, columns, headers, template);
+		return new DataSetExcelWorkbook(dataset, columns, headers, templateOrFileType);
 	}
 	
-	ServoyExcelWorkbook.call(this, template, sheetNameToUse);
+	ServoyExcelWorkbook.call(this, templateOrFileType, sheetNameToUse);
 	
 	/**
 	 * The dataset used to create this workbook
@@ -1232,6 +1243,7 @@ function DataSetExcelWorkbook(dataset, columns, headers, template, sheetNameToUs
 		var numberCellStyle = this.workbook.createCellStyle();
 		numberCellStyle.cloneStyleFrom(this.rowStyle);
 		numberCellStyle.setAlignment(ALIGNMENT.RIGHT);
+		numberCellStyle.setDataFormat(this.defaultNumberFormat);
 
 		var dateCellStyle = this.workbook.createCellStyle();
 		dateCellStyle.cloneStyleFrom(this.rowStyle);
@@ -1513,6 +1525,10 @@ var initExcelSheet = (function() {
 		var row;
 		var cell, rowData;
 		
+		if (this.sheet.getPhysicalNumberOfRows() == 0) {
+			return databaseManager.createEmptyDataSet(0, 0);
+		}
+		
 		if (!startRow) {
 			startRow = this.sheet.getFirstRowNum();
 		} else {
@@ -1520,7 +1536,18 @@ var initExcelSheet = (function() {
 		}
 		if (!startColumn) {
 			row = this.sheet.getRow(startRow);
-			startColumn = row.getFirstCellNum();
+			if (!row) {
+				for (var r = startRow; r <= this.sheet.getPhysicalNumberOfRows(); r++) {
+					row = this.sheet.getRow(r);
+					if (row) {
+						startRow = r;
+						startColumn = row.getFirstCellNum();
+						break;
+					}
+				}
+			} else {
+				startColumn = row.getFirstCellNum();
+			}
 		} else {
 			startColumn -= 1;
 		}
@@ -1533,7 +1560,17 @@ var initExcelSheet = (function() {
 			endColumn -= 1;
 		} else {
 			row = this.sheet.getRow(startRow);
-			endColumn = row.getLastCellNum() - 1;
+			if (!row) {
+				for (var rr = startRow; rr <= this.sheet.getPhysicalNumberOfRows(); rr++) {
+					row = this.sheet.getRow(rr);
+					if (row) {
+						startColumn = row.getLastCellNum() - 1;
+						break;
+					}
+				}
+			} else {
+				endColumn = row.getLastCellNum() - 1;
+			}
 		}
 		
 		var dataset;
@@ -1558,7 +1595,7 @@ var initExcelSheet = (function() {
 		}
 		for (var i = startRow; i <= endRow; i++) {
 			row = this.sheet.getRow(i);
-			if (row == null || row.getPhysicalNumberOfCells()) continue;
+			if (row == null || !row.getPhysicalNumberOfCells()) continue;
 			rowData = [];
 			for (var c = startColumn; c <= endColumn; c++) {
 				cell = row.getCell(c);
@@ -2622,11 +2659,11 @@ function setDefaultPrintSetup(setup) {
 function getCellData(cell) {
 	var result = null;
 	var cellType = cell.getCellType();
-	if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_STRING) {
+	if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_STRING || (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_FORMULA && cell.getCachedFormulaResultType() == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_STRING)) {
 		result = cell.getStringCellValue();
-	} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BOOLEAN) {
+	} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BOOLEAN || (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_FORMULA && cell.getCachedFormulaResultType() == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BOOLEAN)) {
 		result = cell.getBooleanCellValue() ? 1 : 0;
-	} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC) {
+	} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC || (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_FORMULA && cell.getCachedFormulaResultType() == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC)) {
 		if (Packages.org.apache.poi.ss.usermodel.DateUtil.isCellDateFormatted(cell)) {
 			result = new Date(cell.getDateCellValue().getTime());
 		} else {

@@ -1,18 +1,26 @@
 /*
- * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2013 Servoy BV 
+ * The MIT License
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2016 Servoy BV 
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * 
  */
 
 /*
@@ -36,10 +44,10 @@
  * 			datasource: "db:/my_db/log_events",
  * 			userId: globals.myUserId,
  * 			dbMapping: { eventTimeColumnName: "event_time", loggerColumnName: "logger_name", logLevelColumnName: "log_level", logMessageColumnName: "log_message", userIdColumName: "user_id", solutionColumnName: "solution_name" },
- * 			customColumns: null,
- * 			PatternLayout: {
- * 				pattern: ""
- * 			}
+ * 			customColumns: [{columnName: 'my_custom_field', value: 'Hello'} , {columnName: 'my_custom_field_2', value: 'scopes.test.getMyValue'}, {columnName: 'my_custom_field_3'}],
+ *			PatternLayout: {
+ *				pattern: "%msg"
+ *			}
  * 		}],
  * 		loggers: {
  * 			root: {
@@ -48,6 +56,14 @@
  * 			}
  * 		}
  * 	});
+ * 
+ * If PatternLayout is used, values for custom columns can be provided as parameters to the logger methods:
+ * 
+ * logger.debug('This is a {} {} message', 'Hello', 'World', {my_custom_field: 'abc', my_custom_field_2: 'def'});
+ * 
+ * This will result in the message 'This is a Hello World message' and 'abc' will be written to the column 
+ * 'my_custom_field' and 'def' to 'my_custom_field_2'. If no values are provided as parameters, the default
+ * value or function call will be used instead.
  * 
  */
 
@@ -61,6 +77,7 @@
  * 	logLevelColumnName: String=, 
  * 	logMessageColumnName: String, 
  * 	userIdColumName: String=,
+ * 	userIdColumnName: String=,
  * 	solutionColumnName: String=
  * }}
  *
@@ -113,7 +130,7 @@ function DbAppender(datasource, dbMapping, userId) {
 	/**
 	 * Array of custom columns that can be configured with fixed values, variables or Function calls
 	 * 
-	 * @type {Array<{columnName: String, value: Object|Function}>}
+	 * @type {Array<{columnName: String, value: Object|Function=}>}
 	 */
 	this.customColumns = [];
 	
@@ -163,11 +180,15 @@ var initDbAppender = (function() {
 		
 		var record = this.foundset.getRecord(this.foundset.newRecord());
 
+		var params = loggingEvent.message.getParameters();
+		/** @type {Object<*>} */
+		var customFieldValues = params ? params.pop() : null;
 		if (this.dbMapping.eventTimeColumnName) record[this.dbMapping.eventTimeColumnName] = loggingEvent.timeStamp;
 		if (this.dbMapping.logLevelColumnName) record[this.dbMapping.logLevelColumnName] = loggingEvent.level.intLevel;
 		if (this.dbMapping.logLevelNameColumnName) record[this.dbMapping.logLevelNameColumnName] = loggingEvent.level.name;
 		if (this.dbMapping.logMessageColumnName) record[this.dbMapping.logMessageColumnName] = loggingEvent.message.getFormattedMessage();
 		if (this.dbMapping.userIdColumName && this.userId) record[this.dbMapping.userIdColumName] = this.userId;
+		if (this.dbMapping.userIdColumnName && this.userId) record[this.dbMapping.userIdColumnName] = this.userId;
 		if (this.dbMapping.loggerColumnName) record[this.dbMapping.loggerColumnName] = loggingEvent.logger.name;
 		if (this.dbMapping.solutionColumnName) record[this.dbMapping.solutionColumnName] = application.getSolutionName();
 
@@ -175,7 +196,9 @@ var initDbAppender = (function() {
 			for (var c = 0; c < this.customColumns.length; c++) {
 				var col = this.customColumns[c];
 				var value;
-				if (col.value instanceof Function) {
+				if (customFieldValues && customFieldValues.hasOwnProperty(col.columnName)) {
+					value = customFieldValues[col.columnName];
+				} else if (col.value instanceof Function) {
 					/** @type {Function} */
 					var colFun = col.value;
 					value = colFun(loggingEvent);
@@ -189,6 +212,8 @@ var initDbAppender = (function() {
 		var success = databaseManager.saveData(record);
 		if (!success) {
 			scopes.svyLogManager.getStatusLogger().error("DbAppender failed to save log message to datasource \"" + this.datasource + "\"");
+		} else {
+			this.foundset.clear();
 		}
 	}
 
@@ -208,7 +233,7 @@ var initDbAppender = (function() {
 			type: 'string'
 		}, {
 			configName: 'dbMapping',
-			type: '{ eventTimeColumnName: String, loggerColumnName: String, logLevelColumnName: String,  logMessageColumnName: String, userIdColumName: String,solutionColumnName: String}'
+			type: '{ eventTimeColumnName: String, loggerColumnName: String, logLevelColumnName: String,  logMessageColumnName: String, userIdColumName: String, userIdColumnName: String, solutionColumnName: String}'
 		}, {
 			configName: 'userId',
 			type: 'string'
@@ -229,7 +254,7 @@ var initDbAppender = (function() {
 		create: function(name, layout, datasource, dbMapping, userId, customColumns) {
 			var retval = new DbAppender(datasource, dbMapping, userId);
 			retval.setName(name);
-			retval.setLayout(layout);
+			if (layout) retval.setLayout(layout);
 			if (customColumns) retval.customColumns = customColumns;
 			return retval;
 		}

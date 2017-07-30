@@ -1,18 +1,26 @@
 /*
- * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2013 Servoy BV 
+ * The MIT License
  * 
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * This file is part of the Servoy Business Application Platform, Copyright (C) 2012-2016 Servoy BV 
  * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  * 
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * 
  */
 
 /*
@@ -126,8 +134,8 @@ function getJSFormHierarchy(form) {
  * TODO: cleanup, use utility functions, extend to also take RuntimeForm (just to be complete)
  * Returns true if the form is extending the parent form 
  * 
- * @param {JSForm|String} form
- * @param {JSForm|String} parentForm
+ * @param {RuntimeForm|JSForm|String} form
+ * @param {RuntimeForm|JSForm|String} parentForm
  * 
  * @throws {scopes.svyExceptions.IllegalArgumentException}
  * 
@@ -157,13 +165,15 @@ function isJSFormInstanceOf(form, parentForm) {
 /**
  * Returns all JSForms that are instances of a certain JSForm
  *
- * @param {JSForm} superForm
+ * @param {JSForm|RuntimeForm|String} superForm
  *
  * @return {Array<JSForm>}
  *
  * @properties={typeid:24,uuid:"38527628-D0D4-4EEE-9EF0-87D65AAEF013"}
  */
 function getJSFormInstances(superForm) {
+	superForm = getJSFormForReference(superForm);
+	
 	/**@type {Array<JSForm>}*/
 	var retval = []
 	var smForms = solutionModel.getForms() //Getting this once and holding a reference to it is faster
@@ -184,6 +194,26 @@ function getJSFormInstances(superForm) {
 	return retval
 }
 
+/**
+ * @public 
+ * @param {RuntimeForm|String} superForm
+ * @return {Array<RuntimeForm>}
+ * @properties={typeid:24,uuid:"D1414A95-D82D-467B-84E2-77A9028C6674"}
+ */
+function getRuntimeFormInstances(superForm){
+	var runtimeInstances = [];
+	var instances = getJSFormInstances(superForm);
+	for(var i in instances ){
+		var formName = instances[i].name;
+		var form = forms[formName];
+		if(form){
+			runtimeInstances.push(form);
+		} else {
+			log.warn('Unexpected untime form not found by getRuntimeFormInstances: ' + formName);
+		}
+	}
+	return runtimeInstances;
+}
 /**
  * Returns all components of the given form that have the given designtime property (set with the optional value)
  *
@@ -337,7 +367,7 @@ function getJSFormHeight(form, includePrintParts) {
  */
 function getRuntimeTableViewRowHeight(form) {
 	var jsForm = getJSFormForReference(form)
-	if (jsForm.view != JSForm.LOCKED_TABLE_VIEW) {
+	if (jsForm.view !== JSForm.LOCKED_TABLE_VIEW) {
 		throw new scopes.svyExceptions.IllegalArgumentException('Must be called with a form in TableView view')
 	}
 	
@@ -491,4 +521,24 @@ function restoreSplitPaneDividerPosition(formName, elementName, position) {
 	var pos = scopes.svySystem.getUserProperty(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc');
 	pos = utils.stringToNumber(pos);
 	forms[formName].elements[elementName]['dividerLocation'] = pos ? pos : position;
+}
+
+/**
+ * Return forms (1-level depth) which are contained in the specified form
+ * @param {RuntimeForm} form
+ * @return {Array<RuntimeForm>}
+ * @properties={typeid:24,uuid:"855AF950-2627-42DB-BCD5-AC49F3233840"}
+ */
+function getContainedForms(form){
+	return []; // TODO
+}
+
+/**
+ * @public 
+ * @param {RuntimeForm} form
+ * @return {Array<RuntimeTabPanel|RuntimeSplitPane|RuntimeAccordionPanel>}
+ * @properties={typeid:24,uuid:"6457D6B0-0AEF-4C2B-B791-D13244DC132A"}
+ */
+function getContainerElements(form){
+	return []; // TODO
 }
