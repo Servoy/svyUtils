@@ -1,0 +1,14 @@
+{
+    "name":"svyUtils$Excel",
+    "displayName":"svyUtils$Excel",
+    "packageType": "Solution",
+    "icon": "https://raw.githubusercontent.com/Servoy/servoy-extra-components/master/servoy.png",
+    "description": "Set of utility methods to read, create and manipulate Excel Workbooks. Does not require Microsoft Excel",
+    "wikiUrl": "https://github.com/Servoy/svyUtils/wiki/ExcelUtils",
+    "sourceUrl" : "https://github.com/Servoy/svyUtils",
+    "releases" : [
+        {"version":"1.0.0","url":"https://github.com/Servoy/svySearch/releases/download/v1.0.0/svyUtils$Excel.servoy", "servoy-version":"8.1.0", "dependency":"svyUtils#>=1.0.0"},
+        {"version":"1.1.0","url":"https://github.com/Servoy/svySearch/releases/download/v1.1.0/svyUtils$Excel.servoy", "servoy-version":"8.1.0", "dependency":"svyUtils#>=1.0.0"},
+        {"version":"1.2.0","url":"https://github.com/Servoy/svySearch/releases/download/v1.2.0/svyUtils$Excel.servoy", "servoy-version":"8.1.0", "dependency":"svyUtils#>=1.0.0"}
+     ]
+}

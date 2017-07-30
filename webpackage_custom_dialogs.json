@@ -1,0 +1,14 @@
+{
+    "name":"svyUtils$customDialogs",
+    "displayName":"svyUtils$customDialogs",
+    "packageType": "Solution",
+    "icon": "https://raw.githubusercontent.com/Servoy/servoy-extra-components/master/servoy.png",
+    "description": "Provides the ability to create simple dialogs containing any number of different fields and text labels",
+    "wikiUrl": "https://github.com/Servoy/svyUtils/wiki/Custom-Dialogs",
+    "sourceUrl" : "https://github.com/Servoy/svyUtils",
+    "releases" : [
+        {"version":"1.0.0","url":"https://github.com/Servoy/svySearch/releases/download/v1.0.0/svyUtils$customDialogs.servoy", "servoy-version":"8.1.0", "dependency":"svyUtils#>=1.0.0"},
+        {"version":"1.1.0","url":"https://github.com/Servoy/svySearch/releases/download/v1.1.0/svyUtils$customDialogs.servoy", "servoy-version":"8.1.0", "dependency":"svyUtils#>=1.0.0"},
+        {"version":"1.2.0","url":"https://github.com/Servoy/svySearch/releases/download/v1.2.0/svyUtils$customDialogs.servoy", "servoy-version":"8.1.0", "dependency":"svyUtils#>=1.0.0"}
+     ]
+}
