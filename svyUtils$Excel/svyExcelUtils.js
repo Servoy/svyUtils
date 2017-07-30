@@ -2712,7 +2712,7 @@ function isLoaded() {
 	try {
 		var context = Packages.org.mozilla.javascript.Context.getCurrentContext();
 		var cl = context.getApplicationClassLoader();
-		var c = java.lang.Class.forName("org.apache.poi.ss.usermodel.Cell", false, cl);
+		var c = java.lang.Class.forName("org.apache.poi.xssf.usermodel.XSSFWorkbook", false, cl);
 		return c != null;
 	} catch(e) {
 		return false;
@@ -2728,5 +2728,6 @@ function isLoaded() {
 var init = (function() {
 	if (!isLoaded()) {
 		logger.warn("svyExcelUtils cannot be used because the Apache POI package cannot be found");
+		logger.warn("Please follow the installation documentation at https://github.com/Servoy/svyUtils/wiki/ExcelUtils");
 	}
 }());
