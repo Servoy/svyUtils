@@ -26,7 +26,6 @@
 /*
  * Scope with UI related utility methods
  * 
- * TODO: add method that gets the JSForm for any RuntimeForm instance or formName string, also instances created with application.createNewFormInstance()
  */
 
 /**
@@ -131,7 +130,6 @@ function getJSFormHierarchy(form) {
 }
 
 /**
- * TODO: cleanup, use utility functions, extend to also take RuntimeForm (just to be complete)
  * Returns true if the form is extending the parent form 
  * 
  * @param {RuntimeForm|JSForm|String} form

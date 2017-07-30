@@ -23,10 +23,6 @@
  * 
  */
 
-/*
- * TODO: Support Mobile Client where applicable in Servoy > 7.0
- */
-
 /**
  * @private 
  *
@@ -570,7 +566,7 @@ function convertServoyMethodToQualifiedName(method) {
 				return 'forms.' + fd.getFormName() + '.' + fd.getMethodName()
 			} else if (fd.getScopeName()) {
 				return 'scopes.' + fd.getScopeName() + '.' + fd.getMethodName()
-			} else { //TODO: got all variations covered with the above logic?
+			} else {
 				return null
 			}
 		} catch (e) {
