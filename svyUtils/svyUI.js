@@ -530,7 +530,19 @@ function restoreSplitPaneDividerPosition(formName, elementName, position) {
  * @properties={typeid:24,uuid:"855AF950-2627-42DB-BCD5-AC49F3233840"}
  */
 function getContainedForms(form){
-	return []; // TODO
+	var containerElements = getContainerElements(form);
+	var containedForms = [];
+	for (var c = 0; c < containerElements.length; c++) {
+		for (var t = 1; t <= containerElements[c].getMaxTabIndex(); t++) {
+			var containedForm = forms[containerElements[c].getTabFormNameAt(t)];
+			containedForms.push(containedForm);
+			var furtherContainedForms = getContainedForms(containedForm);
+			if (furtherContainedForms.length > 0) {
+				containedForms = containedForms.concat(furtherContainedForms);
+			}
+		}
+	}
+	return containedForms;
 }
 
 /**
@@ -539,6 +551,16 @@ function getContainedForms(form){
  * @return {Array<RuntimeTabPanel|RuntimeSplitPane|RuntimeAccordionPanel>}
  * @properties={typeid:24,uuid:"6457D6B0-0AEF-4C2B-B791-D13244DC132A"}
  */
-function getContainerElements(form){
-	return []; // TODO
+function getContainerElements(form) {
+	/** @type {Array<RuntimeComponent>} */
+	var elem = [];
+	for (var e = 0; e < form.elements.length; e++) {
+		elem.push(form.elements[e]);
+	}
+	function filterElements(el) {
+		return el instanceof RuntimeTabPanel || el instanceof RuntimeSplitPane || el instanceof RuntimeAccordionPanel
+	}
+	/** @type {Array<RuntimeTabPanel|RuntimeSplitPane|RuntimeAccordionPanel>} */
+	var result = elem.filter(filterElements);
+	return result;
 }
