@@ -29,37 +29,50 @@
  */
 
 /**
- * @private 
+ * @private
+ * 
+ * @SuppressWarnings(unused)
  *
  * @properties={typeid:35,uuid:"45890609-A12D-49D1-A195-43BA3CAE4093",variableType:-4}
  */
-var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.date')
+var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.date');
 
 /**
  * A java.util.Calendar instance used to do the math
+ * 
  * @private
+ * 
  * @properties={typeid:35,uuid:"D97BF23E-75BB-4458-AC19-5B31FAF3A053",variableType:-4}
  */
 var calendar = java.util.Calendar.getInstance();
 
 /**
+ * @public
+ * 
  * @enum
+ * 
  * @final
+ * 
  * @properties={typeid:35,uuid:"C2C3D6C7-F9D0-4CAB-9EE4-DD6BDF728E5D",variableType:-4}
  */
 var UNITS = {
-	HOUR:100,
-	DAY:200,
-	WEEK:300,
-	MONTH:400,
-	QUARTER:500,
-	YEAR:600
+	HOUR: 100,
+	DAY: 200,
+	WEEK: 300,
+	MONTH: 400,
+	QUARTER: 500,
+	YEAR: 600
 };
 
 /**
  * Date format styles used in getDateFormat
+ * 
+ * @public
+ * 
  * @enum
+ * 
  * @final
+ * 
  * @properties={typeid:35,uuid:"CD475D68-BDAC-436D-B9BB-5D7D9D957F3B",variableType:-4}
  */
 var DATE_FORMAT = {
@@ -67,10 +80,12 @@ var DATE_FORMAT = {
 	MEDIUM: java.text.DateFormat.MEDIUM,
 	LONG: java.text.DateFormat.LONG,
 	FULL: java.text.DateFormat.FULL
-}
+};
 
 /**
  * The current date at 00:00:00.0
+ * 
+ * @public
  * 
  * @type {Date}
  *
@@ -80,6 +95,8 @@ var TODAY_START;
 
 /**
  * The current date at 23:59:59.999
+ * 
+ * @public
  * 
  * @type {Date}
  *
@@ -91,6 +108,7 @@ var TODAY_END;
  * @private
  * 
  * @type {Object}
+ * 
  * @SuppressWarnings(unused)
  *
  * @properties={typeid:35,uuid:"EDBB02A9-A782-415A-927B-D3B5BDE9BA55",variableType:-4}
@@ -101,7 +119,6 @@ var initTodayVars = (function() {
 }());
 
 /**
- * 
  * @private
  *
  * @properties={typeid:24,uuid:"032931C2-A251-47E0-BD6D-E855DFFE7755"}
@@ -168,32 +185,38 @@ function add(date, years, months, days, hours, minutes, seconds) {
  * @param {Number} amount
  * @param {Number} units
  * 
- * @throws {scopes.svyExceptions.IllegalArgumentException}
+ * @return {Date}
  * 
- * @author Sean
+ * @throws {scopes.svyExceptions.IllegalArgumentException}
  *
  * @properties={typeid:24,uuid:"93BFF9E9-ADE6-4E9C-9B24-182D177A09D7"}
  */
 function addUnits(date, amount, units) {
-	if(!date) throw new scopes.svyExceptions.IllegalArgumentException('date cannot be null/undefined');
-	if(!amount) throw new scopes.svyExceptions.IllegalArgumentException('amount cannot be null/undefined');
-	if(!units) throw new scopes.svyExceptions.IllegalArgumentException('units cannot be null/undefined');
+	if (!date) {
+		throw new scopes.svyExceptions.IllegalArgumentException('date cannot be null/undefined');
+	}
+	if (!amount) {
+		throw new scopes.svyExceptions.IllegalArgumentException('amount cannot be null/undefined');
+	}
+	if (!units) {
+		throw new scopes.svyExceptions.IllegalArgumentException('units cannot be null/undefined');
+	}
 	date = new Date(date.valueOf());
 	switch (units) {
 		case UNITS.HOUR:
 			date.setHours(date.getHours() + amount);
 			break;
 		case UNITS.DAY:
-			date.setDate(date.getDate()+amount);
+			date.setDate(date.getDate() + amount);
 			break;
 		case UNITS.WEEK:
-			date.setDate(date.getDate()+(amount*7));
+			date.setDate(date.getDate() + (amount * 7));
 			break;
 		case UNITS.MONTH:
-			date.setMonth(date.getMonth()+amount);
+			date.setMonth(date.getMonth() + amount);
 			break;
 		case UNITS.YEAR:
-			date.setFullYear(date.getFullYear()+amount);
+			date.setFullYear(date.getFullYear() + amount);
 			break;
 		default:
 			throw new scopes.svyExceptions.IllegalArgumentException('Unsupported value for units');
@@ -270,8 +293,8 @@ function addDays(date, days) {
 }
 
 /**
- * Adds the given number of days to the given date and returns a new date<p>
- * Saturdays, Sundays and any dates in the optional holidays array are not counted<p>
+ * Adds the given number of days to the given date and returns a new date<br>
+ * Saturdays, Sundays and any dates in the optional holidays array are not counted<br>
  * Negative number of days will be substracted
  * 
  * @public 
@@ -280,10 +303,6 @@ function addDays(date, days) {
  * @param days the number of days to be added/substracted
  * @param {Array<Date>} [holidays] optional array with dates to skip
  * 
- * @version 6.0
- * @since 15.04.2014
- * @author patrick
- *
  * @properties={typeid:24,uuid:"7E575AE1-AA0D-427D-9972-A2B1C1293912"}
  */
 function addBusinessDays(date, days, holidays) {
@@ -430,28 +449,28 @@ function toEndOfDay(date) {
  * 
  * @public
  * 
- * @see createDateTimeSearchString(start,end) if exact datetime search is needed
- * 
  * @param {Date} start
  * @param {Date} end
  * 
  * @return {String} searchString
+ * 
+ * @see createDateTimeSearchString(start, end) if exact datetime search is needed
  *
  * @properties={typeid:24,uuid:"562F907F-FF35-4328-A138-B36953D8407C"}
  */
 function createDateSearchString(start, end) {
 	start.setHours(0, 0, 0, 0);
 	end.setHours(23, 59, 59, 999);
-	var pattern = "yyyy-MM-dd HH:mm:ss";
+	var pattern = 'yyyy-MM-dd HH:mm:ss';
 	var fromString = utils.dateFormat(start, pattern);
 	var toString = utils.dateFormat(end, pattern);
-	return fromString + "..." + toString + "|" + pattern;
+	return fromString + '...' + toString + '|' + pattern;
 }
 
 /**
- * Creates a date from the given week number in the given year<p>
- * 
- * Note that the week of year depends on the current Locale in what is 
+ * Creates a date from the given week number in the given year<br>
+ * <br>
+ * NOTE: The week of year depends on the current Locale in what is<br> 
  * considered the first day of week and the minimal number of days in the first week.
  * 
  * @public
@@ -471,28 +490,30 @@ function createDateFromWeekNumber(year, week) {
 }
 
 /**
- * Creates a from - to search String for the two dates<br>
+ * Creates a from - to search String for the two dates
  * 
- * @see createDateSearchString(start, end) if date only search is needed
+ * @public
  * 
  * @param {Date} start
  * @param {Date} end
  * 
  * @return {String} searchString
  * 
- * @public
+ * @see createDateSearchString(start, end) if date only search is needed
  *
  * @properties={typeid:24,uuid:"8B6608CF-4DF5-461F-88F5-A4B949820E16"}
  */
 function createDateTimeSearchString(start, end) {
-	var pattern = "yyyy-MM-dd HH:mm:ss";
+	var pattern = 'yyyy-MM-dd HH:mm:ss';
 	var fromString = utils.dateFormat(start, pattern);
 	var toString = utils.dateFormat(end, pattern);
-	return fromString + "..." + toString + "|" + pattern;
+	return fromString + '...' + toString + '|' + pattern;
 }
 
 /**
  * Calculates someone's age from the given birthdate
+ * 
+ * @public
  * 
  * @param {Date} birthdate the date of birth
  * @param {Date} [compareDate] optional date to calculate from; if not given, the current date will be used
@@ -546,11 +567,13 @@ function getAge(birthdate, compareDate) {
 		}
 	}
 
-	return { years: years, months: months, days: days };
+	return {years: years, months: months, days: days};
 }
 
 /**
  * Creates an object with the number of days, hours, minutes and seconds between two dates
+ * 
+ * @public
  * 
  * @param {Date} start
  * @param {Date} end
@@ -580,10 +603,12 @@ function getDateDifference(start, end) {
 /**
  * Returns the date format for the default or the given locale using the given style (defaults to MEDIUM)
  * 
+ * @public
+ * 
  * @param {DATE_FORMAT} [style]	- see DATE_FORMAT for possible styles
  * @param {String} [locale]		- a locale String such as "en"
  * 
- * @public
+ * @return {String}
  *
  * @properties={typeid:24,uuid:"37934D5E-1015-422D-A489-84DC659D229F"}
  */
@@ -620,12 +645,12 @@ function getDateFormat(style, locale) {
 /**
  * Returns the number of full days between the two dates
  * 
+ * @public
+ * 
  * @param {Date} start
  * @param {Date} end
  * 
  * @return {Number} fullDaysBetween
- * 
- * @public
  *
  * @properties={typeid:24,uuid:"D9F78345-D31D-4A79-8C28-230F7BC467B4"}
  */
@@ -637,18 +662,14 @@ function getDayDifference(start, end) {
 }
 
 /**
- * Gets what the minimal days required in the first week of the year are; e.g., if the first week is defined 
- * as one that contains the first day of the first month of a year, this method returns 1. If the minimal days 
+ * Gets what the minimal days required in the first week of the year are; e.g., if the first week is defined<br>
+ * as one that contains the first day of the first month of a year, this method returns 1. If the minimal days<br>
  * required must be a full week, this method returns 7.
  * 
  * @public 
  * 
  * @return {Number} the minimal days required in the first week of the year
- * 
- * @version 5.0
- * @since 16.10.2013
- * @author patrick
- *
+ *  
  * @properties={typeid:24,uuid:"EE43B7A9-5072-445A-ABBD-32DB08387D33"}
  */
 function getMinimalDaysInFirstWeek() {
@@ -680,13 +701,15 @@ function getMonthNames(locale) {
 }
 
 /**
- * Creates a string for uses in Servoy between searches from two given dates. 
+ * Creates a string for uses in Servoy between searches from two given dates.<br>
  * For example: "2006-01-01...2006-09-27|yyyy-MM-dd".
  * 
  * @public 
  * 
  * @param {Date} dateFrom
  * @param {Date} dateTo
+ * 
+ * @return {String}
  *
  * @properties={typeid:24,uuid:"9D62A1EC-AC90-457E-8282-1CFEA2C46CD7"}
  */
@@ -696,23 +719,25 @@ function getSearchStringDateBetween(dateFrom, dateTo) {
 	from.setHours(0, 0, 0, 0);
 	var to = new Date(dateTo.getTime());
 	to.setHours(23, 59, 59, 999);
-	return utils.dateFormat(from, format) + "..." + utils.dateFormat(to, format) + "|" + format;
+	return utils.dateFormat(from, format) + '...' + utils.dateFormat(to, format) + '|' + format;
 }
 
 /**
- * Creates a string for uses in Servoy between searches from two given dates including the exact given time. 
+ * Creates a string for uses in Servoy between searches from two given dates including the exact given time.<br>
  * For example: "2006-01-01 10:23:15...2006-09-27 11:15:45|yyyy-MM-dd HH:mm:ss".
  * 
  * @public 
  * 
  * @param {Date} dateFrom
  * @param {Date} dateTo
+ * 
+ * @return {String}
  *
  * @properties={typeid:24,uuid:"4D35B83B-4AFB-418B-9721-0FC549879D4D"}
  */
 function getSearchStringDateTimeBetween(dateFrom, dateTo) {
 	var format = 'yyyy-MM-dd HH:mm:ss';
-	return utils.dateFormat(dateFrom, format) + "..." + utils.dateFormat(dateTo, format) + "|" + format;
+	return utils.dateFormat(dateFrom, format) + '...' + utils.dateFormat(dateTo, format) + '|' + format;
 }
 
 /**
@@ -767,9 +792,9 @@ function getWeekdayNames(locale) {
 }
 
 /**
- * Returns the week of the year of the given date<p>
- * 
- * Note that the week of year depends on the current Locale in what is 
+ * Returns the week of the year of the given date<br>
+ * <br>
+ * NOTE: the week of year depends on the current Locale in what is<br>
  * considered the first day of week and the minimal number of days in the first week.
  * 
  * @public
@@ -819,6 +844,8 @@ function getShortWeekdayNames(locale) {
  * 
  * @param {DATE_FORMAT} [style]	- see DATE_FORMAT for possible styles
  * @param {String} [locale]		- a locale String such as "en"
+ * 
+ * @return {String}
  *
  * @properties={typeid:24,uuid:"E6077E21-20FF-459F-B494-C76F0A061B4C"}
  */
@@ -969,10 +996,6 @@ function getFirstDayOfYear(date) {
  * 
  * @return {Number} the minimal days required in the first week of the year
  * 
- * @version 5.0
- * @since 16.10.2013
- * @author patrick
- *
  * @properties={typeid:24,uuid:"3A12D23A-D9C7-4257-A476-3B8E98717377"}
  */
 function getFirstWeekDayNumber() {
@@ -1027,11 +1050,13 @@ function getLastDayOfYear(date) {
  * @public
  * 
  * @param {Date} date
+ * 
+ * @return {String}
  *
  * @properties={typeid:24,uuid:"7F519BC0-F9BF-4162-B243-FD1AB2CE3581"}
  */
 function getISODateTime(date) {
-	return utils.dateFormat(date,"yyyyMMdd'T'HHmmss");
+	return utils.dateFormat(date, 'yyyyMMdd\'T\'HHmmss');
 }
 
 /**
@@ -1040,11 +1065,13 @@ function getISODateTime(date) {
  * @public
  * 
  * @param {Date} date
+ * 
+ * @return {String}
  *
  * @properties={typeid:24,uuid:"A5FA8C56-3A85-43DE-8F55-594659FF56E2"}
  */
 function getISODate(date) {
-	return utils.dateFormat(date,"yyyyMMdd");
+	return utils.dateFormat(date, 'yyyyMMdd');
 }
 
 /**
@@ -1053,11 +1080,13 @@ function getISODate(date) {
  * @public
  * 
  * @param {Date} date
+ * 
+ * @return {String}
  *
  * @properties={typeid:24,uuid:"78F71D31-063E-4341-B5C1-579C0B2E93C6"}
  */
 function getISOTime(date) {
-	return utils.dateFormat(date,"'T'HHmmss");
+	return utils.dateFormat(date, '\'T\'HHmmss');
 }
 
 /**
@@ -1087,6 +1116,8 @@ function getLastDayOfMonth(date) {
  * @public
  * 
  * @param {Date} date
+ * 
+ * @return {Number}
  *
  * @properties={typeid:24,uuid:"E4550770-C64A-4CEA-8659-3DD6ADCEFE29"}
  */
@@ -1097,6 +1128,8 @@ function getDecimalHours(date) {
 }
 
 /**
+ * @deprecated
+ * 
  * Creates a DateTime object that can be used to chain methods of this class<br>
  * as for example <code>dateTimeObject.addDays(5).toStartOfDay().date</code>
  * 
@@ -1380,7 +1413,7 @@ function DateTime(date) {
  * @properties={typeid:24,uuid:"99754644-EE04-407C-B132-734F4BC54E0E"}
  */
 function isValueTimeUnit(value){
-	if(!value){
+	if (!value) {
 		throw new scopes.svyExceptions.IllegalArgumentException('Value is required');
 	}
 	var values = [
@@ -1391,8 +1424,8 @@ function isValueTimeUnit(value){
 		UNITS.QUARTER,
 		UNITS.YEAR
 	];
-	for(var i in values){
-		if(value == values[i]){
+	for (var i in values) {
+		if (value == values[i]) {
 			return true;
 		}
 	}
@@ -1401,17 +1434,20 @@ function isValueTimeUnit(value){
 
 /**
  * Returns true when date time starts at 00:00:00
- * @param {Date} date
  * 
- * @public 
+ * @public
+ * 
+ * @param {Date} date
+ *  
  * @return {Boolean}
+ * 
  * @properties={typeid:24,uuid:"5CA6DDF5-5988-4B68-BB07-77C4B602A1C4"}
  */
 function isStartOfDay(date) {
-	if(!date){
+	if (!date) {
 		throw new scopes.svyExceptions.IllegalArgumentException('Date is required');
 	}
-	if (date.getHours()==0 && date.getMinutes()==0 && date.getSeconds()==0 && date.getMilliseconds()==0) {
+	if (date.getHours() == 0 && date.getMinutes() == 0 && date.getSeconds() == 0 && date.getMilliseconds() == 0) {
 		return true;
 	} else {
 		return false;

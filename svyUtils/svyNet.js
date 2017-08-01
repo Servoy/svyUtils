@@ -24,48 +24,60 @@
  */
 
 /**
- * @private 
+ * @private
+ * 
+ * @SuppressWarnings(unused)
  *
  * @properties={typeid:35,uuid:"511CDD43-7074-4F6E-98DB-76C8436DCB9E",variableType:-4}
  */
-var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.net')
+var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.net');
 
 /**
+ * @public
+ * 
  * @enum
+ * 
  * @properties={typeid:35,uuid:"20686801-4B73-4915-B354-4FE30E40B35A",variableType:-4}
  */
 var IP_VERSIONS = {
-	IPv6:6,
-	IPv4:4
+	IPv6: 6,
+	IPv4: 4
 };
 
 /**
- * A Regular Expression to match any IP address which is deemed to be private by the RFC-1918 Standard for IPv4.
- * Uses the following ranges
+ * A Regular Expression to match any IP address which is deemed to be private by the RFC-1918 Standard for IPv4.<br>
+ * Uses the following ranges<br>
+ * <ul>
+ * <li>127.0.0.1</li>
+ * <li>10.0.0.0 – 10.255.255.255</li>
+ * <li>172.16.0.0 – 172. 31.255.255</li>
+ * <li>192.168.0.0 – 192.168.255.255</li>
+ * </ul>
  * 
- * 127.  0.0.1
- * 10.   0.0.0 –  10.255.255.255
- * 172. 16.0.0 – 172. 31.255.255
- * 192.168.0.0 – 192.168.255.255
+ * @private
  * 
  * @type {RegExp}
- * @private
+ * 
  * @properties={typeid:35,uuid:"628B24C3-F308-4599-9749-AC0FD9EECFA8",variableType:-4}
  */
 var RFC_1918_RANGES = /(^127\.0\.0\.1)|(^10\.)|(^172\.1[6-9]\.)|(^172\.2[0-9]\.)|(^172\.3[0-1]\.)|(^192\.168\.)/;
 
 /**
- * Tests if a given IP Address matches the most common internal IP patterns. Uses RFC 1918 standard for determination. 
+ * Tests if a given IP Address matches the most common internal IP patterns. Uses RFC 1918 standard for determination.<br>
  * NOTE: This method is only valid for IPv4 addresses
  * 
+ * @public
+ * 
  * @param {String} ipAddress
+ * 
  * @return {Boolean}
  * 
- * @see http://en.wikipedia.org/wiki/Private_network 
+ * @see http://en.wikipedia.org/wiki/Private_network
+ * 
  * @properties={typeid:24,uuid:"26648F56-9E34-4830-AA96-DAA58B393051"}
  */
 function isInternalIPAddress(ipAddress){
-	if(!ipAddress){
+	if (!ipAddress) {
 		throw new scopes.svyExceptions.IllegalArgumentException('IP Address is required');
 	}
 	return RFC_1918_RANGES.test(ipAddress);
@@ -73,22 +85,29 @@ function isInternalIPAddress(ipAddress){
 
 /**
  * Gets the IP version of a given IP Address. Easy to know if it's v6 or v4 
+ * 
+ * @public
+ * 
  * @param {String} ipAddress
+ * 
  * @return {Number} version, on of the constants - IPv4, IPv6
+ * 
  * @see IPv4
  * @see IPv6
+ * 
  * @example if(scopes.svyNet.getIPVersion(myAddress) == scopes.svyNet.IPv6){application.output('Version 6');}
+ * 
  * @properties={typeid:24,uuid:"0C61EBBD-B390-45E4-831B-F7E987407804"}
  */
 function getIPVersion(ipAddress){
-	if(!ipAddress){
+	if (!ipAddress) {
 		throw new scopes.svyExceptions.IllegalArgumentException('IP Address is required');
 	}
 	var iNetAddress = java.net.InetAddress.getByName(ipAddress);
-	if(iNetAddress instanceof java.net.Inet6Address){
+	if (iNetAddress instanceof java.net.Inet6Address) {
 		return IP_VERSIONS.IPv6;
 	}
-	if(iNetAddress instanceof java.net.Inet4Address){
+	if (iNetAddress instanceof java.net.Inet4Address) {
 		return IP_VERSIONS.IPv4;
 	}
 	return null;
@@ -97,15 +116,18 @@ function getIPVersion(ipAddress){
 /**
  * Tries to connect to the provided hostname. If connection is successful, true is returned, otherwise false. (time)
  * 
+ * @public
+ * 
  * @param {String} hostname
  * @param {Number} [timeout] timeout for the connection check (in milliseconds). Default: 200ms
  *
- * @return {Boolean} whether the host could be reached 
+ * @return {Boolean} whether the host could be reached
+ *  
  * @properties={typeid:24,uuid:"DFC17BE6-96D4-4FF8-A4E3-AB510B5C51A4"}
  */
 function isHostAccessible(hostname, timeout) {
-	var timeOut = timeout || 200
-	var socket
+	var timeOut = timeout || 200;
+	var socket;
 	var reachable = false;
 	try {
 		var addr = java.net.InetAddress.getByName(hostname);
@@ -122,36 +144,37 @@ function isHostAccessible(hostname, timeout) {
 		reachable = true;
 	} catch (e) {
 		if (e['javaException'] instanceof java.net.UnknownHostException) {
-			log.debug('Host "{}" cannot be reached, might not exist', hostname)
+			log.debug('Host "{}" cannot be reached, might not exist', hostname);
 		} else if (e['javaException'] instanceof java.net.SocketTimeoutException) {
-			log.debug('Timeout checking host "{}"', hostname)
+			log.debug('Timeout checking host "{}"', hostname);
 		} else if (e['javaException'] instanceof java.io.IOException) {
-			log.debug('Network issue checking host "{}"', hostname)
+			log.debug('Network issue checking host "{}"', hostname);
 		} else {
-			log.debug(e)
+			log.debug(e);
 		}
 	} finally {
 		if (socket != null) {
 			try {
-				socket.close()
+				socket.close();
 			} catch (e) {
 			}
 		}
 	}
 
 	if (reachable) {
-		return true
+		return true;
 	}
-	return false
+	return false;
 }
 
 /**
  * Function to parse urls and retrieve the different parts of it. Taken from http://blog.stevenlevithan.com/archives/parseuri
  * 
- * TODO: add toString method to get back a url string after updating the parsed results
+ * @public
  * 
  * @param {String} url
  * @param {Boolean} [strictMode] Default false
+ * 
  * @return {{
  * 	anchor: String, 
  * 	query: String, 
@@ -173,31 +196,32 @@ function isHostAccessible(hostname, timeout) {
  * @properties={typeid:24,uuid:"B8CC3376-A5FA-45E5-80C5-C6860B94B9DF"}
  */
 function parseUrl(url, strictMode) {
+	// TODO: add toString method to get back a url string after updating the parsed results
 	// parseUri 1.2.2
 	// (c) Steven Levithan <stevenlevithan.com>
 	// MIT License
 	var o = { }
 	o.strictMode = strictMode;
-	o.key = ["source", "protocol", "authority", "userInfo", "user", "password", "host", "port", "relative", "path", "directory", "file", "query", "anchor"];
+	o.key = ['source', 'protocol', 'authority', 'userInfo', 'user', 'password', 'host', 'port', 'relative', 'path', 'directory', 'file', 'query', 'anchor'];
 	o.q = { };
-	o.q.name = "queryKey";
+	o.q.name = 'queryKey';
 	o.q.parser = /(?:^|&)([^&=]*)=?([^&]*)/g
 	o.parser = { };
-	o.parser.strict = /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*):?([^:@]*))?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/
-	o.parser.loose = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*):?([^:@]*))?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
+	o.parser.strict = /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*):?([^:@]*))?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/;
+	o.parser.loose = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*):?([^:@]*))?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
 
-	var m = o.parser[o.strictMode ? "strict" : "loose"].exec(url);
+	var m = o.parser[o.strictMode ? 'strict' : 'loose'].exec(url);
 	/**@type {{anchor: String, query: String, file: String, directory: String, path: String, relative: String, port: Number, host: String, password:String, user: String, userInfo: String, authority: String, protocol:String, source: String, queryKey: Object<String>}}*/
 	var uri = { };
 	var i = 14;
-	while (i--) uri[o.key[i]] = m[i] || "";
+	while (i--) uri[o.key[i]] = m[i] || '';
 	uri[o.q.name] = { };
 	uri[o.key[12]].replace(o.q.parser, function($0, $1, $2) { 
 			if ($1) {
 				if (uri[o.q.name].hasOwnProperty($1)) {
-					uri[o.q.name][$1].push($2)
+					uri[o.q.name][$1].push($2);
 				} else {
-					uri[o.q.name][$1] = [$2]
+					uri[o.q.name][$1] = [$2];
 				}
 			}
 		});
@@ -229,20 +253,20 @@ function parseUrl(url, strictMode) {
 
 /**
  * Raised when a there is an error in an HTTP operation, most commonly a failed request (status code != SC_OK)
+ * 
+ * @public
  *
  * @param {String} errorMessage
  * @param {Number} [httpCode]
  * @param {String} [httpResponseBody]
  *
  * @constructor
+ * 
  * @extends {scopes.svyExceptions.SvyException}
- *
- * @author Sean
  *
  * @properties={typeid:24,uuid:"1BA6E44B-4467-4057-AE26-7A0F49D9B826"}
  */
 function HTTPException(errorMessage, httpCode, httpResponseBody) {
-
 	/**
 	 * The HTTP Response Code
 	 * @type {Number}
@@ -255,51 +279,55 @@ function HTTPException(errorMessage, httpCode, httpResponseBody) {
 	 */
 	this.httpResponseBody = httpResponseBody;
 
-	scopes.svyExceptions.SvyException.call(this, errorMessage||'Error in HTTP operation');
+	scopes.svyExceptions.SvyException.call(this, errorMessage || 'Error in HTTP operation');
 }
-
 
 /**
  * Thrown when an email message could not be sent
+ * 
+ * @public
  *
  * @param {String} [errorMessage] - usually taken from plugins.mail.getLastSendMailExceptionMsg()
  *
  * @constructor
+ * 
  * @extends {scopes.svyExceptions.SvyException}
  *
  * @properties={typeid:24,uuid:"73C704EB-7D7D-4B4B-AD05-88068C478184"}
  */
 function SendMailException(errorMessage) {
-	scopes.svyExceptions.SvyException.call(this, errorMessage||'Failed to send mail');
+	scopes.svyExceptions.SvyException.call(this, errorMessage || 'Failed to send mail');
 }
 
-
 /**
- * @author Rene van Veen
  * @return {String}
+ * 
  * @properties={typeid:24,uuid:"C8500A7A-4B67-49CF-AEE7-3B23B180E695"}
  */
 function getRemoteIPAddress() {
 	try {
-		var url = 'http://checkip.amazonaws.com'
-		var connection = new java.net.URL(url)
-		var data = connection.openConnection()
-		var reader = new java.io.BufferedReader(new java.io.InputStreamReader(data.getInputStream()))
-		return reader.readLine()
+		var url = 'http://checkip.amazonaws.com';
+		var connection = new java.net.URL(url);
+		var data = connection.openConnection();
+		var reader = new java.io.BufferedReader(new java.io.InputStreamReader(data.getInputStream()));
+		return reader.readLine();
 	} catch(e) {
-		throw new scopes.svyExceptions.SvyException('Cannot get remote ip address, check internet connection')
+		throw new scopes.svyExceptions.SvyException('Cannot get remote ip address, check internet connection');
 	}
 }
 /**
  * Point prototypes to superclasses
- * @protected 
+ * 
+ * @private
+ * 
+ * @SuppressWarnings(unused)
  *
  * @properties={typeid:35,uuid:"FF2A5C77-1609-4E22-A3A2-2A40910BC57E",variableType:-4}
  */
 var init = function() {
 	HTTPException.prototype = Object.create(scopes.svyExceptions.SvyException.prototype);
-	HTTPException.prototype.constructor = HTTPException
+	HTTPException.prototype.constructor = HTTPException;
 
 	SendMailException.prototype =  Object.create(scopes.svyExceptions.SvyException.prototype);
-	SendMailException.prototype.constructor = SendMailException
+	SendMailException.prototype.constructor = SendMailException;
 }();
