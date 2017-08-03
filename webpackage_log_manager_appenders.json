@@ -7,9 +7,9 @@
     "wikiUrl": "https://github.com/Servoy/svyUtils/wiki/LogManager-Appenders",
     "sourceUrl" : "https://github.com/Servoy/svyUtils",
     "releases" : [
-        {"version":"1.0.0","url":"https://github.com/Servoy/svyUtils/releases/download/v1.0.0/svyUtils$logManagerAppenders.servoy", "servoy-version":"8.0.0"},
-        {"version":"1.1.0","url":"https://github.com/Servoy/svyUtils/releases/download/v1.1.0/svyUtils$logManagerAppenders.servoy", "servoy-version":"8.0.0"},
-        {"version":"1.2.0","url":"https://github.com/Servoy/svyUtils/releases/download/v1.2.0/svyUtils$logManagerAppenders.servoy", "servoy-version":"8.0.0"},
-        {"version":"1.3.0","url":"https://github.com/Servoy/svyUtils/releases/download/v1.3.0/svyUtils$logManagerAppenders.servoy", "servoy-version":"8.0.0"}
+        {"version":"1.0.0","url":"https://github.com/Servoy/svyUtils/releases/download/v1.0.0/svyUtilsLogManagerAppenders.servoy", "servoy-version":"8.0.0"},
+        {"version":"1.1.0","url":"https://github.com/Servoy/svyUtils/releases/download/v1.1.0/svyUtilsLogManagerAppenders.servoy", "servoy-version":"8.0.0"},
+        {"version":"1.2.0","url":"https://github.com/Servoy/svyUtils/releases/download/v1.2.0/svyUtilsLogManagerAppenders.servoy", "servoy-version":"8.0.0"},
+        {"version":"1.3.0","url":"https://github.com/Servoy/svyUtils/releases/download/v1.3.0/svyUtilsLogManagerAppenders.servoy", "servoy-version":"8.0.0"}
      ]
 }
