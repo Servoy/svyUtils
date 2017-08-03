@@ -1455,3 +1455,194 @@ function isStartOfDay(date) {
 		return false;
 	}
 }
+
+/**
+ * Duration object constructor
+ * 
+ * @constructor 
+ * 
+ * @public 
+ * 
+ * @param {Boolean} isNegative
+ * @param {Number} weeks
+ * @param {Number} days
+ * @param {Number} hours
+ * @param {Number} minutes
+ * @param {Number} seconds
+ *
+ * @properties={typeid:24,uuid:"072256B9-F18C-44DA-82B1-8C80F3F5240B"}
+ */
+function Duration(isNegative, weeks, days, hours, minutes, seconds) {
+	if (!(this instanceof Duration)) {
+		//constructor called without the "new" keyword
+		return new Duration(isNegative, weeks, days, hours, minutes, seconds);
+	}
+	
+	/**
+	 * the negative flag
+	 */
+	this.negative = isNegative;
+	
+	/**
+	 * the number of days of this duration
+	 */
+	this.days = days;
+	
+	/**
+	 * the number of hours of this duration
+	 */
+	this.hours = hours;
+	
+	/**
+	 * the number of minutes of this duration
+	 */
+	this.minutes = minutes;
+	
+	/**
+	 * the number of seconds of this duration
+	 */
+	this.seconds = seconds;
+	
+	/**
+	 * the number of weeks of this duration
+	 */
+	this.weeks = weeks;
+	
+	/**
+	 * Returns the end of the duration from the given start
+	 * @param {Date} startDate
+	 * @return {Date}
+	 */
+	this.getEndOfDuration = function(startDate) {
+		calendar.setTimeInMillis(startDate.getTime());
+        if (this.negative) {
+        	calendar.add(java.util.Calendar.WEEK_OF_YEAR, -weeks);
+        	calendar.add(java.util.Calendar.DAY_OF_WEEK, -days);
+        	calendar.add(java.util.Calendar.HOUR_OF_DAY, -hours);
+        	calendar.add(java.util.Calendar.MINUTE, -minutes);
+        	calendar.add(java.util.Calendar.SECOND, -seconds);
+        }
+        else {
+        	calendar.add(java.util.Calendar.WEEK_OF_YEAR, weeks);
+        	calendar.add(java.util.Calendar.DAY_OF_WEEK, days);
+        	calendar.add(java.util.Calendar.HOUR_OF_DAY, hours);
+        	calendar.add(java.util.Calendar.MINUTE, minutes);
+        	calendar.add(java.util.Calendar.SECOND, seconds);
+        }
+        return new Date(calendar.getTimeInMillis());
+	}
+	
+	/**
+	 * Reverses the duration
+	 */
+	this.negate = function() {
+		this.negative = !this.negative;
+	}
+	
+	/**
+	 * Creates an ISO String of the duration (e.g. P15DT5H0M20S)
+	 * @return {String}
+	 */
+	this.getIso = function() {
+		var result = '';
+		if (this.negative) {
+			result += '-';
+		}
+		result += 'P';
+		if (this.weeks > 0) {
+			result += this.weeks;
+			result += 'W';
+		} else {
+			if (this.days > 0) {
+				result += this.days;
+				result += 'D';
+			}
+			if (this.hours > 0 || this.minutes > 0 || this.seconds > 0) {
+				result += 'T';
+				if (this.hours > 0) {
+					result += this.hours;
+					result += 'H';
+				}
+				if (this.minutes > 0) {
+					result += minutes;
+					result += 'M';
+				}
+				if (this.seconds > 0) {
+					result += seconds;
+					result += 'S';
+				}
+			}
+		}
+		return result;
+	}
+}
+
+/**
+ * Creates a duration from the given start and end dates
+ * 
+ * @public 
+ * 
+ * @param {Date} start
+ * @param {Date} end
+ * 
+ * @return {Duration}
+ *
+ * @properties={typeid:24,uuid:"E5339DAB-CC7B-4A5D-948F-FE9F54410149"}
+ */
+function createDurationFromDates(start, end) {
+	var startCal = java.util.Calendar.getInstance();
+	startCal.setTimeInMillis(start.getTime());
+	var endCal = java.util.Calendar.getInstance();
+	endCal.setTimeInMillis(end.getTime());
+	
+	var isNegative = startCal.compareTo(endCal) > 0;
+	if (isNegative) {
+		calendar.setTimeInMillis(end.getTime());
+		endCal.setTimeInMillis(start.getTime());
+	}
+	
+	var dur = 0;
+	
+	 // Count days to get to the right year (loop in the very rare chance
+    // that a leap year causes us to come up short)
+    var numOfYears = endCal.get(java.util.Calendar.YEAR) - startCal.get(java.util.Calendar.YEAR);
+    while (numOfYears > 0) {
+        startCal.add(java.util.Calendar.DATE, 365 * numOfYears);
+        dur += 365 * numOfYears;
+        numOfYears = endCal.get(java.util.Calendar.YEAR) - startCal.get(java.util.Calendar.YEAR);
+    }
+    
+    // Count days to get to the right day
+    dur += endCal.get(java.util.Calendar.DAY_OF_YEAR) - startCal.get(java.util.Calendar.DAY_OF_YEAR);
+    
+    // Count hours to get to right hour
+    dur *= 24; // days -> hours
+    dur += endCal.get(java.util.Calendar.HOUR_OF_DAY) - startCal.get(java.util.Calendar.HOUR_OF_DAY);
+    
+    // ... to the right minute
+    dur *= 60; // hours -> minutes
+    dur += endCal.get(java.util.Calendar.MINUTE) - startCal.get(java.util.Calendar.MINUTE);
+    
+    // ... and second
+    dur *= 60; // minutes -> seconds
+    dur += endCal.get(java.util.Calendar.SECOND) - startCal.get(java.util.Calendar.SECOND);
+    
+    // Now unwind our units
+    var seconds = dur % 60;
+    dur = dur / 60; // seconds -> minutes (drop remainder seconds)
+    var minutes = Math.floor(dur % 60);
+    dur /= 60; // minutes -> hours (drop remainder minutes)
+    var hours = Math.floor(dur % 24);
+    dur /= 24; // hours -> days (drop remainder hours)
+    var days = Math.floor(dur);
+    var weeks = 0;
+
+    // Special case for week-only representation
+    if (seconds == 0 && minutes == 0 && hours == 0
+            && (days % 7) == 0) {
+        weeks = days / 7;
+        days = 0;
+    }
+    
+	return new Duration(isNegative, weeks, days, hours, minutes, seconds);
+}
