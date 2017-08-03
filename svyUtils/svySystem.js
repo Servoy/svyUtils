@@ -445,6 +445,8 @@ function getSolutionDeepLinkNGClient(warName, solutionName, methodName, args) {
  * 
  * @param {String} name
  * @param {String} value
+ * 
+ * @SuppressWarnings(deprecated)
  *  
  * @properties={typeid:24,uuid:"F87CEA54-6C6D-4906-90B5-E909E0AD97B7"}
  */
@@ -462,6 +464,8 @@ function setUserProperty(name, value){
  * @param {String} name
  * 
  * @return {String}
+ * 
+ * @SuppressWarnings(deprecated)
  *  
  * @properties={typeid:24,uuid:"4FA111EE-21DC-4EB1-B2B4-AB17D8C191C1"}
  */

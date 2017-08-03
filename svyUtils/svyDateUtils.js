@@ -1138,6 +1138,8 @@ function getDecimalHours(date) {
  * @constructor 
  * 
  * @param {Date} [date]
+ * 
+ * @SuppressWarnings(deprecated)
  *
  * @properties={typeid:24,uuid:"55DB0D7E-712A-47B8-8A54-4689C658FF08"}
  */

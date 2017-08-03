@@ -533,6 +533,8 @@ function deepCopyJSForm(newFormName, original, prefix) {
  * @param {Number} [leftFormMinSize] Minimum size of the left/top form
  * @param {Number} [rightFormMinSize] Minimum size of the right/bottom form
  * 
+ * @SuppressWarnings(deprecated)
+ * 
  * @properties={typeid:24,uuid:"B94825F2-EB16-49FD-BEBB-AA9A10EF65C1"}
  */
 function initSplitPane(formName, elementName, resizeWeight, dividerLocation, dividerSize, continuousLayout, bgColor, leftFormMinSize, rightFormMinSize) {
@@ -579,6 +581,8 @@ function initSplitPane(formName, elementName, resizeWeight, dividerLocation, div
  * 
  * @param {String} formName
  * @param {String} elementName
+ * 
+ * @SuppressWarnings(deprecated)
  *
  * @properties={typeid:24,uuid:"F335B47A-2FFC-4A39-BE4F-19B31C5108B6"}
  */
@@ -601,6 +605,8 @@ function persistSplitPaneDividerPosition(formName, elementName) {
  * @param {String} formName
  * @param {String} elementName
  * @param {Number} position
+ * 
+ * @SuppressWarnings(deprecated)
  *
  * @properties={typeid:24,uuid:"04FC34AA-629F-43BC-9C1E-6A7ED9735DA8"}
  */
@@ -616,8 +622,6 @@ function restoreSplitPaneDividerPosition(formName, elementName, position) {
 }
 
 /**
- * @deprecated
- * 
  * Return forms (1-level depth) which are contained in the specified form
  * 
  * @public
@@ -645,8 +649,6 @@ function getContainedForms(form){
 }
 
 /**
- * @deprecated
- * 
  * @public
  * 
  * @param {RuntimeForm} form
