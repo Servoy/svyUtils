@@ -1582,14 +1582,15 @@ function Duration(isNegative, weeks, days, hours, minutes, seconds) {
  * 
  * @public 
  * 
- * @param {Date} start
- * @param {Date} end
+ * @param {Date} start the start of the duration
+ * @param {Date} end the end of the duration
+ * @param {Array<Number>} [daysToExclude] Array of week days to exclude from the calculation (SUN = 0, MON = 1, TUE = 2, WED = 3, THU = 4, FRI = 5, SAT = 6)
  * 
  * @return {Duration}
  *
  * @properties={typeid:24,uuid:"E5339DAB-CC7B-4A5D-948F-FE9F54410149"}
  */
-function createDurationFromDates(start, end) {
+function createDurationFromDates(start, end, daysToExclude) {
 	var startCal = java.util.Calendar.getInstance();
 	startCal.setTimeInMillis(start.getTime());
 	var endCal = java.util.Calendar.getInstance();
@@ -1597,8 +1598,22 @@ function createDurationFromDates(start, end) {
 	
 	var isNegative = startCal.compareTo(endCal) > 0;
 	if (isNegative) {
-		calendar.setTimeInMillis(end.getTime());
+		startCal.setTimeInMillis(end.getTime());
 		endCal.setTimeInMillis(start.getTime());
+	}
+	
+	var numOfDaysToExclude = 0;
+	if (daysToExclude) {
+		var testDate = java.util.Calendar.getInstance();
+		testDate.setTimeInMillis(startCal.getTimeInMillis());
+		do {
+			if (daysToExclude.indexOf(testDate.get(java.util.Calendar.DAY_OF_WEEK) - 1) !== -1) {
+				numOfDaysToExclude ++;
+			}
+			testDate.add(java.util.Calendar.DATE, 1);
+		} while (testDate.before(endCal));
+		
+		endCal.add(java.util.Calendar.DATE, (-1) * numOfDaysToExclude);
 	}
 	
 	var dur = 0;
@@ -1638,11 +1653,71 @@ function createDurationFromDates(start, end) {
     var weeks = 0;
 
     // Special case for week-only representation
-    if (seconds == 0 && minutes == 0 && hours == 0
-            && (days % 7) == 0) {
+    if (seconds === 0 && minutes === 0 && hours === 0
+            && (days % 7) === 0) {
         weeks = days / 7;
         days = 0;
     }
     
 	return new Duration(isNegative, weeks, days, hours, minutes, seconds);
 }
+
+/**
+ * Returns a Date[] array with all dates between start and end that are not
+ * on one of the given nonWorkingDays and not included in the given
+ * exceptions
+ * 
+ * @public 
+ *
+ * @param {Date} startDate the start date
+ * @param {Date} endDate the end date
+ * @param {Array<Number>} nonWorkingDays Array of non-working days (SUN = 0, MON = 1, TUE = 2, WED = 3, THU = 4, FRI = 5, SAT = 6)
+ * @param {Array<Date>} [exceptions] Array of specific non-working dates to exclude such as holidays
+ *
+ * @properties={typeid:24,uuid:"F98A303A-D463-401A-BF41-4982516071BE"}
+ */
+function getWorkingDays(startDate, endDate, nonWorkingDays, exceptions) {
+	var result = [];
+
+	// Make sure we are only looking at the day
+	startDate.setHours(0, 0, 0, 0);
+	// add a millisecond, so the last day is included in the check
+	endDate.setHours(0, 0, 0, 1);
+
+	var dayOfWeek;
+	var skipDay;
+
+	/**
+	 * @param {Date} date1
+	 * @param {Date} date2
+	 */
+	function isSameDay(date1, date2) {
+		return date1.getFullYear() === date2.getFullYear() && 
+			date1.getMonth() === date2.getMonth() && 
+			date1.getDate() === date2.getDate();
+	}
+
+	do {
+		dayOfWeek = startDate.getDay();
+		skipDay = false;
+		if (nonWorkingDays && nonWorkingDays.indexOf(dayOfWeek) !== -1) {
+			skipDay = true;
+		}
+		if (exceptions != null) {
+			for (var i = 0; i < exceptions.length; i++) {
+				if (isSameDay(exceptions[i], startDate)) {
+					skipDay = true;
+					break;
+				}
+			}
+		}
+		if (!skipDay) {
+			result.push(new Date(startDate.getTime()));
+		}
+
+		startDate = new Date(startDate.getTime() + (1000 * 60 * 60 * 24));
+	} while (startDate.getTime() < endDate.getTime());
+
+	return result;
+}
+
