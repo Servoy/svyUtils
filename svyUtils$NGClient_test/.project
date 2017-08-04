@@ -3,7 +3,6 @@
 	<name>svyUtils$NGClient_test</name>
 	<comment></comment>
 	<projects>
-		<project>resources</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

@@ -3,7 +3,6 @@
 	<name>svyUtils_demo</name>
 	<comment></comment>
 	<projects>
-		<project>resources</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

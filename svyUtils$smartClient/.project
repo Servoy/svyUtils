@@ -3,7 +3,6 @@
 	<name>svyUtils$smartClient</name>
 	<comment></comment>
 	<projects>
-		<project>resources</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
