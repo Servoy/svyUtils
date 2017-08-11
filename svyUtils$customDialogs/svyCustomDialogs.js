@@ -1675,7 +1675,7 @@ var init_TextField = (function() {
 							if (entryWidth > maxEntryWidth) maxEntryWidth = entryWidth;
 						}
 						var entriesPerRow = Math.floor(width / maxEntryWidth);
-						numOfRows = Math.ceil(this.valueListValues.split("\n").length / entriesPerRow);
+						numOfRows = Math.ceil(listEntries.length / (entriesPerRow > 0 ? entriesPerRow : 1));
 						textField.height = textField.height * numOfRows + (numOfRows * 2);
 					} else {
 						numOfRows = Math.ceil(sHelper.getTextWidth(sHelper.getFontString("radio"), this.valueListValues.split("\n").join('  ')) / width);
