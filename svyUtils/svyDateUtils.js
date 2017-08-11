@@ -1463,12 +1463,12 @@ function isStartOfDay(date) {
  * 
  * @public 
  * 
- * @param {Boolean} isNegative
- * @param {Number} weeks
- * @param {Number} days
- * @param {Number} hours
- * @param {Number} minutes
- * @param {Number} seconds
+ * @param {Boolean} [isNegative]
+ * @param {Number} [weeks]
+ * @param {Number} [days]
+ * @param {Number} [hours]
+ * @param {Number} [minutes]
+ * @param {Number} [seconds]
  *
  * @properties={typeid:24,uuid:"072256B9-F18C-44DA-82B1-8C80F3F5240B"}
  */
@@ -1480,33 +1480,122 @@ function Duration(isNegative, weeks, days, hours, minutes, seconds) {
 	
 	/**
 	 * the negative flag
+	 * @type {Boolean}
 	 */
-	this.negative = isNegative;
+	this.negative = isNegative instanceof Boolean ? isNegative : false;
 	
 	/**
 	 * the number of days of this duration
+	 * @type {Number}
 	 */
-	this.days = days;
+	this.days = days >= 0 ? days : 0;
 	
 	/**
 	 * the number of hours of this duration
+	 * @type {Number}
 	 */
-	this.hours = hours;
+	this.hours = hours >= 0 ? hours : 0;
 	
 	/**
 	 * the number of minutes of this duration
+	 * @type {Number}
 	 */
-	this.minutes = minutes;
+	this.minutes = minutes >= 0 ? minutes : 0;
 	
 	/**
 	 * the number of seconds of this duration
+	 * @type {Number}
 	 */
-	this.seconds = seconds;
+	this.seconds = seconds >= 0 ? seconds : 0;
 	
 	/**
 	 * the number of weeks of this duration
+	 * @type {Number}
 	 */
-	this.weeks = weeks;
+	this.weeks = weeks >= 0 ? weeks : 0;
+	
+	/**
+	 * Number of milliseconds of this duration
+	 * @type {Number}
+	 */
+	this.duration = 0;
+	Object.defineProperty(this,'duration', {
+		get: function() {
+			var duration = 0;
+			duration = this.weeks * 7 * 24 * 60 * 60 * 1000;
+			duration += this.days * 24 * 60 * 60 * 1000;
+			duration += this.hours * 60 * 60 * 1000;
+			duration += this.minutes * 60 * 1000;
+			duration += this.seconds * 1000;
+			return duration;
+		},
+		set: function(dur) {
+			var start = new Date();
+			var end = new Date(start.getTime() + dur);
+			this.fillFieldsFromDates(start, end);
+		}
+	});
+	
+	/**
+	 * Fills all the fields of this duration using the given start and end dates
+	 * @param {Date} start
+	 * @param {Date} end
+	 */
+	this.fillFieldsFromDates = function(start, end) {
+		var startCal = java.util.Calendar.getInstance();
+		startCal.setTimeInMillis(start.getTime());
+		var endCal = java.util.Calendar.getInstance();
+		endCal.setTimeInMillis(end.getTime());
+		
+		this.negative = startCal.compareTo(endCal) > 0;
+		if (this.negative) {
+			startCal.setTimeInMillis(end.getTime());
+			endCal.setTimeInMillis(start.getTime());
+		}
+		
+		var dur = 0;
+		
+		 // Count days to get to the right year (loop in the very rare chance
+	    // that a leap year causes us to come up short)
+	    var numOfYears = endCal.get(java.util.Calendar.YEAR) - startCal.get(java.util.Calendar.YEAR);
+	    while (numOfYears > 0) {
+	        startCal.add(java.util.Calendar.DATE, 365 * numOfYears);
+	        dur += 365 * numOfYears;
+	        numOfYears = endCal.get(java.util.Calendar.YEAR) - startCal.get(java.util.Calendar.YEAR);
+	    }
+	    
+	    // Count days to get to the right day
+	    dur += endCal.get(java.util.Calendar.DAY_OF_YEAR) - startCal.get(java.util.Calendar.DAY_OF_YEAR);
+	    
+	    // Count hours to get to right hour
+	    dur *= 24; // days -> hours
+	    dur += endCal.get(java.util.Calendar.HOUR_OF_DAY) - startCal.get(java.util.Calendar.HOUR_OF_DAY);
+	    
+	    // ... to the right minute
+	    dur *= 60; // hours -> minutes
+	    dur += endCal.get(java.util.Calendar.MINUTE) - startCal.get(java.util.Calendar.MINUTE);
+	    
+	    // ... and second
+	    dur *= 60; // minutes -> seconds
+	    dur += endCal.get(java.util.Calendar.SECOND) - startCal.get(java.util.Calendar.SECOND);
+	    
+	    // Now unwind our units
+	    this.seconds = dur % 60;
+	    dur = dur / 60; // seconds -> minutes (drop remainder seconds)
+	    this.minutes = Math.floor(dur % 60);
+	    dur /= 60; // minutes -> hours (drop remainder minutes)
+	    this.hours = Math.floor(dur % 24);
+	    dur /= 24; // hours -> days (drop remainder hours)
+	    this.days = Math.floor(dur);
+	    this.weeks = 0;
+
+	    // Special case for week-only representation
+	    if (seconds === 0 && minutes === 0 && hours === 0
+	            && (days % 7) === 0) {
+	        this.weeks = days / 7;
+	        this.days = 0;
+	    }
+	}
 	
 	/**
 	 * Returns the end of the duration from the given start
@@ -1584,82 +1673,15 @@ function Duration(isNegative, weeks, days, hours, minutes, seconds) {
  * 
  * @param {Date} start the start of the duration
  * @param {Date} end the end of the duration
- * @param {Array<Number>} [daysToExclude] Array of week days to exclude from the calculation (SUN = 0, MON = 1, TUE = 2, WED = 3, THU = 4, FRI = 5, SAT = 6)
  * 
  * @return {Duration}
  *
  * @properties={typeid:24,uuid:"E5339DAB-CC7B-4A5D-948F-FE9F54410149"}
  */
-function createDurationFromDates(start, end, daysToExclude) {
-	var startCal = java.util.Calendar.getInstance();
-	startCal.setTimeInMillis(start.getTime());
-	var endCal = java.util.Calendar.getInstance();
-	endCal.setTimeInMillis(end.getTime());
-	
-	var isNegative = startCal.compareTo(endCal) > 0;
-	if (isNegative) {
-		startCal.setTimeInMillis(end.getTime());
-		endCal.setTimeInMillis(start.getTime());
-	}
-	
-	var numOfDaysToExclude = 0;
-	if (daysToExclude) {
-		var testDate = java.util.Calendar.getInstance();
-		testDate.setTimeInMillis(startCal.getTimeInMillis());
-		do {
-			if (daysToExclude.indexOf(testDate.get(java.util.Calendar.DAY_OF_WEEK) - 1) !== -1) {
-				numOfDaysToExclude ++;
-			}
-			testDate.add(java.util.Calendar.DATE, 1);
-		} while (testDate.before(endCal));
-		
-		endCal.add(java.util.Calendar.DATE, (-1) * numOfDaysToExclude);
-	}
-	
-	var dur = 0;
-	
-	 // Count days to get to the right year (loop in the very rare chance
-    // that a leap year causes us to come up short)
-    var numOfYears = endCal.get(java.util.Calendar.YEAR) - startCal.get(java.util.Calendar.YEAR);
-    while (numOfYears > 0) {
-        startCal.add(java.util.Calendar.DATE, 365 * numOfYears);
-        dur += 365 * numOfYears;
-        numOfYears = endCal.get(java.util.Calendar.YEAR) - startCal.get(java.util.Calendar.YEAR);
-    }
-    
-    // Count days to get to the right day
-    dur += endCal.get(java.util.Calendar.DAY_OF_YEAR) - startCal.get(java.util.Calendar.DAY_OF_YEAR);
-    
-    // Count hours to get to right hour
-    dur *= 24; // days -> hours
-    dur += endCal.get(java.util.Calendar.HOUR_OF_DAY) - startCal.get(java.util.Calendar.HOUR_OF_DAY);
-    
-    // ... to the right minute
-    dur *= 60; // hours -> minutes
-    dur += endCal.get(java.util.Calendar.MINUTE) - startCal.get(java.util.Calendar.MINUTE);
-    
-    // ... and second
-    dur *= 60; // minutes -> seconds
-    dur += endCal.get(java.util.Calendar.SECOND) - startCal.get(java.util.Calendar.SECOND);
-    
-    // Now unwind our units
-    var seconds = dur % 60;
-    dur = dur / 60; // seconds -> minutes (drop remainder seconds)
-    var minutes = Math.floor(dur % 60);
-    dur /= 60; // minutes -> hours (drop remainder minutes)
-    var hours = Math.floor(dur % 24);
-    dur /= 24; // hours -> days (drop remainder hours)
-    var days = Math.floor(dur);
-    var weeks = 0;
-
-    // Special case for week-only representation
-    if (seconds === 0 && minutes === 0 && hours === 0
-            && (days % 7) === 0) {
-        weeks = days / 7;
-        days = 0;
-    }
-    
-	return new Duration(isNegative, weeks, days, hours, minutes, seconds);
+function createDurationFromDates(start, end) {
+	var duration = new Duration();
+	duration.fillFieldsFromDates(start, end);
+	return duration;
 }
 
 /**
@@ -1678,11 +1700,14 @@ function createDurationFromDates(start, end, daysToExclude) {
  */
 function getWorkingDays(startDate, endDate, nonWorkingDays, exceptions) {
 	var result = [];
+	
+	var start = new Date(startDate.getTime());
+	var end = new Date(endDate.getTime());
 
 	// Make sure we are only looking at the day
-	startDate.setHours(0, 0, 0, 0);
+	start.setHours(0, 0, 0, 0);
 	// add a millisecond, so the last day is included in the check
-	endDate.setHours(0, 0, 0, 1);
+	end.setHours(0, 0, 0, 1);
 
 	var dayOfWeek;
 	var skipDay;
@@ -1698,25 +1723,25 @@ function getWorkingDays(startDate, endDate, nonWorkingDays, exceptions) {
 	}
 
 	do {
-		dayOfWeek = startDate.getDay();
+		dayOfWeek = start.getDay();
 		skipDay = false;
 		if (nonWorkingDays && nonWorkingDays.indexOf(dayOfWeek) !== -1) {
 			skipDay = true;
 		}
 		if (exceptions != null) {
 			for (var i = 0; i < exceptions.length; i++) {
-				if (isSameDay(exceptions[i], startDate)) {
+				if (isSameDay(exceptions[i], start)) {
 					skipDay = true;
 					break;
 				}
 			}
 		}
 		if (!skipDay) {
-			result.push(new Date(startDate.getTime()));
+			result.push(new Date(start.getTime()));
 		}
 
-		startDate = new Date(startDate.getTime() + (1000 * 60 * 60 * 24));
-	} while (startDate.getTime() < endDate.getTime());
+		start = new Date(start.getTime() + (1000 * 60 * 60 * 24));
+	} while (start.getTime() < end.getTime());
 
 	return result;
 }
