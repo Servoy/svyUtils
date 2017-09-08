@@ -367,7 +367,7 @@ function selectNextRecord(foundset) {
 }
 
 /**
- * Selects the last record in the foundset. Warning: can be very expensive, as the entire foundset needs to be loaded
+ * Selects the last record in the foundset. <b>Warning</b>: can be very expensive, as the entire foundset needs to be loaded
  * 
  * @public
  * 
@@ -389,6 +389,75 @@ function selectLastRecord(foundset) {
 	
 	return true;
 }
+
+
+/**
+ * Selects the record with the given pk in the foundset even if the record is not loaded in foundset yet. <b>Warning</b>: can be very expensive, as the entire foundset may needs to be loaded.
+ * Returns false if the record cannot be found in the entire foundset.
+ *  
+ * @public
+ * 
+ * @param {JSFoundSet} foundset
+ * @param {JSRecord} record
+ * 
+ * @return {Boolean} false when could not select the record
+ *
+ *
+ * @properties={typeid:24,uuid:"D99AC45B-3E49-4759-B6BD-72517E79B8B5"}
+ */
+function selectRecord(foundset, record) {
+	// check datasource
+	if (foundset.getDataSource() !== record.getDataSource()) {
+		throw new scopes.svyExceptions.IllegalArgumentException("record cannot have dataSource '" + record.getDataSource() + "' different from foundset's dataSource " + foundset.getDataSource());
+	}
+	
+	var selected;
+	var index = foundset.getRecordIndex(record);
+	if (index > -1) {	// record is in foundset
+		foundset.setSelectedIndex(index);
+		selected = foundset.getSelectedIndex() === index;
+	} else {	// record is not yet cached in foundset
+		foundset.getRecord(databaseManager.getFoundSetCount(foundset));
+		index = foundset.getRecordIndex(record);
+		if (index > -1) {
+			foundset.setSelectedIndex(index)
+			selected = foundset.getSelectedIndex() === index;
+		} else {	// record is not found in foundset
+			selected = false;
+		}
+	}
+	return selected;
+}
+
+/**
+ * Selects the record with the given pk in the foundset even if the record is not loaded in foundset yet. <b>Warning</b>: can be very expensive, as the entire foundset may needs to be loaded
+ * In case of a table with a composite key, the pk sequence must match the alphabetical ordering of the pk column names.
+ * Returns false if the record cannot be found in the entire foundset.
+ * 
+ * @public
+ * 
+ * @param {JSFoundSet} foundset
+ * @param {String|Number|UUID} pk1
+ * @param {String|Number|UUID} [pk2]
+ * @param {String|Number|UUID} [pknd] up to 10 pks
+ * 
+ * @return {Boolean} false when could not select the record
+ *
+ * @properties={typeid:24,uuid:"36650093-8113-49D2-9DF6-6438425E8306"}
+ */
+function selectRecordByPks(foundset, pk1, pk2, pknd) {
+	var pks = Array.prototype.slice.call(arguments, 1);
+	
+	// TODO add a check for correct pks length ?
+	
+	var selected = foundset.selectRecord(pks[0], pks[1], pks[2], pks[3], pks[4], pks[5], pks[6], pks[7], pks[8], pks[9]);
+	if (!selected) {
+		foundset.getRecord(databaseManager.getFoundSetCount(foundset));
+		selected = foundset.selectRecord(pks[0], pks[1], pks[2], pks[3], pks[4], pks[5], pks[6], pks[7], pks[8], pks[9]);
+	}
+	return selected;
+}
+
 
 /**
  * Raised when JSFoundSet.newRecord() failed
