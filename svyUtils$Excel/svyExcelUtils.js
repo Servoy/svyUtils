@@ -2400,9 +2400,9 @@ var initExcelCell = (function() {
 			/** @type {java.util.Date} */
 			var dateValue = new java.util.Date(value.getTime());
 			this.cell.setCellValue(dateValue);
-		} else if (value instanceof String) {
+		} else if (value instanceof String || value instanceof UUID) {
 			/** @type {String} */
-			var stringValue = value;
+			var stringValue = value.toString();
 			this.cell.setCellValue(stringValue);
 		} else if (value instanceof Number) {
 			/** @type {Number} */
