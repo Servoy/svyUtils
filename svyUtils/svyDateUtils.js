@@ -655,8 +655,8 @@ function getDateFormat(style, locale) {
  * @properties={typeid:24,uuid:"D9F78345-D31D-4A79-8C28-230F7BC467B4"}
  */
 function getDayDifference(start, end) {
-	var startUtc = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate());
-	var endUtc = Date.UTC(end.getFullYear(), end.getMonth(), end.getDate());
+	var startUtc = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate(), start.getHours(), start.getMinutes(), start.getSeconds());
+	var endUtc = Date.UTC(end.getFullYear(), end.getMonth(), end.getDate(), end.getHours(), end.getMinutes(), end.getSeconds());
 	var diff = Math.abs((startUtc.valueOf() - endUtc.valueOf()) / (24 * 60 * 60 * 1000));
 	return diff;
 }
