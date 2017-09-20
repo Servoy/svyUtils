@@ -2,20 +2,6 @@ customProperties:"formComponent:false",
 extendsID:"E8B2A839-18F1-4D54-9A85-9CB949C9841E",
 items:[
 {
-extendsID:"7B1D727F-5405-4F7D-A24E-291175E6FEA3",
-formIndex:1,
-text:"Crypto Example",
-typeid:7,
-uuid:"15BCC131-6D0F-4882-9614-AFAC0395C874"
-},
-{
-extendsID:"E9B6A1AC-D387-45ED-B1A3-6A919D5F927E",
-formIndex:0,
-styleClass:null,
-typeid:7,
-uuid:"2C5ECF2F-22B5-43BA-8706-44E2C419519A"
-},
-{
 extendsID:"2A5F4A4C-AB7B-4911-B94F-34313023357A",
 items:[
 {

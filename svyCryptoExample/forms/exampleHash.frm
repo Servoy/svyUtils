@@ -57,7 +57,7 @@ typeid:7,
 uuid:"BB18222F-AB53-443F-827E-1A3F9C62240C"
 },
 {
-labelFor:"encrypted",
+labelFor:"hashed",
 location:"400,190",
 name:"encrypted_label",
 size:"80,28",
