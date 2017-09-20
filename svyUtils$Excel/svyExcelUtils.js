@@ -624,7 +624,6 @@ var initExcelWorkbook = (function() {
 		try {
 			fileOut = new java.io.FileOutputStream(filePath);
 			this.wb.write(fileOut);
-			fileOut.close();
 			return true;
 		} catch (e) {
 			logger.error(e.message);
