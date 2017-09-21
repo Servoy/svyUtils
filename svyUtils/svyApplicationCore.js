@@ -330,3 +330,107 @@ function setUncaughtExceptionCallback(callback) {
 	uncaughtExceptionCallback = scopes.svySystem.convertServoyMethodToQualifiedName(callback)
 	return uncaughtExceptionCallback || callback == null ? true : false
 }
+
+/**
+ * Remove a listener for incoming databroadcast events previously registered using scopes.svyApplicationCore.addDataBroadcastListener.
+ * 
+ * @param {Function} listener
+ * @param {String|JSRecord} [obj] Listen to just databroadcasts on a specific datasource or JSRecord
+ * 
+ * @example <pre> &#47;**
+ *  * Var holding a reference to a foundset on the contacts table of the udm database, so this client receives databroadcast events for this table
+ *  * &#64;private
+ *  * @type {JSFoundSet}
+ *  *&#47;
+ * var fs
+ *
+ * function onShow() {
+ * 	fs = databaseManager.getFoundSet('db:/udm/contacts')
+ * 	fs.clear()
+ * 	scopes.svyApplicationCore.addDataBroadcastListener(dataBroadcastEventListener);
+ * }
+ * 
+ * function onHide() {
+ * 	scopes.svyApplicationCore.removeDataBroadcastListener(dataBroadcastEventListener);
+ * }
+ *
+ * &#47;**
+ *  * @param {String} dataSource
+ *  * @param {Number} action
+ *  * @param {JSDataSet} pks
+ *  * @param {Boolean} cached
+ *  *&#47;
+ * function dataBroadcastEventListener(dataSource, action, pks, cached) {
+ * 	if (dataSource == 'db:/udm/contacts' && action & (SQL_ACTION_TYPES.INSERT_ACTION | SQL_ACTION_TYPES.DELETE_ACTION)) {
+ * 		//Your business logic here
+ * 	}
+ * }
+ *</pre>
+ * 
+ * @properties={typeid:24,uuid:"DCDBE018-B0A8-4778-9130-2CBCCF895A33"}
+ */
+function removeDataBroadcastListener(listener, obj) {
+	var context = this
+	if (obj) {
+		if (!(obj instanceof JSRecord || typeof obj === 'string')) {
+			throw scopes.svyExceptions.IllegalArgumentException('obj param value passed into addDatabroadcastListener must be either a JSRecord or a String representing a datasource')
+		} else if (obj instanceof JSRecord) {
+			var pks = obj.getPKs()
+			context = obj.getDataSource() + '/'
+			for (var j = 0; j < pks.length; j++) {
+				context += '/' + (pks[j] + '').replace(/\./g, '%2E').replace(/\//g, '%2F') //Encoding .'s and /-es 
+			}
+		} else {
+			context = obj.toString();
+		}
+	}
+	scopes.svyEventManager.removeListener(context, APPLICATION_EVENT_TYPES.DATABROADCAST, listener)
+}
+
+/**
+ * Fire the DataBroadcast even after a record insert.
+ * Since the onDataBrodcast is not fired for the client triggering the data change, this method can be used to simulate the onDataBrodcast within the client.
+ * Trigger this method at the onAfterRecordInsert event of the datasource to notify the client itself of the data change.
+ * 
+ * @param {JSRecord} record
+ * @public 
+ *
+ * @properties={typeid:24,uuid:"9A1382E8-63D1-44C5-87C3-CA262F044AE6"}
+ */
+function fireDataBroadcastEventAfterRecordInsert(record) {
+	var pks = databaseManager.createEmptyDataSet();
+	pks.addRow(record.getPKs());
+	fireDataBroadcastEvent(record.getDataSource(), SQL_ACTION_TYPES.INSERT_ACTION, pks, true);
+}
+
+/**
+ * Fire the DataBroadcast even after a record update.
+ * Since the onDataBrodcast is not fired for the client triggering the data change, this method can be used to simulate the onDataBrodcast within the client.
+ * Trigger this method at the onAfterRecordUpdate event of the datasource to notify the client itself of the data change.
+ * 
+ * @param {JSRecord} record
+ * @public 
+ *
+ * @properties={typeid:24,uuid:"6C0871FA-A83A-472F-B44D-FFFB3C23D3A1"}
+ */
+function fireDataBroadcastEventAfterRecordUpdate(record) {
+	var pks = databaseManager.createEmptyDataSet();
+	pks.addRow(record.getPKs());
+	fireDataBroadcastEvent(record.getDataSource(), SQL_ACTION_TYPES.UPDATE_ACTION, pks, true);
+}
+
+/**
+ * Fire the DataBroadcast even after a record delete.
+ * Since the onDataBrodcast is not fired for the client triggering the data change, this method can be used to simulate the onDataBrodcast within the client.
+ * Trigger this method at the onAfterRecordUpdate event of the datasource to notify the client itself of the data delete.
+ * 
+ * @param {JSRecord} record
+ * @public 
+ *
+ * @properties={typeid:24,uuid:"106DBDF4-36CB-4141-B04F-579486C48C89"}
+ */
+function fireDataBroadcastEventAfterRecordDelete(record) {
+	var pks = databaseManager.createEmptyDataSet();
+	pks.addRow(record.getPKs());
+	fireDataBroadcastEvent(record.getDataSource(), SQL_ACTION_TYPES.DELETE_ACTION, pks, true);
+}
