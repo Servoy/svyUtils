@@ -23,6 +23,7 @@ uuid:"22462D9A-9098-4AC9-BF68-5D2EB26939AD"
 },
 {
 location:"250,220",
+name:"hashValue",
 onActionMethodID:"3A2CF6F8-753E-4E02-A887-8F08C2191F64",
 onDoubleClickMethodID:"-1",
 onRightClickMethodID:"-1",
