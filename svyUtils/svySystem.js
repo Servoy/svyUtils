@@ -411,7 +411,6 @@ function getSolutionDeepLinkWebClient(solutionName, methodName, args) {
  * 
  * @public
  * 
- * @param {String} warName
  * @param {String} [solutionName]
  * @param {String} [methodName]
  * @param {Object} [args]
@@ -420,7 +419,7 @@ function getSolutionDeepLinkWebClient(solutionName, methodName, args) {
  *  
  * @properties={typeid:24,uuid:"493977A5-AB79-4123-B73A-C64A224E166B"}
  */
-function getSolutionDeepLinkNGClient(warName, solutionName, methodName, args) {
+function getSolutionDeepLinkNGClient(solutionName, methodName, args) {
 	if (!solutionName) {
 		solutionName = application.getSolutionName();
 	}
@@ -437,12 +436,8 @@ function getSolutionDeepLinkNGClient(warName, solutionName, methodName, args) {
 			}
 		}
 	}
-	var link;
-	if (application.isInDeveloper()) {
-		link = application.getServerURL() + '/solutions/' + solutionName + '/index.html?';
-	} else {
-		link = application.getServerURL() + '/' + warName + '/solutions/' + solutionName + '/index.html?';
-	}
+	var link = application.getServerURL() + '/solutions/' + solutionName + '/index.html?';
+
 	if (params.length) {
 		link += params.join('&');
 	}
