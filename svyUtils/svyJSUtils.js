@@ -195,6 +195,47 @@ function dynamicConstructorInvoker(constructor, args) {
     return (result !== null && typeof result === 'object') ? result : instance;
 }
 
+/**
+ * Rounds a number to the given precision using exponential notation shifting
+ *
+ * @param {Number} value
+ * @param {Number} precision
+ *
+ * @see http://forum.servoy.com/viewtopic.php?f=22&t=20768
+ *
+ * @properties={typeid:24,uuid:"4DC2E61E-B977-402B-8896-BE64343EB0F3"}
+ */
+function round(value, precision) {
+	return Number(Math.round(Number(Math.abs(value) + 'e' + precision)) + 'e-' + precision) * (value < 0 ? -1 : 1)
+}
+
+/**
+ * Returns all items of array1 that are not in array2
+ * 
+ * @param {Array} array1
+ * @param {Array} array2
+ * 
+ * @return {Array}
+ *
+ * @properties={typeid:24,uuid:"071D6EAC-F4E9-4F51-BE11-9AE70B7E77F9"}
+ */
+function arrayDiff(array1, array2) {
+	var o1 = { }, o2 = { }, diff = [], i, len, k;
+	for (i = 0, len = array1.length; i < len; i++) {
+		o1[array1[i]] = true;
+	}
+	for (i = 0, len = array2.length; i < len; i++) {
+		o2[array2[i]] = true;
+	}
+	for (k in o1) {
+		if (! (k in o2)) {
+			diff.push(k);
+		}
+	}
+	return diff;
+}
+
+
 //TODO add replacer function for JSON.stringify that handles circular references or a custom object stringifier that does this and also removes the quotes around the keys
 
 /*Attempt to replace globals.svy_utl_getTypeOf, but doesn't work that well (yet)
