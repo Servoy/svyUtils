@@ -507,6 +507,7 @@ function getSystemProperties() {
 		result.availableProcessors = runtime.availableProcessors();
 		result.freeMemory = runtime.freeMemory();
 		result.maxMemory = runtime.maxMemory();
+		result.totalMemory = runtime.totalMemory();
 	} catch (e) {
 	}
 	try {
