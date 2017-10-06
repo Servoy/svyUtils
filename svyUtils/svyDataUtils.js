@@ -444,6 +444,7 @@ function selectRecord(foundset, record) {
  * @return {Boolean} false when could not select the record
  *
  * @properties={typeid:24,uuid:"36650093-8113-49D2-9DF6-6438425E8306"}
+ * @SuppressWarnings(wrongparameters)
  */
 function selectRecordByPks(foundset, pk1, pk2, pknd) {
 	var pks = Array.prototype.slice.call(arguments, 1);
@@ -736,6 +737,29 @@ function fromJSONColumnConverter(storageValue, dbType) {
 	}
 	
 	return JSON.parse(storageValue);
+}
+
+/**
+ * Returns an object containing all changes of a record
+ * 
+ * @version 1.3.1
+ * @since 2017-10-06
+ * @author patrick
+ *
+ * @param {JSRecord} record
+ * 
+ * @return {Object<{oldValue: *, newValue: *}>}
+ *
+ * @properties={typeid:24,uuid:"4173DC35-8400-41C7-A581-A6DC00827D2E"}
+ */
+function getChangedData(record) {
+	var changedData = record.getChangedData();
+	var result = {};
+	for (var i = 1; i <= changedData.getMaxRowIndex(); i++) {
+		var row = changedData.getRowAsArray(i);
+		result[row[0]] = {oldValue: row[1], newValue: row[2]};
+	}
+	return result;
 }
 
 /**
