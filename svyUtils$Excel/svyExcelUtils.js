@@ -413,7 +413,7 @@ function createWorkbookFromDataSet(dataset, columns, headers, templateOrFileType
  * 
  * @public 
  *
- * @param {String|plugins.file.JSFile|Number} [templateOrFileType] either an existing Excel file as template or one of the FILE_FORMAT constants when creating empty workbooks
+ * @param {String|plugins.file.JSFile|Number|Array<byte>} [templateOrFileType] either a path, mediaUrl, JSFile or byte[] when reading an existing workbook or one of the FILE_FORMAT constants when creating empty workbooks
  * 
  * @example <pre>
  * // Create workbook and sheet
@@ -511,6 +511,9 @@ function ExcelWorkbook(templateOrFileType) {
 		/** @type {plugins.file.JSFile} */
 		var jsFile = templateOrFileType;
 		this.wb = factory.create(new java.io.File(jsFile.getAbsolutePath()));
+	} else if (templateOrFileType instanceof Array) {
+		var excelBis = new java.io.ByteArrayInputStream(templateOrFileType);
+		this.wb = factory.create(excelBis);
 	} else {
 		throw new scopes.svyExceptions.IllegalArgumentException("Wrong arguments provided for ExcelWorkbook");
 	}
