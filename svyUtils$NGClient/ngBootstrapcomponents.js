@@ -6,7 +6,8 @@
 var BTS_COMPONENTS = {
 	LABEL : "bootstrapcomponents-label",
 	TEXTBOX : "bootstrapcomponents-typeahead",
-	TYPEAHEAD : "bootstrapcomponents-typeahead"
+	TYPEAHEAD : "bootstrapcomponents-typeahead",
+	TABLESSPANEL : "bootstrapcomponents-tablesspanel"
 }
 
 
@@ -40,4 +41,20 @@ function newTypeahead(layoutContainer, index, name) {
 	var field = layoutContainer.newWebComponent(name, BTS_COMPONENTS.TYPEAHEAD, index);
 	field.name = name;
 	return field;
+}
+
+/**
+ * @param {JSLayoutContainer} layoutContainer
+ * @param {Number} index
+ * @param {String} name
+ * @param {String} containedForm
+ * 
+ * @public 
+ *
+ * @properties={typeid:24,uuid:"C9C9B8AC-7604-421F-80D5-16809898D80B"}
+ */
+function newTablesspanel(layoutContainer, index, name, containedForm) {
+	var tab = layoutContainer.newWebComponent(name, BTS_COMPONENTS.TABLESSPANEL, index);
+	tab.setJSONProperty('containedForm',containedForm);
+	return tab;
 }
