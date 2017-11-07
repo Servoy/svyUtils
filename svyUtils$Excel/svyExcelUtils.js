@@ -283,6 +283,13 @@ var PAPER_SIZE = {
 var defaultPrintSetup;
 
 /**
+ * @type {{firstColumn: Number, firstRow: Number, lastColumn: Number, lastRow: Number, numberOfCells: Number}}
+ *
+ * @properties={typeid:35,uuid:"E87C2833-21CD-4DEF-B706-1F2BB70DE02D",variableType:-4}
+ */
+var mergedRegionType;
+
+/**
  * Returns an empty ExcelWorkbook
  * 
  * @public 
@@ -1666,6 +1673,31 @@ var initExcelSheet = (function() {
 			endColumn - 1
 		));
 	}
+	
+	/**
+	 * Returns an array of merged regions of this sheet
+	 * @return {Array<scopes.svyExcelUtils.mergedRegionType>}
+	 * @this {ExcelSheet}
+	 */
+	ExcelSheet.prototype.getMergedRegions = function() {
+		var mergedRegions = this.sheet.getMergedRegions();
+		var result = [];
+		if (mergedRegions != null) {
+			var iterator = mergedRegions.iterator();
+			while (iterator.hasNext()) {
+				/** @type {Packages.org.apache.poi.ss.util.CellRangeAddress} */
+				var mergedRegion = iterator.next();
+				result.push({
+					firstColumn: mergedRegion.getFirstColumn() + 1, 
+					firstRow: mergedRegion.getFirstRow() + 1, 
+					lastColumn: mergedRegion.getLastColumn() + 1, 
+					lastRow: mergedRegion.getLastRow() + 1,
+					numberOfCells: mergedRegion.getNumberOfCells()
+				});
+			}
+		}
+		return result;
+	}	
 	
 	/**
 	 * Sets the print setup for this sheet
