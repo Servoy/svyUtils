@@ -1,0 +1,15 @@
+{
+    "name":"svyUtils$logManagerAppenders",
+    "displayName":"svyUtils$logManagerAppenders",
+    "packageType": "Solution",
+    "icon": "https://raw.githubusercontent.com/Servoy/servoy-extra-components/master/servoy.png",
+    "description": "Set of appenders for svyLogManager to append logs in database (DbAppender), log to files (RollingFileAppender), log to email (EmailAppender) and log to a console window (PopupAppender)",
+    "wikiUrl": "https://github.com/Servoy/svyUtils/wiki/LogManager-Appenders",
+    "sourceUrl" : "https://github.com/Servoy/svyUtils",
+    "releases" : [
+        {"version":"1.0.0","url":"https://github.com/Servoy/svyUtils/releases/download/v1.0.0/svyUtilsLogManagerAppenders.servoy", "servoy-version":"8.0.0"},
+        {"version":"1.1.0","url":"https://github.com/Servoy/svyUtils/releases/download/v1.1.0/svyUtilsLogManagerAppenders.servoy", "servoy-version":"8.0.0"},
+        {"version":"1.2.0","url":"https://github.com/Servoy/svyUtils/releases/download/v1.2.0/svyUtilsLogManagerAppenders.servoy", "servoy-version":"8.0.0"},
+        {"version":"1.3.0","url":"https://github.com/Servoy/svyUtils/releases/download/v1.3.0/svyUtilsLogManagerAppenders.servoy", "servoy-version":"8.0.0"}
+     ]
+}

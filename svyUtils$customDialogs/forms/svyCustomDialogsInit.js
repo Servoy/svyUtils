@@ -11,5 +11,5 @@ function getId() {
  * @properties={typeid:24,uuid:"3A8F8C65-EF28-4DB3-8700-71F813432622"}
  */
 function getVersion() {
-	return '1.0.0'
+	return '1.3.0'
 }

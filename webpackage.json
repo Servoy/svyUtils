@@ -1,0 +1,16 @@
+{
+    "name":"svyUtils",
+    "displayName":"svyUtils",
+    "packageType": "Solution",
+    "icon": "https://raw.githubusercontent.com/Servoy/servoy-extra-components/master/servoy.png",
+    "description": "Wide range of low-level utility methods and application concepts for Servoy solutions",
+    "wikiUrl": "https://github.com/Servoy/svyUtils/wiki",
+    "sourceUrl" : "https://github.com/Servoy/svyUtils",
+    "releases" : [
+        {"version":"1.0.0","url":"https://github.com/Servoy/svyUtils/releases/download/v1.0.0/svyUtils.servoy", "servoy-version":"8.0.0"},
+        {"version":"1.1.0","url":"https://github.com/Servoy/svyUtils/releases/download/v1.1.0/svyUtils.servoy", "servoy-version":"8.0.0"},
+        {"version":"1.2.0","url":"https://github.com/Servoy/svyUtils/releases/download/v1.2.0/svyUtils.servoy", "servoy-version":"8.0.0"},
+        {"version":"1.3.0","url":"https://github.com/Servoy/svyUtils/releases/download/v1.3.0/svyUtils.servoy", "servoy-version":"8.0.0"},
+        {"version":"1.3.1","url":"https://github.com/Servoy/svyUtils/releases/download/v1.3.1/svyUtils.servoy", "servoy-version":"8.0.0"}
+     ]
+}

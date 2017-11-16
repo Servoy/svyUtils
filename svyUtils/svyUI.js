@@ -26,7 +26,6 @@
 /*
  * Scope with UI related utility methods
  * 
- * TODO: add method that gets the JSForm for any RuntimeForm instance or formName string, also instances created with application.createNewFormInstance()
  */
 
 /**
@@ -534,6 +533,8 @@ function deepCopyJSForm(newFormName, original, prefix) {
  * @param {Number} [leftFormMinSize] Minimum size of the left/top form
  * @param {Number} [rightFormMinSize] Minimum size of the right/bottom form
  * 
+ * @SuppressWarnings(deprecated)
+ * 
  * @properties={typeid:24,uuid:"B94825F2-EB16-49FD-BEBB-AA9A10EF65C1"}
  */
 function initSplitPane(formName, elementName, resizeWeight, dividerLocation, dividerSize, continuousLayout, bgColor, leftFormMinSize, rightFormMinSize) {
@@ -580,6 +581,8 @@ function initSplitPane(formName, elementName, resizeWeight, dividerLocation, div
  * 
  * @param {String} formName
  * @param {String} elementName
+ * 
+ * @SuppressWarnings(deprecated)
  *
  * @properties={typeid:24,uuid:"F335B47A-2FFC-4A39-BE4F-19B31C5108B6"}
  */
@@ -602,6 +605,8 @@ function persistSplitPaneDividerPosition(formName, elementName) {
  * @param {String} formName
  * @param {String} elementName
  * @param {Number} position
+ * 
+ * @SuppressWarnings(deprecated)
  *
  * @properties={typeid:24,uuid:"04FC34AA-629F-43BC-9C1E-6A7ED9735DA8"}
  */
@@ -617,8 +622,6 @@ function restoreSplitPaneDividerPosition(formName, elementName, position) {
 }
 
 /**
- * @deprecated
- * 
  * Return forms (1-level depth) which are contained in the specified form
  * 
  * @public
@@ -630,12 +633,22 @@ function restoreSplitPaneDividerPosition(formName, elementName, position) {
  * @properties={typeid:24,uuid:"855AF950-2627-42DB-BCD5-AC49F3233840"}
  */
 function getContainedForms(form){
-	return []; // TODO
+	var containerElements = getContainerElements(form);
+	var containedForms = [];
+	for (var c = 0; c < containerElements.length; c++) {
+		for (var t = 1; t <= containerElements[c].getMaxTabIndex(); t++) {
+			var containedForm = forms[containerElements[c].getTabFormNameAt(t)];
+			containedForms.push(containedForm);
+			var furtherContainedForms = getContainedForms(containedForm);
+			if (furtherContainedForms.length > 0) {
+				containedForms = containedForms.concat(furtherContainedForms);
+			}
+		}
+	}
+	return containedForms;
 }
 
 /**
- * @deprecated
- * 
  * @public
  * 
  * @param {RuntimeForm} form
@@ -644,6 +657,16 @@ function getContainedForms(form){
  * 
  * @properties={typeid:24,uuid:"6457D6B0-0AEF-4C2B-B791-D13244DC132A"}
  */
-function getContainerElements(form){
-	return []; // TODO
+function getContainerElements(form) {
+	/** @type {Array<RuntimeComponent>} */
+	var elem = [];
+	for (var e = 0; e < form.elements.length; e++) {
+		elem.push(form.elements[e]);
+	}
+	function filterElements(el) {
+		return el instanceof RuntimeTabPanel || el instanceof RuntimeSplitPane || el instanceof RuntimeAccordionPanel
+	}
+	/** @type {Array<RuntimeTabPanel|RuntimeSplitPane|RuntimeAccordionPanel>} */
+	var result = elem.filter(filterElements);
+	return result;
 }

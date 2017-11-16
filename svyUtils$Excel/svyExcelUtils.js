@@ -283,6 +283,13 @@ var PAPER_SIZE = {
 var defaultPrintSetup;
 
 /**
+ * @type {{firstColumn: Number, firstRow: Number, lastColumn: Number, lastRow: Number, numberOfCells: Number}}
+ *
+ * @properties={typeid:35,uuid:"E87C2833-21CD-4DEF-B706-1F2BB70DE02D",variableType:-4}
+ */
+var mergedRegionType;
+
+/**
  * Returns an empty ExcelWorkbook
  * 
  * @public 
@@ -413,7 +420,7 @@ function createWorkbookFromDataSet(dataset, columns, headers, templateOrFileType
  * 
  * @public 
  *
- * @param {String|plugins.file.JSFile|Number} [templateOrFileType] either an existing Excel file as template or one of the FILE_FORMAT constants when creating empty workbooks
+ * @param {String|plugins.file.JSFile|Number|Array<byte>} [templateOrFileType] either a path, mediaUrl, JSFile or byte[] when reading an existing workbook or one of the FILE_FORMAT constants when creating empty workbooks
  * 
  * @example <pre>
  * // Create workbook and sheet
@@ -511,6 +518,9 @@ function ExcelWorkbook(templateOrFileType) {
 		/** @type {plugins.file.JSFile} */
 		var jsFile = templateOrFileType;
 		this.wb = factory.create(new java.io.File(jsFile.getAbsolutePath()));
+	} else if (templateOrFileType instanceof Array) {
+		var excelBis = new java.io.ByteArrayInputStream(templateOrFileType);
+		this.wb = factory.create(excelBis);
 	} else {
 		throw new scopes.svyExceptions.IllegalArgumentException("Wrong arguments provided for ExcelWorkbook");
 	}
@@ -624,7 +634,6 @@ var initExcelWorkbook = (function() {
 		try {
 			fileOut = new java.io.FileOutputStream(filePath);
 			this.wb.write(fileOut);
-			fileOut.close();
 			return true;
 		} catch (e) {
 			logger.error(e.message);
@@ -1666,6 +1675,31 @@ var initExcelSheet = (function() {
 	}
 	
 	/**
+	 * Returns an array of merged regions of this sheet
+	 * @return {Array<scopes.svyExcelUtils.mergedRegionType>}
+	 * @this {ExcelSheet}
+	 */
+	ExcelSheet.prototype.getMergedRegions = function() {
+		var mergedRegions = this.sheet.getMergedRegions();
+		var result = [];
+		if (mergedRegions != null) {
+			var iterator = mergedRegions.iterator();
+			while (iterator.hasNext()) {
+				/** @type {Packages.org.apache.poi.ss.util.CellRangeAddress} */
+				var mergedRegion = iterator.next();
+				result.push({
+					firstColumn: mergedRegion.getFirstColumn() + 1, 
+					firstRow: mergedRegion.getFirstRow() + 1, 
+					lastColumn: mergedRegion.getLastColumn() + 1, 
+					lastRow: mergedRegion.getLastRow() + 1,
+					numberOfCells: mergedRegion.getNumberOfCells()
+				});
+			}
+		}
+		return result;
+	}	
+	
+	/**
 	 * Sets the print setup for this sheet
 	 * @param {PrintSetup} printSetup
 	 * @return {ExcelSheet}
@@ -2401,9 +2435,9 @@ var initExcelCell = (function() {
 			/** @type {java.util.Date} */
 			var dateValue = new java.util.Date(value.getTime());
 			this.cell.setCellValue(dateValue);
-		} else if (value instanceof String) {
+		} else if (value instanceof String || value instanceof UUID) {
 			/** @type {String} */
-			var stringValue = value;
+			var stringValue = value.toString();
 			this.cell.setCellValue(stringValue);
 		} else if (value instanceof Number) {
 			/** @type {Number} */
@@ -2712,7 +2746,7 @@ function isLoaded() {
 	try {
 		var context = Packages.org.mozilla.javascript.Context.getCurrentContext();
 		var cl = context.getApplicationClassLoader();
-		var c = java.lang.Class.forName("org.apache.poi.ss.usermodel.Cell", false, cl);
+		var c = java.lang.Class.forName("org.apache.poi.xssf.usermodel.XSSFWorkbook", false, cl);
 		return c != null;
 	} catch(e) {
 		return false;
@@ -2728,5 +2762,6 @@ function isLoaded() {
 var init = (function() {
 	if (!isLoaded()) {
 		logger.warn("svyExcelUtils cannot be used because the Apache POI package cannot be found");
+		logger.warn("Please follow the installation documentation at https://github.com/Servoy/svyUtils/wiki/ExcelUtils");
 	}
 }());

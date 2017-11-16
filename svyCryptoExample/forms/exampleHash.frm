@@ -23,6 +23,7 @@ uuid:"22462D9A-9098-4AC9-BF68-5D2EB26939AD"
 },
 {
 location:"250,220",
+name:"hashValue",
 onActionMethodID:"3A2CF6F8-753E-4E02-A887-8F08C2191F64",
 onDoubleClickMethodID:"-1",
 onRightClickMethodID:"-1",
@@ -57,7 +58,7 @@ typeid:7,
 uuid:"BB18222F-AB53-443F-827E-1A3F9C62240C"
 },
 {
-labelFor:"encrypted",
+labelFor:"hashed",
 location:"400,190",
 name:"encrypted_label",
 size:"80,28",

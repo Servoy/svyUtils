@@ -23,10 +23,6 @@
  * 
  */
 
-/*
- * TODO: Support Mobile Client where applicable in Servoy > 7.0
- */
-
 /**
  * @private
  * 
@@ -266,6 +262,21 @@ function getServoyBuildNumber() {
 }
 
 /**
+ * Returns the clientId of the current client
+ * @public 
+ * 
+ * @return {String}
+ * 
+ * @properties={typeid:24,uuid:"17820385-9479-4734-AC0A-5D3F272723EC"}
+ */
+function getClientId() {
+	var x = new Packages.org.mozilla.javascript.NativeJavaObject(globals, plugins.window, new Packages.org.mozilla.javascript.JavaMembers(globals, Packages.com.servoy.extensions.plugins.window.WindowProvider));
+	/** @type {Packages.com.servoy.j2db.plugins.IClientPluginAccess} */
+	var clientAccess = x['getClientPluginAccess']()
+	return clientAccess.getClientID()
+}
+
+/**
  * Regex for parsing the java.version string
  * 
  * @private 
@@ -400,7 +411,6 @@ function getSolutionDeepLinkWebClient(solutionName, methodName, args) {
  * 
  * @public
  * 
- * @param {String} warName
  * @param {String} [solutionName]
  * @param {String} [methodName]
  * @param {Object} [args]
@@ -409,7 +419,7 @@ function getSolutionDeepLinkWebClient(solutionName, methodName, args) {
  *  
  * @properties={typeid:24,uuid:"493977A5-AB79-4123-B73A-C64A224E166B"}
  */
-function getSolutionDeepLinkNGClient(warName, solutionName, methodName, args) {
+function getSolutionDeepLinkNGClient(solutionName, methodName, args) {
 	if (!solutionName) {
 		solutionName = application.getSolutionName();
 	}
@@ -426,12 +436,89 @@ function getSolutionDeepLinkNGClient(warName, solutionName, methodName, args) {
 			}
 		}
 	}
-	var link = application.getServerURL() + '/' + warName + '/solutions/' + solutionName + '/index.html?';
+	var link = application.getServerURL() + '/solutions/' + solutionName + '/index.html?';
+
 	if (params.length) {
 		link += params.join('&');
 	}
 	
 	return link;
+}
+
+/**
+ * Returns a number of system properties of the client (or the server for web, ng and headless client)
+ * @return {{
+ * 	javaClassVersion: String,
+ * 	javaVendor: String,
+ * 	javaClassPath: String,
+ * 	javaIoTmpdir: String,
+ * 	javaVendor: String,
+ * 	javaVersion: String,
+ * 	osArch: String,
+ * 	osName: String,
+ * 	osVersion: String,
+ * 	userDir: String,
+ * 	userHome: String,
+ * 	userName: String,
+ * 	userLanguage: String,
+ * 	userRegion: String,
+ * 	fileEncoding: String,
+ * 	fileSeparator: String,
+ * 	lineSeperator: String,
+ * 	pathSeparator: String,
+ * 	availableProcessors: Number,
+ * 	freeMemory: Number,
+ * 	maxMemory: Number,
+ * 	totalPhysicalMemory: Number,
+ * 	freePhysicalMemory: Number
+ * }}
+ * @public 
+ * @properties={typeid:24,uuid:"A989592A-2DDD-4E61-BAA8-07021F717B86"}
+ */
+function getSystemProperties() {
+	var system = java.lang.System;
+	var result = { };
+
+	result.javaClassVersion = system.getProperty('java.class.version');
+	result.javaVendor = system.getProperty('java.vendor');
+	result.javaClassPath = system.getProperty('java.class.path');
+	result.javaIoTmpdir = system.getProperty('java.io.tmpdir');
+	result.javaVendor = system.getProperty('java.vendor');
+	result.javaVersion = system.getProperty('java.version');
+	
+	result.osArch = system.getProperty('os.arch');
+	result.osName = system.getProperty('os.name');
+	result.osVersion = system.getProperty('os.version');
+	
+	result.userDir = system.getProperty('user.dir');
+	result.userHome = system.getProperty('user.home');
+	result.userName = system.getProperty('user.name');
+	result.userLanguage = system.getProperty('user.language');	
+	result.userRegion = system.getProperty('user.region');
+	result.userCountry = system.getProperty('user.country');
+	
+	result.fileEncoding = system.getProperty('file.encoding');
+	result.fileSeparator = system.getProperty('file.separator');
+	result.lineSeperator = system.getProperty('line.separator');
+	result.pathSeparator = system.getProperty('path.separator');
+	
+	try {
+		var runtime = java.lang.Runtime.getRuntime();
+		result.availableProcessors = runtime.availableProcessors();
+		result.freeMemory = runtime.freeMemory();
+		result.maxMemory = runtime.maxMemory();
+		result.totalMemory = runtime.totalMemory();
+	} catch (e) {
+	}
+	try {
+		/** @type {Packages.com.sun.management.OperatingSystemMXBean} */
+		var os = java.lang.management.ManagementFactory.getOperatingSystemMXBean();
+		result.totalPhysicalMemory = os.getTotalPhysicalMemorySize();
+		result.freePhysicalMemory = os.getFreePhysicalMemorySize();
+	} catch (e) {
+	}
+	
+	return result;
 }
 
 /**
@@ -443,6 +530,8 @@ function getSolutionDeepLinkNGClient(warName, solutionName, methodName, args) {
  * 
  * @param {String} name
  * @param {String} value
+ * 
+ * @SuppressWarnings(deprecated)
  *  
  * @properties={typeid:24,uuid:"F87CEA54-6C6D-4906-90B5-E909E0AD97B7"}
  */
@@ -460,6 +549,8 @@ function setUserProperty(name, value){
  * @param {String} name
  * 
  * @return {String}
+ * 
+ * @SuppressWarnings(deprecated)
  *  
  * @properties={typeid:24,uuid:"4FA111EE-21DC-4EB1-B2B4-AB17D8C191C1"}
  */

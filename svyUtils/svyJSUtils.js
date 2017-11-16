@@ -22,7 +22,15 @@
  * THE SOFTWARE.
  * 
  */
-
+ 
+/**
+  * Constants for string padding params
+  * @private 
+  * @enum 
+  * @properties={typeid:35,uuid:"62CD6687-A1E9-4710-8084-061DA8A366D2",variableType:-4}
+  */
+ var STRING_PAD = {LEFT:'left',RIGHT:'right'};
+ 
  /**
   * @private
   * 
@@ -195,6 +203,47 @@ function dynamicConstructorInvoker(constructor, args) {
     return (result !== null && typeof result === 'object') ? result : instance;
 }
 
+/**
+ * Rounds a number to the given precision using exponential notation shifting
+ *
+ * @param {Number} value
+ * @param {Number} precision
+ *
+ * @see http://forum.servoy.com/viewtopic.php?f=22&t=20768
+ *
+ * @properties={typeid:24,uuid:"4DC2E61E-B977-402B-8896-BE64343EB0F3"}
+ */
+function round(value, precision) {
+	return Number(Math.round(Number(Math.abs(value) + 'e' + precision)) + 'e-' + precision) * (value < 0 ? -1 : 1)
+}
+
+/**
+ * Returns all items of array1 that are not in array2
+ * 
+ * @param {Array} array1
+ * @param {Array} array2
+ * 
+ * @return {Array}
+ *
+ * @properties={typeid:24,uuid:"071D6EAC-F4E9-4F51-BE11-9AE70B7E77F9"}
+ */
+function arrayDiff(array1, array2) {
+	var o1 = { }, o2 = { }, diff = [], i, len, k;
+	for (i = 0, len = array1.length; i < len; i++) {
+		o1[array1[i]] = true;
+	}
+	for (i = 0, len = array2.length; i < len; i++) {
+		o2[array2[i]] = true;
+	}
+	for (k in o1) {
+		if (! (k in o2)) {
+			diff.push(k);
+		}
+	}
+	return diff;
+}
+
+
 //TODO add replacer function for JSON.stringify that handles circular references or a custom object stringifier that does this and also removes the quotes around the keys
 
 /*Attempt to replace globals.svy_utl_getTypeOf, but doesn't work that well (yet)
@@ -229,3 +278,64 @@ function dynamicConstructorInvoker(constructor, args) {
 //function getType(object) {
 //	return {}.toString.call(object).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
 //}
+
+
+/**
+ * Returns left padded string
+ * 
+ * @public 
+ * @param {String|*} str the string to pad
+ * @param {Number} length the length of the field
+ * @param {String} [ch] the character (string length 1) A single blank space will be used if not specified
+ *
+ * @properties={typeid:24,uuid:"DBBB0D89-7533-4891-A8AB-4856044CE7D2"}
+ */
+function stringPadLeft(str,length,ch){
+	return stringPad(STRING_PAD.LEFT,str,length,ch);
+}
+
+/**
+ * Returns right-padded string
+ * 
+ * @public 
+ * @param {String|*} str the string to pad
+ * @param {Number} length the length of the field
+ * @param {String} [ch] the character (string length 1) A single blank space will be used if not specified
+ *
+ * @properties={typeid:24,uuid:"39075EE5-5AFE-48BB-A0CF-222EB6D298AF"}
+ */
+function stringPadRight(str,length,ch){
+	return stringPad(STRING_PAD.RIGHT,str,length,ch);
+}
+
+/**
+ * Returns left/right-padded string
+ * 
+ * @param {String|*} direction left/right
+ * @param {String} str the string to pad
+ * @param {Number} length the length of the field
+ * @param {String} [ch] the character (string length 1) A single blank space will be used if not specified
+ * @private 
+ * @properties={typeid:24,uuid:"3F5C38C9-3A00-47A3-B7E7-6D43EBB68770"}
+ */
+function stringPad(direction, str,length,ch){
+	str = str.toString();
+	if(!ch){
+		ch = ' ';
+	}
+	if(ch.length != 1){
+		throw new Error('STRING PAD: Character must have length 1');
+	}
+	var pad = '';
+	for(var i = 0; i < length; i++){
+		pad += ch;
+	}
+	pad = pad.substring(0,length-str.length);
+	if(direction == STRING_PAD.LEFT){
+		return pad + str
+	}
+	if(direction == STRING_PAD.RIGHT){
+		return str + pad;
+	}
+	throw new Error('STRING PAD: Direction must be left/right'); // this should never happen
+}
