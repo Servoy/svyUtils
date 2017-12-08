@@ -212,6 +212,7 @@ var init = function() {
 			} else {
 				return null;
 			}
+			return undefined;
 		}
 	})
 	ServoyError.prototype.unwrap = function() {
