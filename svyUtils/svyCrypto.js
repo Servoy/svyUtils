@@ -617,6 +617,7 @@ function base64DecodeAsBytes(encodedStr) {
 	return bytes;
 }
 
+
 /**
  * @private
  * 
