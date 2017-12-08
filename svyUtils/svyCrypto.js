@@ -569,6 +569,23 @@ function base64DecodeAsBytes(encodedStr){
 	return bytes;
 }
 
+
+/**
+ * This method is useful for doing simple base64 encoding.<br/>
+ * For example when you want to use basic HTTP authorization you can use this method to encode the userName and password as a header.
+ *
+ * @public 
+ * @param {String} inputString
+ * @return {String} the given string encoded Base64.
+ * @example var getRequest = http.createGetRequest(url);<br/>
+ * getRequest.addHeader('Authorization', 'Basic ' + scopes.svyCrypto.encodeBase64(user + ':' + passwordOrToken));
+ *
+ * @properties={typeid:24,uuid:"F4DADA64-5950-41AF-943B-BAEBA32BBB40"}
+ */
+function encodeStringToBase64(inputString) {
+    return Packages.org.apache.commons.codec.binary.Base64.encodeBase64String(new Packages.java.lang.String(inputString).getBytes());
+}
+
 /**
  * @private 
  * @param {Array<byte>} key

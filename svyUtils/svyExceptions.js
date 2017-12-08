@@ -210,6 +210,7 @@ var init = function() {
 			} else if (typeof this.ex.getStackTrace === 'function') {
 				return this.ex.getStackTrace()
 			}
+			return undefined;
 		}
 	})
 	ServoyError.prototype.unwrap = function() {
