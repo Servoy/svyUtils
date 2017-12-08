@@ -725,3 +725,19 @@ var init = function() {
  * - https://www.servoy.com/forum/viewtopic.php?f=22&t=13866&p=72648&hilit=java.io.filewriter#p72637
  * - https://www.servoy.com/forum/viewtopic.php?t=6391
  */
+
+/**
+ * This method is useful for doing simple base64 encoding.<br/>
+ * For example when you want to use basic HTTP authorization you can use this method to encode the userName and password as a header.
+ *
+ * @public 
+ * @param {String} inputString
+ * @return {String} the given string encoded Base64.
+ * @example var getRequest = http.createGetRequest(url);<br/>
+ * getRequest.addHeader('Authorization', 'Basic ' + scopes.svyIO.encodeBase64(user + ':' + passwordOrToken));
+ *
+ * @properties={typeid:24,uuid:"0B0B4F09-09F4-4D11-9DD7-E64E40E3A968"}
+ */
+function encodeStringToBase64(inputString) {
+    return Packages.org.apache.commons.codec.binary.Base64.encodeBase64String(new Packages.java.lang.String(inputString).getBytes());
+}
