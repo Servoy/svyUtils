@@ -24,60 +24,67 @@
  */
 
 /**
+ * @private
+ * 
  * @SuppressWarnings(unused)
- * @private 
+ * 
  * @properties={typeid:35,uuid:"25729878-C7ED-4A75-8151-80BDFA9C71C2",variableType:-4}
  */
-var log = scopes.svyLogManager.getLogger("com.servoy.bap.svyCrypto");
+var log = scopes.svyLogManager.getLogger('com.servoy.bap.svyCrypto');
 
 /**
  * Supported algorithms
  * 
- * @public 
- * @enum 
+ * @public
+ * 
+ * @enum
+ *  
  * @properties={typeid:35,uuid:"E2451988-579B-49F0-81C6-ECB6843D26FD",variableType:-4}
  */
 var ALGORITHM_NAMES = {
-	AES:"AES",
-	DES:"DES"
+	AES: 'AES',
+	DES: 'DES'
 };
 
 /**
  * Supported Hashing algorithms
- * @public 
- * @enum 
+ * 
+ * @public
+ *  
+ * @enum
+ *  
  * @see getHash
+ * 
  * @properties={typeid:35,uuid:"D6259ED3-FB2A-4DB7-A5CF-F377457184EE",variableType:-4}
  */
 var HASH_ALGORITHM_NAMES = {
-	MD5:"MD5",
-	SHA_1:"SHA-1",
-	SHA_256:"SHA-256"
-}
+	MD5: 'MD5',
+	SHA_1: 'SHA-1',
+	SHA_256: 'SHA-256'
+};
 
 /**
  * BASE-64-ENCODED KEYS (used internally)
- * @private 
+ * 
+ * @private
  * 
  * @properties={typeid:35,uuid:"188CE9F7-1FD1-4ADB-87B2-E78D926C9678",variableType:-4}
  */
 var INTERNAL_KEYS = {
-	AES:"Hheq+OO753QxiBwUvf0ROQ==",
-	DES:"V0liO0kq0Js="
-}
+	AES: 'Hheq+OO753QxiBwUvf0ROQ==',
+	DES: 'V0liO0kq0Js='
+};
 
 /**
- * @private 
+ * @private
+ * 
  * @properties={typeid:35,uuid:"A79A63EA-B556-408A-A499-5D64ED5D1D17",variableType:-4}
  */
 var PBE_DEFAULTS = {
-	
-	/** @type {Number} */
-	iterations : 65536,
-	
+	iterations: 65536,
 	/** @type {Array<byte>} */
-	salt : [ -9, 122, -17, -112, -113, -94, -50, -100]
-}
+	salt: [ -9, 122, -17, -112, -113, -94, -50, -100]
+};
 
 /**
  * @public 
@@ -87,21 +94,22 @@ var PBE_DEFAULTS = {
  * @param {String} [secretPassPhrase]
  * 
  * @return {Message}
- * TODO Validate options
+ * 
  * @properties={typeid:24,uuid:"79C23D58-B7F8-4332-8F8F-444FD4BB5DB9"}
  */
-function encrypt(value, options, secretPassPhrase){
+function encrypt(value, options, secretPassPhrase) {
+	// TODO Validate options
 	/** @type {Array<byte>} */
 	var bytes;
-	if(value instanceof String){
+	if (value instanceof String) {
 		bytes = string2Bytes(value);
 	} else {
 		bytes = value;
 	}
-	if(secretPassPhrase){
-		return encryptPBE(bytes,secretPassPhrase,options);
+	if (secretPassPhrase){
+		return encryptPBE(bytes, secretPassPhrase, options);
 	}
-	return encryptInternal(bytes,options);
+	return encryptInternal(bytes, options);
 }
 
 /**
@@ -111,45 +119,49 @@ function encrypt(value, options, secretPassPhrase){
  * @param {EncryptionOptions} options
  * @param {String} [secretPassPhrase]
  * @param {String|Array<byte>} [iv]
+ * 
  * @return {Array<byte>}
  * 
  * @properties={typeid:24,uuid:"5945176E-30A8-4BF9-A13C-3D2CF9819CF7"}
  */
-function decrypt(value, options, secretPassPhrase, iv){
+function decrypt(value, options, secretPassPhrase, iv) {
 	/** @type {Array<byte>} */
 	var bytes;
-	if(value instanceof String){
+	if (value instanceof String) {
 		/** @type {String} */
 		var str = value;
 		bytes = base64DecodeAsBytes(str);
 	} else {
 		bytes = value;
 	}
-	if(secretPassPhrase){
+	if (secretPassPhrase) {
 		/** @type {Array<byte>} */
 		var ivBytes;
-		if(iv instanceof String){
+		if (iv instanceof String) {
 			str = iv;
 			ivBytes = base64DecodeAsBytes(str);
 		} else {
 			ivBytes = iv;
 		}
-		return decryptPBE(bytes,secretPassPhrase,ivBytes,options);
+		return decryptPBE(bytes, secretPassPhrase, ivBytes, options);
 	}
-	return decryptInternal(bytes,options);
+	return decryptInternal(bytes, options);
 }
 
 /**
- * @public 
+ * @public
+ * 
  * @param {String|Array<byte>} message
  * @param {EncryptionOptions} options
  * @param {String} [secretPassPhrase]
  * @param {String|Array<byte>} iv
+ * 
+ * @return {String}
  *
  * @properties={typeid:24,uuid:"91C2BABC-2E7C-496A-A324-72B3014F81CA"}
  */
-function decryptAsString(message, options, secretPassPhrase, iv){
-	return new java.lang.String(decrypt(message,options,secretPassPhrase,iv)).toString();
+function decryptAsString(message, options, secretPassPhrase, iv) {
+	return new java.lang.String(decrypt(message, options, secretPassPhrase,  iv)).toString();
 }
 
 /**
@@ -162,14 +174,14 @@ function decryptAsString(message, options, secretPassPhrase, iv){
  * 
  * @properties={typeid:24,uuid:"BBBCBDCE-B995-4FC8-99DA-F2CB48992F9F"}
  */
-function encryptPBE(bytes, secretPassPhrase, options){
-	switch(options.getAlgorithmName()){
-		case ALGORITHM_NAMES.AES :
-			return encryptPBEWithAES(bytes,secretPassPhrase,options);
-		case ALGORITHM_NAMES.DES :
-			return encryptPBEWithDES(bytes,secretPassPhrase,options);
-		default :
-			throw "Invalid Algorithm: " + options.getAlgorithmName();
+function encryptPBE(bytes, secretPassPhrase, options) {
+	switch (options.getAlgorithmName()) {
+		case ALGORITHM_NAMES.AES:
+			return encryptPBEWithAES(bytes, secretPassPhrase, options);
+		case ALGORITHM_NAMES.DES:
+			return encryptPBEWithDES(bytes, secretPassPhrase, options);
+		default:
+			throw 'Invalid Algorithm: ' + options.getAlgorithmName();
 	}
 }
 
@@ -179,13 +191,14 @@ function encryptPBE(bytes, secretPassPhrase, options){
  * @param {Array<byte>} bytes
  * @param {String} secretPassPhrase
  * @param {EncryptionOptions} options
+ * 
  * @return {Message}
  *
  * @properties={typeid:24,uuid:"900E310F-4F7A-4313-9100-D30F50E276C3"}
  */
-function encryptPBEWithDES(bytes, secretPassPhrase, options){
+function encryptPBEWithDES(bytes, secretPassPhrase, options) {
 	var password = new java.lang.String(secretPassPhrase);
-	var factory = Packages.javax.crypto.SecretKeyFactory.getInstance("PBEWithMD5AndDES");
+	var factory = Packages.javax.crypto.SecretKeyFactory.getInstance('PBEWithMD5AndDES');
     var spec = new Packages.javax.crypto.spec.PBEKeySpec(password.toCharArray(), options.getSalt(), options.getIterations(), 256);
     var secret = factory.generateSecret(spec);
     var paramSpec = new Packages.javax.crypto.spec.PBEParameterSpec(options.getSalt(), options.getIterations());    
@@ -201,13 +214,14 @@ function encryptPBEWithDES(bytes, secretPassPhrase, options){
  * @param {Array<byte>} value
  * @param {String} secretPassPhrase
  * @param {EncryptionOptions} options
+ * 
  * @return {Array<byte>}
  *
  * @properties={typeid:24,uuid:"FE255415-6900-45B9-BC95-1BCC3A6E5979"}
  */
-function decryptPBEWithDES(value, secretPassPhrase, options){
+function decryptPBEWithDES(value, secretPassPhrase, options) {
 	var password = new java.lang.String(secretPassPhrase);
-	var factory = Packages.javax.crypto.SecretKeyFactory.getInstance("PBEWithMD5AndDES");
+	var factory = Packages.javax.crypto.SecretKeyFactory.getInstance('PBEWithMD5AndDES');
     var spec = new Packages.javax.crypto.spec.PBEKeySpec(password.toCharArray(), options.getSalt(), options.getIterations(), 256);
     var secret = factory.generateSecret(spec);
     var paramSpec = new Packages.javax.crypto.spec.PBEParameterSpec(options.getSalt(), options.getIterations());
@@ -216,24 +230,24 @@ function decryptPBEWithDES(value, secretPassPhrase, options){
     return decipher.doFinal(value);
 }
 
-
 /**
  * @private  
  * 
  * @param {Array<byte>} bytes
  * @param {String} secretPassPhrase
  * @param {EncryptionOptions} options
+ * 
  * @return {Message}
  *
  * @properties={typeid:24,uuid:"08876BC7-900E-4026-A97F-A833CEEBB906"}
  */
-function encryptPBEWithAES(bytes, secretPassPhrase, options){
+function encryptPBEWithAES(bytes, secretPassPhrase, options) {
 	var password = new java.lang.String(secretPassPhrase);
-	var factory = Packages.javax.crypto.SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+	var factory = Packages.javax.crypto.SecretKeyFactory.getInstance('PBKDF2WithHmacSHA1');
     var spec = new Packages.javax.crypto.spec.PBEKeySpec(password.toCharArray(), options.getSalt(), options.getIterations(), 128);
     var tmp = factory.generateSecret(spec);
-    var secret = new Packages.javax.crypto.spec.SecretKeySpec(tmp.getEncoded(), "AES");
-    var cipher = Packages.javax.crypto.Cipher.getInstance("AES/CBC/PKCS5Padding");
+    var secret = new Packages.javax.crypto.spec.SecretKeySpec(tmp.getEncoded(), 'AES');
+    var cipher = Packages.javax.crypto.Cipher.getInstance('AES/CBC/PKCS5Padding');
     cipher.init(Packages.javax.crypto.Cipher.ENCRYPT_MODE, secret);
     
     // get random IV
@@ -244,7 +258,7 @@ function encryptPBEWithAES(bytes, secretPassPhrase, options){
 	var iv = paramSpec.getIV();
     
     var encryptedBytes = cipher.doFinal(bytes);
-    var message = new Message(encryptedBytes,iv);
+    var message = new Message(encryptedBytes, iv);
     return message;
 }
 
@@ -255,29 +269,30 @@ function encryptPBEWithAES(bytes, secretPassPhrase, options){
  * @param {String} secretPassPhrase
  * @param {Array<byte>} iv
  * @param {EncryptionOptions} options
+ * 
  * @return {Array<byte>}
  *
  * @properties={typeid:24,uuid:"13667F5C-020B-4E47-BDF4-EE13FD4467F2"}
  */
-function decryptPBEWithAES(value, secretPassPhrase, iv, options){
-
-	if(!iv){
+function decryptPBEWithAES(value, secretPassPhrase, iv, options) {
+	if (!iv) {
 		throw 'initialization vector required';
 	}
 	
 	var password = new java.lang.String(secretPassPhrase);
-	var factory = Packages.javax.crypto.SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+	var factory = Packages.javax.crypto.SecretKeyFactory.getInstance('PBKDF2WithHmacSHA1');
     var spec = new Packages.javax.crypto.spec.PBEKeySpec(password.toCharArray(), options.getSalt(), options.getIterations(), 128);
     var tmp = factory.generateSecret(spec);
-    var secret = new Packages.javax.crypto.spec.SecretKeySpec(tmp.getEncoded(), "AES");
+    var secret = new Packages.javax.crypto.spec.SecretKeySpec(tmp.getEncoded(), 'AES');
 
     var paramSpec = new Packages.javax.crypto.spec.IvParameterSpec(iv);
     
-    var decipher = Packages.javax.crypto.Cipher.getInstance("AES/CBC/PKCS5Padding");
+    var decipher = Packages.javax.crypto.Cipher.getInstance('AES/CBC/PKCS5Padding');
     decipher.init(Packages.javax.crypto.Cipher.DECRYPT_MODE, secret, paramSpec);
     
     return decipher.doFinal(value);
 }
+
 /**
  * @private  
  * 
@@ -285,32 +300,34 @@ function decryptPBEWithAES(value, secretPassPhrase, iv, options){
  * @param {String} secretPassPhrase
  * @param {Array<byte>} [iv]
  * @param {EncryptionOptions} options
+ * 
  * @return {Array<byte>}
  * 
  * @properties={typeid:24,uuid:"80990ED5-A4D1-425E-8A97-283F06FCE571"}
  */
-function decryptPBE(value, secretPassPhrase, iv, options){
-	
-	switch(options.getAlgorithmName()){
-		case ALGORITHM_NAMES.AES :
-			return decryptPBEWithAES(value,secretPassPhrase,iv,options);
-		case ALGORITHM_NAMES.DES :
-			return decryptPBEWithDES(value,secretPassPhrase,options);
-		default :
-			throw "Invalid Algorithm: " + options.getAlgorithmName();
+function decryptPBE(value, secretPassPhrase, iv, options) {
+	switch (options.getAlgorithmName()) {
+		case ALGORITHM_NAMES.AES:
+			return decryptPBEWithAES(value, secretPassPhrase, iv, options);
+		case ALGORITHM_NAMES.DES:
+			return decryptPBEWithDES(value, secretPassPhrase, options);
+		default:
+			throw 'Invalid Algorithm: ' + options.getAlgorithmName();
 	}
 }
 
 /**
- * @private  
+ * @private
+ * 
  * @param {Array<byte>} bytes
  * @param {EncryptionOptions} options
+ * 
  * @return {Message}
+ * 
  * @properties={typeid:24,uuid:"B9D632D6-B698-4973-AD8B-DC371D1E5ED3"}
-
  */
-function encryptInternal(bytes, options){	
-	var key = getKey(options.getKey(),options);
+function encryptInternal(bytes, options) {	
+	var key = getKey(options.getKey(), options);
 	var cipher = getCipher(options);
 	cipher.init(Packages.javax.crypto.Cipher.ENCRYPT_MODE, key);
 	/** @type {Array<byte>} */
@@ -319,195 +336,215 @@ function encryptInternal(bytes, options){
 }
 
 /**
- * @private  
+ * @private
  * 
  * @param {Array<byte>} value
  * @param {EncryptionOptions} options
+ * 
  * @return {Array<byte>}
  * 
- *
  * @properties={typeid:24,uuid:"A6155116-0B3C-47F2-9D1A-099D8C1A9666"}
  */
-function decryptInternal(value, options){
-	
+function decryptInternal(value, options) {
 	var cipher = getCipher(options);
-	var key = getKey(options.getKey(),options);
+	var key = getKey(options.getKey(), options);
 	cipher.init(Packages.javax.crypto.Cipher.DECRYPT_MODE, key);
 	
 	/** @type {Array<byte>} */
 	var result = cipher.doFinal(value);
 	return result;
-//	var result = new java.lang.String(cipher.doFinal(value)).toString();
-//	log.debug("Decrypted <"+result+"> from <"+value+">");
-//	return result;
 }
 
 /**
- * @public 
+ * @public
+ * 
  * @return {EncryptionOptions}
+ * 
  * @properties={typeid:24,uuid:"73257B00-A805-4FEA-9955-4C08A78A10BE"}
  */
 function createOptions(){
 	var o = new EncryptionOptions();
-		o.setAlgorithmName(ALGORITHM_NAMES.AES)
-		.setKey(INTERNAL_KEYS.AES)
-		.setIterations(PBE_DEFAULTS.iterations)
-		.setSalt(PBE_DEFAULTS.salt)
+	o.setAlgorithmName(ALGORITHM_NAMES.AES)
+	.setKey(INTERNAL_KEYS.AES)
+	.setIterations(PBE_DEFAULTS.iterations)
+	.setSalt(PBE_DEFAULTS.salt);
+	
 	return o;
 }
 
 /**
- * Represents an encrypted message, optionally includes the Initialization Vector for PBE w/ AES
+ * Represents an encrypted message, optionally includes the Initialization Vector for PBE with AES
  * 
- * @private 
+ * @private
+ *  
  * @param {Array<byte>} value
  * @param {Array<byte>} [iv]
- * @constructor 
+ * 
+ * @constructor
+ *  
  * @properties={typeid:24,uuid:"7D8AC99A-4C56-486B-9E61-13A4B939B8AE"}
  */
-function Message(value, iv){
-	
+function Message(value, iv) {
 	/**
-	 * @public 
+	 * @public
+	 * 
 	 * @return {String}
 	 */
-	this.getValue = function(){
+	this.getValue = function() {
 		return base64EncodeAsString(value);
 	}
 	
 	/**
-	 * @public 
+	 * @public
+	 * 
 	 * @return {Array<byte>}
 	 */
-	this.getBytes = function(){
+	this.getBytes = function() {
 		return value;
 	}
 	
 	/**
-	 * @public 
+	 * @public
+	 * 
 	 * @return {Array<byte>}
 	 */
-	this.getIV = function(){
-		return iv
+	this.getIV = function() {
+		return iv;
 	}
 	
 	/**
-	 * @public 
+	 * @public
+	 * 
 	 * @return {String}
 	 */
-	this.getIVString = function(){
+	this.getIVString = function() {
 		return !iv ? null : base64EncodeAsString(iv);
 	}
 }
 
 /**
- * @private 
- * @constructor 
+ * @private
+ * 
+ * @constructor
+ *  
  * @properties={typeid:24,uuid:"DFC5508B-330C-4E02-AE6C-FC5130085E2B"}
  */
-function EncryptionOptions(){
-	
+function EncryptionOptions() {
 	var algorithmName = null;
 	var key = null;
 	var salt = null;
 	var iterations = 1;
 	
 	/**
-	 * @public 
+	 * @public
+	 * 
 	 * @return {String}
 	 */
-	this.getAlgorithmName = function(){
+	this.getAlgorithmName = function() {
 		return algorithmName;
 	}
 	
 	/**
-	 * @public 
+	 * @public
+	 * 
 	 * @param {String} name
+	 * 
 	 * @return {EncryptionOptions} This options object
 	 */
-	this.setAlgorithmName = function(name){
+	this.setAlgorithmName = function(name) {
 		algorithmName = name;	// TODO: validate input
 		return this;
 	}
 	
 	/**
-	 * @public 
+	 * @public
+	 * 
 	 * @return {Array<byte>}
 	 */
-	this.getKey = function(){
+	this.getKey = function() {
 		return key.getEncoded();
 	}
 	
 	/**
 	 * Returns the base-64-encoded String version of the key
-	 * @public 
-	 * @return {String} 
+	 * 
+	 * @public
+	 *  
+	 * @return {String}
 	 */
-	this.getKeyAsString = function(){
+	this.getKeyAsString = function() {
 		return base64EncodeAsString(key.getEncoded());
 	}
 	
 	/**
-	 * @public 
+	 * @public
+	 * 
 	 * @param {String|Array<byte>} newKey bytes or the base-64-encoded String version of this key
+	 * 
 	 * @return {EncryptionOptions} This options object
 	 */
-	this.setKey = function(newKey){
-		if(!newKey){
+	this.setKey = function(newKey) {
+		if (!newKey) {
 			key = null;
-		}
-		else {
-		
+		} else {
 			/** @type {Array<byte>} */
 			var bytes = newKey instanceof String ? base64DecodeAsBytes(newKey.toString()) : newKey;		
-			key = getKey(bytes,this);
+			key = getKey(bytes, this);
 		}
 		return this;
 	}
 	
 	/**
-	 * @public 
+	 * @public
+	 * 
 	 * @return {Array<byte>} The salt used
 	 */
-	this.getSalt = function(){
+	this.getSalt = function() {
 		return salt;
 	}
 	
 	/**
-	 * @public 
+	 * @public
+	 * 
 	 * @param {Array<byte>} bytes The Byte Array used for the salt
+	 * 
 	 * @return {EncryptionOptions} This options object
 	 */
-	this.setSalt = function(bytes){
+	this.setSalt = function(bytes) {
 		salt = bytes;	// TODO: Validate Input
 		return this;
 	}
 	
 	/**
-	 * @public 
+	 * @public
+	 * 
 	 * @return {Number} The number of iterations used
 	 */
-	this.getIterations = function(){
+	this.getIterations = function() {
 		return iterations;
 	}
 	
 	/**
-	 * @public 
+	 * @public
+	 * 
 	 * @param {Number} i The number of iterations to use
+	 * 
 	 * @return {EncryptionOptions} This options object
 	 */
-	this.setIterations = function(i){
+	this.setIterations = function(i) {
 		iterations = i;	// TODO: Validate Input
 		return this;
 	}
 	
 	/**
-	 * Securely & Randomly generates a new key and stores it in this options object
+	 * Securely & Randomly generates a new key and stores it in this options object<br>
 	 * When using this method, one should keep the key/options result to use for decrypting
-	 * @public 
+	 * 
+	 * @public
+	 * 
 	 * @return {EncryptionOptions} This options object
 	 */
-	this.generateKey = function(){
+	this.generateKey = function() {
 		var generator = Packages.javax.crypto.KeyGenerator.getInstance(algorithmName);
 		// TODO consider 256
 //		generator.init(256);
@@ -516,53 +553,64 @@ function EncryptionOptions(){
 	}
 	
 	/**
-	 * Generates the salt for encryption and stores in this options object
+	 * Generates the salt for encryption and stores in this options object<br>
 	 * When using this method, one should keep the salt/options result to use for decrypting
 	 * 
-	 * @public 
+	 * @public
+	 * 
 	 * @param {Number} [length]
+	 * 
 	 * @return {EncryptionOptions} This options object
 	 */
-	this.generateSalt = function(length){
-		if(!length){
+	this.generateSalt = function(length) {
+		if (!length) {
 			length = 32;
 		}
 		var r = new java.security.SecureRandom();
 		/** @type {Array<byte>} */
-		var bytes = java.lang.reflect.Array.newInstance(java.lang.Class.forName('byte'),length);
+		var bytes = java.lang.reflect.Array.newInstance(java.lang.Class.forName('byte'), length);
 		r.nextBytes(bytes);
 		return this;
 	}
 }
 
 /**
- * @private 
+ * @private
+ * 
  * @param str
+ * 
  * @return {Array<byte>}
+ * 
  * @properties={typeid:24,uuid:"73E8A428-BFE1-4B3B-9A8E-2D29645F7B8B"}
  */
-function string2Bytes(str){
+function string2Bytes(str) {
 	return new java.lang.String(str).getBytes();
 }
 
 /**
- * @private 
+ * @private
+ * 
  * @param {Array<byte>} bytes
+ * 
  * @return {String}
+ * 
  * @properties={typeid:24,uuid:"99EDA1C0-B92D-4BFD-976C-6406386C06CC"}
  */
-function base64EncodeAsString(bytes){
+function base64EncodeAsString(bytes) {
 	var b64 = new Packages.org.apache.commons.codec.binary.Base64();
 	return b64.encodeAsString(bytes);
 }
 
 /**
- * @private 
+ * @private
+ * 
  * @param {String} encodedStr
+ * 
  * @return {Array<byte>}
+ * 
  * @properties={typeid:24,uuid:"B94FC7D2-63AC-4CAB-9A14-26F400C06842"}
  */
-function base64DecodeAsBytes(encodedStr){
+function base64DecodeAsBytes(encodedStr) {
 	var b64 = new Packages.org.apache.commons.codec.binary.Base64();
 	/** @type {Array<byte>} */
 	var bytes = b64.decode(encodedStr);
@@ -587,13 +635,17 @@ function encodeStringToBase64(inputString) {
 }
 
 /**
- * @private 
+ * @private
+ * 
  * @param {Array<byte>} key
+ * 
  * @param {EncryptionOptions} options
+ * 
  * @return {Packages.javax.crypto.SecretKey}
+ * 
  * @properties={typeid:24,uuid:"ECE26AC1-99BA-48B7-B9DF-7E60263D04B6"}
  */
-function getKey(key, options){
+function getKey(key, options) {
 	if(!options){
 		options = createOptions();
 	}
@@ -601,33 +653,37 @@ function getKey(key, options){
 }
 
 /**
- * @private 
+ * @private
+ * 
  * @param {EncryptionOptions} options
+ * 
  * @return {Packages.javax.crypto.Cipher}
  * 
  * @properties={typeid:24,uuid:"14A022E5-1369-4660-ADA8-91604C05B73F"}
  */
-function getCipher(options){
+function getCipher(options) {
 	switch (options.getAlgorithmName()) {
 		case ALGORITHM_NAMES.AES:		
-			return Packages.javax.crypto.Cipher.getInstance("AES/ECB/PKCS5Padding");
+			return Packages.javax.crypto.Cipher.getInstance('AES/ECB/PKCS5Padding');
 		case ALGORITHM_NAMES.DES:
-			return Packages.javax.crypto.Cipher.getInstance("DES/ECB/PKCS5Padding");
+			return Packages.javax.crypto.Cipher.getInstance('DES/ECB/PKCS5Padding');
 		default:
-			throw "Unsupported Algorithm: " + options.getAlgorithmName();
+			throw 'Unsupported Algorithm: ' + options.getAlgorithmName();
 	}
 }
 /**
  * Converts a string or byte array to a hashed message using SHA-256
  * 
- * @public   
+ * @public
+ * 
  * @param {String|Array<byte>} value The string or bytes to hash
  * @param {String} algorithm Supported hash algorithms: [MD5,SHA-1,SHA-256]
+ * 
  * @return {String} The hashed bytes in Base-64 encoded string
  *
  * @properties={typeid:24,uuid:"EBE4DD92-6DDC-4EBE-9B70-57BF1593BF20"}
  */
-function getHash(value, algorithm){
+function getHash(value, algorithm) {
 	/** @type {Array<byte>} */
 	var bytes = value instanceof String ? string2Bytes(value) : value;
 	var digest = Packages.java.security.MessageDigest.getInstance(algorithm);
@@ -636,35 +692,44 @@ function getHash(value, algorithm){
 /**
  * Converts a string or byte array to a hashed message using MD5
  * 
- * @public 
+ * @public
+ * 
  * @param {String|Array<byte>} value The string or bytes to hash
+ * 
  * @return {String} The hashed bytes in Base-64 encoded string
+ * 
  * @properties={typeid:24,uuid:"18C4993F-CDE6-412A-A735-1BEB18AF8405"}
  */
-function getMD5(value){
-	return getHash(value,'MD5');
+function getMD5(value) {
+	return getHash(value, 'MD5');
 }
 
 /**
  * Converts a string or byte array to a hashed message using SHA-1
  * 
- * @public 
+ * @public
+ * 
  * @param {String|Array<byte>} value The string or bytes to hash
+ * 
  * @return {String} The hashed bytes in Base-64 encoded string
+ * 
  * @properties={typeid:24,uuid:"579860FF-5364-4857-9BFB-A12303F39775"}
  */
-function getSHA1(value){
-	return getHash(value,'SHA-1');
+function getSHA1(value) {
+	return getHash(value, 'SHA-1');
 }
 
 /**
  * Converts a string or byte array to a hashed message using SHA-256
  * 
- * @public 
+ * @public
+ * 
  * @param {String|Array<byte>} value The string or bytes to hash
+ * 
  * @return {String} The hashed bytes in Base-64 encoded string
+ * 
  * @properties={typeid:24,uuid:"675B518E-31CF-4BCE-99F1-ADB40997870D"}
  */
-function getSHA256(value){
-	return getHash(value,'SHA-256');
+function getSHA256(value) {
+	return getHash(value, 'SHA-256');
 }

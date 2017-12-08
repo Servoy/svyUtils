@@ -630,7 +630,7 @@ function getFormName(element) {
  * The generated URL can be used for example using JQuery's Ajax API to call a method on the server and get the returnValue from the invoked method back as response<br>
  * <br>
  * This method is low level, allowing a lot of control. For a more straightforward callback, see {@link #getCallbackScript}<br/>
- * @param {function(String, Object<Array<String>>):*|String} callback Either a Servoy method or a qualifiedName string pointing to a method. Method's first argument receives the bodyContent, second argument the requestParams
+ * @param {function|String} callback Either a Servoy method or a qualifiedName string pointing to a method. Method's first argument receives the bodyContent, second argument the requestParams
  * 
  * @example <pre>
  * \/\/On the Server
@@ -660,7 +660,7 @@ function getCallbackUrl(callback) {
  *  
  * Generates a JavaScript code snippet that when invoked in the client (browser) executes the supplied callback method on the server
  * 
- * @param {String|function(String, Array)} callback Either a Servoy method or a qualifiedName string pointing to a method.
+ * @param {String|function} callback Either a Servoy method or a qualifiedName string pointing to a method.
  * @param {Array<String|Number|Boolean>} [args] String values are considered references to browser-side variables. To pass hardcoded String literals the String value needs to be quoted: '"myvalue"' or "'myValue'". All other values are considered hardcoded values as well and will get serialized using JSON
  * @param {Boolean} [options.showLoading] Whether or not to show the Loading indicator
  * @param {String} [options.mimeType] Forces a certain mimeType in the response

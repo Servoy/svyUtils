@@ -7,7 +7,6 @@ uuid:"254C1B86-219D-4ABC-9A7E-4BD47D6A6DB9"
 },
 {
 location:"89,78",
-onActionMethodID:"FD3E2929-9C13-407C-B2C0-A8E1BC4FFE9B",
 onDoubleClickMethodID:"-1",
 onRightClickMethodID:"-1",
 size:"215,51",

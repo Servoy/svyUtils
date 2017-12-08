@@ -55,7 +55,7 @@ function getName() {
 * @properties={typeid:24,uuid:"5FDABD53-B45D-4DCF-928F-84FD3CCD065E"}
 */
 function getParent() {
-	return forms.extensionSamples;
+	return forms.dataSamples;
 }
 
 /**

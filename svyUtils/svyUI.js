@@ -30,47 +30,71 @@
  */
 
 /**
- * @private 
- *
+ * @private
+ * 
+ * @SuppressWarnings(unused)
+ * 
  * @properties={typeid:35,uuid:"7C41BEF4-1A96-499B-8851-43A9A9B31E85",variableType:-4}
  */
-var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.ui')
+var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.ui');
 
 /**
+ * @deprecated
+ * 
+ * @public
+ * 
  * @param {Object} oldValue
  * @param {Object} newValue
+ * 
  * @return {Object} addedItem
+ * 
  * @properties={typeid:24,uuid:"54636DFE-0DEE-42B9-BF37-47F3C2649876"}
  */
-function getCheckBoxValueListItemAdded(oldValue,newValue){
+function getCheckBoxValueListItemAdded(oldValue, newValue){
 	var oldItems = (oldValue) ? oldValue.toString().split('\n') : [];
 	var newItems = (newValue) ? newValue.toString().split('\n') : [];
-	if(newItems.length <= oldItems.length) return null;
+	if (newItems.length <= oldItems.length) {
+		return null;
+	}
+	
 	newItems.sort();
 	oldItems.sort();
     for (var i in oldItems) {
-        if (oldItems[i] != newItems[i])
+        if (oldItems[i] != newItems[i]) {
         	return newItems[i];
+        }
     }
+    
     return newItems[newItems.length - 1];
 }
 
 /**
+ * @deprecated
+ * 
+ * @public
+ * 
  * @param {Object} oldValue
  * @param {Object} newValue
+ * 
  * @return {Object} addedItem
+ * 
  * @properties={typeid:24,uuid:"51C03A03-A22A-489A-B5E0-024D88BD52BE"}
  */
-function getCheckBoxValueListItemRemoved(oldValue,newValue){
+function getCheckBoxValueListItemRemoved(oldValue, newValue){
 	var oldItems = (oldValue) ? oldValue.toString().split('\n') : [];
 	var newItems = (newValue) ? newValue.toString().split('\n') : [];
-	if(newItems.length >= oldItems.length) return null;
+	if (newItems.length >= oldItems.length) {
+		return null;
+	}
+	
 	newItems.sort();
 	oldItems.sort();
     for (var i in newItems) {
-        if (newItems[i] != oldItems[i])
+        if (newItems[i] != oldItems[i]) {
         	return oldItems[i];
+        }
     }
+    
     return oldItems[oldItems.length - 1];
 }
 
@@ -79,79 +103,91 @@ function getCheckBoxValueListItemRemoved(oldValue,newValue){
  * Solves the scenario of not being able to get the JSForm representation of forms created using {@link #application#createNewForminstance(...)}
  * This method should be deprecated and removed after https://support.servoy.com/browse/SVY-3642 gets implemented
  * 
+ * @public
+ * 
  * @param {JSForm|RuntimeForm|String} form 
  *
  * @return {JSForm}
+ * 
  * @properties={typeid:24,uuid:"D683B1F6-4BD7-42A7-A9BD-E47E1EE7BAB4"}
  */
 function getJSFormForReference(form) {
 	if (form instanceof JSForm) {
 		/** @type {JSForm} */
-		var jsForm = form
-		return jsForm
+		var jsForm = form;
+		return jsForm;
 	}
 	
 	/** @type {String} */
-	var formName
+	var formName;
 	if (form instanceof RuntimeForm) {
-		formName = form.controller.getName()
+		formName = form.controller.getName();
 	} else if (form instanceof String) {
-		formName = form
+		formName = form;
 	}
-	var retval = solutionModel.getForm(formName)
+	var retval = solutionModel.getForm(formName);
 	if (retval !== null) { //really null, not undefined
-		return retval
+		return retval;
 	}
 
 	if (!(formName in forms)) { //It's not a loaded form, so the value of 'form' must be wrong
-		throw new scopes.svyExceptions.IllegalArgumentException("The value provided for the 'form' parameter is not a valid Form identifier: " + form)
+		throw new scopes.svyExceptions.IllegalArgumentException('The value provided for the "form" parameter is not a valid Form identifier: ' + form);
 	}
 	//It must be a form created with application.createNewFormInstance
 	var list = new Packages.java.util.ArrayList();
-	list.add(Packages.com.servoy.j2db.FormController)
-	formName = list.get(0)['getMethod']('getForm').invoke(forms[form]).getName()
-	return solutionModel.getForm(formName)
+	list.add(Packages.com.servoy.j2db.FormController);
+	formName = list.get(0)['getMethod']('getForm').invoke(forms[form]).getName();
+	return solutionModel.getForm(formName);
 }
 
 /**
  * Returns the JSForm hierarchy for the given form, from it's utmost base form up to and including the specified form itself
+ * 
+ * @public
+ * 
  * @param {JSForm|RuntimeForm|String} form
+ * 
  * @return {Array<JSForm>} super forms first, given form included as last entry in the returned Array)
  *
  * @properties={typeid:24,uuid:"4E77988E-55A6-45FD-8D96-1DD5BAACFEEE"}
  */
 function getJSFormHierarchy(form) {
-	var curForm = getJSFormForReference(form)
+	var curForm = getJSFormForReference(form);
 	/** @type {Array<JSForm>} */
-	var retval = [curForm]
+	var retval = [curForm];
 	while ((curForm = curForm.extendsForm)) {
-		retval.push(curForm)
+		retval.push(curForm);
 	}
-	return retval.reverse()
+	
+	return retval.reverse();
 }
 
 /**
- * TODO: cleanup, use utility functions, extend to also take RuntimeForm (just to be complete)
- * Returns true if the form is extending the parent form 
+ * 
+ * Returns true if the form is extending the parent form
+ * 
+ * @public
  * 
  * @param {RuntimeForm|JSForm|String} form
  * @param {RuntimeForm|JSForm|String} parentForm
  * 
- * @throws {scopes.svyExceptions.IllegalArgumentException}
- * 
  * @return {Boolean}
+ * 
+ * @throws {scopes.svyExceptions.IllegalArgumentException}
  *
  * @properties={typeid:24,uuid:"ABCE89C0-9151-4CD7-AF58-38D0913BD738"}
  */
 function isJSFormInstanceOf(form, parentForm) {
-	form = getJSFormForReference(form)
-	parentForm = getJSFormForReference(parentForm)
+	// TODO: cleanup, use utility functions, extend to also take RuntimeForm (just to be complete)
+	
+	form = getJSFormForReference(form);
+	parentForm = getJSFormForReference(parentForm);
 	
 	if (!form) {
-		throw new scopes.svyExceptions.IllegalArgumentException("Provide valid form");
+		throw new scopes.svyExceptions.IllegalArgumentException('Provide valid form');
 	}
 	if (!parentForm) {
-		throw new scopes.svyExceptions.IllegalArgumentException("Provide valid parentForm");
+		throw new scopes.svyExceptions.IllegalArgumentException('Provide valid parentForm');
 	}
 	
 	//Go up the hierarchy until the parentForm is found or until there is no more parent.
@@ -159,11 +195,13 @@ function isJSFormInstanceOf(form, parentForm) {
 		form = form.extendsForm;
 	}
 	
-	return form == parentForm
+	return form == parentForm;
 }
 
 /**
  * Returns all JSForms that are instances of a certain JSForm
+ * 
+ * @public
  *
  * @param {JSForm|RuntimeForm|String} superForm
  *
@@ -174,30 +212,38 @@ function isJSFormInstanceOf(form, parentForm) {
 function getJSFormInstances(superForm) {
 	superForm = getJSFormForReference(superForm);
 	
-	/**@type {Array<JSForm>}*/
-	var retval = []
-	var smForms = solutionModel.getForms() //Getting this once and holding a reference to it is faster
-	var smForm, instances
+	/** @type {Array<JSForm>} */
+	var retval = [];
+	var smForms = solutionModel.getForms(); //Getting this once and holding a reference to it is faster
+	var smForm, instances;
 	for (var i = 0; i < smForms.length; i++) {
-		smForm = smForms[i]
-		instances = []
-		if (retval.indexOf(smForm) != -1) continue
+		smForm = smForms[i];
+		instances = [];
+		if (retval.indexOf(smForm) != -1) {
+			continue;
+		}
+		
 		while (smForm.extendsForm != null) {
-			instances.push(smForm)
+			instances.push(smForm);
+			
 			if (smForm.extendsForm == superForm || retval.indexOf(smForm.extendsForm) != -1) {
-				retval = retval.concat(instances)
+				retval = retval.concat(instances);
 				break;
 			}
-			smForm = smForm.extendsForm
+			smForm = smForm.extendsForm;
 		}
 	}
-	return retval
+	
+	return retval;
 }
 
 /**
- * @public 
+ * @public
+ * 
  * @param {RuntimeForm|String} superForm
+ * 
  * @return {Array<RuntimeForm>}
+ * 
  * @properties={typeid:24,uuid:"D1414A95-D82D-467B-84E2-77A9028C6674"}
  */
 function getRuntimeFormInstances(superForm){
@@ -206,30 +252,31 @@ function getRuntimeFormInstances(superForm){
 	for(var i in instances ){
 		var formName = instances[i].name;
 		var form = forms[formName];
-		if(form){
+		if (form) {
 			runtimeInstances.push(form);
 		} else {
 			log.warn('Unexpected untime form not found by getRuntimeFormInstances: ' + formName);
 		}
 	}
+	
 	return runtimeInstances;
 }
+
 /**
  * Returns all components of the given form that have the given designtime property (set with the optional value)
- *
- * @author patrick
- *
+ * 
+ * @public
+ * 
  * @param {JSForm|RuntimeForm|String} form - the form to analyze
  * @param {String} propertyName - the name of the designtime property to filter for
  * @param {Object} [propertyValue] - the value of the designtime property to filter for (if not given, the matching property is returned regardless its value)
  * @param {Boolean} [includeInherited] Whether or not to include inherited elements. Default: true
- *
+ * 
  * @return {Array<JSComponent>}
  *
  * @properties={typeid:24,uuid:"0312A093-0703-4832-8332-FA7FE7FB4C1B"}
  */
 function getElementsByDesigntimeProperty(form, propertyName, propertyValue, includeInherited) {
-	/** @type {JSForm} */
 	try {
 		var jsForm = getJSFormForReference(form);
 	} catch (e) {
@@ -244,7 +291,7 @@ function getElementsByDesigntimeProperty(form, propertyName, propertyValue, incl
 			return true;
 		}
 		var dtp = element.getDesignTimeProperty(propertyName);
-		if (!dtp) return false; //What about values that evaluate to false?
+		if (!dtp) return false; // What about values that evaluate to false?
 		return dtp == propertyValue;
 	}
 	
@@ -253,10 +300,12 @@ function getElementsByDesigntimeProperty(form, propertyName, propertyValue, incl
 }
 
 /**
- * <p>Returns the JSLabel that acts as a labelFor label for the given element on the given form</p>
- * 
+ * Returns the JSLabel that acts as a labelFor label for the given element on the given form>br>
+ * <br>
  * This method uses the solutionModel to find the labelFor element, because at runtime labelFor<br>
  * elements no longer exist in table views
+ * 
+ * @public
  * 
  * @param {JSForm|RuntimeForm|String} form the form on which the element is located
  * @param {JSComponent|RuntimeComponent|String} element the element to get the labelFor label for
@@ -286,7 +335,7 @@ function getLabelForElements(form, element) {
 	} else if (element instanceof JSComponent) {
 		elementName = element.name;
 	} else {
-		throw new scopes.svyExceptions.IllegalArgumentException("Wrong parameter provided for \"getLabelForElementName\"");
+		throw new scopes.svyExceptions.IllegalArgumentException('Wrong parameter provided for "getLabelForElementName"');
 	}
 	var mainComponent = jsForm.getComponent(elementName);
 	var allLabels = jsForm.getLabels(true);
@@ -304,6 +353,8 @@ function getLabelForElements(form, element) {
 /**
  * Determines the JSForm for given input and returns the names of all RuntimeForm instances based on the JSForm
  * 
+ * @public
+ * 
  * @param {RuntimeForm|JSForm|String} form
  *
  * @return {Array<String>}
@@ -311,23 +362,26 @@ function getLabelForElements(form, element) {
  * @properties={typeid:24,uuid:"05F00D04-160F-4489-A24F-395D122C0586"}
  */
 function getRuntimeFormInstanceNames(form) {
-	var retval = []
-	var jsForm = getJSFormForReference(form)
+	var retval = [];
+	var jsForm = getJSFormForReference(form);
 	
 	for (var i = 0; i < forms.length; i++) {
-		var f = getJSFormForReference(forms[i])
-		var parents = getJSFormHierarchy(f)
+		var f = getJSFormForReference(forms[i]);
+		var parents = getJSFormHierarchy(f);
 		if (parents.indexOf(jsForm) != -1) {
-			retval.push(forms[i].controller.getName())
+			retval.push(forms[i].controller.getName());
 		}
 	}
-	return retval
+	
+	return retval;
 }
 
 /**
- * Calculated the designtime height of a form. By default the Form parts that are only used when showing the form in Print mode are excluded
- * 
+ * Calculates the designtime height of a form. By default the Form parts that are only used when showing the form in Print mode are excluded<br>
+ * <br>
  * NOTE: the returned height currently does NOT include the top and bottom border width if the form has a border
+ * 
+ * @public
  * 
  * @param {JSForm|String} form
  * @param {Boolean} [includePrintParts] whether or not to also take into account form parts that are only visible in print mode (default false)
@@ -337,30 +391,28 @@ function getRuntimeFormInstanceNames(form) {
  * @properties={typeid:24,uuid:"4EC9D579-FAD3-4C56-8F34-2891379AF31E"}
  */
 function getJSFormHeight(form, includePrintParts) {
-	var printParts = [JSPart.LEADING_SUBSUMMARY, JSPart.TRAILING_SUBSUMMARY, JSPart.TITLE_FOOTER]
+	var printParts = [JSPart.LEADING_SUBSUMMARY, JSPart.TRAILING_SUBSUMMARY, JSPart.TITLE_FOOTER];
 	
-	/** @type {JSForm} */
-	var smform = getJSFormForReference(form)
-	var parts = smform.getParts(true)
+	var smform = getJSFormForReference(form);
+	var parts = smform.getParts(true);
 	var height = parts.length ? parts[parts.length-1].height : 0;
 	
 	if (!includePrintParts) {
 		for (var i = 0; i < parts.length; i++) {
 			if (printParts.indexOf(parts[i].getPartType()) != -1) {
-				height -= parts[i].height - parts[i].getPartYOffset()
+				height -= parts[i].height - parts[i].getPartYOffset();
 			}
 		}
 	}
 	
-//	if (smform.borderType) {
-//		
-//	} else {
-//		//TODO: get border settings from CSS
-//	}
-	return height
+	return height;
 }
 
 /**
+ * Gets the row height of a table view at runtime
+ * 
+ * @public
+ * 
  * @param {JSForm|RuntimeForm|String} form identifier of or reference to a form in TableView view
  *
  * @properties={typeid:24,uuid:"53065728-B0C1-449C-91A4-D79B2271723A"}
@@ -368,33 +420,38 @@ function getJSFormHeight(form, includePrintParts) {
 function getRuntimeTableViewRowHeight(form) {
 	var jsForm = getJSFormForReference(form)
 	if (jsForm.view !== JSForm.LOCKED_TABLE_VIEW) {
-		throw new scopes.svyExceptions.IllegalArgumentException('Must be called with a form in TableView view')
+		throw new scopes.svyExceptions.IllegalArgumentException('Must be called with a form in TableView view');
 	}
 	
-	var body = jsForm.getPart(JSPart.BODY)
-	var start = body.getPartYOffset()
-	var end = body.height
+	var body = jsForm.getPart(JSPart.BODY);
+	var start = body.getPartYOffset();
+	var end = body.height;
 	
-	var rowHeight = 0
-	var jsElements = jsForm.getComponents(true)
+	var rowHeight = 0;
+	var jsElements = jsForm.getComponents(true);
 	for (var i = 0; i < jsElements.length; i++) {
 		if (jsElements[i].y < start || jsElements[i].y > end) {
-			continue
+			continue;
 		}
 		if (jsElements[i] instanceof JSLabel) {
 			/** @type {JSLabel} */
-			var label = jsElements[i]
+			var label = jsElements[i];
 			if (label.labelFor != null) { //TODO: needs further check to see if the labelFor property is set to a actually existing element
-				continue
+				continue;
 			}
 		}
-		rowHeight = Math.max(rowHeight, jsElements[i].height)
+		rowHeight = Math.max(rowHeight, jsElements[i].height);
 	}
-	return rowHeight
+	
+	return rowHeight;
 }
 
 /**
- * Sets the visibility of all toolbars at once
+ * Sets the visibility of all toolbars at once<br>
+ * <br>
+ * NOTE: This is Smart Client compatible only
+ * 
+ * @public
  * 
  * @param {Boolean} state
  * 
@@ -405,23 +462,29 @@ function getRuntimeTableViewRowHeight(form) {
 function setAllToolbarsVisibility(state) {
 	plugins.window.getToolbarNames().forEach(function(value){
 		application.setToolbarVisible(value, state);
-	})
+	});
 }
 
 /**
+ * Returns the current parent form of a form or null when the form is not showing
+ * 
+ * @public
+ * 
  * @param {RuntimeForm} form
  * 
- * @return {String} Returns the current parent form of a form or null when the form is not showing
+ * @return {String}
  *
  * @properties={typeid:24,uuid:"13529874-DBDA-4655-B6CB-8DAF94DC6CDE"}
  */
 function getParentFormName(form) {
-	var ctx = form.controller.getFormContext()
-	return ctx.getMaxRowIndex() > 0 ? ctx.getValue(ctx.getMaxRowIndex() - 1, 2) : null
+	var ctx = form.controller.getFormContext();
+	return ctx.getMaxRowIndex() > 0 ? ctx.getValue(ctx.getMaxRowIndex() - 1, 2) : null;
 }
 
 /**
  * Clones a JSForm, including all forms contained in (nested) tabpanels (at designtime)
+ * 
+ * @public
  * 
  * @see Also see {@link #deepCopyRuntimeForm}: more lightweight, but less ideal when using the SolutionModel on the copied
  * 
@@ -439,22 +502,27 @@ function deepCopyJSForm(newFormName, original, prefix) {
 	if (solutionModel.getForm(newFormName)) {
 		throw new scopes.svyExceptions.IllegalArgumentException('Value provided for the newFormName parameter is already in use by an existing form: ' + newFormName);
 	}
-
-	var clone = solutionModel.cloneForm(newFormName, original)
-	var tabPanels = clone.getTabPanels()
+	
+	var clone = solutionModel.cloneForm(newFormName, original);
+	var tabPanels = clone.getTabPanels();
 	var formName;
 	for (var i = 0; i < tabPanels.length; i++) {
-		var tabs = tabPanels[i].getTabs()
+		var tabs = tabPanels[i].getTabs();
 		for (var j = 0; j < tabs.length; j++) {
 			formName = prefix ? prefix + tabs[j].containsForm.name.replace(original.name, "") : tabs[j].containsForm.name + application.getUUID();
 			tabs[j].containsForm = deepCopyJSForm(formName, tabs[j].containsForm, prefix);
 		}
 	}
-	return clone
+	
+	return clone;
 }
 
 /**
+ * @deprecated To be moved to another new Servoy extension
+ * 
  * Convenient method to set multiple properties of a SplitPane in one go
+ * 
+ * @public
  * 
  * @param {String} formName
  * @param {String} elementName
@@ -470,26 +538,46 @@ function deepCopyJSForm(newFormName, original, prefix) {
  */
 function initSplitPane(formName, elementName, resizeWeight, dividerLocation, dividerSize, continuousLayout, bgColor, leftFormMinSize, rightFormMinSize) {
 	/** @type {RuntimeSplitPane} */
-	var splitPane = forms[formName].elements[elementName]
+	var splitPane = forms[formName].elements[elementName];
 
-	if (! (splitPane instanceof RuntimeSplitPane)) return;
-
-	if (resizeWeight instanceof Number) splitPane.resizeWeight = resizeWeight
-	if (dividerLocation instanceof Number) restoreSplitPaneDividerPosition(formName, elementName, dividerLocation)
-	if (dividerSize instanceof Number) splitPane.dividerSize = dividerSize
-	if (continuousLayout) splitPane.continuousLayout = continuousLayout
-	if (bgColor && bgColor != 'transparent') {
-		splitPane.transparent = false
-		splitPane.bgcolor = bgColor
-	} else {
-		splitPane.transparent = true
+	if (!(splitPane instanceof RuntimeSplitPane)) {
+		return;
 	}
-	if (leftFormMinSize instanceof Number) splitPane.leftFormMinSize = leftFormMinSize
-	if (rightFormMinSize instanceof Number) splitPane.rightFormMinSize = rightFormMinSize
+
+	if (resizeWeight instanceof Number) {
+		splitPane.resizeWeight = resizeWeight;
+	}
+	if (dividerLocation instanceof Number) {
+		restoreSplitPaneDividerPosition(formName, elementName, dividerLocation);
+	}
+	if (dividerSize instanceof Number) {
+		splitPane.dividerSize = dividerSize;
+	}
+	if (continuousLayout) {
+		splitPane.continuousLayout = continuousLayout;
+	}
+	
+	if (bgColor && bgColor != 'transparent') {
+		splitPane.transparent = false;
+		splitPane.bgcolor = bgColor;
+	} else {
+		splitPane.transparent = true;
+	}
+	if (leftFormMinSize instanceof Number) {
+		splitPane.leftFormMinSize = leftFormMinSize
+	}
+	if (rightFormMinSize instanceof Number) {
+		splitPane.rightFormMinSize = rightFormMinSize;
+	}
 }
 
 /**
+ * @deprecated To be moved to another new Servoy extension
+ * 
+ * @public
+ * 
  * Persists the position of the splitpane divider to be used by {@link #restoreSplitPaneDividerPosition()} in a next user session
+ * 
  * @param {String} formName
  * @param {String} elementName
  *
@@ -505,7 +593,12 @@ function persistSplitPaneDividerPosition(formName, elementName) {
 }
 
 /**
+ * @deprecated To be moved to another new Servoy extension
+ * 
  * Restores the position of the splitpane divider persisted by {@link #persistSplitPaneDividerPosition()} between user sessions
+ * 
+ * @public
+ * 
  * @param {String} formName
  * @param {String} elementName
  * @param {Number} position
@@ -524,9 +617,16 @@ function restoreSplitPaneDividerPosition(formName, elementName, position) {
 }
 
 /**
+ * @deprecated
+ * 
  * Return forms (1-level depth) which are contained in the specified form
+ * 
+ * @public
+ * 
  * @param {RuntimeForm} form
+ * 
  * @return {Array<RuntimeForm>}
+ * 
  * @properties={typeid:24,uuid:"855AF950-2627-42DB-BCD5-AC49F3233840"}
  */
 function getContainedForms(form){
@@ -534,9 +634,14 @@ function getContainedForms(form){
 }
 
 /**
- * @public 
- * @param {Runtime} form
+ * @deprecated
+ * 
+ * @public
+ * 
+ * @param {RuntimeForm} form
+ * 
  * @return {Array<RuntimeTabPanel|RuntimeSplitPane|RuntimeAccordionPanel>}
+ * 
  * @properties={typeid:24,uuid:"6457D6B0-0AEF-4C2B-B791-D13244DC132A"}
  */
 function getContainerElements(form){

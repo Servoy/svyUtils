@@ -23,53 +23,71 @@
  * 
  */
 
+ /**
+  * @private
+  * 
+  * @SuppressWarnings(unused)
+  *
+  * @properties={typeid:35,uuid:"D7955198-B741-4E6D-8C28-44F45AD70816",variableType:-4}
+  */
+ var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.data');
+
 /**
  * Pivots a JSDataSet: First column in the returned JSDataSet will contain the column names of the original dataset.<br>
  * For each row in the original dataset an column will be added to the returned JSDataSet
  * 
+ * @public
+ * 
  * @param {JSDataSet} dataset The dataset for which to create a pivoted datatset
+ * 
  * @return {JSDataSet} a new JSDataSet containing a pivoted copy of the original JSDataSet
  *
  * @properties={typeid:24,uuid:"FBE240B1-512A-42ED-9B74-994CCBE82EE2"}
  */
 function pivotJSDataSet(dataset) {
-	//Generate column names for the pivoted dataset
+	// Generate column names for the pivoted dataset
 	var columnNames = ['columnName']
 	for (var i = 1; i <= dataset.getMaxRowIndex(); i++) {
-		columnNames.push('row'+i)
+		columnNames.push('row' + i);
 	}
-	var newDS = databaseManager.createEmptyDataSet(0, columnNames)
+	
+	var newDS = databaseManager.createEmptyDataSet(0, columnNames);
 	for (i = 1; i <= dataset.getMaxColumnIndex(); i++) {
-		var row = dataset.getColumnAsArray(i)
-		row.splice(0, 0, dataset.getColumnName(i))
-		newDS.addRow(row)
+		var row = dataset.getColumnAsArray(i);
+		row.splice(0, 0, dataset.getColumnName(i));
+		newDS.addRow(row);
 	}
-	return newDS
+	
+	return newDS;
 }
 
 /**
- * Returns a new JSDataSet comprised of the two specified JSDataSets. Any columns addition has more than main are NOt copied over.
- *
+ * Returns a new JSDataSet comprised of the two specified JSDataSets. Any columns addition has more than main are NOT copied over.
+ * 
+ * @public
+ * 
  * @param {JSDataSet} main
  * @param {JSDataSet} addition
+ * 
  * @return {JSDataSet} New JSDataSet containing all rowns from main joined with all rows from addition.
  * 
  * @properties={typeid:24,uuid:"72E868A3-A03C-417C-BBC8-2980A55E5116"}
  */
 function concatenateJSDataSets(main, addition) {
-	if (! (main instanceof JSDataSet && addition instanceof JSDataSet)) {
-		throw new scopes.svyExceptions.IllegalArgumentException('Supplied arguments are not both instances of JSDataSet')
+	if (!(main instanceof JSDataSet && addition instanceof JSDataSet)) {
+		throw new scopes.svyExceptions.IllegalArgumentException('Supplied arguments are not both instances of JSDataSet');
 	}
-
+	
 	var newDS = databaseManager.createEmptyDataSet(0, main.getColumnNames());
 	for (var i = 1; i <= main.getMaxRowIndex(); i++) {
-		newDS.addRow(main.getRowAsArray(i))
+		newDS.addRow(main.getRowAsArray(i));
 	}
-
+	
 	for (i = 1; i <= addition.getMaxRowIndex(); i++) {
-		newDS.addRow(addition.getRowAsArray(i).slice(0, main.getMaxColumnIndex()))
+		newDS.addRow(addition.getRowAsArray(i).slice(0, main.getMaxColumnIndex()));
 	}
-	return newDS
+	
+	return newDS;
 }
 
 /**
@@ -77,11 +95,9 @@ function concatenateJSDataSets(main, addition) {
  * In case and exception occurs, the onError callback will be called, with the exception that occurred as parameter<br>
  * <br>
  * Note: the callback do not execute in the scope in which they are defined, thus references to other scope members need to be specified with a fully qualified path<br>
- * <br>
- * @example <pre>
- * 	//TODO
- * <pre>
- *
+ * 
+ * @public
+ * 
  * @param {QBSelect} query
  * @param {Number} maxReturnedRows
  * @param {function(JSDataSet):*} onSuccess
@@ -94,30 +110,35 @@ function getJSDataSetByQueryAsync(query, maxReturnedRows, onSuccess, onError) {
 	var r = new java.lang.Runnable({ 
 		run: function () { 
 			try {
-				var ds = databaseManager.getDataSetByQuery(query, maxReturnedRows)
+				var ds = databaseManager.getDataSetByQuery(query, maxReturnedRows);
 				Packages.javax.swing.SwingUtilities.invokeLater(new java.lang.Runnable({
 					run: function(){
-						onSuccess.call(null, ds)
+						onSuccess.call(null, ds);
 					}
 				}))
 			} catch (e) {
 				Packages.javax.swing.SwingUtilities.invokeLater(new java.lang.Runnable({
 					run: function(){
-						onError.call(null, e)
+						onError.call(null, e);
 					}
-				}))
-
+				}));
 			}
 		}
 	});
-	new java.lang.Thread(r).start()
+	
+	new java.lang.Thread(r).start();
 }
 
 /**
- * Converts a byte[] to String<br>
- * <br>
+ * @deprecated Use {@link #scopes#svyDataUtils#byteArrayToString} instead
+ * 
+ * Converts a byte[] to String
+ * 
+ * @public
+ * 
  * @param {byte[]} bytes
  * @param {String} [encoding] Optional param to specify the encoding/chartset to use. See {@link scopes#svyIO#CHAR_SETS} for possible values. Default: scopes.svyIO.CHAR_SETS.UTF_8
+ * 
  * @return {String}
  * 
  * @properties={typeid:24,uuid:"62FDE25B-B38E-4799-8DFD-9A151FB3DC7E"}
@@ -127,8 +148,28 @@ function ByteArrayToString(bytes, encoding) {
 }
 
 /**
- * Converts a String to byte[]<br>
- * <br>
+ * Converts a byte[] to String
+ * 
+ * @public
+ * 
+ * @param {byte[]} bytes
+ * @param {String} [encoding] Optional param to specify the encoding/chartset to use. See {@link scopes#svyIO#CHAR_SETS} for possible values. Default: scopes.svyIO.CHAR_SETS.UTF_8
+ * 
+ * @return {String}
+ * 
+ * @properties={typeid:24,uuid:"A7AD4F97-3CC5-46DB-9FE0-E2BE2580FCDF"}
+ */
+function byteArrayToString(bytes, encoding) {
+	return new java.lang.String(bytes, encoding|scopes.svyIO.CHAR_SETS.UTF_8).toString()
+}
+
+/**
+ * @deprecated Use {@link #scopes#svyDataUtils#stringToByteArray} instead
+ * 
+ * Converts a String to byte[]
+ * 
+ * @public
+ * 
  * @param {String} string
  * 
  * @properties={typeid:24,uuid:"C3081002-0792-4375-8C25-D2F52751844A"}
@@ -138,63 +179,22 @@ function StringToByteArray(string) {
 }
 
 /**
- * Tests if a given value for the given dataprovider already exists in the provided datasource
+ * Converts a String to byte[]
  * 
- * @deprecated will be removed in version 7.0. This method has been renamed from isValueUnique,<br>
- * but the result is the opposite now of what it's current name suggests. Use <code>dataSourceHasValue</code><br>
- * instead which in contrast to this method returns true, if the datasource already contains the<br>
- * value asked for, so <b>exactly the opposite of this method!</b>
+ * @public
  * 
- * @param {JSRecord|JSFoundSet|String} datasource
- * @param {String} dataproviderName - the name of the dataprovider that should be tested for uniqueness
- * @param {Object} value - the value that should be unique in the given dataprovider
- * @param {String[]} [extraQueryColumns] - optional array of additional dataproviders that can be used in the unique query
- * @param {Object[]} [extraQueryValues] - optional array of additional values that can be used in the unique query
+ * @param {String} string
  * 
- * @return {Boolean} true if the datasource <b>does not contain</b> the value asked for
- *
- * @properties={typeid:24,uuid:"460E5007-852E-4143-82FD-6840DA430FC0"}
+ * @properties={typeid:24,uuid:"3A38D37F-4BC4-4315-BA0C-2743A8E2C0C1"}
  */
-function datasourceHasValue(datasource, dataproviderName, value, extraQueryColumns, extraQueryValues) {
-	if (!datasource || !dataproviderName) {
-		throw new scopes.svyExceptions.IllegalArgumentException("no parameters provided to scopes.svyDataUtils.datasourceHasValue(foundsetOrRecord, dataproviderName, value)");
-	}
-	/** @type {String} */
-	var dataSource = (datasource instanceof String) ? datasource : datasource.getDataSource();
-	var pkNames = databaseManager.getTable(dataSource).getRowIdentifierColumnNames();
-	var query = databaseManager.createSelect(dataSource);
-	query.result.add(query.getColumn(pkNames[0]).count);
-
-	if (value == null) {
-		query.where.add(query.getColumn(dataproviderName).isNull);
-	} else if (value instanceof UUID) {
-		query.where.add(query.getColumn(dataproviderName).eq(value.toString()));
-	} else {
-		query.where.add(query.getColumn(dataproviderName).eq(value));
-	}
-	if (extraQueryColumns || extraQueryValues) {
-		if (!Array.isArray(extraQueryColumns) || !Array.isArray(extraQueryValues)) {
-			throw scopes.svyExceptions.IllegalArgumentException("extraQueryColumns and extraQueryValues parameters are not both an Array");
-		}
-		if (extraQueryColumns.length != extraQueryValues.length) {
-			throw scopes.svyExceptions.IllegalArgumentException("size of extraQueryColumns and extraQueryValues parameters do not match");
-		}
-		for (var j = 0; j < extraQueryColumns.length; j++) {
-			if (extraQueryValues[j] == null) {
-				query.where.add(query.getColumn(extraQueryColumns[j]).isNull);
-			} else if (extraQueryValues[j] instanceof UUID) {
-				query.where.add(query.getColumn(extraQueryColumns[j]).eq(extraQueryValues[j].toString()));
-			} else {
-				query.where.add(query.getColumn(extraQueryColumns[j]).eq(extraQueryValues[j]));
-			}
-		}
-	}
-	var dataset = databaseManager.getDataSetByQuery(query, 1);
-	return (dataset.getValue(1,1) == 0)
+function stringToByteArray(string) {
+	return new java.lang.String(string).getBytes()
 }
 
 /**
  * Tests if a given value for the given dataprovider already exists in the provided datasource
+ * 
+ * @public
  * 
  * @param {JSRecord|JSFoundSet|String} datasource
  * @param {String} dataproviderName - the name of the dataprovider that should be tested for uniqueness
@@ -208,7 +208,7 @@ function datasourceHasValue(datasource, dataproviderName, value, extraQueryColum
  */
 function dataSourceHasValue(datasource, dataproviderName, value, extraQueryColumns, extraQueryValues) {
 	if (!datasource || !dataproviderName) {
-		throw new scopes.svyExceptions.IllegalArgumentException("no parameters provided to scopes.svyDataUtils.datasourceHasValue(foundsetOrRecord, dataproviderName, value)");
+		throw new scopes.svyExceptions.IllegalArgumentException('no parameters provided to scopes.svyDataUtils.datasourceHasValue(foundsetOrRecord, dataproviderName, value)');
 	}
 	/** @type {String} */
 	var dataSource = (datasource instanceof String) ? datasource : datasource.getDataSource();
@@ -225,10 +225,10 @@ function dataSourceHasValue(datasource, dataproviderName, value, extraQueryColum
 	}
 	if (extraQueryColumns || extraQueryValues) {
 		if (!Array.isArray(extraQueryColumns) || !Array.isArray(extraQueryValues)) {
-			throw scopes.svyExceptions.IllegalArgumentException("extraQueryColumns and extraQueryValues parameters are not both an Array");
+			throw scopes.svyExceptions.IllegalArgumentException('extraQueryColumns and extraQueryValues parameters are not both an Array');
 		}
 		if (extraQueryColumns.length != extraQueryValues.length) {
-			throw scopes.svyExceptions.IllegalArgumentException("size of extraQueryColumns and extraQueryValues parameters do not match");
+			throw scopes.svyExceptions.IllegalArgumentException('size of extraQueryColumns and extraQueryValues parameters do not match');
 		}
 		for (var j = 0; j < extraQueryColumns.length; j++) {
 			if (extraQueryValues[j] == null) {
@@ -241,11 +241,13 @@ function dataSourceHasValue(datasource, dataproviderName, value, extraQueryColum
 		}
 	}
 	var dataset = databaseManager.getDataSetByQuery(query, 1);
-	return !(dataset.getValue(1,1) == 0)
+	return !(dataset.getValue(1,1) == 0);
 }
 
 /**
- * Gets a JSRecord with the specified PK from the specified datasource. 
+ * Gets a JSRecord with the specified PK from the specified datasource.
+ * 
+ * @public
  * 
  * @param {String} datasource
  * @param {*|Array<*>} pks The PK column values for the record. Can be a single value or an Array with values (sorted by PK columnname) in case of a multi-column PK. 
@@ -255,23 +257,23 @@ function dataSourceHasValue(datasource, dataproviderName, value, extraQueryColum
  * @properties={typeid:24,uuid:"BD700BE2-5455-4FEF-B155-D7A683B75A5E"}
  */
 function getRecord(datasource, pks) {
-	if (!pks || !datasource) return null
+	if (!pks || !datasource) {
+		return null;
+	}
 	
-	var fs = databaseManager.getFoundSet(datasource)
-
-//	according to Rob Servoy will do the convert if the UUID flag is set on the column
-//	if (/[0-9A-Fa-f]{8}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{4}\-[0-9A-Fa-f]{12}/.test(""+pks)) {
-//		pks = application.getUUID(""+ pks);
-//	}
-
+	var fs = databaseManager.getFoundSet(datasource);
+	
 	fs.loadRecords(databaseManager.convertToDataSet(pks instanceof Array ? pks : [pks]))
-	return  fs.getSize() ? fs.getRecord(1) : null
+	return fs.getSize() ? fs.getRecord(1) : null;
 }
 
 /**
  * Tests if a given relation is global (only based on global or scope variables or literals)
  * 
+ * @public
+ * 
  * @param {String} relationName
+ * 
  * @return {Boolean} false for any dataprovider based relation or self joins
  *
  * @properties={typeid:24,uuid:"045975C0-6EC2-4EFE-A1AA-43A7E7C94C64"}
@@ -279,7 +281,7 @@ function getRecord(datasource, pks) {
 function isGlobalRelation(relationName) {
 	var jsRelation = solutionModel.getRelation(relationName);
 	if (!jsRelation) {
-		throw new scopes.svyExceptions.IllegalArgumentException("Relation \"" + relationName + "\" not found");
+		throw new scopes.svyExceptions.IllegalArgumentException('Relation \'' + relationName + '\' not found');
 	}
 	var relationItems = jsRelation.getRelationItems();
 	if (!relationItems || relationItems.length == 0) {
@@ -292,7 +294,7 @@ function isGlobalRelation(relationName) {
 		if (relationItem.primaryLiteral != null) {
 			continue;
 		}
-		if (!relationItem.primaryDataProviderID.match("globals|scopes")) {
+		if (!relationItem.primaryDataProviderID.match('globals|scopes')) {
 			isGlobal = false;
 			break;
 		}
@@ -302,64 +304,90 @@ function isGlobalRelation(relationName) {
 
 /**
  * Selects the first record in the foundset
+ * 
+ * @public
+ * 
  * @param {JSFoundSet} foundset
+ * 
  * @return {Boolean} false when the foundset is empty
  *
  * @properties={typeid:24,uuid:"6C95A33B-9D08-4AD9-9AE5-27CF1F5AE44F"}
  */
 function selectFirstRecord(foundset) {
+	// TODO Deprecate method as soon as SVY-11345 has been implemented
 	if (foundset) {
 		foundset.setSelectedIndex(1);
 		return true;
 	}
-	return false
+	
+	return false;
 }
 
 /**
  * Selects the record before the selected record
+ * 
+ * @public
+ * 
  * @param {JSFoundSet} foundset
+ * 
  * @return {Boolean} false when there is no previous record
  *
  * @properties={typeid:24,uuid:"87CFAD5C-8697-441E-86DD-DDD0DA53B24E"}
  */
 function selectPreviousRecord(foundset) {
+	// TODO Deprecate method as soon as SVY-11345 has been implemented
 	if (foundset && foundset.getSelectedIndex() != 1) {
 		foundset.setSelectedIndex(foundset.getSelectedIndex() - 1);
 		return true;
 	}
-	return false	
+	
+	return false;	
 }
 
 /**
  * Selects the record after the selected record
+ * 
+ * @public
+ * 
  * @param {JSFoundSet} foundset
+ * 
  * @return {Boolean} false when there is no next record
  *
  * @properties={typeid:24,uuid:"9EF84149-DEB3-4AFB-B9D3-4F1F3324AD7E"}
  */
 function selectNextRecord(foundset) {
+	// TODO Deprecate method as soon as SVY-11345 has been implemented
 	if (foundset) {
 		var curIdx = foundset.getSelectedIndex()
 		foundset.setSelectedIndex(++curIdx);
 		return curIdx != foundset.getSelectedIndex();
 	}
-	return false
+	
+	return false;
 }
 
 /**
  * Selects the last record in the foundset. Warning: can be very expensive, as the entire foundset needs to be loaded
+ * 
+ * @public
+ * 
  * @param {JSFoundSet} foundset
+ * 
  * @return {Boolean} false when the foundset is empty
  *
  * @properties={typeid:24,uuid:"B645601C-81E3-43A6-AC43-2E18D1019B01"}
  */
 function selectLastRecord(foundset) {
-	var newIdx = databaseManager.getFoundSetCount(foundset)
-	if (!newIdx) return false
+	// TODO Deprecate method as soon as SVY-11345 has been implemented
+	var newIdx = databaseManager.getFoundSetCount(foundset);
+	if (!newIdx) {
+		return false;
+	}
 	
 	foundset.getRecord(newIdx)
 	foundset.setSelectedIndex(newIdx);
-	return true
+	
+	return true;
 }
 
 /**
@@ -596,36 +624,40 @@ function SvyDataException(errorMessage, source, dataProviderID){
 
 /**
  * The 'from" method of a column converter that stringifies the real value to a JSON String for storage
- *
+ * 
+ * @public
+ * 
  * @param realValue The real value.
  * @param {String} dbType The type of the database column. Can be one of "TEXT", "INTEGER", "NUMBER", "DATETIME" or "MEDIA".
  *
  * @returns {String} the storage value
  * 
- * @see  {@link #fromJSONColumnConverter}
+ * @see {@link #fromJSONColumnConverter}
  *
  * @properties={typeid:24,uuid:"FB7F5FF8-7FC6-42AF-8E5F-3C6E5C10A9CA"}
  */
 function toJSONColumnConverter(realValue, dbType) {
 	if (realValue instanceof Array) {
-		// in case we receive a Native Array here, 
-		// try to convert it to a JS array
-		realValue = realValue.concat(new Array())
+		// in case we receive a Native Array here, try to convert it to a JS array
+		realValue = realValue.concat(new Array());
 	} else if (realValue instanceof UUID) {
-		realValue = realValue.toString()
+		realValue = realValue.toString();
 	}
-	return JSON.stringify(realValue)
+	
+	return JSON.stringify(realValue);
 }
 
 /**
  * The 'to' method of a column converter that revives a JSON String from storage to the real value for usage in the application again
+ * 
+ * @public
  * 
  * @param storageValue The database value.
  * @param {String} dbType The type of the database column. Can be one of "TEXT", "INTEGER", "NUMBER", "DATETIME" or "MEDIA".
  *
  * @returns {Object} the real value
  * 
- * @see  {@link #toJSONColumnConverter}
+ * @see {@link #toJSONColumnConverter}
  *
  * @properties={typeid:24,uuid:"D4FBF90C-3911-47D8-91EF-03D071D2CF13"}
  */
@@ -633,11 +665,14 @@ function fromJSONColumnConverter(storageValue, dbType) {
 	if (storageValue == null) {
 		return null;
 	}
-	return JSON.parse(storageValue)
+	
+	return JSON.parse(storageValue);
 }
 
 /**
  * Returns the original value of the given dataprovider of a record that has changes not yet saved to the database
+ * 
+ * @public
  * 
  * @param {JSRecord} record
  * @param {String} dataProviderId
@@ -648,23 +683,20 @@ function getDataproviderValueInDB(record, dataProviderId) {
 	var changedData = record.getChangedData();
 	for (var i = 1; i <= changedData.getMaxRowIndex(); i++) {
 		if (changedData.getValue(i, 1) == dataProviderId) {
-			return changedData.getValue(i,2);
+			return changedData.getValue(i, 2);
 		}
 	}
+	
 	return record[dataProviderId];
 }
 
 /**
- * Dumps all data of either all or the given tables of the given server to csv files and zips them.<p>
+ * Dumps all data of either all or the given tables of the given server to csv files and zips them.<br>
+ * <br>
+ * NOTE: All possible table filters will be applied.
  * 
- * All possible table filters will be applied.
+ * @public
  * 
- * @public 
- * 
- * @version 6.1
- * @since Feb 4, 2015
- * @author patrick
- *
  * @param {String} serverName - the server to dump
  * @param {Array<String>} [tablesToUse] - if given, only these tables will be exported
  * 
@@ -676,19 +708,21 @@ function createDataDump(serverName, tablesToUse) {
 	if (!tablesToUse) {
 		tablesToUse = databaseManager.getTableNames(serverName);
 	}
-
+	
 	try {
-		var tempDir = plugins.file.createTempFile("data_dump_", "");
+		var tempDir = plugins.file.createTempFile('data_dump_', '');
 		tempDir.deleteFile();
 		var success = plugins.file.createFolder(tempDir);
 		if (!success) {
-			throw new scopes.svyExceptions.IllegalStateException("Failed to create temp dir \"" + tempDir.getAbsolutePath() + "\"");
+			throw new scopes.svyExceptions.IllegalStateException('Failed to create temp dir \'' + tempDir.getAbsolutePath() + '\'');
 		}
 		for (var i = 0; i < tablesToUse.length; i++) {
 			var fs = databaseManager.getFoundSet(serverName, tablesToUse[i]);
 			fs.loadAllRecords();
 			
-			if (!utils.hasRecords(fs)) continue;
+			if (!utils.hasRecords(fs)) {
+				continue;
+			}
 			
 			var fsQuery = databaseManager.getSQL(fs, true);
 			var fsQueryParams = databaseManager.getSQLParameters(fs, true);
@@ -703,36 +737,37 @@ function createDataDump(serverName, tablesToUse) {
 				pkColumns[p] = tablesToUse[i] + "." + pkColumns[p];
 			}
 			
-			var pkArgToReplace = "select " + pkColumns.join(", ");
-			fsQuery = utils.stringReplace(fsQuery, pkArgToReplace, "select " + qualifiedDataproviderIds.join(", "));
+			var pkArgToReplace = 'select ' + pkColumns.join(', ');
+			fsQuery = utils.stringReplace(fsQuery, pkArgToReplace, 'select ' + qualifiedDataproviderIds.join(', '));
 			
 			var dataset = databaseManager.getDataSetByQuery(serverName, fsQuery, fsQueryParams, -1);
-			var exportFile = plugins.file.convertToJSFile(tempDir.getAbsolutePath() + java.io.File.separator + tablesToUse[i] + ".csv");
+			var exportFile = plugins.file.convertToJSFile(tempDir.getAbsolutePath() + java.io.File.separator + tablesToUse[i] + '.csv');
 			if (fs) {
-				var textData = dataset.getAsText(";", "\n", "\"", true);
-				if (textData.substring(textData.length-1) == "\n") {
+				var textData = dataset.getAsText(';', '\n', '\'', true);
+				if (textData.substring(textData.length - 1) == '\n') {
 					//remove last empty line if present
-					textData = textData.substring(0, textData.length-1);
+					textData = textData.substring(0, textData.length - 1);
 				}
 				success = plugins.file.writeTXTFile(exportFile, textData);
 				if (!success) {
-					throw new scopes.svyExceptions.IllegalStateException("Failed to write to file \"" + exportFile.getAbsolutePath() + "\"");
+					throw new scopes.svyExceptions.IllegalStateException('Failed to write to file \'' + exportFile.getAbsolutePath() + '\'');
 				}
 			}
 		}
 		var zipFile = scopes.svyIO.zip(tempDir);
 		return zipFile;
 	} catch (e) {
-		throw new scopes.svyExceptions.SvyException("Error creating data dump: " + e.message);
+		throw new scopes.svyExceptions.SvyException('Error creating data dump: ' + e.message);
 	}
 }
 
-
 /**
- * @public  
  * Parses a CSV file
  * 
- * Taken from http://papaparse.com/
+ * Taken from http://papaparse.com
+ * 
+ * @public
+ * 
  * @param {String} csvText
  * @param {{delimiter: String=, newline: String=, firstRowHasColumnNames: Boolean=, textQualifier: String=, comments: String=, preview: Number=, fastMode: Boolean=}} [config]
  * 
@@ -740,8 +775,7 @@ function createDataDump(serverName, tablesToUse) {
  *
  * @properties={typeid:24,uuid:"8E553656-907E-4CCF-9C60-E99723996993"}
  */
-function parseCSV(csvText, config)
-{
+function parseCSV(csvText, config) {
 	if (!(csvText instanceof String)) {
 		throw "Input must be a string";
 	}
@@ -1099,32 +1133,35 @@ function parseCSV(csvText, config)
 
 /**
  * Point prototypes to superclasses
- * @private 
+ * 
+ * @private
+ * 
  * @SuppressWarnings(unused)
+ * 
  * @properties={typeid:35,uuid:"661B7B5D-659E-43F5-97B7-F07FFB44FF5E",variableType:-4}
  */
 var init = function() {
 	SvyDataException.prototype = Object.create(scopes.svyExceptions.SvyException.prototype);
-	SvyDataException.prototype.constructor = SvyDataException
+	SvyDataException.prototype.constructor = SvyDataException;
 	
 	NoRecordException.prototype = Object.create(SvyDataException.prototype);
-	NoRecordException.prototype.constructor = NoRecordException
+	NoRecordException.prototype.constructor = NoRecordException;
 		
 	NoRelatedRecordException.prototype = Object.create(SvyDataException.prototype);
-	NoRelatedRecordException.prototype.constructor = NoRelatedRecordException
+	NoRelatedRecordException.prototype.constructor = NoRelatedRecordException;
 	
 	NewRecordFailedException.prototype = Object.create(SvyDataException.prototype);
-	NewRecordFailedException.prototype.constructor = NewRecordFailedException
+	NewRecordFailedException.prototype.constructor = NewRecordFailedException;
 	
 	FindModeFailedException.prototype = Object.create(SvyDataException.prototype);
-	FindModeFailedException.prototype.constructor = FindModeFailedException
+	FindModeFailedException.prototype.constructor = FindModeFailedException;
 	
 	SaveDataFailedException.prototype = Object.create(SvyDataException.prototype);
-	SaveDataFailedException.prototype.constructor = SaveDataFailedException
+	SaveDataFailedException.prototype.constructor = SaveDataFailedException;
 	
 	DeleteRecordFailedException.prototype = Object.create(SvyDataException.prototype);
-	DeleteRecordFailedException.prototype.constructor = DeleteRecordFailedException
+	DeleteRecordFailedException.prototype.constructor = DeleteRecordFailedException;
 	
 	ValueNotUniqueException.prototype = Object.create(SvyDataException.prototype);
-	ValueNotUniqueException.prototype.constructor = ValueNotUniqueException
-}()
+	ValueNotUniqueException.prototype.constructor = ValueNotUniqueException;
+}();
