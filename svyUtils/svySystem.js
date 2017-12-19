@@ -746,3 +746,35 @@ function convertServoyMethodToQualifiedName(method) {
 	}
 	return null;
 }
+
+
+/**
+ * @public 
+ * @param functionToPrint
+ * @return {Array<String>}
+ * @properties={typeid:24,uuid:"D39B3C8C-4D72-45A3-BF5B-FDF1249DF297"}
+ */
+function printMethodCode(functionToPrint) {
+	var fd = new Packages.com.servoy.j2db.scripting.FunctionDefinition(functionToPrint);
+	if (fd.getFormName()) {
+		var jsForm = solutionModel.getForm(fd.getFormName());
+		var jsMethod = jsForm.getMethod(fd.getMethodName());
+		
+		var lines = jsMethod.code.split('\n');
+		var relevantLines = [];
+		var functionStartFound = false;
+		for (var i = 0; i < lines.length; i++) {
+			if (!functionStartFound && utils.stringTrim(lines[i]).indexOf('function ') == 0) {
+				functionStartFound = true;
+			}
+			if (functionStartFound && lines[i].indexOf('printMethodCode') == -1) {
+				relevantLines.push(lines[i]);
+			}
+		}
+		
+		relevantLines.pop();
+		return relevantLines;
+	} else {
+		return [];
+	}
+}
