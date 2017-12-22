@@ -168,6 +168,107 @@ function isHostAccessible(hostname, timeout) {
 }
 
 /**
+ * Tests whether the given serverAddress is reachable and returns the time it took to reach it.<p>
+ * 
+ * Best effort is made by the implementation to try to reach the host, but firewalls and server <br>
+ * configuration may block requests resulting in a unreachable status while some specific ports <br>
+ * may be accessible. A typical implementation will use ICMP ECHO REQUESTs if the privilege can <br>
+ * be obtained, otherwise it will try to establish a TCP connection on port 7 (Echo) of the <br>
+ * destination host. <p>
+ * 
+ * If the address provided contains a specific port, a socket connection is attempted on that port.
+ * 
+ * @public
+ * 
+ * @param {String} serverAddress
+ * @param {Number} [iterations] optional number of iterations, when given, the average time is returned
+ * @param {Number} [timeout] optional number of timeout milliseconds (defaults to 5000)
+ * 
+ * @return {Number} (average) ping or connection time or -1 when an error occurs
+ *
+ * @properties={typeid:24,uuid:"F192BB16-7E36-4615-9ADD-133AE05988C9"}
+ */
+function pingHost(serverAddress, iterations, timeout) {
+	var uri = new java.net.URI(serverAddress);
+	var host = uri.getHost();
+	if (host) {
+		serverAddress = host;
+		log.warn('Host found as ' + serverAddress);
+	}
+	var port = uri.getPort();
+	log.warn('Port found as ' + port);
+	var inetAddress = null;
+	if (!timeout) {
+		timeout = 5000;
+	}
+	if (!iterations) {
+		iterations = 1;
+	}
+	try {
+		inetAddress = java.net.InetAddress.getByName(serverAddress);
+	} catch (/** @type {java.net.UnknownHostException} */ e) {
+		log.debug('Unknown host: ' + serverAddress, e);
+		return -1;
+	}
+
+	var pingTimes = 0;
+	var start, stop, result, i;
+
+	var isJava8OrLater = parseFloat(java.lang.System.getProperty('java.specification.version')) >= 1.8;
+
+	if (port !== -1 && isJava8OrLater) {
+		//connect using socket (layer4)
+		try {
+			var socketAddress = new java.net.InetSocketAddress(inetAddress, port);
+		} catch (e) {
+			log.debug('Problem obtaining socket address, port may be invalid', e);
+			return -1;
+		}
+		for (i = 1; i <= iterations; i++) {
+			start = new Date();
+			try {
+				var sc = java.nio.channels.SocketChannel.open();
+				sc.configureBlocking(true);
+				if (sc.connect(socketAddress)) {
+					stop = new Date();
+					result = (stop.getTime() - start.getTime());
+					log.debug('Socket connection to ' + serverAddress + ' took ' + result + 'ms');
+					pingTimes += result;
+				}
+				return pingTimes / iterations;
+			} catch (e) {
+				log.warn('A network error has occurred', e);
+				return -1;
+			} finally {
+				if (sc != null) {
+					try {
+						sc.close();
+					} catch (e) {
+					}
+				}
+			}
+		}
+	} else {
+		//simple ping (layer3)
+		try {
+			for (i = 1; i <= iterations; i++) {
+				start = new Date();
+				if (inetAddress.isReachable(timeout)) {
+					stop = new Date();
+					result = (stop.getTime() - start.getTime());
+					log.debug('Ping to ' + serverAddress + ' took ' + result + 'ms');
+					pingTimes += result;
+				}
+			}
+			return pingTimes / iterations;
+		} catch (/** @type {java.io.IOException} */ e) {
+			log.debug('A network error has occurred', e);
+			return -1;
+		}
+	}
+}
+
+/**
  * Function to parse urls and retrieve the different parts of it. Taken from http://blog.stevenlevithan.com/archives/parseuri
  * 
  * @public
