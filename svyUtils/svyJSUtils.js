@@ -243,6 +243,28 @@ function arrayDiff(array1, array2) {
 	return diff;
 }
 
+/**
+ * Merge the source obj1 into the destination obj2. If override is true, it overrides existing properties, it skips them otherwise.
+ * 
+ * @param {Object} obj1 the source object
+ * @param {Object} obj2 the destination object
+ * @param {Boolean} [override] default false.
+ * @public 
+ *
+ * @properties={typeid:24,uuid:"DC31891A-5CE9-4B04-903A-69EED0546490"}
+ */
+function mergeObjects(obj1, obj2, override) {
+	for (var key in obj1) {
+		if (override) {
+			obj2[key] = obj1[key];
+		} else {
+			if (!obj2.hasOwnProperty(key)) {
+				obj2[key] = obj1[key];
+			}
+		}
+	}
+}
+
 
 //TODO add replacer function for JSON.stringify that handles circular references or a custom object stringifier that does this and also removes the quotes around the keys
 
