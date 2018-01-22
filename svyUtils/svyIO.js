@@ -725,3 +725,38 @@ var init = function() {
  * - https://www.servoy.com/forum/viewtopic.php?f=22&t=13866&p=72648&hilit=java.io.filewriter#p72637
  * - https://www.servoy.com/forum/viewtopic.php?t=6391
  */
+
+
+/**
+ * Execute method on separate thread
+ * @param {Function} method
+ * @param {Number} [priority]
+ * @properties={typeid:24,uuid:"A8572B12-7C3D-4786-8BC6-7C7FA9478A8C"}
+ */
+function executeMethodAsync(method, priority) {
+	var r = new java.lang.Runnable({
+			run: function() {
+				Packages.javax.swing.SwingUtilities.invokeLater(new java.lang.Runnable({
+					run: function() {
+						method()
+					}
+				}))
+			}
+		});
+	var thread = new java.lang.Thread(r)
+	var pr = java.lang.Thread.NORM_PRIORITY;
+	switch (priority) {
+	case 0:
+		pr = java.lang.Thread.MIN_PRIORITY;
+		break;
+	case 1:
+		pr = java.lang.Thread.NORM_PRIORITY;
+		break;
+	case 2:
+		pr = java.lang.Thread.MAX_PRIORITY;
+		break;
+	}
+	thread.setPriority(pr)
+	thread.start()
+
+}
