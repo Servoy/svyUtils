@@ -198,7 +198,7 @@ function createTableGrid(datasource, columnHeaders, dataproviders) {
 		if (datasource instanceof JSDataSource) {
 			/** @type {JSDataSource} */
 			var jsDs = datasource;
-			return new TableGrid(jsDs.getDatasource(), columnHeaders, dataproviders);
+			return new TableGrid(jsDs.getDataSource(), columnHeaders, dataproviders);
 		} else {
 			/** @type {String} */
 			var stringDs = datasource;

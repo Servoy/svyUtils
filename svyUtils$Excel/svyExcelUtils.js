@@ -371,7 +371,7 @@ function createWorkbook(templateOrFileType) {
  * 
  * @public 
  * 
- * @param {String|plugins.file.JSFile} original - path to the file, file or media URL
+ * @param {String|plugins.file.JSFile|Array<byte>} original - path to the file, file or media URL
  * 
  * @return {ExcelWorkbook}
  *
