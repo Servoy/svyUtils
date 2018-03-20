@@ -22,7 +22,15 @@
  * THE SOFTWARE.
  * 
  */
-
+ 
+/**
+  * Constants for string padding params
+  * @private 
+  * @enum 
+  * @properties={typeid:35,uuid:"62CD6687-A1E9-4710-8084-061DA8A366D2",variableType:-4}
+  */
+ var STRING_PAD = {LEFT:'left',RIGHT:'right'};
+ 
  /**
   * @private
   * 
@@ -292,3 +300,64 @@ function mergeObjects(obj1, obj2, override) {
 //function getType(object) {
 //	return {}.toString.call(object).match(/\s([a-zA-Z]+)/)[1].toLowerCase()
 //}
+
+
+/**
+ * Returns left padded string
+ * 
+ * @public 
+ * @param {String|*} str the string to pad
+ * @param {Number} length the length of the field
+ * @param {String} [ch] the character (string length 1) A single blank space will be used if not specified
+ *
+ * @properties={typeid:24,uuid:"DBBB0D89-7533-4891-A8AB-4856044CE7D2"}
+ */
+function stringPadLeft(str,length,ch){
+	return stringPad(STRING_PAD.LEFT,str,length,ch);
+}
+
+/**
+ * Returns right-padded string
+ * 
+ * @public 
+ * @param {String|*} str the string to pad
+ * @param {Number} length the length of the field
+ * @param {String} [ch] the character (string length 1) A single blank space will be used if not specified
+ *
+ * @properties={typeid:24,uuid:"39075EE5-5AFE-48BB-A0CF-222EB6D298AF"}
+ */
+function stringPadRight(str,length,ch){
+	return stringPad(STRING_PAD.RIGHT,str,length,ch);
+}
+
+/**
+ * Returns left/right-padded string
+ * 
+ * @param {String|*} direction left/right
+ * @param {String} str the string to pad
+ * @param {Number} length the length of the field
+ * @param {String} [ch] the character (string length 1) A single blank space will be used if not specified
+ * @private 
+ * @properties={typeid:24,uuid:"3F5C38C9-3A00-47A3-B7E7-6D43EBB68770"}
+ */
+function stringPad(direction, str,length,ch){
+	str = str.toString();
+	if(!ch){
+		ch = ' ';
+	}
+	if(ch.length != 1){
+		throw new Error('STRING PAD: Character must have length 1');
+	}
+	var pad = '';
+	for(var i = 0; i < length; i++){
+		pad += ch;
+	}
+	pad = pad.substring(0,length-str.length);
+	if(direction == STRING_PAD.LEFT){
+		return pad + str
+	}
+	if(direction == STRING_PAD.RIGHT){
+		return str + pad;
+	}
+	throw new Error('STRING PAD: Direction must be left/right'); // this should never happen
+}
