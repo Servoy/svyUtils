@@ -642,7 +642,7 @@ function humanizeFileSize(size, numberOfDigits) {
 	if (!size || size < 0) {
 		return '0 bytes';
 	}
-	if (!numberOfDigits || numberOfDigits < 0) {
+	if (numberOfDigits == null || numberOfDigits < 0) {
 		numberOfDigits = 1;
 	}
 	if (size >= (1024 * 1024 * 1024 * 1024 * 1024)) {
