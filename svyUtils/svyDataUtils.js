@@ -245,6 +245,55 @@ function dataSourceHasValue(datasource, dataproviderName, value, extraQueryColum
 }
 
 /**
+ * @param {String|JSFoundSet} datasource
+ * @param {Array} [extraQueryColumns] list of datasource's column names (only non-related columns)
+ * @param {Array} [extraQueryValues] list of values for the listed extraQueryColumns
+ * 
+ * @example <pre>
+ *  // get all the customers with country UK and city London
+ *  var customers = scopes.svyDataUtils.getFoundSetWithExactValues("db:/example_data/customers", ["country","city"], ["UK","London"]);
+ * </pre>
+ * 
+ * @public 
+ *
+ * @properties={typeid:24,uuid:"5FCAEB82-F5F1-4408-AE79-7E42EADC93A5"}
+ */
+function getFoundSetWithExactValues(datasource, extraQueryColumns, extraQueryValues) {
+	if (!datasource) {
+		throw new scopes.svyExceptions.IllegalArgumentException('no parameters provided to scopes.svyDataUtils.datasourceHasValue(foundsetOrRecord, dataproviderName, value)');
+	}
+	/** @type {String} */
+	var dataSource = (datasource instanceof String) ? datasource : datasource.getDataSource();
+	var query = databaseManager.createSelect(dataSource);
+	query.result.addPk()
+//	if (value == null) {
+//		query.where.add(query.getColumn(dataproviderName).isNull);
+//	} else if (value instanceof UUID) {
+//		query.where.add(query.getColumn(dataproviderName).eq(value.toString()));
+//	} else {
+//		query.where.add(query.getColumn(dataproviderName).eq(value));
+//	}
+	if (extraQueryColumns || extraQueryValues) {
+		if (!Array.isArray(extraQueryColumns) || !Array.isArray(extraQueryValues)) {
+			throw scopes.svyExceptions.IllegalArgumentException('extraQueryColumns and extraQueryValues parameters are not both an Array');
+		}
+		if (extraQueryColumns.length != extraQueryValues.length) {
+			throw scopes.svyExceptions.IllegalArgumentException('size of extraQueryColumns and extraQueryValues parameters do not match');
+		}
+		for (var j = 0; j < extraQueryColumns.length; j++) {
+			if (extraQueryValues[j] == null) {
+				query.where.add(query.getColumn(extraQueryColumns[j]).isNull);
+			} else if (extraQueryValues[j] instanceof UUID) {
+				query.where.add(query.getColumn(extraQueryColumns[j]).eq(extraQueryValues[j].toString()));
+			} else {
+				query.where.add(query.getColumn(extraQueryColumns[j]).eq(extraQueryValues[j]));
+			}
+		}
+	}
+	return databaseManager.getFoundSet(query);
+}
+
+/**
  * Gets a JSRecord with the specified PK from the specified datasource.
  * 
  * @public
