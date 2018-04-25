@@ -213,8 +213,8 @@ function dataSourceHasValue(datasource, dataproviderName, value, extraQueryColum
 
 /**
  * @param {String|JSFoundSet} datasource
- * @param {Array} [extraQueryColumns] list of datasource's column names (only non-related columns)
- * @param {Array} [extraQueryValues] list of values for the listed extraQueryColumns
+ * @param {Array<String>} [extraQueryColumns] list of datasource's column names (only non-related columns)
+ * @param {Array<*>} [extraQueryValues] list of values for the listed extraQueryColumns
  * 
  * @example <pre>
  *  // get all the customers with country UK and city London
@@ -233,13 +233,6 @@ function getFoundSetWithExactValues(datasource, extraQueryColumns, extraQueryVal
 	var dataSource = (datasource instanceof String) ? datasource : datasource.getDataSource();
 	var query = databaseManager.createSelect(dataSource);
 	query.result.addPk()
-//	if (value == null) {
-//		query.where.add(query.getColumn(dataproviderName).isNull);
-//	} else if (value instanceof UUID) {
-//		query.where.add(query.getColumn(dataproviderName).eq(value.toString()));
-//	} else {
-//		query.where.add(query.getColumn(dataproviderName).eq(value));
-//	}
 	if (extraQueryColumns || extraQueryValues) {
 		if (!Array.isArray(extraQueryColumns) || !Array.isArray(extraQueryValues)) {
 			throw scopes.svyExceptions.IllegalArgumentException('extraQueryColumns and extraQueryValues parameters are not both an Array');
