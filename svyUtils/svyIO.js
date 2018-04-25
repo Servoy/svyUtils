@@ -642,7 +642,7 @@ function humanizeFileSize(size, numberOfDigits) {
 	if (!size || size < 0) {
 		return '0 bytes';
 	}
-	if (!numberOfDigits || numberOfDigits < 0) {
+	if (numberOfDigits == null || numberOfDigits < 0) {
 		numberOfDigits = 1;
 	}
 	if (size >= (1024 * 1024 * 1024 * 1024 * 1024)) {
@@ -726,6 +726,21 @@ var init = function() {
  * - https://www.servoy.com/forum/viewtopic.php?t=6391
  */
 
+/**
+ * This method is useful for doing simple base64 encoding.<br/>
+ * For example when you want to use basic HTTP authorization you can use this method to encode the userName and password as a header.
+ *
+ * @public 
+ * @param {String} inputString
+ * @return {String} the given string encoded Base64.
+ * @example <pre>var getRequest = http.createGetRequest(url);
+ *getRequest.addHeader('Authorization', 'Basic ' + scopes.svyIO.encodeBase64(user + ':' + passwordOrToken));</pre>
+ *
+ * @properties={typeid:24,uuid:"0B0B4F09-09F4-4D11-9DD7-E64E40E3A968"}
+ */
+function encodeStringToBase64(inputString) {
+    return Packages.org.apache.commons.codec.binary.Base64.encodeBase64String(new Packages.java.lang.String(inputString).getBytes());
+}
 
 /**
  * Execute method on separate thread
@@ -758,5 +773,4 @@ function executeMethodAsync(method, priority) {
 	}
 	thread.setPriority(pr)
 	thread.start()
-
 }

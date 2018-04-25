@@ -105,31 +105,37 @@ var INDEXED_COLOR = {
  * Horizontal alignments used in ExcelCellStyle
  * 
  * @enum
+ * 
+ * @type {Packages.org.apache.poi.ss.usermodel.HorizontalAlignment}
  *
  * @properties={typeid:35,uuid:"DEA33F4D-6CCD-404C-BC04-7453C0298204",variableType:-4}
  */
 var ALIGNMENT = {
-	CENTER: Packages.org.apache.poi.ss.usermodel.CellStyle.ALIGN_CENTER,
-	CENTER_SELECTION: Packages.org.apache.poi.ss.usermodel.CellStyle.ALIGN_CENTER_SELECTION,
-	FILL: Packages.org.apache.poi.ss.usermodel.CellStyle.ALIGN_FILL,
-	GENERAL: Packages.org.apache.poi.ss.usermodel.CellStyle.ALIGN_GENERAL,
-	JUSTIFY: Packages.org.apache.poi.ss.usermodel.CellStyle.ALIGN_JUSTIFY,
-	LEFT: Packages.org.apache.poi.ss.usermodel.CellStyle.ALIGN_LEFT,
-	RIGHT: Packages.org.apache.poi.ss.usermodel.CellStyle.ALIGN_RIGHT
+	CENTER: Packages.org.apache.poi.ss.usermodel.HorizontalAlignment.CENTER,
+	CENTER_SELECTION: Packages.org.apache.poi.ss.usermodel.HorizontalAlignment.CENTER_SELECTION,
+	FILL: Packages.org.apache.poi.ss.usermodel.HorizontalAlignment.FILL,
+	GENERAL: Packages.org.apache.poi.ss.usermodel.HorizontalAlignment.GENERAL,
+	JUSTIFY: Packages.org.apache.poi.ss.usermodel.HorizontalAlignment.JUSTIFY,
+	LEFT: Packages.org.apache.poi.ss.usermodel.HorizontalAlignment.LEFT,
+	RIGHT: Packages.org.apache.poi.ss.usermodel.HorizontalAlignment.RIGHT,
+	DISTRIBUTED: Packages.org.apache.poi.ss.usermodel.HorizontalAlignment.DISTRIBUTED
 }
 
 /**
  * Vertical alignments used in ExcelCellStyle
  * 
  * @enum
+ * 
+ * @type {Packages.org.apache.poi.ss.usermodel.VerticalAlignment}
  *
  * @properties={typeid:35,uuid:"ECC742E2-74A1-4BCC-A0AA-FC8018B4F70E",variableType:-4}
  */
 var VERTICAL_ALIGNMENT = {
-	BOTTOM: Packages.org.apache.poi.ss.usermodel.CellStyle.VERTICAL_BOTTOM,
-	CENTER: Packages.org.apache.poi.ss.usermodel.CellStyle.VERTICAL_CENTER,
-	JUSTIFY: Packages.org.apache.poi.ss.usermodel.CellStyle.VERTICAL_JUSTIFY,
-	TOP: Packages.org.apache.poi.ss.usermodel.CellStyle.VERTICAL_TOP
+	BOTTOM: Packages.org.apache.poi.ss.usermodel.VerticalAlignment.BOTTOM,
+	CENTER: Packages.org.apache.poi.ss.usermodel.VerticalAlignment.CENTER,
+	JUSTIFY: Packages.org.apache.poi.ss.usermodel.VerticalAlignment.JUSTIFY,
+	TOP: Packages.org.apache.poi.ss.usermodel.VerticalAlignment.TOP,
+	DISTRIBUTED: Packages.org.apache.poi.ss.usermodel.VerticalAlignment.DISTRIBUTED
 }
 
 /**
@@ -151,24 +157,26 @@ var FONT_UNDERLINE = {
  * Borders used in ExcelCellStyle
  * 
  * @enum
+ * 
+ * @type {Packages.org.apache.poi.ss.usermodel.BorderStyle}
  *
  * @properties={typeid:35,uuid:"EBD9777E-A1E9-4E97-AD9B-2A539697CDED",variableType:-4}
  */
 var BORDER = {
-	DASH_DOT: Packages.org.apache.poi.ss.usermodel.CellStyle.BORDER_DASH_DOT,
-	DASH_DOT_DOT: Packages.org.apache.poi.ss.usermodel.CellStyle.BORDER_DASH_DOT_DOT,
-	DASHED: Packages.org.apache.poi.ss.usermodel.CellStyle.BORDER_DASHED,
-	DOTTED: Packages.org.apache.poi.ss.usermodel.CellStyle.BORDER_DOTTED,
-	DOUBLE: Packages.org.apache.poi.ss.usermodel.CellStyle.BORDER_DOUBLE,
-	HAIR: Packages.org.apache.poi.ss.usermodel.CellStyle.BORDER_HAIR,
-	MEDIUM: Packages.org.apache.poi.ss.usermodel.CellStyle.BORDER_MEDIUM,
-	MEDIUM_DASH_DOT: Packages.org.apache.poi.ss.usermodel.CellStyle.BORDER_MEDIUM_DASH_DOT,
-	MEDIUM_DASH_DOT_DOT: Packages.org.apache.poi.ss.usermodel.CellStyle.BORDER_MEDIUM_DASH_DOT_DOT,
-	MEDIUM_DASHED: Packages.org.apache.poi.ss.usermodel.CellStyle.BORDER_MEDIUM_DASHED,
-	NONE: Packages.org.apache.poi.ss.usermodel.CellStyle.BORDER_NONE,
-	SLANTED_DASH_DOT: Packages.org.apache.poi.ss.usermodel.CellStyle.BORDER_SLANTED_DASH_DOT,
-	THICK: Packages.org.apache.poi.ss.usermodel.CellStyle.BORDER_THICK,
-	THIN: Packages.org.apache.poi.ss.usermodel.CellStyle.BORDER_THIN
+	DASH_DOT: Packages.org.apache.poi.ss.usermodel.BorderStyle.DASH_DOT,
+	DASH_DOT_DOT: Packages.org.apache.poi.ss.usermodel.BorderStyle.DASH_DOT_DOT,
+	DASHED: Packages.org.apache.poi.ss.usermodel.BorderStyle.DASHED,
+	DOTTED: Packages.org.apache.poi.ss.usermodel.BorderStyle.DOTTED,
+	DOUBLE: Packages.org.apache.poi.ss.usermodel.BorderStyle.DOUBLE,
+	HAIR: Packages.org.apache.poi.ss.usermodel.BorderStyle.HAIR,
+	MEDIUM: Packages.org.apache.poi.ss.usermodel.BorderStyle.MEDIUM,
+	MEDIUM_DASH_DOT: Packages.org.apache.poi.ss.usermodel.BorderStyle.MEDIUM_DASH_DOT,
+	MEDIUM_DASH_DOT_DOT: Packages.org.apache.poi.ss.usermodel.BorderStyle.MEDIUM_DASH_DOT_DOT,
+	MEDIUM_DASHED: Packages.org.apache.poi.ss.usermodel.BorderStyle.MEDIUM_DASHED,
+	NONE: Packages.org.apache.poi.ss.usermodel.BorderStyle.NONE,
+	SLANTED_DASH_DOT: Packages.org.apache.poi.ss.usermodel.BorderStyle.SLANTED_DASH_DOT,
+	THICK: Packages.org.apache.poi.ss.usermodel.BorderStyle.THICK,
+	THIN: Packages.org.apache.poi.ss.usermodel.BorderStyle.THIN
 }
 
 /**
@@ -176,26 +184,28 @@ var BORDER = {
  * 
  * @enum
  * 
+ * @type {Packages.org.apache.poi.ss.usermodel.FillPatternType}
+ * 
  * @properties={typeid:35,uuid:"3ADD93AE-0FEE-4454-8FBB-0528D00B579C",variableType:-4}
  */
 var FILL_PATTERN = {
-	NO_FILL: Packages.org.apache.poi.ss.usermodel.CellStyle.NO_FILL,
-	SOLID_FOREGROUND: Packages.org.apache.poi.ss.usermodel.CellStyle.SOLID_FOREGROUND,
-	FINE_DOTS: Packages.org.apache.poi.ss.usermodel.CellStyle.FINE_DOTS,
-	ALT_BARS: Packages.org.apache.poi.ss.usermodel.CellStyle.ALT_BARS,
-	SPARSE_DOTS: Packages.org.apache.poi.ss.usermodel.CellStyle.SPARSE_DOTS,
-	THICK_HORZ_BANDS: Packages.org.apache.poi.ss.usermodel.CellStyle.THICK_HORZ_BANDS,
-	THICK_VERT_BANDS: Packages.org.apache.poi.ss.usermodel.CellStyle.THICK_VERT_BANDS,
-	THICK_BACKWARD_DIAG: Packages.org.apache.poi.ss.usermodel.CellStyle.THICK_BACKWARD_DIAG,
-	THICK_FORWARD_DIAG: Packages.org.apache.poi.ss.usermodel.CellStyle.THICK_FORWARD_DIAG,
-	BIG_SPOTS: Packages.org.apache.poi.ss.usermodel.CellStyle.BIG_SPOTS,
-	BRICKS: Packages.org.apache.poi.ss.usermodel.CellStyle.BRICKS,
-	THIN_HORZ_BANDS: Packages.org.apache.poi.ss.usermodel.CellStyle.THICK_HORZ_BANDS,
-	THIN_VERT_BANDS: Packages.org.apache.poi.ss.usermodel.CellStyle.THICK_VERT_BANDS,
-	THIN_BACKWARD_DIAG: Packages.org.apache.poi.ss.usermodel.CellStyle.THICK_FORWARD_DIAG,
-	THIN_FORWARD_DIAG: Packages.org.apache.poi.ss.usermodel.CellStyle.THICK_FORWARD_DIAG,
-	SQUARES: Packages.org.apache.poi.ss.usermodel.CellStyle.SQUARES,
-	DIAMONDS: Packages.org.apache.poi.ss.usermodel.CellStyle.DIAMONDS
+	NO_FILL: Packages.org.apache.poi.ss.usermodel.FillPatternType.NO_FILL,
+	SOLID_FOREGROUND: Packages.org.apache.poi.ss.usermodel.FillPatternType.SOLID_FOREGROUND,
+	FINE_DOTS: Packages.org.apache.poi.ss.usermodel.FillPatternType.FINE_DOTS,
+	ALT_BARS: Packages.org.apache.poi.ss.usermodel.FillPatternType.ALT_BARS,
+	SPARSE_DOTS: Packages.org.apache.poi.ss.usermodel.FillPatternType.SPARSE_DOTS,
+	THICK_HORZ_BANDS: Packages.org.apache.poi.ss.usermodel.FillPatternType.THICK_HORZ_BANDS,
+	THICK_VERT_BANDS: Packages.org.apache.poi.ss.usermodel.FillPatternType.THICK_VERT_BANDS,
+	THICK_BACKWARD_DIAG: Packages.org.apache.poi.ss.usermodel.FillPatternType.THICK_BACKWARD_DIAG,
+	THICK_FORWARD_DIAG: Packages.org.apache.poi.ss.usermodel.FillPatternType.THICK_FORWARD_DIAG,
+	BIG_SPOTS: Packages.org.apache.poi.ss.usermodel.FillPatternType.BIG_SPOTS,
+	BRICKS: Packages.org.apache.poi.ss.usermodel.FillPatternType.BRICKS,
+	THIN_HORZ_BANDS: Packages.org.apache.poi.ss.usermodel.FillPatternType.THICK_HORZ_BANDS,
+	THIN_VERT_BANDS: Packages.org.apache.poi.ss.usermodel.FillPatternType.THICK_VERT_BANDS,
+	THIN_BACKWARD_DIAG: Packages.org.apache.poi.ss.usermodel.FillPatternType.THICK_FORWARD_DIAG,
+	THIN_FORWARD_DIAG: Packages.org.apache.poi.ss.usermodel.FillPatternType.THICK_FORWARD_DIAG,
+	SQUARES: Packages.org.apache.poi.ss.usermodel.FillPatternType.SQUARES,
+	DIAMONDS: Packages.org.apache.poi.ss.usermodel.FillPatternType.DIAMONDS
 }
 
 /**
@@ -361,7 +371,7 @@ function createWorkbook(templateOrFileType) {
  * 
  * @public 
  * 
- * @param {String|plugins.file.JSFile} original - path to the file, file or media URL
+ * @param {String|plugins.file.JSFile|Array<byte>} original - path to the file, file or media URL
  * 
  * @return {ExcelWorkbook}
  *
@@ -721,7 +731,7 @@ var initExcelWorkbook = (function() {
 		var result = this.wb.createFont();
 		/** @type {Packages.org.apache.poi.ss.usermodel.Font} */
 		var original = font.getFont();
-		result.setBoldweight(original.getBoldweight());
+		result.setBold(original.getBold());
 		result.setCharSet(original.getCharSet());
 		result.setColor(original.getColor());
 		result.setFontHeight(original.getFontHeight());
@@ -1063,7 +1073,7 @@ function FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileT
 		numberCellStyle.cloneStyleFrom(this.rowStyle);
 		numberCellStyle.setAlignment(ALIGNMENT.RIGHT);
 		numberCellStyle.setDataFormat(this.defaultNumberFormat);
-
+		
 		var dateCellStyle = this.workbook.createCellStyle();
 		dateCellStyle.cloneStyleFrom(this.rowStyle);
 		dateCellStyle.setDataFormat(this.defaultDateFormat);
@@ -1533,11 +1543,11 @@ var initExcelSheet = (function() {
 		/** @type {Packages.org.apache.poi.ss.usermodel.Row} */
 		var row;
 		var cell, rowData;
-		
+
 		if (this.sheet.getPhysicalNumberOfRows() == 0) {
 			return databaseManager.createEmptyDataSet(0, 0);
 		}
-		
+
 		if (!startRow) {
 			startRow = this.sheet.getFirstRowNum();
 		} else {
@@ -1581,7 +1591,7 @@ var initExcelSheet = (function() {
 				endColumn = row.getLastCellNum() - 1;
 			}
 		}
-		
+
 		var dataset;
 		if (firstRowHasColumnNames) {
 			var columnNames = [];
@@ -1598,7 +1608,7 @@ var initExcelSheet = (function() {
 				}
 			}
 			dataset = databaseManager.createEmptyDataSet(0, columnNames);
-			startRow ++;
+			startRow++;
 		} else {
 			dataset = databaseManager.createEmptyDataSet(0, endColumn - startColumn + 1);
 		}
@@ -1660,14 +1670,15 @@ var initExcelSheet = (function() {
 	
 	/**
 	 * Adds a merged region of cells (hence those cells form one)
-	 * @param {Number} startRow
-	 * @param {Number} startColumn
-	 * @param {Number} endRow
-	 * @param {Number} endColumn
+	 * @param {Number} startRow one based
+	 * @param {Number} startColumn one based
+	 * @param {Number} endRow one based
+	 * @param {Number} endColumn one based
 	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.addMergedRegion = function(startRow, startColumn, endRow, endColumn) {
-		this.sheet.addMergedRegion(new Packages.org.apache.poi.ss.util.CellRangeAddress(startRow - 1, 
+		this.sheet.addMergedRegion(new Packages.org.apache.poi.ss.util.CellRangeAddress(
+			startRow - 1, 
 			endRow - 1,
 			startColumn - 1,
 			endColumn - 1
@@ -1719,6 +1730,32 @@ var initExcelSheet = (function() {
 		if (printSetup.paperSize != null) setup.setPaperSize(printSetup.paperSize);
 		return this;
 	}
+	
+	/**
+	 * Returns an array of merged regions of this sheet
+	 * @return {Array<scopes.svyExcelUtils.mergedRegionType>}
+	 * @this {ExcelSheet}
+	 */
+	ExcelSheet.prototype.getMergedRegions = function() {
+		var mergedRegions = this.sheet.getMergedRegions();
+		var result = [];
+		if (mergedRegions != null) {
+			var iterator = mergedRegions.iterator();
+			while (iterator.hasNext()) {
+				/** @type {Packages.org.apache.poi.ss.util.CellRangeAddress} */
+				var mergedRegion = iterator.next();
+				result.push({
+					firstColumn: mergedRegion.getFirstColumn() + 1, 
+					firstRow: mergedRegion.getFirstRow() + 1, 
+					lastColumn: mergedRegion.getLastColumn() + 1, 
+					lastRow: mergedRegion.getLastRow() + 1,
+					numberOfCells: mergedRegion.getNumberOfCells()
+				});
+			}
+		}
+		return result;
+	}
+	
 }());
 
 /**
@@ -1811,34 +1848,67 @@ var initExcelCellStyle = (function() {
 	
 	/**
 	 * Sets the fill pattern
-	 * @param {Number} pattern - any of the FILL_PATTERN enum values
+	 * @param {Packages.org.apache.poi.ss.usermodel.FillPatternType} pattern - any of the FILL_PATTERN enum values
 	 * @return {ExcelCellStyle}
 	 * @this {ExcelCellStyle}
 	 */
 	ExcelCellStyle.prototype.setFillPattern = function(pattern) {
-		this.cellStyle.setFillPattern(pattern);
+		if (pattern instanceof Packages.org.apache.poi.ss.usermodel.FillPatternType) {
+			this.cellStyle.setFillPattern(pattern);			
+		} else {
+			try {
+				/** @type {Number} */
+				var patternNum = pattern;
+				pattern = Packages.org.apache.poi.ss.usermodel.FillPatternType.forInt(patternNum);
+				this.cellStyle.setFillPattern(pattern);	
+			} catch(e) {
+				logger.warn('Invalid fill pattern type provided');
+			}
+		}
 		return this;
 	}	
 	
 	/**
 	 * Sets the alignment
-	 * @param {Number} alignment - any of the ALIGNMENT enum values
+	 * @param {Packages.org.apache.poi.ss.usermodel.HorizontalAlignment} alignment - any of the ALIGNMENT enum values
 	 * @return {ExcelCellStyle}
 	 * @this {ExcelCellStyle}
 	 */
 	ExcelCellStyle.prototype.setAlignment = function(alignment) {
-		this.cellStyle.setAlignment(alignment);
+		if (alignment instanceof Packages.org.apache.poi.ss.usermodel.HorizontalAlignment) {
+			this.cellStyle.setAlignment(alignment);			
+		} else {
+			try {
+				/** @type {Number} */
+				var alignNum = alignment;
+				alignment = Packages.org.apache.poi.ss.usermodel.HorizontalAlignment.forInt(alignNum);
+				this.cellStyle.setAlignment(alignment);	
+			} catch(e) {
+				logger.warn('Invalid horizontal alignment type provided');
+			}
+		}
 		return this;
 	}	
 	
 	/**
 	 * Sets the vertical alignment
-	 * @param {Number} alignment - any of the VERTICAL_ALIGNMENT enum values
+	 * @param {Packages.org.apache.poi.ss.usermodel.VerticalAlignment} alignment - any of the VERTICAL_ALIGNMENT enum values
 	 * @return {ExcelCellStyle}
 	 * @this {ExcelCellStyle}
 	 */
 	ExcelCellStyle.prototype.setVerticalAlignment = function(alignment) {
-		this.cellStyle.setVerticalAlignment(alignment);
+		if (alignment instanceof Packages.org.apache.poi.ss.usermodel.VerticalAlignment) {
+			this.cellStyle.setVerticalAlignment(alignment);			
+		} else {
+			try {
+				/** @type {Number} */
+				var alignNum = alignment;
+				alignment = Packages.org.apache.poi.ss.usermodel.VerticalAlignment.forInt(alignNum);
+				this.cellStyle.setVerticalAlignment(alignment);	
+			} catch(e) {
+				logger.warn('Invalid vertical alignment type provided');
+			}
+		}
 		return this;
 	}	
 	
@@ -1857,10 +1927,10 @@ var initExcelCellStyle = (function() {
 	
 	/**
 	 * Sets the borders of this cell
-	 * @param {Number} borderTop - any of the BORDER enum values
-	 * @param {Number} borderRight - any of the BORDER enum values
-	 * @param {Number} borderBottom - any of the BORDER enum values
-	 * @param {Number} borderLeft - any of the BORDER enum values
+	 * @param {Packages.org.apache.poi.ss.usermodel.BorderStyle} borderTop - any of the BORDER enum values
+	 * @param {Packages.org.apache.poi.ss.usermodel.BorderStyle} borderRight - any of the BORDER enum values
+	 * @param {Packages.org.apache.poi.ss.usermodel.BorderStyle} borderBottom - any of the BORDER enum values
+	 * @param {Packages.org.apache.poi.ss.usermodel.BorderStyle} borderLeft - any of the BORDER enum values
 	 * @return {ExcelCellStyle}
 	 * @this {ExcelCellStyle}
 	 */
@@ -1891,45 +1961,89 @@ var initExcelCellStyle = (function() {
 	
 	/**
 	 * Sets the type of border to use for the bottom border of the cell
-	 * @param {Number} border - any of the BORDER enum values
+	 * @param {Packages.org.apache.poi.ss.usermodel.BorderStyle} border - any of the BORDER enum values
 	 * @return {ExcelCellStyle}
 	 * @this {ExcelCellStyle}
 	 */
 	ExcelCellStyle.prototype.setBorderBottom = function(border) {
-		this.cellStyle.setBorderBottom(border);
+		/** @type {Packages.org.apache.poi.ss.usermodel.BorderStyle} */
+		var borderBottom = border;
+		if (border instanceof Packages.org.apache.poi.ss.usermodel.BorderStyle) {
+			this.cellStyle.setBorderBottom(borderBottom);			
+		} else {
+			try {
+				borderBottom = borderForInt(border);
+				this.cellStyle.setBorderBottom(borderBottom);	
+			} catch(e) {
+				logger.warn(e.message);
+			}
+		}
 		return this;
 	}	
 	
 	/**
 	 * Sets the type of border to use for the top border of the cell
-	 * @param {Number} border - any of the BORDER enum values
+	 * @param {Packages.org.apache.poi.ss.usermodel.BorderStyle} border - any of the BORDER enum values
 	 * @return {ExcelCellStyle}
 	 * @this {ExcelCellStyle}
 	 */
 	ExcelCellStyle.prototype.setBorderTop = function(border) {
-		this.cellStyle.setBorderTop(border);
+		/** @type {Packages.org.apache.poi.ss.usermodel.BorderStyle} */
+		var borderTop = border;
+		if (border instanceof Packages.org.apache.poi.ss.usermodel.BorderStyle) {
+			this.cellStyle.setBorderTop(borderTop);			
+		} else {
+			try {
+				borderTop = borderForInt(border);
+				this.cellStyle.setBorderTop(borderTop);	
+			} catch(e) {
+				logger.warn(e.message);
+			}
+		}
 		return this;
 	}
 	
 	/**
 	 * Sets the type of border to use for the right border of the cell
-	 * @param {Number} border - any of the BORDER enum values
+	 * @param {Packages.org.apache.poi.ss.usermodel.BorderStyle} border - any of the BORDER enum values
 	 * @return {ExcelCellStyle}
 	 * @this {ExcelCellStyle}
 	 */
 	ExcelCellStyle.prototype.setBorderRight = function(border) {
-		this.cellStyle.setBorderRight(border);
+		/** @type {Packages.org.apache.poi.ss.usermodel.BorderStyle} */
+		var borderRight = border;
+		if (border instanceof Packages.org.apache.poi.ss.usermodel.BorderStyle) {
+			this.cellStyle.setBorderRight(borderRight);			
+		} else {
+			try {
+				borderRight = borderForInt(border);
+				this.cellStyle.setBorderRight(borderRight);	
+			} catch(e) {
+				logger.warn(e.message);
+			}
+		}
 		return this;		
 	}
 	
 	/**
 	 * Sets the type of border to use for the left border of the cell
-	 * @param {Number} border - any of the BORDER enum values
+	 * @param {Packages.org.apache.poi.ss.usermodel.BorderStyle} border - any of the BORDER enum values
 	 * @return {ExcelCellStyle}
 	 * @this {ExcelCellStyle}
 	 */
 	ExcelCellStyle.prototype.setBorderLeft = function(border) {
-		this.cellStyle.setBorderLeft(border);
+		/** @type {Packages.org.apache.poi.ss.usermodel.BorderStyle} */
+		var borderLeft = border;
+		if (border instanceof Packages.org.apache.poi.ss.usermodel.BorderStyle) {
+			this.cellStyle.setBorderLeft(borderLeft);			
+		} else {
+			try {
+				borderLeft = borderForInt(border);
+				this.cellStyle.setBorderLeft(borderLeft);	
+			} catch(e) {
+				logger.warn(e.message);
+			}
+		}
 		return this;
 	}
 	
@@ -2047,7 +2161,7 @@ var initExcelCellStyle = (function() {
 		var original = this.getFont().getFont();
 		/** @type {Packages.org.apache.poi.ss.usermodel.Font} */
 		var result = this.workbook.createFont();
-		result.setBoldweight(original.getBoldweight());
+		result.setBold(original.getBold());
 		result.setCharSet(original.getCharSet());
 		result.setColor(original.getColor());
 		result.setFontHeight(original.getFontHeight());
@@ -2116,17 +2230,13 @@ function ExcelFont(font) {
 	 * Whether the font is bold or not
 	 * @type {Boolean}
 	 */
-	this.isBold = (font.getBoldweight() == Packages.org.apache.poi.ss.usermodel.Font.BOLDWEIGHT_BOLD);
+	this.isBold = font.getBold();
 	Object.defineProperty(this, "isBold", {
 			get: function() {
-				return (font.getBoldweight() == Packages.org.apache.poi.ss.usermodel.Font.BOLDWEIGHT_BOLD);
+				return font.getBold();
 			},
 			set: function(x) {
-				if (x === true) {
-					font.setBoldweight(Packages.org.apache.poi.ss.usermodel.Font.BOLDWEIGHT_BOLD);
-				} else {
-					font.setBoldweight(Packages.org.apache.poi.ss.usermodel.Font.BOLDWEIGHT_NORMAL);
-				}
+				font.setBold(x);
 			}
 		});
 
@@ -2731,10 +2841,25 @@ function createExcelFontFromString(workbook, fontString) {
 		font.setItalic(true);
 	}
 	if (fontStringParts && fontStringParts.length > 1 && fontStringParts[1] == "1" || fontStringParts[1] == "3") {
-		font.setBoldweight(Packages.org.apache.poi.ss.usermodel.Font.BOLDWEIGHT_BOLD);
+		font.setBold(true);
 	}
 
 	return new ExcelFont(font);
+}
+
+/**
+ * @private 
+ * @properties={typeid:24,uuid:"16D87C20-A40E-489A-A59D-CD6565201699"}
+ */
+function borderForInt(borderNumber) {
+	for ( var x in BORDER ) {
+		/** @type {Packages.org.apache.poi.ss.usermodel.BorderStyle} */
+		var border = BORDER[x];
+		if (border.getCode() == borderNumber) {
+			return BORDER[x];
+		}
+	}
+	throw new Error('Invalid border type provided');
 }
 
 /**

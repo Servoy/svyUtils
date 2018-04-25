@@ -210,7 +210,7 @@ var init = function() {
 			} else if (typeof this.ex.getStackTrace === 'function') {
 				return this.ex.getStackTrace()
 			} else {
-				return null;
+				return undefined;
 			}
 		}
 	})
