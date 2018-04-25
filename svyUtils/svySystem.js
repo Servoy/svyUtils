@@ -732,10 +732,10 @@ function convertServoyMethodToQualifiedName(method) {
 	if (method instanceof Function) {
 		try {
 			var fd = new Packages.com.servoy.j2db.scripting.FunctionDefinition(method);
-			if (fd.getFormName()) {
-				return 'forms.' + fd.getFormName() + '.' + fd.getMethodName();
-			} else if (fd.getScopeName()) {
-				return 'scopes.' + fd.getScopeName() + '.' + fd.getMethodName();
+			if (fd.getScopeName()) {
+				return fd.getContextName() + '.' + fd.getMethodName();
+			} else if (fd.getContextName()) {
+				return 'forms.' + fd.getContextName() + '.' + fd.getMethodName();
 			} else { //TODO: got all variations covered with the above logic?
 				return null;
 			}
