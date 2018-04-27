@@ -12,6 +12,13 @@ typeid:15,
 uuid:"52E50779-624A-460A-AFAE-E8DCC4BF5014"
 },
 {
+containsFormID:"A5A904F2-65A4-43B5-A176-9AE0DEBFCABA",
+location:"320,30",
+text:"demoDataBroadcastEvents",
+typeid:15,
+uuid:"7379054C-D8CA-4C73-9908-B70B7B58AFD4"
+},
+{
 containsFormID:"FD92EE9E-BC2F-4EEB-8CCD-FC0890BB791E",
 location:"240,30",
 text:"excelSheet",
