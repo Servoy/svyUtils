@@ -17,11 +17,16 @@ uuid:"66654CCC-753A-476C-AEF0-BD2BD57E1B3E"
 },
 {
 extendsID:"7B1D727F-5405-4F7D-A24E-291175E6FEA3",
-location:"250,40",
-size:"370,80",
+formIndex:0,
 text:"Custom Dialogs Example",
 typeid:7,
 uuid:"E0FAD7EC-C7DF-4E18-A9A8-9362ED845864"
+},
+{
+extendsID:"E9B6A1AC-D387-45ED-B1A3-6A919D5F927E",
+formIndex:1,
+typeid:7,
+uuid:"F48DF249-9259-44B5-8D6A-61D9BDBECED5"
 }
 ],
 name:"dialogsMain",
