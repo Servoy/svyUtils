@@ -1,4 +1,10 @@
 /**
+ * @private 
+ * @properties={typeid:35,uuid:"D637E7BC-550A-4347-BB23-42BD6B3BC29C",variableType:-4}
+ */
+var log = scopes.svyLogManager.getLogger('com.servoy.bap.ngutils');
+
+/**
  * @param {String} styleClass
  * @param {String} className
  *
@@ -54,7 +60,7 @@ function removeStyleClass(styleClass, className) {
  *
  * @return {Boolean}
  *
- * @private
+ * @public
  *
  * @properties={typeid:24,uuid:"4F796975-C5E6-4C89-B33B-DB0AD22CF99C"}
  */
@@ -76,4 +82,23 @@ function getRegEx(className) {
 
 	// string start or whitespace before className. ends with whitespace or end of string. (?=\\s).) is used as a positive lookbehind (white space before btn)
 	return new RegExp('(^|(?=\\s).)\\b' + className + '\\b((?=\\s)|$)', 'g');
+}
+
+
+
+/**
+ * @param {String} mediaFileName
+ * 
+ * @return {String}
+ * @public 
+ *
+ * @properties={typeid:24,uuid:"B3E8F172-2A48-4D22-9829-FECA3799B179"}
+ */
+function getMediaURL(mediaFileName) {
+	if (!solutionModel.getMedia(mediaFileName)) {
+		log.error("Cannot find the media file " + mediaFileName);
+		return null;
+	}
+	
+	return "resources/fs/" + application.getSolutionName() + "/" + mediaFileName;
 }
