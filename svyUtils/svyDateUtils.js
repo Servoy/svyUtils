@@ -662,6 +662,40 @@ function getDayDifference(start, end) {
 }
 
 /**
+ * Returns the number of full months between the two dates
+ * 
+ * @public
+ * 
+ * @param {Date} start
+ * @param {Date} end
+ * 
+ * @return {Number} fullMonthsBetween
+ *
+ * @properties={typeid:24,uuid:"D1A08B91-8418-41F3-9ACB-1DB2D9648A1C"}
+ */
+function getMonthDifference(start, end) {
+	var age = getAge(start, end);
+	return age.years*12 + age.months;
+}
+
+/**
+ * Returns the number of full years between the two dates
+ * 
+ * @public
+ * 
+ * @param {Date} start
+ * @param {Date} end
+ * 
+ * @return {Number} fullYearsBetween
+ *
+ * @properties={typeid:24,uuid:"4531D2BC-CCB4-42AB-A7EA-32CCF2ADF478"}
+ */
+function getYearDifference(start, end) {
+	var age = getAge(start, end);
+	return age.years;
+}
+
+/**
  * Gets what the minimal days required in the first week of the year are; e.g., if the first week is defined<br>
  * as one that contains the first day of the first month of a year, this method returns 1. If the minimal days<br>
  * required must be a full week, this method returns 7.
