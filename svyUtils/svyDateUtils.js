@@ -1390,7 +1390,7 @@ function DateTime(date) {
 	 * @properties={typeid:24,uuid:"7C02ADA9-3E54-4D48-9A36-81D228CDD802"}
 	 */
 	this.toFirstDayOfYear = function() {
-		this.date = getFirstDayOfWeek(this.date);
+		this.date = getFirstDayOfYear(this.date);
 		return this;
 	}	
 	
@@ -1426,7 +1426,7 @@ function DateTime(date) {
 	 * @properties={typeid:24,uuid:"7C02ADA9-3E54-4D48-9A36-81D228CDD802"}
 	 */
 	this.toLastDayOfYear = function() {
-		this.date = getLastDayOfWeek(this.date);
+		this.date = getLastDayOfYear(this.date);
 		return this;
 	}
 	
