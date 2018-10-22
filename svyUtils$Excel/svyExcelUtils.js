@@ -779,6 +779,14 @@ var initExcelWorkbook = (function() {
 	ExcelWorkbook.prototype.removeSheetAt = function(index) {
 		this.wb.removeSheetAt(index-1);
 	}
+	
+	/**
+	 * Closes this workbook
+	 * @this {ExcelWorkbook}
+	 */
+	ExcelWorkbook.prototype.close = function() {
+		this.wb.close();
+	}	
 }());
 
 /**
