@@ -1776,3 +1776,45 @@ function getWorkingDays(startDate, endDate, nonWorkingDays, exceptions) {
 	return result;
 }
 
+/**
+ * Creates a date from a Oadate (Microsoft OLE Automation)
+ * 
+ * @public 
+ * @param {Number} oaDate
+ * @return {Date}
+ * 
+ * @properties={typeid:24,uuid:"53AA0D1F-2D44-45BA-8DBA-FC09A3502992"}
+ */
+function createDateFromOADate(oaDate) {
+	var epoch = new Date(1899,11,30);
+	var msPerDay = 8.64e7;
+	var dec = oaDate - Math.floor(oaDate);
+	
+	if (oaDate < 0 && dec) {
+		oaDate = Math.floor(oaDate) - dec;
+	}
+	
+	return new Date(oaDate*msPerDay + +epoch);
+}
+
+/**
+ * Creates a oaDate (Microsoft OLE Automation) from a date
+ * 
+ * @public 
+ * @param {Date} date
+ * @return {Number}
+ *
+ * @properties={typeid:24,uuid:"ABE2DBF0-2C5F-48C3-B94E-C952CAC3E7B5"}
+ */
+function createOADateFromDate(date) {
+	var epoch = new Date(1899,11,30);
+	var msPerDay = 8.64e7;
+	var oaDate = -1 * (epoch - date)/msPerDay;
+	var dec = oaDate - Math.floor(oaDate);
+	
+	if (oaDate < 0 && dec) {
+		oaDate = Math.floor(oaDate) - dec;
+	}
+	
+	return oaDate;
+}
