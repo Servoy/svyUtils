@@ -246,8 +246,8 @@ function dataSourceHasValue(datasource, dataproviderName, value, extraQueryColum
 
 /**
  * @param {String|JSFoundSet} datasource
- * @param {Array} [extraQueryColumns] list of datasource's column names (only non-related columns)
- * @param {Array} [extraQueryValues] list of values for the listed extraQueryColumns
+ * @param {Array<String>} [extraQueryColumns] list of datasource's column names (only non-related columns)
+ * @param {Array<*>} [extraQueryValues] list of values for the listed extraQueryColumns
  * 
  * @example <pre>
  *  // get all the customers with country UK and city London
