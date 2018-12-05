@@ -1620,9 +1620,9 @@ function Duration(isNegative, weeks, days, hours, minutes, seconds) {
 	    this.weeks = 0;
 
 	    // Special case for week-only representation
-	    if (seconds === 0 && minutes === 0 && hours === 0
-	            && (days % 7) === 0) {
-	        this.weeks = days / 7;
+	    if (this.seconds === 0 && this.minutes === 0 && this.hours === 0
+	            && (this.days % 7) === 0) {
+	        this.weeks = this.days / 7;
 	        this.days = 0;
 	    }
 	}
@@ -1635,18 +1635,18 @@ function Duration(isNegative, weeks, days, hours, minutes, seconds) {
 	this.getEndOfDuration = function(startDate) {
 		calendar.setTimeInMillis(startDate.getTime());
         if (this.negative) {
-        	calendar.add(java.util.Calendar.WEEK_OF_YEAR, -weeks);
-        	calendar.add(java.util.Calendar.DAY_OF_WEEK, -days);
-        	calendar.add(java.util.Calendar.HOUR_OF_DAY, -hours);
-        	calendar.add(java.util.Calendar.MINUTE, -minutes);
-        	calendar.add(java.util.Calendar.SECOND, -seconds);
+        	calendar.add(java.util.Calendar.WEEK_OF_YEAR, -this.weeks);
+        	calendar.add(java.util.Calendar.DAY_OF_WEEK, -this.days);
+        	calendar.add(java.util.Calendar.HOUR_OF_DAY, -this.hours);
+        	calendar.add(java.util.Calendar.MINUTE, -this.minutes);
+        	calendar.add(java.util.Calendar.SECOND, -this.seconds);
         }
         else {
-        	calendar.add(java.util.Calendar.WEEK_OF_YEAR, weeks);
-        	calendar.add(java.util.Calendar.DAY_OF_WEEK, days);
-        	calendar.add(java.util.Calendar.HOUR_OF_DAY, hours);
-        	calendar.add(java.util.Calendar.MINUTE, minutes);
-        	calendar.add(java.util.Calendar.SECOND, seconds);
+        	calendar.add(java.util.Calendar.WEEK_OF_YEAR, this.weeks);
+        	calendar.add(java.util.Calendar.DAY_OF_WEEK, this.days);
+        	calendar.add(java.util.Calendar.HOUR_OF_DAY, this.hours);
+        	calendar.add(java.util.Calendar.MINUTE, this.minutes);
+        	calendar.add(java.util.Calendar.SECOND, this.seconds);
         }
         return new Date(calendar.getTimeInMillis());
 	}
@@ -1683,11 +1683,11 @@ function Duration(isNegative, weeks, days, hours, minutes, seconds) {
 					result += 'H';
 				}
 				if (this.minutes > 0) {
-					result += minutes;
+					result += this.minutes;
 					result += 'M';
 				}
 				if (this.seconds > 0) {
-					result += seconds;
+					result += this.seconds;
 					result += 'S';
 				}
 			}
