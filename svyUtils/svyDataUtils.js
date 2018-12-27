@@ -227,7 +227,7 @@ function dataSourceHasValue(datasource, dataproviderName, value, extraQueryColum
  */
 function getFoundSetWithExactValues(datasource, extraQueryColumns, extraQueryValues) {
 	if (!datasource) {
-		throw new scopes.svyExceptions.IllegalArgumentException('no parameters provided to scopes.svyDataUtils.datasourceHasValue(foundsetOrRecord, dataproviderName, value)');
+		throw new scopes.svyExceptions.IllegalArgumentException('no parameters provided to scopes.svyDataUtils.getFoundSetWithExactValues(foundsetOrRecord, dataproviderName, value)');
 	}
 	/** @type {String} */
 	var dataSource = (datasource instanceof String) ? datasource : datasource.getDataSource();
@@ -251,6 +251,70 @@ function getFoundSetWithExactValues(datasource, extraQueryColumns, extraQueryVal
 		}
 	}
 	return databaseManager.getFoundSet(query);
+}
+
+/**
+ * @param {JSFoundSet} foundset the foundset where records will be loaded
+ * @param {Array<String>} [extraQueryColumns] list of datasource's column names (only non-related columns)
+ * @param {Array<*>} [extraQueryValues] list of values for the listed extraQueryColumns
+ * 
+ * @return {Boolean}  true if successful
+ * 
+ * @example <pre>
+ *  // load all the customers with country UK and city London into the given foundset
+ *  var customers = scopes.svyDataUtils.loadRecordsWithExactValues(foundset, ["country","city"], ["UK","London"]);
+ * </pre>
+ * 
+ * @public 
+ *
+ * @properties={typeid:24,uuid:"E7D61244-B2E1-49FD-94A0-2AA009E777CF"}
+ */
+function loadRecordsWithExactValues(foundset, extraQueryColumns, extraQueryValues) {
+	if (!foundset) {
+		throw new scopes.svyExceptions.IllegalArgumentException('no parameters provided to scopes.svyDataUtils.loadRecordsWithExactValues(foundset, dataproviderName, value)');
+	}
+	/** @type {String} */
+	var dataSource = foundset.getDataSource();
+	var query = databaseManager.createSelect(dataSource);
+	query.result.addPk()
+	if (extraQueryColumns || extraQueryValues) {
+		if (!Array.isArray(extraQueryColumns) || !Array.isArray(extraQueryValues)) {
+			throw scopes.svyExceptions.IllegalArgumentException('extraQueryColumns and extraQueryValues parameters are not both an Array');
+		}
+		if (extraQueryColumns.length != extraQueryValues.length) {
+			throw scopes.svyExceptions.IllegalArgumentException('size of extraQueryColumns and extraQueryValues parameters do not match');
+		}
+		for (var j = 0; j < extraQueryColumns.length; j++) {
+			if (extraQueryValues[j] == null) {
+				query.where.add(query.getColumn(extraQueryColumns[j]).isNull);
+			} else if (extraQueryValues[j] instanceof UUID) {
+				query.where.add(query.getColumn(extraQueryColumns[j]).eq(extraQueryValues[j].toString()));
+			} else {
+				query.where.add(query.getColumn(extraQueryColumns[j]).eq(extraQueryValues[j]));
+			}
+		}
+	}
+	return foundset.loadRecords(query);
+}
+
+/**
+ * Load the JSRecord with the specified PK into the given foundset
+ * 
+ * @public
+ * 
+ * @param {JSFoundSet} foundset the foundset where the record will be loaded into
+ * @param {*|Array<*>} pks The PK column values for the record. Can be a single value or an Array with values (sorted by PK columnname) in case of a multi-column PK. 
+ *
+ * @return {Boolean}  true if successful
+ *  
+ * @properties={typeid:24,uuid:"E2AE166B-D969-4BDD-AF26-3EEB292E6EBF"}
+ */
+function loadRecords(foundset, pks) {
+	if (!pks || !foundset) {
+		return false;
+	}
+	
+	return foundset.loadRecords(databaseManager.convertToDataSet(pks instanceof Array ? pks : [pks]));
 }
 
 /**
