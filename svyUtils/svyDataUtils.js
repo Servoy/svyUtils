@@ -129,6 +129,25 @@ function getJSDataSetByQueryAsync(query, maxReturnedRows, onSuccess, onError) {
 	new java.lang.Thread(r).start();
 }
 
+
+/**
+ * @deprecated Use {@link #scopes#svyDataUtils#byteArrayToString} instead
+ * 
+ * Converts a byte[] to String
+ * 
+ * @public
+ * 
+ * @param {byte[]} bytes
+ * @param {String} [encoding] Optional param to specify the encoding/chartset to use. See {@link scopes#svyIO#CHAR_SETS} for possible values. Default: scopes.svyIO.CHAR_SETS.UTF_8
+ * 
+ * @return {String}
+ * 
+ * @properties={typeid:24,uuid:"62FDE25B-B38E-4799-8DFD-9A151FB3DC7E"}
+ */
+function ByteArrayToString(bytes, encoding) {
+	return new java.lang.String(bytes, encoding|scopes.svyIO.CHAR_SETS.UTF_8).toString()
+}
+
 /**
  * Converts a byte[] to String
  * 
@@ -143,6 +162,21 @@ function getJSDataSetByQueryAsync(query, maxReturnedRows, onSuccess, onError) {
  */
 function byteArrayToString(bytes, encoding) {
 	return new java.lang.String(bytes, encoding|scopes.svyIO.CHAR_SETS.UTF_8).toString()
+}
+
+/**
+ * @deprecated Use {@link #scopes#svyDataUtils#stringToByteArray} instead
+ * 
+ * Converts a String to byte[]
+ * 
+ * @public
+ * 
+ * @param {String} string
+ * 
+ * @properties={typeid:24,uuid:"C3081002-0792-4375-8C25-D2F52751844A"}
+ */
+function StringToByteArray(string) {
+	return new java.lang.String(string).getBytes()
 }
 
 /**

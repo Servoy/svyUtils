@@ -774,3 +774,15 @@ function executeMethodAsync(method, priority) {
 	thread.setPriority(pr)
 	thread.start()
 }
+
+/**
+ * Get the path seperator based on system ( / or \ )
+ * 
+ * @public
+ * @return {String}
+ * @properties={typeid:24,uuid:"96C9F8A4-23A9-4138-8EAB-E7BB0F24122D"}
+ */
+function getFileSeperator()
+{
+	return java.io.File.separator;
+}
