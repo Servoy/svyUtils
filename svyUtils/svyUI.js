@@ -481,6 +481,34 @@ function getParentFormName(form) {
 }
 
 /**
+ * Returns the closest parent form instance of the given form instance
+ * 
+ * @public
+ * 
+ * @param {RuntimeForm} form
+ * @param {RuntimeForm|JSForm|String} formInstance
+ * 
+ * @return {String}
+ * 
+ * @throws {scopes.svyExceptions.IllegalArgumentException}
+ * 
+ *
+ * @properties={typeid:24,uuid:"1A8601AE-D72E-4916-B55D-2550D5757DFD"}
+ */
+function getParentFormNameInstanceOf(form, formInstance) {
+	var ctx = form.controller.getFormContext();
+	
+	for (var i = ctx.getMaxRowIndex() - 1; i > 0; i--) {
+		var parentFormName = ctx.getValue(i, 2);
+		if (isJSFormInstanceOf(parentFormName, formInstance)) {
+			return parentFormName;
+		}
+	}
+	
+	return ctx.getMaxRowIndex() > 0 ? ctx.getValue(ctx.getMaxRowIndex() - 1, 2) : null;
+}
+
+/**
  * Clones a JSForm, including all forms contained in (nested) tabpanels (at designtime)
  * 
  * @public
