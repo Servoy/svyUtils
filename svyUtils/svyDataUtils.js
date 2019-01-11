@@ -872,6 +872,27 @@ function getChangedData(record) {
 }
 
 /**
+ * Returns oldValue and newValue changes for a record dataprovider
+ * @public
+ * @param {JSRecord} record
+ * @param {String} dataProvider
+ * 
+ * @return {{oldValue: *, newValue: *}}
+ *
+ * @properties={typeid:24,uuid:"09A6D6BB-9A70-40FA-8FF2-ADAB3DBE1F66"}
+ */
+function getChangedDataProvider(record, dataProvider) {
+	var changedData = record.getChangedData();
+	for (var i = 1; i <= changedData.getMaxRowIndex(); i++) {
+		var row = changedData.getRowAsArray(i);
+		if (row[0] === dataProvider) {
+			return {oldValue: row[1], newValue: row[2]};
+		}
+	}
+	return null;
+}
+
+/**
  * Returns the original value of the given dataprovider of a record that has changes not yet saved to the database
  * 
  * @public
