@@ -232,12 +232,12 @@ var SHEET_PANE = {
  * @properties={typeid:35,uuid:"9FF3C911-31DA-416B-86DE-13A8F69ADD96",variableType:-4}
  */
 var CELL_TYPE = {
-	BLANK: Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BLANK,
-	BOOLEAN: Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BOOLEAN,
-	ERROR: Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_ERROR,
-	FORMULA: Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_FORMULA,
-	NUMERIC: Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC,
-	STRING: Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_STRING
+	BLANK: Packages.org.apache.poi.ss.usermodel.CellType.BLANK,
+	BOOLEAN: Packages.org.apache.poi.ss.usermodel.CellType.BOOLEAN,
+	ERROR: Packages.org.apache.poi.ss.usermodel.CellType.ERROR,
+	FORMULA: Packages.org.apache.poi.ss.usermodel.CellType.FORMULA,
+	NUMERIC: Packages.org.apache.poi.ss.usermodel.CellType.NUMERIC,
+	STRING: Packages.org.apache.poi.ss.usermodel.CellType.STRING
 }
 
 /**
@@ -543,7 +543,7 @@ function ExcelWorkbook(templateOrFileType) {
  *
  * @properties={typeid:35,uuid:"5D3DBE94-9302-45D7-969B-2CA6AD0B8BD2",variableType:-4}
  */
-var initExcelWorkbook = (function() {
+var initExcelWorkbook = (/** @constructor */ function() {
 	ExcelWorkbook.prototype = Object.create(Object.prototype, {});
 	ExcelWorkbook.prototype.constructor = ExcelWorkbook;
 	
@@ -920,7 +920,7 @@ function ServoyExcelWorkbook(templateOrFileType, sheetNameToUse) {
  *
  * @properties={typeid:35,uuid:"FEBE6A80-7206-4430-9389-A93E8199B52B",variableType:-4}
  */
-var initServoyExcelWorkbook = (function() {
+var initServoyExcelWorkbook = (/** @constructor */ function() {
 	ServoyExcelWorkbook.prototype = Object.create(ExcelWorkbook.prototype, {});
 	ServoyExcelWorkbook.prototype.constructor = ServoyExcelWorkbook;
 	
@@ -1145,7 +1145,7 @@ function FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileT
  *
  * @properties={typeid:35,uuid:"FF6BB91E-6E17-474B-8371-E73D2BF866DC",variableType:-4}
  */
-var initFoundSetExcelWorkbook = (function() {
+var initFoundSetExcelWorkbook = (/** @constructor */ function() {
 	FoundSetExcelWorkbook.prototype = Object.create(ServoyExcelWorkbook.prototype, {});
 	FoundSetExcelWorkbook.prototype.constructor = FoundSetExcelWorkbook;
 	
@@ -1335,7 +1335,7 @@ function DataSetExcelWorkbook(dataset, columns, headers, templateOrFileType, she
  *
  * @properties={typeid:35,uuid:"FBDCE3AA-4A94-49B9-988C-9A05EB672C63",variableType:-4}
  */
-var initDataSetExcelWorkbook = (function() {
+var initDataSetExcelWorkbook = (/** @constructor */ function() {
 	DataSetExcelWorkbook.prototype = Object.create(ServoyExcelWorkbook.prototype, {});
 	DataSetExcelWorkbook.prototype.constructor = DataSetExcelWorkbook;
 	
@@ -1381,7 +1381,7 @@ function ExcelSheet(sheet) {
  *
  * @properties={typeid:35,uuid:"6CDC2194-2A57-472A-B57B-2776B2CE8432",variableType:-4}
  */
-var initExcelSheet = (function() {
+var initExcelSheet = (/** @constructor */ function() {
 	ExcelSheet.prototype = Object.create(Object.prototype, { });
 	ExcelSheet.prototype.constructor = ExcelSheet;
 	
@@ -1479,6 +1479,18 @@ var initExcelSheet = (function() {
 		var range = new Packages.org.apache.poi.ss.util.CellRangeAddress(startRow - 1, endRow - 1, startColumn - 1, endColumn - 1);
 		this.sheet.setAutoFilter(range);
 	}
+	
+	/**
+	 * Sets the default column style for the given column
+	 * @param {Number} column
+	 * @param {ExcelCellStyle} style
+	 * @return {ExcelSheet}
+	 * @this {ExcelSheet}
+	 */
+	ExcelSheet.prototype.setDefaultColumnStyle = function(column, style) {
+		this.sheet.setDefaultColumnStyle(column - 1, style.getCellStyle());
+		return this;
+	}	
 	
 	/**
 	 * Returns the cell in the given row and column
@@ -1806,7 +1818,7 @@ function ExcelCellStyle(style, workbook) {
  *
  * @properties={typeid:35,uuid:"2F3FCD8F-49B2-432B-A1B7-004E406F3745",variableType:-4}
  */
-var initExcelCellStyle = (function() {
+var initExcelCellStyle = (/** @constructor */ function() {
 	ExcelCellStyle.prototype = Object.create(Object.prototype, {});
 	ExcelCellStyle.prototype.constructor = ExcelCellStyle;
 	
@@ -2337,7 +2349,7 @@ function ExcelRow(row) {
  *
  * @properties={typeid:35,uuid:"F4E16CD1-88F9-42FD-8A1E-FC8A7D73C2FD",variableType:-4}
  */
-var initExcelRow = (function() {
+var initExcelRow = (/** @constructor */ function() {
 	ExcelRow.prototype = Object.create(Object.prototype, {});
 	ExcelRow.prototype.constructor = ExcelRow;
 	
@@ -2388,14 +2400,14 @@ var initExcelRow = (function() {
 		for (var it = r.cellIterator(); it.hasNext();) {
 			/** @type {Packages.org.apache.poi.ss.usermodel.Cell} */
 			var cell = it.next();
-			var cellType = cell.getCellType();
-			if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_STRING) {
+			var cellType = cell.getCellTypeEnum();
+			if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.STRING) {
 				result.push(cell.getStringCellValue());
-			} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC) {
+			} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.NUMERIC) {
 				result.push(cell.getNumericCellValue());
-			} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BOOLEAN) {
+			} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.BOOLEAN) {
 				result.push(cell.getBooleanCellValue() ? 1 : 0);
-			} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC) {
+			} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.NUMERIC) {
 				if (Packages.org.apache.poi.ss.usermodel.DateUtil.isCellDateFormatted(cell)) {
 					result.push(new Date(cell.getDateCellValue().getTime()));
 				} else {
@@ -2435,7 +2447,7 @@ function ExcelCell(cell) {
  *
  * @properties={typeid:35,uuid:"7A311E58-DF12-467E-9A83-F01BF1DC7FA9",variableType:-4}
  */
-var initExcelCell = (function() {
+var initExcelCell = (/** @constructor */ function() {
 	ExcelCell.prototype = Object.create(Object.prototype, {});
 	ExcelCell.prototype.constructor = ExcelCell;
 	
@@ -2473,14 +2485,14 @@ var initExcelCell = (function() {
 	 * @this {ExcelCell}
 	 */
 	ExcelCell.prototype.getCellValue = function() {
-		var cellType = this.cell.getCellType();
-		if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BLANK) {
+		var cellType = this.cell.getCellTypeEnum();
+		if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.BLANK) {
 			return null;
-		} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BOOLEAN) {
+		} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.BOOLEAN) {
 			return this.cell.getBooleanCellValue() ? 1 : 0;
-		} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC) {
+		} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.FORMULA) {
 			return this.cell.getNumericCellValue();
-		} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_STRING) {
+		} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.STRING) {
 			return this.cell.getStringCellValue();
 		} else {
 			return null;
@@ -2489,11 +2501,11 @@ var initExcelCell = (function() {
 	
 	/**
 	 * Returns the type of cell as any of the CELL_TYPE enum values
-	 * @return {Number} 
+	 * @return {Packages.org.apache.poi.ss.usermodel.CellType} 
 	 * @this {ExcelCell}
 	 */
 	ExcelCell.prototype.getCellType = function() {
-		return this.cell.getCellType();
+		return this.cell.getCellTypeEnum();
 	}
 	
 	/**
@@ -2502,7 +2514,7 @@ var initExcelCell = (function() {
 	 * @this {ExcelCell}
 	 */
 	ExcelCell.prototype.getBooleanCellValue = function() {
-		if (this.cell.getCellType() == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BOOLEAN) {
+		if (this.cell.getCellTypeEnum() == Packages.org.apache.poi.ss.usermodel.CellType.BOOLEAN) {
 			return this.cell.getBooleanCellValue();
 		} else {
 			return null;
@@ -2515,7 +2527,7 @@ var initExcelCell = (function() {
 	 * @this {ExcelCell}
 	 */
 	ExcelCell.prototype.getDateCellValue = function() {
-		if (this.cell.getCellType() == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC) {
+		if (this.cell.getCellTypeEnum() == Packages.org.apache.poi.ss.usermodel.CellType.NUMERIC) {
 			return new Date(this.cell.getDateCellValue().getTime());
 		} else {
 			return null;
@@ -2646,7 +2658,7 @@ function PrintSetup() {
  *
  * @properties={typeid:35,uuid:"14D0D0B4-7177-4710-BF29-B3148E41E5DD",variableType:-4}
  */
-var initPrintSetup = (function() {
+var initPrintSetup = (/** @constructor */ function() {
 	PrintSetup.prototype = Object.create(Object.prototype, {});
 	PrintSetup.prototype.constructor = PrintSetup;
 	
@@ -2810,12 +2822,12 @@ function setDefaultPrintSetup(setup) {
  */
 function getCellData(cell) {
 	var result = null;
-	var cellType = cell.getCellType();
-	if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_STRING || (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_FORMULA && cell.getCachedFormulaResultType() == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_STRING)) {
+	var cellType = cell.getCellTypeEnum();
+	if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.STRING || (cellType == Packages.org.apache.poi.ss.usermodel.CellType.FORMULA && cell.getCachedFormulaResultTypeEnum() == Packages.org.apache.poi.ss.usermodel.CellType.STRING)) {
 		result = cell.getStringCellValue();
-	} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BOOLEAN || (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_FORMULA && cell.getCachedFormulaResultType() == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_BOOLEAN)) {
+	} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.BOOLEAN || (cellType == Packages.org.apache.poi.ss.usermodel.CellType.FORMULA && cell.getCachedFormulaResultTypeEnum() == Packages.org.apache.poi.ss.usermodel.CellType.BOOLEAN)) {
 		result = cell.getBooleanCellValue() ? 1 : 0;
-	} else if (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC || (cellType == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_FORMULA && cell.getCachedFormulaResultType() == Packages.org.apache.poi.ss.usermodel.Cell.CELL_TYPE_NUMERIC)) {
+	} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.NUMERIC || (cellType == Packages.org.apache.poi.ss.usermodel.CellType.FORMULA && cell.getCachedFormulaResultTypeEnum() == Packages.org.apache.poi.ss.usermodel.CellType.NUMERIC)) {
 		if (Packages.org.apache.poi.ss.usermodel.DateUtil.isCellDateFormatted(cell)) {
 			result = new Date(cell.getDateCellValue().getTime());
 		} else {
