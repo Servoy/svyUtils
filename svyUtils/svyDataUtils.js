@@ -202,20 +202,20 @@ function stringToByteArray(string) {
  * @param {Object} value - the value that should be unique in the given dataprovider
  * @param {String[]} [extraQueryColumns] - optional array of additional dataproviders that can be used in the unique query
  * @param {Object[]} [extraQueryValues] - optional array of additional values that can be used in the unique query
+ * @param {Boolean} [ignoreTableFilters] - whether or not table filters should be used (defaults to false)
  * 
  * @return {Boolean} true if the datasource already does contain the value asked for
  *
  * @properties={typeid:24,uuid:"A5D17E06-BD6B-4CAA-8764-58C8F4C27D35"}
  */
-function dataSourceHasValue(datasource, dataproviderName, value, extraQueryColumns, extraQueryValues) {
+function dataSourceHasValue(datasource, dataproviderName, value, extraQueryColumns, extraQueryValues, ignoreTableFilters) {
 	if (!datasource || !dataproviderName) {
 		throw new scopes.svyExceptions.IllegalArgumentException('no parameters provided to scopes.svyDataUtils.datasourceHasValue(foundsetOrRecord, dataproviderName, value)');
 	}
 	/** @type {String} */
 	var dataSource = (datasource instanceof String) ? datasource : datasource.getDataSource();
-	var pkNames = databaseManager.getTable(dataSource).getRowIdentifierColumnNames();
 	var query = databaseManager.createSelect(dataSource);
-	query.result.add(query.getColumn(pkNames[0]).count);
+	query.result.addPk();
 
 	if (value == null) {
 		query.where.add(query.getColumn(dataproviderName).isNull);
@@ -241,8 +241,8 @@ function dataSourceHasValue(datasource, dataproviderName, value, extraQueryColum
 			}
 		}
 	}
-	var dataset = databaseManager.getDataSetByQuery(query, 1);
-	return !(dataset.getValue(1,1) == 0);
+	var dataset = databaseManager.getDataSetByQuery(query, ignoreTableFilters === true ? false : true, 1);
+	return dataset.getMaxRowIndex() > 0;
 }
 
 /**
