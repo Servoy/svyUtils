@@ -3057,10 +3057,16 @@ function StyleHelper(styleText, styleName) {
 	
 	this.getFontString = function(styleClass) {
 		var rule = styleSheet.getCSSRule(styleClass);
-		if (!rule) return defaultFont;
 		var font = styleSheet.getFont(rule);
-		if (!font) return defaultFont;
-		return Packages.com.servoy.j2db.util.PersistHelper.createFontString(font);
+		
+		var result = "";
+		result += font.getName();
+		result += ",";
+		result += font.getStyle();
+		result += ",";
+		result += font.getSize();
+		
+		return result;
 	}
 	
 	this.getTextWidth = function(font, text) {
