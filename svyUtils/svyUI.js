@@ -390,7 +390,7 @@ function getRuntimeFormInstanceNames(form) {
  * @properties={typeid:24,uuid:"4EC9D579-FAD3-4C56-8F34-2891379AF31E"}
  */
 function getJSFormHeight(form, includePrintParts) {
-	var printParts = [JSPart.LEADING_SUBSUMMARY, JSPart.TRAILING_SUBSUMMARY, JSPart.TITLE_FOOTER];
+	var printParts = [JSPart['LEADING_SUBSUMMARY'], JSPart['TRAILING_SUBSUMMARY'], JSPart['TITLE_FOOTER']];
 	
 	var smform = getJSFormForReference(form);
 	var parts = smform.getParts(true);
