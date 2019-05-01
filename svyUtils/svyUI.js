@@ -711,21 +711,39 @@ function getContainerElements(form) {
  * @properties={typeid:24,uuid:"99483402-227E-483A-8FBE-5370ECE3FB6F"}
  */
 function getFormComponentRelationName(formName, elementName) {
-	
+
 	var relationName = null;
-	var fcIndex = elementName.indexOf("$containedForm$")
-	if (fcIndex > -1) {
-		// TODO should search for nested list component too !?!?
-		var fcName = elementName.substr(0, fcIndex);
-		var jsForm = solutionModel.getForm(formName);
-		var jsFormComponent = jsForm.findWebComponent(fcName);
+	var startIndex = 0;
+	var fcIndex = -1;
+	
+	// search for nested list form component
+	do {
+		fcIndex = elementName.indexOf("$containedForm$", startIndex);
+
+		if (fcIndex > -1) {
+			// TODO should i make this configurable !?
+			// should i search for nested list component too !?!?
+			var fcName = elementName.substring(startIndex, fcIndex);
+			var jsForm = solutionModel.getForm(formName);
+			var jsFormComponent = jsForm.findWebComponent(fcName);
 			if (jsFormComponent) {
-			var jsFoundset = jsFormComponent.getJSONProperty("foundset");
-			if (jsFoundset && jsFoundset.foundsetSelector) {
-				relationName = jsFoundset.foundsetSelector;
+				var jsFoundset = jsFormComponent.getJSONProperty("foundset");
+				if (jsFoundset && jsFoundset.foundsetSelector) {
+					// TODO search nested form component with nested foundsets. e.g. 2 list nested on each other with their own foundset selection
+					relationName = jsFoundset.foundsetSelector;
+					return relationName;
+				} else {
+					var jsContainedForm = jsFormComponent.getJSONProperty("containedForm");
+					if (jsContainedForm && jsContainedForm.name) {
+						formName = jsContainedForm.name;
+					}
+				}
 			}
 		}
-	}
+		
+		startIndex = fcIndex + 15;
+	} while (fcIndex > -1);
+
 	return relationName;
 }
 
