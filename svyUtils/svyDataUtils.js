@@ -914,6 +914,54 @@ function getDataproviderValueInDB(record, dataProviderId) {
 }
 
 /**
+ * @since 2019-01-05
+ * @public 
+ * @param {String} dataProviderID the dataProviderID 
+ * 
+ * @return {String} returns the name of the unrelated dataProvider for the given dataProviderID.
+ * @example <pre>
+ * //customers_to_orders.orders_to_order_details.quantity -> quantity
+ * //customers_to_orders.orderdate -> orderdate
+ * //companyname -> companyname
+ * var columnName = scopes.svyDataUtils.getUnrelatedDataProviderID('customers_to_orders.orderdate');
+ * </pre>
+ *
+ * @properties={typeid:24,uuid:"CF6E2F58-86D6-49DA-9FFB-08926740C608"}
+ */
+function getUnrelatedDataProviderID(dataProviderID) {
+	if (dataProviderID) {
+        var path = dataProviderID.split('.');
+        return path[path.length - 1];
+    }
+	return dataProviderID
+}
+
+/**
+ * @since 2019-01-05
+ * @public 
+ * @param {String} dataProviderID the dataProviderID 
+ * 
+ * @return {String} returns the relation name for the given dataProviderID
+ * @example <pre>
+ * //customers_to_orders.orders_to_order_details.quantity -> customers_to_orders.orders_to_order_details
+ * //customers_to_orders.orderdate -> customers_to_orders
+ * //companyname -> null
+ * var relationName = scopes.svyDataUtils.getDataProviderRelationName('customers_to_orders.orderdate');
+ * </pre>
+ *
+ * @properties={typeid:24,uuid:"82287D7D-10D1-4E8E-8ECD-40F97A0F9665"}
+ */
+function getDataProviderRelationName(dataProviderID) {
+	var path = dataProviderID.split('.');
+	if (path.length > 1) {
+		path.pop();
+		return path.join('.')
+	} else {
+		return null;
+	}
+}
+
+/**
  * Dumps all data of either all or the given tables of the given server to csv files and zips them.<br>
  * <br>
  * NOTE: All possible table filters will be applied.

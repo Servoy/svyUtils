@@ -698,3 +698,179 @@ function getContainerElements(form) {
 	var result = elem.filter(filterElements);
 	return result;
 }
+
+/**
+ * @since 2019-01-05
+ * TODO add description
+ * @public 
+ * @param {String} formName
+ * @param {String} elementName
+ * 
+ * @return {String}
+ *
+ * @properties={typeid:24,uuid:"99483402-227E-483A-8FBE-5370ECE3FB6F"}
+ */
+function getFormComponentRelationName(formName, elementName) {
+	
+	var relationName = null;
+	var fcIndex = elementName.indexOf("$containedForm$")
+	if (fcIndex > -1) {
+		// TODO should search for nested list component too !?!?
+		var fcName = elementName.substr(0, fcIndex);
+		var jsForm = solutionModel.getForm(formName);
+		var jsFormComponent = jsForm.findWebComponent(fcName);
+			if (jsFormComponent) {
+			var jsFoundset = jsFormComponent.getJSONProperty("foundset");
+			if (jsFoundset && jsFoundset.foundsetSelector) {
+				relationName = jsFoundset.foundsetSelector;
+			}
+		}
+	}
+	return relationName;
+}
+
+/**
+ * @public 
+ * @param {String} formName
+ * @param {String} elementName
+ * 
+ * @return {RuntimeElementSource}
+ *
+ * @properties={typeid:24,uuid:"7D45880D-D161-4136-A31B-15B58208A0F3"}
+ */
+function getRuntimeElementSource(formName, elementName) {
+	return new RuntimeElementSource(formName,elementName);
+}
+
+/**
+ * @since 2019-01-05
+ * @constructor 
+ * @protected 
+ * @param {String} formName
+ * @param {String} elementName
+ *
+ * @properties={typeid:24,uuid:"7D1C586E-E8EE-45AE-893C-01A078F68B67"}
+ */
+function RuntimeElementSource(formName, elementName) {
+	/** @protected   */
+	this.formName = formName;
+	
+	/** @protected   */
+	this.elementName = elementName;
+	
+	// TODO should throw a warning if no elementName !?
+}
+
+/**
+ * @since 2019-01-05
+ * @constructor
+ * @private 
+ * @properties={typeid:24,uuid:"76C229C0-5569-4D03-BDB0-243AB6CC01F1"}
+ */
+function setupRuntimeElementSource() {
+
+	RuntimeElementSource.prototype = Object.create(Object.prototype);
+	RuntimeElementSource.prototype.constructor = RuntimeElementSource;
+	
+	/** 
+	 * @public 
+	 * @return {String}
+	 * */
+	RuntimeElementSource.prototype.getFormName = function () {
+		return this.formName;
+	}
+	
+	/** 
+	 * @public 
+	 * @return {String}
+	 * */
+	RuntimeElementSource.prototype.getElementName = function () {
+		return this.elementName;
+	}
+	
+	/** 
+	 * @public 
+	 * @return {String}
+	 * */
+	RuntimeElementSource.prototype.getRelationName = function () {
+		var form = forms[this.formName];
+		var name = this.elementName;
+		
+		if (name && form) {
+			/** @type {RuntimeTextField} */
+			var component = form.elements[name];
+			if (component.getDataProviderID) {
+				var dataProvider = component.getDataProviderID();
+				
+				// TODO should i really look into special components such as listcomponent etc.. !?
+				var fcRelationName = scopes.svyUI.getFormComponentRelationName(form.controller.getName() ,name);
+				if (fcRelationName) {
+					dataProvider = fcRelationName + "." + dataProvider;
+				}
+				
+				return scopes.svyDataUtils.getDataProviderRelationName(dataProvider)
+			} else { //	TODO custom components that have data change ?
+
+			}
+			
+		} else { // TODO un-named components not supported ?
+
+		}
+		return null;
+	}
+	
+	
+	/** 
+	 * @public 
+	 * @return {String}
+	 * */
+	RuntimeElementSource.prototype.getUnrelatedDataProviderID = function () {
+		var form = forms[this.formName];
+		var name = this.elementName;
+		
+		if (name && form) {
+			/** @type {RuntimeTextField} */
+			var component = form.elements[name];
+			if (component.getDataProviderID) {
+				var dataProvider = component.getDataProviderID();
+				return scopes.svyDataUtils.getUnrelatedDataProviderID(dataProvider);
+			}
+		}
+		return null;
+	}
+	
+	/** 
+	 * @public
+	 * @return {JSRecord}
+	 * */
+	RuntimeElementSource.prototype.getRecord = function () {
+		var form = forms[this.formName];
+		var elementName = this.elementName;
+		
+	    /** @type {JSFoundSet} */
+	    var fs;
+		var relationName = this.getRelationName(form, elementName);
+		if (relationName) {
+			/** @type {JSFoundSet} */
+			fs = form.foundset[relationName];
+		} else {
+			fs = form.foundset;
+		}
+				
+	    if (fs) {
+	        return fs.getSelectedRecord();
+	    }
+	    return null;
+	}
+}
+
+/**
+ * Initializes the module.
+ * NOTE: This var must remain at the BOTTOM of the file.
+ * @private 
+ * @SuppressWarnings(unused)
+ * @properties={typeid:35,uuid:"C46DF3A7-19AE-40C2-B9E7-853679258556",variableType:-4}
+ */
+var init = (function() {
+	setupRuntimeElementSource();
+}());
