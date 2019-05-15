@@ -158,6 +158,7 @@ function setCaretColor(element, color) {
  * @return {boolean} whether the font color was set succesfully
  *
  * @properties={typeid:24,uuid:"ADF4C5CE-349B-4A2D-B2B5-C002E62D4EED"}
+ * @SuppressWarnings(wrongparameters)
  */
 function setPlaceholderFontColor(element, color) {
 	checkOperationSupported()
