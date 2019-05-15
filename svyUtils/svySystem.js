@@ -736,7 +736,7 @@ function convertServoyMethodToQualifiedName(method) {
 				return fd.getContextName() + '.' + fd.getMethodName();
 			} else if (fd.getContextName()) {
 				return 'forms.' + fd.getContextName() + '.' + fd.getMethodName();
-			} else { //TODO: got all variations covered with the above logic?
+			} else {
 				return null;
 			}
 		} catch (e) {
@@ -745,6 +745,27 @@ function convertServoyMethodToQualifiedName(method) {
 		}
 	}
 	return null;
+}
+
+/**
+ * Converts a method name to a Servoy function reference
+ * 
+ * @param {String} qualifiedName
+ * @param {*} [context] Optional context from where to start evaluating the qualifiedName
+ * 
+ * @return {Function}
+ *
+ * @properties={typeid:24,uuid:"18243632-09C4-4C48-9758-38408E48D296"}
+ */
+function convertQualifiedNameToServoyMethod(qualifiedName, context) {
+	var bits = qualifiedName.split('.');
+	var methodName = bits.pop();
+	var scope = bits.length ? getObject(bits.join('.'), context) : context;
+	
+	if (!scope || !(scope[methodName] instanceof Function)) {
+		throw scopes.svyExceptions.IllegalArgumentException('"' + qualifiedName + '" cannot be resolved to a method');
+	}
+	return scope[methodName]
 }
 
 
@@ -756,10 +777,16 @@ function convertServoyMethodToQualifiedName(method) {
  */
 function printMethodCode(functionToPrint) {
 	var fd = new Packages.com.servoy.j2db.scripting.FunctionDefinition(functionToPrint);
-	if (fd.getFormName()) {
-		var jsForm = solutionModel.getForm(fd.getFormName());
-		var jsMethod = jsForm.getMethod(fd.getMethodName());
-		
+	var scopeName = fd.getScopeName();
+	var contextName = fd.getContextName();
+	var jsMethod;
+	if (scopeName) {
+		jsMethod = solutionModel.getGlobalMethod(scopeName, fd.getMethodName());
+	} else if (contextName) {
+		var jsForm = solutionModel.getForm(contextName);
+		jsMethod = jsForm.getMethod(fd.getMethodName());
+	}
+	if (jsMethod) {
 		var lines = jsMethod.code.split('\n');
 		var relevantLines = [];
 		var functionStartFound = false;

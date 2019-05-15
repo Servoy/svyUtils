@@ -459,9 +459,13 @@ function getRuntimeTableViewRowHeight(form) {
  * @properties={typeid:24,uuid:"BF888281-F9E0-4907-89FD-ECAAA037C4CB"}
  */
 function setAllToolbarsVisibility(state) {
-	plugins.window.getToolbarNames().forEach(function(value){
-		application.setToolbarVisible(value, state);
-	});
+	if (application.getApplicationType() === APPLICATION_TYPES.SMART_CLIENT) {
+		/** @type {Function} */
+		var setToolbarVisFunction = application['setToolbarVisible'];
+		plugins.window.getToolbarNames().forEach(function(value){
+			setToolbarVisFunction.apply(this, [value, state]);
+		});
+	}
 }
 
 /**
@@ -620,7 +624,7 @@ function persistSplitPaneDividerPosition(formName, elementName) {
 		return;
 	}
 	var pos = forms[formName].elements[elementName].dividerLocation;
-	scopes.svySystem.setUserProperty(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc', pos)
+	application.setUserProperty(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc', pos)
 }
 
 /**
@@ -644,7 +648,7 @@ function restoreSplitPaneDividerPosition(formName, elementName, position) {
 		return;
 	}
 	/** @type {String} */
-	var pos = scopes.svySystem.getUserProperty(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc');
+	var pos = application.getUserProperty(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc');
 	pos = utils.stringToNumber(pos);
 	forms[formName].elements[elementName]['dividerLocation'] = pos ? pos : position;
 }

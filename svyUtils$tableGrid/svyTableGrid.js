@@ -43,6 +43,8 @@ var logger = scopes.svyLogManager.getLogger("com.servoy.bap.svytablegrid");
  * @param {Array<String>} [columnHeaders]
  * @param {Array<String>} [dataproviders]
  * @param {Array<Number>} [columnTypes]
+ * 
+ * @return {TableGrid}
  *
  * @properties={typeid:24,uuid:"1120352D-21A4-4D1E-B93C-EB1FC853A444"}
  */
@@ -99,6 +101,8 @@ function createTableGridFromDataset(dataset, columnHeaders, dataproviders, colum
  * @param {Array<String>} [dataproviders]
  * @param {Array<Number>} [columnTypes]
  * @param {Number} [maxReturnedRows]
+ * 
+ * @return {TableGrid}
  *
  * @properties={typeid:24,uuid:"CC1ACB5B-8071-49B6-8A60-03070F2793EB"}
  */
@@ -135,6 +139,8 @@ function createTableGridFromQBSelect(query, columnHeaders, dataproviders, column
  * @param {Array<String>} [dataproviders]
  * @param {Array<Number>} [columnTypes]
  * @param {Number} [maxReturnedRows]
+ * 
+ * @return {TableGrid}
  *
  * @properties={typeid:24,uuid:"20DEBF57-1873-492A-8F75-21A278ECAAEA"}
  */
@@ -169,6 +175,8 @@ function createTableGridFromQuery(serverName, query, queryArguments, columnHeade
  * @param {JSFoundSet} foundset
  * @param {Array<String>} [columnHeaders]
  * @param {Array<String>} [dataproviders]
+ * 
+ * @return {TableGrid}
  *
  * @properties={typeid:24,uuid:"AD0DC30F-6E69-4A0A-A434-14F1EB3B2251"}
  */
@@ -190,6 +198,8 @@ function createTableGridFromFoundSet(foundset, columnHeaders, dataproviders) {
  * @param {JSDataSource|String} datasource
  * @param {Array<String>} [columnHeaders]
  * @param {Array<String>} [dataproviders]
+ * 
+ * @return {TableGrid}
  *
  * @properties={typeid:24,uuid:"0F8F3539-34DE-4506-BBD0-643FD7895B05"}
  */
@@ -1259,17 +1269,19 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 	function createFunctionCallMethod(formToAddTo, method) {
 		if (method instanceof Function) {
 			try {
-				var fd = new Packages.com.servoy.j2db.scripting.FunctionDefinition(method);
-				var methodName = fd.getMethodName();
-				var jsFormMethod;
-				if (fd.getFormName()) {
-					var formName = fd.getFormName();
-					jsFormMethod = formToAddTo.newMethod("function " + methodName + "() { return forms." + formName + "." + methodName + ".apply(forms." + formName + ", arguments); } ");
-					return jsFormMethod;
-				} else if (fd.getScopeName()) {
-					jsFormMethod = formToAddTo.newMethod("function callGlobal_" + methodName + "() { return " + fd.getScopeName() + "." + methodName + ".apply(" + fd.getScopeName() + ", arguments); } ");
-					return jsFormMethod;
-				} else {
+				try {
+					var fd = new Packages.com.servoy.j2db.scripting.FunctionDefinition(method);
+					var jsFormMethod;
+					if (fd.getScopeName()) {
+						jsFormMethod = formToAddTo.newMethod("function callGlobal_" + fd.getMethodName() + "() { return " + fd.getScopeName() + "." + fd.getMethodName() + ".apply(" + fd.getScopeName() + ", arguments); } ");
+						return jsFormMethod;
+					} else if (fd.getContextName()) {
+						jsFormMethod = formToAddTo.newMethod("function " + fd.getMethodName() + "() { return forms." + fd.getContextName() + "." + fd.getMethodName() + ".apply(forms." + fd.getContextName() + ", arguments); } ");
+						return jsFormMethod;
+					} else {
+						return null;
+					}
+				} catch (e) {
 					return null;
 				}
 			} catch (e) {

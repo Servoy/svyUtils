@@ -297,7 +297,7 @@ function CustomDialog(styleName, dialogTitle, dialogMessage, dialogIcon, dialogB
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"D81DB060-EBE1-49A6-8812-A59E25CF6821",variableType:-4}
  */
-var init_CustomDialog = (function() {
+var init_CustomDialog = (/** @constructor */ function() {
 	CustomDialog.prototype = Object.create(CustomDialog.prototype);
 	CustomDialog.prototype.constructor = CustomDialog;
 	
@@ -925,7 +925,7 @@ function DialogComponent() {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"228E7C87-874F-464C-A6CE-D8BFA04FFD85",variableType:-4}
  */
-var init_DialogComponent = (function() {
+var init_DialogComponent = (/** @constructor */ function() {
 	DialogComponent.prototype = Object.create(DialogComponent.prototype);
 	DialogComponent.prototype.constructor = Checkbox;
 	
@@ -1218,7 +1218,7 @@ function Button() {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"CC2027E6-3775-4D87-A773-482685BAB4C8",variableType:-4}
  */
-var init_Button = (function() {
+var init_Button = (/** @constructor */ function() {
 	Button.prototype = Object.create(Label.prototype);
 	Button.prototype.constructor = Button;
 
@@ -1360,7 +1360,7 @@ function Label() {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"07FDBC5B-68E1-419C-902C-A5454A687643",variableType:-4}
  */
-var init_Label = (function() {
+var init_Label = (/** @constructor */ function() {
 	Label.prototype = Object.create(DialogComponent.prototype);
 	Label.prototype.constructor = Label;
 	
@@ -1439,7 +1439,7 @@ function Separator() {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"EDEBB787-649B-4678-87A9-EBB53FE3B37D",variableType:-4}
  */
-var init_Separator = (function() {
+var init_Separator = (/** @constructor */ function() {
 	Separator.prototype = Object.create(Label.prototype);
 	Separator.prototype.constructor = Separator;
 	
@@ -1607,7 +1607,7 @@ function TextField() {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"14D0E66A-C3A3-4722-B751-54001F2C23F0",variableType:-4}
  */
-var init_TextField = (function() {
+var init_TextField = (/** @constructor */ function() {
 	TextField.prototype = Object.create(DialogComponent.prototype);
 	TextField.prototype.constructor = TextField;
 	
@@ -1846,7 +1846,7 @@ function Checkbox() {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"27EC2FB4-9C8F-470C-8FDE-98A3FF242B66",variableType:-4}
  */
-var init_Checkbox = (function() {
+var init_Checkbox = (/** @constructor */ function() {
 	Checkbox.prototype = Object.create(TextField.prototype);
 	Checkbox.prototype.constructor = Checkbox;
 	
@@ -1887,7 +1887,7 @@ function Calendar() {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"3CAD4297-95A8-47C0-B2F9-540C1238A118",variableType:-4}
  */
-var init_Calendar = (function() {
+var init_Calendar = (/** @constructor */ function() {
 	Calendar.prototype = Object.create(TextField.prototype);
 	Calendar.prototype.constructor = Calendar;
 	
@@ -1936,7 +1936,7 @@ function PasswordField() {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"9E1AC8BE-99D8-4F37-9F82-00DD18A74914",variableType:-4}
  */
-var init_PasswordField = (function() {
+var init_PasswordField = (/** @constructor */ function() {
 	PasswordField.prototype = Object.create(TextField.prototype);
 	PasswordField.prototype.constructor = PasswordField;
 	
@@ -1982,7 +1982,7 @@ function RadioButtonGroup() {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"DA565522-CCE4-45B7-A0C5-1B51EE74EB20",variableType:-4}
  */
-var init_RadioButtonGroup = (function() {
+var init_RadioButtonGroup = (/** @constructor */ function() {
 	RadioButtonGroup.prototype = Object.create(TextField.prototype);
 	RadioButtonGroup.prototype.constructor = RadioButtonGroup;
 	
@@ -2035,7 +2035,7 @@ function TextArea() {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"E3A90455-9142-4049-AC7D-4F75C0E5B818",variableType:-4}
  */
-var init_TextArea = (function() {
+var init_TextArea = (/** @constructor */ function() {
 	TextArea.prototype = Object.create(TextField.prototype);
 	TextArea.prototype.constructor = TextArea;
 	
@@ -2085,7 +2085,7 @@ function Combobox() {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"7590FEE6-3A69-4360-B909-3F9FE9A52912",variableType:-4}
  */
-var init_Combobox = (function() {
+var init_Combobox = (/** @constructor */ function() {
 	Combobox.prototype = Object.create(TextField.prototype);
 	Combobox.prototype.constructor = Combobox;	
 	
@@ -2375,6 +2375,8 @@ function buildDialogForm(customDialog) {
  * @param {Array<Button>|Array<String>} [buttons] an optional array of buttons
  * @param {Array<DialogComponent>} [components] an optional array of components
  * 
+ * @return {CustomDialog}
+ * 
  * @example 
  * var customDialog = scopes.svyCustomDialogs.createCustomDialog("myStyle", "Title of my dialog", "This is an important message", scopes.svyCustomDialogs.DEFAULT_ICON.INFO);<br>
  * //don't allow the user to NOT click a button to close the dialog<br>
@@ -2623,6 +2625,8 @@ function createCheckbox(text, label, isChecked) {
  * @param {String} [label] optional label for the component; if set to null, the component will span the whole dialog, if set to an empty string, the label will be empty, but the field is shown in the fields column
  * @param {Array<String>|JSDataSet} [values] values for a custom value list as either display/real values arrays or a JSDataSet containing both
  * @param {Array} [realValues] return values for a custom value list if <code>values</code> is an array and not a JSDataSet
+ * 
+ * @return {Combobox}
  *
  * @properties={typeid:24,uuid:"0EED282D-E8BE-499C-A5A3-08E7674E5EAD"}
  */
@@ -3069,7 +3073,11 @@ function StyleHelper(styleText, styleName) {
 		return result;
 	}
 	
-	this.getTextWidth = function(font, text) {
+	this.getTextWidth = 
+	/**
+	* @SuppressWarnings(deprecated)
+	*/
+	function(font, text) {
 		if (!text) {
 			return 0;
 		}
@@ -3091,7 +3099,11 @@ function StyleHelper(styleText, styleName) {
 		}
 	}
 	
-	this.getFontHeight = function(font) {
+	this.getFontHeight = 
+	/**
+	* @SuppressWarnings(deprecated)
+	*/
+	function(font) {
 		if (!font) {
 			font = defaultFont;
 		}
