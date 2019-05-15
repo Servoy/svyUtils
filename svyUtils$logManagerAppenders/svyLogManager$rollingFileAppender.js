@@ -116,7 +116,7 @@ function RollingFileAppender(fileName, maxFileSize, maxBackupIndex) {
  *
  * @properties={typeid:35,uuid:"135811BC-7D8F-4233-BF25-54F7314895FC",variableType:-4}
  */
-var initRollingFileAppender = (function() {
+var initRollingFileAppender = (/** @constructor */ function() {
 		RollingFileAppender.prototype = Object.create(scopes.svyLogManager.AbstractAppender.prototype);
 		RollingFileAppender.prototype.constructor = RollingFileAppender;
 

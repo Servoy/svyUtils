@@ -108,7 +108,7 @@ function EmailAppender(toAddress, fromAddress, subject) {
  *
  * @properties={typeid:35,uuid:"679EF4BC-4CEE-40F7-A1E4-A36684085150",variableType:-4}
  */
-var initEmailAppender = (function() {
+var initEmailAppender = (/** @constructor */ function() {
 	EmailAppender.prototype = Object.create(scopes.svyLogManager.AbstractAppender.prototype);
 	EmailAppender.prototype.constructor = EmailAppender;
 

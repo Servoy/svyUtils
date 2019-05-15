@@ -162,7 +162,7 @@ function DbAppender(datasource, dbMapping, userId) {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"18BB30C5-C6E5-4E2C-A505-1231344DBCFB",variableType:-4}
  */
-var initDbAppender = (function() {
+var initDbAppender = (/** @constructor */ function() {
 	DbAppender.prototype = Object.create(scopes.svyLogManager.AbstractAppender.prototype);
 	DbAppender.prototype.constructor = DbAppender
 
