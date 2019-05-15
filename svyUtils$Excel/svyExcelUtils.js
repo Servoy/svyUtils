@@ -864,7 +864,11 @@ function ServoyExcelWorkbook(templateOrFileType, sheetNameToUse) {
 			this.sheet = this.workbook.getSheetAt(1);
 		}
 	} else {
-		this.sheet = this.workbook.createSheet("Export");
+		if (sheetNameToUse) {
+			this.sheet = this.workbook.createSheet(sheetNameToUse);
+		} else {
+			this.sheet = this.workbook.createSheet("Export");			
+		}
 	}
 	
 	/**
