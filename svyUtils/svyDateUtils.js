@@ -967,7 +967,7 @@ function getDayOfWeek(date, useISO8601) {
  */
 function getDayOfYear(date) {
 	calendar.setTimeInMillis(date.getTime());
-	return calendar.get(java.util.Calendar.DAY_OF_WEEK);
+	return calendar.get(java.util.Calendar.DAY_OF_YEAR);
 }
 
 /**
