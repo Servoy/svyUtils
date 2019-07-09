@@ -758,6 +758,13 @@ function DialogComponent() {
 	this.dataType = JSVariable.TEXT;
 	
 	/**
+	 * The display type of the component as any of the JSField constants
+	 * 
+	 * @type {Number}
+	 */
+	this.displayType = JSField.TEXT_FIELD;
+	
+	/**
 	 * The enabled state of the component, default true<p>
 	 * 
 	 * This property is also supported at runtime (once the form is already been built)
