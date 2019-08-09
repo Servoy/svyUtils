@@ -315,8 +315,13 @@ function loadRecords(foundset, pks) {
 	if (!pks || !foundset) {
 		return false;
 	}
-	
-	return foundset.loadRecords(databaseManager.convertToDataSet(pks instanceof Array ? pks : [pks]));
+	if (!(pks instanceof Array)) {
+		pks = [pks];
+	}
+	var ds = databaseManager.createEmptyDataSet(1, pks.length);
+	ds.addRow(pks);
+
+	return foundset.loadRecords(ds);
 }
 
 /**
@@ -337,8 +342,13 @@ function getRecord(datasource, pks) {
 	}
 	
 	var fs = databaseManager.getFoundSet(datasource);
-	
-	fs.loadRecords(databaseManager.convertToDataSet(pks instanceof Array ? pks : [pks]))
+	if (!(pks instanceof Array)) {
+		pks = [pks];
+	}
+	var ds = databaseManager.createEmptyDataSet(1, pks.length);
+	ds.addRow(pks);
+
+	fs.loadRecords(ds);
 	return fs.getSize() ? fs.getRecord(1) : null;
 }
 
