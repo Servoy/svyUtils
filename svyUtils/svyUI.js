@@ -855,7 +855,9 @@ function setupRuntimeElementSource() {
 			var component = form.elements[name];
 			if (component.getDataProviderID) {
 				var dataProvider = component.getDataProviderID();
-				return scopes.svyDataUtils.getUnrelatedDataProviderID(dataProvider);
+				if (dataProvider) {
+					return scopes.svyDataUtils.getUnrelatedDataProviderID(dataProvider);
+				}
 			}
 		}
 		return null;
