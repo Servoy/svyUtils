@@ -1106,7 +1106,7 @@ function XHTML2Text(XHTML) {
 /**
  * Returns Wicket clientinfo object
  * 
- * @returns Packages.org.apache.wicket.protocol.http.request.WebClientInfo
+ * @returns {Packages.org.apache.wicket.protocol.http.request.WebClientInfo}
  * @properties={typeid:24,uuid:"B4A9F2EE-4A3C-41F9-A767-381B83538309"}
  */
 function getBrowserInfo() {
