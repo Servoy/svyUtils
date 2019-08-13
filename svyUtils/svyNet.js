@@ -120,18 +120,21 @@ function getIPVersion(ipAddress){
  * 
  * @param {String} hostname
  * @param {Number} [timeout] timeout for the connection check (in milliseconds). Default: 200ms
+ * @param {Number} [port] port number to check. Default: 80
  *
  * @return {Boolean} whether the host could be reached
  *  
  * @properties={typeid:24,uuid:"DFC17BE6-96D4-4FF8-A4E3-AB510B5C51A4"}
  */
-function isHostAccessible(hostname, timeout) {
+function isHostAccessible(hostname, timeout, port) {
 	var timeOut = timeout || 200;
 	var socket;
 	var reachable = false;
 	try {
 		var addr = java.net.InetAddress.getByName(hostname);
-		var port = 80;
+		if(!port) {
+			port = 80;
+		}
 		//Setting type to super class to prevent warnings
 		/**@type {Packages.java.net.SocketAddress}*/ 
 		var sockaddr = new java.net.InetSocketAddress(addr, port);
