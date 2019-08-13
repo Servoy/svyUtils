@@ -38,8 +38,12 @@ var logger = scopes.svyLogManager.getLogger("com.servoy.bap.svyexcelutils");
  * @properties={typeid:35,uuid:"C88BEC59-8BE3-4FE8-BA92-B13A8B507858",variableType:-4}
  */
 var FILE_FORMAT = {
-	XLS: 1,
-	XLSX: 2
+	/** XLS format */ 
+ 	XLS: 1,
+	/** XLSX format, requires additional libraries @see https://github.com/Servoy/svyUtils/wiki/ExcelUtils */ 
+ 	XLSX: 2,
+	/** Streaming version of the XLSX format to avoid out of memory errors */ 
+	SXLSX: 4
 }
 
 /**
@@ -511,6 +515,8 @@ function ExcelWorkbook(templateOrFileType) {
 		var format = templateOrFileType;
 		if (format == FILE_FORMAT.XLS) {
 			this.wb = new Packages.org.apache.poi.hssf.usermodel.HSSFWorkbook();
+		} else if (format == FILE_FORMAT.SXLSX) {
+			this.wb = new Packages.org.apache.poi.xssf.streaming.SXSSFWorkbook(1000);
 		} else {
 			this.wb = new Packages.org.apache.poi.xssf.usermodel.XSSFWorkbook();
 		}
@@ -1066,7 +1072,7 @@ function FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileT
 		var rowNum = this.startRow;
 		var row, cell;
 		if (headers) {
-			row = this.sheet.insertRowAt(rowNum);
+			row = this.sheet.createRow(rowNum);
 			for (var i = 0; i < headers.length; i++) {
 				cell = row.createCell(this.startColumn + i);
 				cell.setCellValue(headers[i]);
@@ -1105,7 +1111,7 @@ function FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileT
 
 		for (i = 1; i <= foundset.getSize(); i++) {
 			var record = foundset.getRecord(i);
-			row = this.sheet.insertRowAt(rowNum + (i-1));
+			row = this.sheet.createRow(rowNum + (i-1));
 
 			for (var d = 0; d < dataproviders.length; d++) {
 				cell = row.createCell(this.startColumn + d);
@@ -1127,7 +1133,7 @@ function FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileT
 			this.sheet.createFreezePane(1, this.startRow + 1);
 		}
 
-		if (this.autoSizeColumns && headers) {
+		if (this.autoSizeColumns && headers && !(this.wb instanceof Packages.org.apache.poi.xssf.streaming.SXSSFWorkbook)) {
 			for (i = 0; i < headers.length; i++) {
 				this.sheet.autoSizeColumn(this.startColumn + i);
 			}
@@ -1256,7 +1262,7 @@ function DataSetExcelWorkbook(dataset, columns, headers, templateOrFileType, she
 		var rowNum = this.startRow;
 		var row, cell;
 		if (headers) {
-			row = this.sheet.insertRowAt(rowNum);
+			row = this.sheet.createRow(rowNum);
 			for (var i = 0; i < headers.length; i++) {
 				cell = row.createCell(this.startColumn + i);
 				cell.setCellValue(headers[i]);
@@ -1295,7 +1301,7 @@ function DataSetExcelWorkbook(dataset, columns, headers, templateOrFileType, she
 
 		for (i = 1; i <= dataset.getMaxRowIndex(); i++) {
 			var rowData = dataset.getRowAsArray(i);
-			row = this.sheet.insertRowAt(rowNum + (i-1));
+			row = this.sheet.createRow(rowNum + (i-1));
 
 			for (var d = 0; d < columns.length; d++) {
 				cell = row.createCell(this.startColumn + d);
@@ -1317,7 +1323,7 @@ function DataSetExcelWorkbook(dataset, columns, headers, templateOrFileType, she
 			this.sheet.createFreezePane(1, this.startRow + 1);
 		}
 
-		if (this.autoSizeColumns) {
+		if (this.autoSizeColumns && !(this.wb instanceof Packages.org.apache.poi.xssf.streaming.SXSSFWorkbook)) {
 			for (i = 0; i < columns.length; i++) {
 				this.sheet.autoSizeColumn(this.startColumn + i);
 			}
@@ -2577,6 +2583,8 @@ var initExcelCell = (/** @constructor */ function() {
 			/** @type {Number} */
 			var numberValue = value;
 			this.cell.setCellValue(numberValue);
+		} else {
+			this.cell.setCellValue("");
 		}
 		if (style) {
 			this.setCellStyle(style);
