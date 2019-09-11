@@ -2496,11 +2496,14 @@ var initExcelCell = (/** @constructor */ function() {
 	 */
 	ExcelCell.prototype.getCellValue = function() {
 		var cellType = this.cell.getCellTypeEnum();
+		if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.FORMULA) {
+			cellType = this.cell.getCachedFormulaResultTypeEnum();
+		}
 		if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.BLANK) {
 			return null;
 		} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.BOOLEAN) {
 			return this.cell.getBooleanCellValue() ? 1 : 0;
-		} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.FORMULA) {
+		} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.NUMERIC) {
 			return this.cell.getNumericCellValue();
 		} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.STRING) {
 			return this.cell.getStringCellValue();
