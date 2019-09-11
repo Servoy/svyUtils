@@ -1507,6 +1507,7 @@ var initExcelSheet = (/** @constructor */ function() {
 	 * 
 	 * @param {Number} row - one based
 	 * @param {Number} column - one based
+	 * @return {ExcelCell} the excel cell or null if no cell was found at the given row and column indexes
 	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.getCell = function(row, column) {
@@ -2396,6 +2397,24 @@ var initExcelRow = (/** @constructor */ function() {
 			result.setCellStyle(style);
 		}
 		return result;
+	}
+	
+	/**
+	 * Get the number of the first cell contained in this row or -1 if the row does not contain any cells.
+	 * @return {Number} firstCellNum
+	 * @this {ExcelRow}
+	 */
+	ExcelRow.prototype.getFirstCellNum = function() {
+		return this.row.getFirstCellNum() + 1;
+	}	
+	
+	/**
+	 * Gets the index of the last cell contained in this row or -1 if the row does not contain any cells.
+	 * @return {Number} lastCellNum
+	 * @this {ExcelRow}
+	 */
+	ExcelRow.prototype.getLastCellNum = function() {
+		return this.row.getLastCellNum()
 	}
 	
 	/**
