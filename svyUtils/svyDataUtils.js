@@ -932,6 +932,64 @@ function getDataProviderRelationName(dataProviderID) {
 }
 
 /**
+ * returns the primary dataSource for the first relation name
+ * @since 2019-09-27
+ * @public 
+ * @param {String} relationsName
+ * 
+ * @return {String} returns the primary dataSource of the given relations name
+ * @example <pre>
+ * // returns "db:/example_data/customers"
+ * var dataSource = scopes.svyDataUtils.getRelationPrimaryDataSource('customers_to_orders');
+ * 
+ * // returns "db:/example_data/customers"
+ * var dataSource = scopes.svyDataUtils.getRelationPrimaryDataSource('customers_to_orders.orders_to_orderdetails');
+ * </pre>
+ *
+ * @properties={typeid:24,uuid:"A8A4C745-D7B7-4059-8E5C-92E345879837"}
+ */
+function getRelationPrimaryDataSource(relationsName) {
+	var foreingDataSource = null;
+	var path = relationsName.split('.');
+	if (path.length > 0) {
+		var jsRel = solutionModel.getRelation(path[0]);
+		if (jsRel) {
+			foreingDataSource = jsRel.primaryDataSource;
+		}
+	}
+	return foreingDataSource;
+}
+
+/**
+ * @since 2019-09-27
+ * @public 
+ * @param {String} relationsName
+ * 
+ * @return {String} returns the foreign dataSource of the given last relation name
+ * @example <pre>
+ * // returns "db:/example_data/orders"
+ * var dataSource = scopes.svyDataUtils.getRelationForeignDataSource('customers_to_orders');
+ * 
+ * // returns "db:/example_data/order_details"
+ * var dataSource = scopes.svyDataUtils.getRelationForeignDataSource('customers_to_orders.orders_to_order_details');
+ * </pre>
+ *
+ * @properties={typeid:24,uuid:"25F80D18-5F92-4086-A2CA-85522185FE72"}
+ */
+function getRelationForeignDataSource(relationsName) {
+	var foreingDataSource = null;
+	var path = relationsName.split('.');
+	if (path.length > 0) {
+		var jsRel = solutionModel.getRelation(path[path.length - 1]);
+		if (jsRel) {
+			foreingDataSource = jsRel.foreignDataSource;
+		}
+	}
+	return foreingDataSource;
+}
+
+
+/**
  * Dumps all data of either all or the given tables of the given server to csv files and zips them.<br>
  * <br>
  * NOTE: All possible table filters will be applied.
