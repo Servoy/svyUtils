@@ -963,6 +963,7 @@ function getRelationPrimaryDataSource(relationsName) {
 /**
  * @since 2019-09-27
  * @public 
+ * 
  * @param {String} relationsName
  * 
  * @return {String} returns the foreign dataSource of the given last relation name
