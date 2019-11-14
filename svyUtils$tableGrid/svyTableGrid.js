@@ -400,6 +400,18 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 		return this;
 	}
 	
+	this.headerPartHeight = null;
+	
+	/**
+	 * Sets the height of the header part
+	 * @param {Number} height
+	 * @return {TableGrid}
+	 */
+	this.setHeaderPartHeight = function(height) {
+		this.headerPartHeight = height;
+		return this;
+	}
+	
 	/**
 	 * The height of the table rows
 	 * @type {Number}
@@ -956,6 +968,15 @@ function TableGrid(datasource, columnHeaders, dataproviders) {
 		jsForm.scrollbars = this.scrollbars;
 		jsForm.transparent = this.transparent;
 		jsForm.extendsForm = solutionModel.getForm(this.baseFormName);
+		
+		if (this.headerPartHeight) {
+			var jsTitleHeaderPart = jsForm.getPart(JSPart.TITLE_HEADER);
+			if (!jsTitleHeaderPart) {
+				jsForm.newPart(JSPart.TITLE_HEADER, this.headerPartHeight);
+			} else {
+				jsTitleHeaderPart.height = this.headerPartHeight;
+			}
+		}
 		
 		if (jsForm.getVariable("tableGrid") == null) {
 			jsForm.newVariable("tableGrid", JSVariable.MEDIA);
