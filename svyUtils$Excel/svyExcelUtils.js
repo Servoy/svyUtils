@@ -847,7 +847,7 @@ function ServoyExcelWorkbook(templateOrFileType, sheetNameToUse) {
 	 * This can be overriden for specific columns by calling <code>setFormatForColumn()</code>
 	 * @type {String}
 	 */
-	this.defaultNumberFormat = i18n.getDefaultNumberFormat();
+	this.defaultNumberFormat = null;
 
 	/**
 	 * The ExcelWorkbook created
@@ -1087,14 +1087,21 @@ function FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileT
 			this.rowStyle.setFont(font);
 		}
 
-		var numberCellStyle = this.workbook.createCellStyle();
-		numberCellStyle.cloneStyleFrom(this.rowStyle);
-		numberCellStyle.setAlignment(ALIGNMENT.RIGHT);
-		numberCellStyle.setDataFormat(this.defaultNumberFormat);
+		var numberCellStyle = null;
+		if (this.defaultNumberFormat) {
+			numberCellStyle = this.workbook.createCellStyle();
+			numberCellStyle.cloneStyleFrom(this.rowStyle);
+			numberCellStyle.setAlignment(ALIGNMENT.RIGHT);
+			numberCellStyle.setDataFormat(this.defaultNumberFormat);
+			numberCellStyle.setDataFormat(Packages.org.apache.poi.ss.usermodel);
+		}
 		
-		var dateCellStyle = this.workbook.createCellStyle();
-		dateCellStyle.cloneStyleFrom(this.rowStyle);
-		dateCellStyle.setDataFormat(this.defaultDateFormat);
+		var dateCellStyle = null;
+		if (this.defaultDateFormat) {
+			dateCellStyle = this.workbook.createCellStyle();
+			dateCellStyle.cloneStyleFrom(this.rowStyle);
+			dateCellStyle.setDataFormat(this.defaultDateFormat);
+		}
 
 		var cellFormatToUse;
 		for (i = 0; i < this.columnFormats.length; i++) {
@@ -1119,9 +1126,9 @@ function FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileT
 				cell.setCellValue(dpValue);
 				if (this.columnStyles[d]) {
 					cell.setCellStyle(this.columnStyles[d]);
-				} else if (dpValue instanceof Number) {
+				} else if (dpValue instanceof Number && numberCellStyle) {
 					cell.setCellStyle(numberCellStyle);
-				} else if (dpValue instanceof Date) {
+				} else if (dpValue instanceof Date && dateCellStyle) {
 					cell.setCellStyle(dateCellStyle);
 				} else {
 					cell.setCellStyle(this.rowStyle);
@@ -1277,15 +1284,22 @@ function DataSetExcelWorkbook(dataset, columns, headers, templateOrFileType, she
 			this.rowStyle.setFont(font);
 		}
 
-		var numberCellStyle = this.workbook.createCellStyle();
-		numberCellStyle.cloneStyleFrom(this.rowStyle);
-		numberCellStyle.setAlignment(ALIGNMENT.RIGHT);
-		numberCellStyle.setDataFormat(this.defaultNumberFormat);
-
-		var dateCellStyle = this.workbook.createCellStyle();
-		dateCellStyle.cloneStyleFrom(this.rowStyle);
-		dateCellStyle.setDataFormat(this.defaultDateFormat);
-
+		var numberCellStyle = null;
+		if (this.defaultNumberFormat) {
+			numberCellStyle = this.workbook.createCellStyle();
+			numberCellStyle.cloneStyleFrom(this.rowStyle);
+			numberCellStyle.setAlignment(ALIGNMENT.RIGHT);
+			numberCellStyle.setDataFormat(this.defaultNumberFormat);
+			numberCellStyle.setDataFormat(Packages.org.apache.poi.ss.usermodel);
+		}
+		
+		var dateCellStyle = null;
+		if (this.defaultDateFormat) {
+			dateCellStyle = this.workbook.createCellStyle();
+			dateCellStyle.cloneStyleFrom(this.rowStyle);
+			dateCellStyle.setDataFormat(this.defaultDateFormat);
+		}
+		
 		var cellFormatToUse;
 		for (i = 0; i < this.columnFormats.length; i++) {
 			if (this.columnFormats[i]) {
@@ -1309,9 +1323,9 @@ function DataSetExcelWorkbook(dataset, columns, headers, templateOrFileType, she
 				cell.setCellValue(dpValue);
 				if (this.columnStyles[d]) {
 					cell.setCellStyle(this.columnStyles[d]);
-				} else if (dpValue instanceof Number) {
+				} else if (dpValue instanceof Number && numberCellStyle) {
 					cell.setCellStyle(numberCellStyle);
-				} else if (dpValue instanceof Date) {
+				} else if (dpValue instanceof Date && dateCellStyle) {
 					cell.setCellStyle(dateCellStyle);
 				} else {
 					cell.setCellStyle(this.rowStyle);
