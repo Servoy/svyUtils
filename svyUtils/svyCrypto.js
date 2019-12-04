@@ -130,7 +130,7 @@ function decrypt(value, options, secretPassPhrase, iv) {
 	if (value instanceof String) {
 		/** @type {String} */
 		var str = value;
-		bytes = base64DecodeAsBytes(str);
+		bytes = utils.base64ToBytes(str);
 	} else {
 		bytes = value;
 	}
@@ -139,7 +139,7 @@ function decrypt(value, options, secretPassPhrase, iv) {
 		var ivBytes;
 		if (iv instanceof String) {
 			str = iv;
-			ivBytes = base64DecodeAsBytes(str);
+			ivBytes = utils.base64ToBytes(str);
 		} else {
 			ivBytes = iv;
 		}
@@ -391,7 +391,7 @@ function Message(value, iv) {
 	 * @return {String}
 	 */
 	this.getValue = function() {
-		return base64EncodeAsString(value);
+		return utils.bytesToBase64(value);
 	}
 	
 	/**
@@ -418,7 +418,7 @@ function Message(value, iv) {
 	 * @return {String}
 	 */
 	this.getIVString = function() {
-		return !iv ? null : base64EncodeAsString(iv);
+		return !iv ? null : utils.bytesToBase64(iv);
 	}
 }
 
@@ -473,7 +473,7 @@ function EncryptionOptions() {
 	 * @return {String}
 	 */
 	this.getKeyAsString = function() {
-		return base64EncodeAsString(key.getEncoded());
+		return utils.bytesToBase64(key.getEncoded());
 	}
 	
 	/**
@@ -488,7 +488,7 @@ function EncryptionOptions() {
 			key = null;
 		} else {
 			/** @type {Array<byte>} */
-			var bytes = newKey instanceof String ? base64DecodeAsBytes(newKey.toString()) : newKey;		
+			var bytes = newKey instanceof String ? utils.base64ToBytes(newKey.toString()) : newKey;		
 			key = getKey(bytes, this);
 		}
 		return this;
@@ -590,37 +590,6 @@ function string2Bytes(str) {
 /**
  * @private
  * 
- * @param {Array<byte>} bytes
- * 
- * @return {String}
- * 
- * @properties={typeid:24,uuid:"99EDA1C0-B92D-4BFD-976C-6406386C06CC"}
- */
-function base64EncodeAsString(bytes) {
-	var b64 = new Packages.org.apache.commons.codec.binary.Base64();
-	return b64.encodeAsString(bytes);
-}
-
-/**
- * @private
- * 
- * @param {String} encodedStr
- * 
- * @return {Array<byte>}
- * 
- * @properties={typeid:24,uuid:"B94FC7D2-63AC-4CAB-9A14-26F400C06842"}
- */
-function base64DecodeAsBytes(encodedStr) {
-	var b64 = new Packages.org.apache.commons.codec.binary.Base64();
-	/** @type {Array<byte>} */
-	var bytes = b64.decode(encodedStr);
-	return bytes;
-}
-
-
-/**
- * @private
- * 
  * @param {Array<byte>} key
  * 
  * @param {EncryptionOptions} options
@@ -671,7 +640,7 @@ function getHash(value, algorithm) {
 	/** @type {Array<byte>} */
 	var bytes = value instanceof String ? string2Bytes(value) : value;
 	var digest = Packages.java.security.MessageDigest.getInstance(algorithm);
-	return base64EncodeAsString(digest.digest(bytes));
+	return utils.bytesToBase64(digest.digest(bytes));
 }
 /**
  * Converts a string or byte array to a hashed message using MD5
