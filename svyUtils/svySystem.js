@@ -691,6 +691,8 @@ function convertQualifiedNameToServoyMethod(qualifiedName, context) {
 
 
 /**
+ * Returns an array containing the lines of code of the given function
+ * 
  * @public 
  * @param functionToPrint
  * @return {Array<String>}
@@ -719,7 +721,6 @@ function printMethodCode(functionToPrint) {
 				relevantLines.push(lines[i]);
 			}
 		}
-		
 		relevantLines.pop();
 		return relevantLines;
 	} else {

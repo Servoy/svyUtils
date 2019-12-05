@@ -704,8 +704,9 @@ function getContainerElements(form) {
 }
 
 /**
+ * Returns the relation name from a the given form component
+ * 
  * @since 2019-01-05
- * TODO add description
  * @public 
  * @param {String} formName
  * @param {String} elementName
@@ -752,6 +753,8 @@ function getFormComponentRelationName(formName, elementName) {
 }
 
 /**
+ * Returns a RuntimeElementSource for the given element
+ * 
  * @public 
  * @param {String} formName
  * @param {String} elementName
@@ -795,6 +798,7 @@ function setupRuntimeElementSource() {
 	RuntimeElementSource.prototype.constructor = RuntimeElementSource;
 	
 	/** 
+	 * Returns the form name of this RuntimeElementSource
 	 * @public 
 	 * @return {String}
 	 * */
@@ -803,6 +807,7 @@ function setupRuntimeElementSource() {
 	}
 	
 	/** 
+	 * Returns the element name of this RuntimeElementSource
 	 * @public 
 	 * @return {String}
 	 * */
@@ -811,6 +816,8 @@ function setupRuntimeElementSource() {
 	}
 	
 	/** 
+	 * Returns the relation name of the dataprovider used
+	 * 
 	 * @public 
 	 * @return {String}
 	 * */
@@ -843,6 +850,7 @@ function setupRuntimeElementSource() {
 	
 	
 	/** 
+	 * Returns the dataprovider name stripping of a possible relation
 	 * @public 
 	 * @return {String}
 	 * */
@@ -864,6 +872,7 @@ function setupRuntimeElementSource() {
 	}
 	
 	/** 
+	 * Returns the selected record 
 	 * @public
 	 * @return {JSRecord}
 	 * */

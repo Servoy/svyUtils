@@ -212,6 +212,8 @@ function dataSourceHasValue(datasource, dataproviderName, value, extraQueryColum
 }
 
 /**
+ * Returns a foundset matching the given values in the given columns
+ * 
  * @param {String|JSFoundSet} datasource
  * @param {Array<String>} [extraQueryColumns] list of datasource's column names (only non-related columns)
  * @param {Array<*>} [extraQueryValues] list of values for the listed extraQueryColumns
@@ -256,6 +258,8 @@ function getFoundSetWithExactValues(datasource, extraQueryColumns, extraQueryVal
 }
 
 /**
+ * Loads all records matching the given criteria in the given foundset
+ * 
  * @param {JSFoundSet} foundset the foundset where records will be loaded
  * @param {Array<String>} [extraQueryColumns] list of datasource's column names (only non-related columns)
  * @param {Array<*>} [extraQueryValues] list of values for the listed extraQueryColumns
@@ -300,7 +304,7 @@ function loadRecordsWithExactValues(foundset, extraQueryColumns, extraQueryValue
 }
 
 /**
- * Load the JSRecord with the specified PK into the given foundset
+ * Loads the record with the specified PK(s) into the given foundset
  * 
  * @public
  * 
@@ -884,6 +888,8 @@ function getDataproviderValueInDB(record, dataProviderId) {
 }
 
 /**
+ * Returns the name of the dataprovider stripping possible relation(s)
+ * 
  * @since 2019-01-05
  * @public 
  * @param {String} dataProviderID the dataProviderID 
@@ -907,6 +913,8 @@ function getUnrelatedDataProviderID(dataProviderID) {
 }
 
 /**
+ * Returns the relation name(s) of a given dataprovider
+ * 
  * @since 2019-01-05
  * @public 
  * @param {String} dataProviderID the dataProviderID 
