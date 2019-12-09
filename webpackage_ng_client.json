@@ -1,0 +1,12 @@
+{
+    "name":"svyUtils$NGClient",
+    "displayName":"svyUtils$NGClient",
+    "packageType": "Solution",
+    "icon": "https://raw.githubusercontent.com/Servoy/servoy-extra-components/master/servoy.png",
+    "description": "Set of utility methods specifically for the Servoy NG Client",
+    "wikiUrl": "https://github.com/Servoy/svyUtils/wiki",
+    "sourceUrl" : "https://github.com/Servoy/svyUtils",
+    "releases" : [
+        {"version":"1.4.0","url":"https://github.com/Servoy/svyUtils/releases/download/v1.4.0/svyUtilsNGClient.servoy", "servoy-version":"2019.12"}
+     ]
+}
