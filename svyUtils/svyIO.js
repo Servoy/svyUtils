@@ -227,6 +227,7 @@ function zip(fileToZip, targetFile, filenamesToStoreUncompressed) {
 				}
 				
 				zipOutputStream.putNextEntry(entry);
+				zipOutputStream.closeEntry();
 				
 				/** @type {java.nio.channels.ReadableByteChannel} */
 				var inputChannel = java.nio.channels.Channels.newChannel(is);
