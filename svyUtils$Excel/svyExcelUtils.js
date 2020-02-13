@@ -1631,6 +1631,21 @@ var initExcelSheet = (/** @constructor */ function() {
 	}
 	
 	/**
+	 * Returns the cell with the given cell reference (e.g. "C5")
+	 * @param {String} cellRef
+	 * @return {ExcelCell} the excel cell or null if no cell was found at the given cell reference
+	 * @this {ExcelSheet}
+	 */
+	ExcelSheet.prototype.getCellByReference = function(cellRef) {
+		var cr = new Packages.org.apache.poi.ss.util.CellReference(cellRef);
+		var row = this.sheet.getRow(cr.getRow());
+		if (!row) return null;
+		var cell = row.getCell(cr.getCol());
+		if (!cell) return null;
+		return new ExcelCell(cell);
+	}
+	
+	/**
 	 * Gets the first row on the sheet
 	 * @return {Number} the number of the first logical row on the sheet, one based
 	 * @this {ExcelSheet}
