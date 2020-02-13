@@ -405,7 +405,7 @@ var mergedRegionType;
  * 
  * @public 
  * 
- * @param {String|plugins.file.JSFile|Number} [templateOrFileType] either an existing Excel file as template or one of the FILE_FORMAT constants when creating empty workbooks
+ * @param {String|plugins.file.JSFile|Number|byte[]} [templateOrFileType] either an existing Excel file as template or one of the FILE_FORMAT constants when creating empty workbooks
  * 
  * @return {ExcelWorkbook}
  * 
@@ -531,7 +531,7 @@ function createWorkbookFromDataSet(dataset, columns, headers, templateOrFileType
  * 
  * @public 
  *
- * @param {String|plugins.file.JSFile|Number|Array<byte>} [templateOrFileType] either a path, mediaUrl, JSFile or byte[] when reading an existing workbook or one of the FILE_FORMAT constants when creating empty workbooks
+ * @param {String|plugins.file.JSFile|Number|byte[]} [templateOrFileType] either a path, mediaUrl, JSFile or byte[] when reading an existing workbook or one of the FILE_FORMAT constants when creating empty workbooks
  * 
  * @example <pre>
  * // Create workbook and sheet
@@ -745,7 +745,7 @@ var initExcelWorkbook = (/** @constructor */ function() {
 
 		var fileOut;
 		try {
-			fileOut = new java.io.FileOutputStream(filePath);
+			fileOut = new java.io.FileOutputStream(new java.io.File(filePath));
 			this.wb.write(fileOut);
 			return true;
 		} catch (e) {
