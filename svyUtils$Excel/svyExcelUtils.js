@@ -1524,6 +1524,7 @@ var initExcelSheet = (/** @constructor */ function() {
 	/**
 	 * Create a new row within the sheet (one based)
 	 * @param {Number} row
+	 * @return {ExcelRow}
 	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.createRow = function(row) {
