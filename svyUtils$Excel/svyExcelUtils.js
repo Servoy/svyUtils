@@ -56,52 +56,99 @@ var FILE_FORMAT = {
  * @properties={typeid:35,uuid:"855289A8-C79C-4F8B-A426-91856FAF9E4A",variableType:-4}
  */
 var INDEXED_COLOR = {
+	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	AQUA: Packages.org.apache.poi.ss.usermodel.IndexedColors.AQUA,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	BLACK: Packages.org.apache.poi.ss.usermodel.IndexedColors.BLACK,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	BLUE: Packages.org.apache.poi.ss.usermodel.IndexedColors.BLUE,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	BLUE_GREY: Packages.org.apache.poi.ss.usermodel.IndexedColors.BLUE_GREY,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	BRIGHT_GREEN: Packages.org.apache.poi.ss.usermodel.IndexedColors.BRIGHT_GREEN,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	BROWN: Packages.org.apache.poi.ss.usermodel.IndexedColors.BROWN,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	CORAL: Packages.org.apache.poi.ss.usermodel.IndexedColors.CORAL,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	CORNFLOWER_BLUE: Packages.org.apache.poi.ss.usermodel.IndexedColors.CORNFLOWER_BLUE,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	DARK_BLUE: Packages.org.apache.poi.ss.usermodel.IndexedColors.DARK_BLUE,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	DARK_GREEN: Packages.org.apache.poi.ss.usermodel.IndexedColors.DARK_GREEN,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	DARK_RED: Packages.org.apache.poi.ss.usermodel.IndexedColors.DARK_RED,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	DARK_TEAL: Packages.org.apache.poi.ss.usermodel.IndexedColors.DARK_TEAL,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	DARK_YELLOW: Packages.org.apache.poi.ss.usermodel.IndexedColors.DARK_YELLOW,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	GOLD: Packages.org.apache.poi.ss.usermodel.IndexedColors.GOLD,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	GREEN: Packages.org.apache.poi.ss.usermodel.IndexedColors.GREEN,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	GREY_25_PERCENT: Packages.org.apache.poi.ss.usermodel.IndexedColors.GREY_25_PERCENT,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	GREY_40_PERCENT: Packages.org.apache.poi.ss.usermodel.IndexedColors.GREY_40_PERCENT,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	GREY_50_PERCENT: Packages.org.apache.poi.ss.usermodel.IndexedColors.GREY_50_PERCENT,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	GREY_80_PERCENT: Packages.org.apache.poi.ss.usermodel.IndexedColors.GREY_80_PERCENT,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	INDIGO: Packages.org.apache.poi.ss.usermodel.IndexedColors.INDIGO,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	LAVENDER: Packages.org.apache.poi.ss.usermodel.IndexedColors.LAVENDER,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	LEMON_CHIFFON: Packages.org.apache.poi.ss.usermodel.IndexedColors.LEMON_CHIFFON,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	LIGHT_BLUE: Packages.org.apache.poi.ss.usermodel.IndexedColors.LIGHT_BLUE,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	LIGHT_CORNFLOWER_BLUE: Packages.org.apache.poi.ss.usermodel.IndexedColors.LIGHT_CORNFLOWER_BLUE,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	LIGHT_GREEN: Packages.org.apache.poi.ss.usermodel.IndexedColors.LIGHT_GREEN,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	LIGHT_ORANGE: Packages.org.apache.poi.ss.usermodel.IndexedColors.LIGHT_ORANGE,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	LIGHT_TURQUOISE: Packages.org.apache.poi.ss.usermodel.IndexedColors.LIGHT_TURQUOISE,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	LIGHT_YELLOW: Packages.org.apache.poi.ss.usermodel.IndexedColors.LIGHT_YELLOW,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	LIME: Packages.org.apache.poi.ss.usermodel.IndexedColors.LIME,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	MAROON: Packages.org.apache.poi.ss.usermodel.IndexedColors.MAROON,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	OLIVE_GREEN: Packages.org.apache.poi.ss.usermodel.IndexedColors.OLIVE_GREEN,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	ORANGE: Packages.org.apache.poi.ss.usermodel.IndexedColors.ORANGE,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	ORCHID: Packages.org.apache.poi.ss.usermodel.IndexedColors.ORCHID,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	PALE_BLUE: Packages.org.apache.poi.ss.usermodel.IndexedColors.PALE_BLUE,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	PINK: Packages.org.apache.poi.ss.usermodel.IndexedColors.PINK,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	PLUM: Packages.org.apache.poi.ss.usermodel.IndexedColors.PLUM,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	RED: Packages.org.apache.poi.ss.usermodel.IndexedColors.RED,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	ROSE: Packages.org.apache.poi.ss.usermodel.IndexedColors.ROSE,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	ROYAL_BLUE: Packages.org.apache.poi.ss.usermodel.IndexedColors.ROYAL_BLUE,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	SEA_GREEN: Packages.org.apache.poi.ss.usermodel.IndexedColors.SEA_GREEN,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	SKY_BLUE: Packages.org.apache.poi.ss.usermodel.IndexedColors.SKY_BLUE,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	TAN: Packages.org.apache.poi.ss.usermodel.IndexedColors.TAN,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	TEAL: Packages.org.apache.poi.ss.usermodel.IndexedColors.TEAL,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	TURQUOISE: Packages.org.apache.poi.ss.usermodel.IndexedColors.TURQUOISE,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	VIOLET: Packages.org.apache.poi.ss.usermodel.IndexedColors.VIOLET,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	WHITE: Packages.org.apache.poi.ss.usermodel.IndexedColors.WHITE,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.IndexedColors} */
 	YELLOW: Packages.org.apache.poi.ss.usermodel.IndexedColors.YELLOW
 }
 
@@ -115,13 +162,21 @@ var INDEXED_COLOR = {
  * @properties={typeid:35,uuid:"DEA33F4D-6CCD-404C-BC04-7453C0298204",variableType:-4}
  */
 var ALIGNMENT = {
+	/** @type {Packages.org.apache.poi.ss.usermodel.HorizontalAlignment} */
 	CENTER: Packages.org.apache.poi.ss.usermodel.HorizontalAlignment.CENTER,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.HorizontalAlignment} */
 	CENTER_SELECTION: Packages.org.apache.poi.ss.usermodel.HorizontalAlignment.CENTER_SELECTION,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.HorizontalAlignment} */
 	FILL: Packages.org.apache.poi.ss.usermodel.HorizontalAlignment.FILL,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.HorizontalAlignment} */
 	GENERAL: Packages.org.apache.poi.ss.usermodel.HorizontalAlignment.GENERAL,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.HorizontalAlignment} */
 	JUSTIFY: Packages.org.apache.poi.ss.usermodel.HorizontalAlignment.JUSTIFY,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.HorizontalAlignment} */
 	LEFT: Packages.org.apache.poi.ss.usermodel.HorizontalAlignment.LEFT,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.HorizontalAlignment} */
 	RIGHT: Packages.org.apache.poi.ss.usermodel.HorizontalAlignment.RIGHT,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.HorizontalAlignment} */
 	DISTRIBUTED: Packages.org.apache.poi.ss.usermodel.HorizontalAlignment.DISTRIBUTED
 }
 
@@ -135,10 +190,15 @@ var ALIGNMENT = {
  * @properties={typeid:35,uuid:"ECC742E2-74A1-4BCC-A0AA-FC8018B4F70E",variableType:-4}
  */
 var VERTICAL_ALIGNMENT = {
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.VerticalAlignment} */
 	BOTTOM: Packages.org.apache.poi.ss.usermodel.VerticalAlignment.BOTTOM,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.VerticalAlignment} */
 	CENTER: Packages.org.apache.poi.ss.usermodel.VerticalAlignment.CENTER,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.VerticalAlignment} */
 	JUSTIFY: Packages.org.apache.poi.ss.usermodel.VerticalAlignment.JUSTIFY,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.VerticalAlignment} */
 	TOP: Packages.org.apache.poi.ss.usermodel.VerticalAlignment.TOP,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.VerticalAlignment} */
 	DISTRIBUTED: Packages.org.apache.poi.ss.usermodel.VerticalAlignment.DISTRIBUTED
 }
 
@@ -167,19 +227,33 @@ var FONT_UNDERLINE = {
  * @properties={typeid:35,uuid:"EBD9777E-A1E9-4E97-AD9B-2A539697CDED",variableType:-4}
  */
 var BORDER = {
+	/** @type {Packages.org.apache.poi.ss.usermodel.BorderStyle} */	 
 	DASH_DOT: Packages.org.apache.poi.ss.usermodel.BorderStyle.DASH_DOT,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.BorderStyle} */	 
 	DASH_DOT_DOT: Packages.org.apache.poi.ss.usermodel.BorderStyle.DASH_DOT_DOT,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.BorderStyle} */	 
 	DASHED: Packages.org.apache.poi.ss.usermodel.BorderStyle.DASHED,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.BorderStyle} */	 
 	DOTTED: Packages.org.apache.poi.ss.usermodel.BorderStyle.DOTTED,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.BorderStyle} */	 
 	DOUBLE: Packages.org.apache.poi.ss.usermodel.BorderStyle.DOUBLE,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.BorderStyle} */	 
 	HAIR: Packages.org.apache.poi.ss.usermodel.BorderStyle.HAIR,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.BorderStyle} */	 
 	MEDIUM: Packages.org.apache.poi.ss.usermodel.BorderStyle.MEDIUM,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.BorderStyle} */	 
 	MEDIUM_DASH_DOT: Packages.org.apache.poi.ss.usermodel.BorderStyle.MEDIUM_DASH_DOT,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.BorderStyle} */	 
 	MEDIUM_DASH_DOT_DOT: Packages.org.apache.poi.ss.usermodel.BorderStyle.MEDIUM_DASH_DOT_DOT,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.BorderStyle} */	 
 	MEDIUM_DASHED: Packages.org.apache.poi.ss.usermodel.BorderStyle.MEDIUM_DASHED,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.BorderStyle} */	 
 	NONE: Packages.org.apache.poi.ss.usermodel.BorderStyle.NONE,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.BorderStyle} */	 
 	SLANTED_DASH_DOT: Packages.org.apache.poi.ss.usermodel.BorderStyle.SLANTED_DASH_DOT,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.BorderStyle} */	 
 	THICK: Packages.org.apache.poi.ss.usermodel.BorderStyle.THICK,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.BorderStyle} */	 
 	THIN: Packages.org.apache.poi.ss.usermodel.BorderStyle.THIN
 }
 
@@ -193,22 +267,39 @@ var BORDER = {
  * @properties={typeid:35,uuid:"3ADD93AE-0FEE-4454-8FBB-0528D00B579C",variableType:-4}
  */
 var FILL_PATTERN = {
+	/** @type {Packages.org.apache.poi.ss.usermodel.FillPatternType} */	 
 	NO_FILL: Packages.org.apache.poi.ss.usermodel.FillPatternType.NO_FILL,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.FillPatternType} */	 
 	SOLID_FOREGROUND: Packages.org.apache.poi.ss.usermodel.FillPatternType.SOLID_FOREGROUND,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.FillPatternType} */	 
 	FINE_DOTS: Packages.org.apache.poi.ss.usermodel.FillPatternType.FINE_DOTS,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.FillPatternType} */	 
 	ALT_BARS: Packages.org.apache.poi.ss.usermodel.FillPatternType.ALT_BARS,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.FillPatternType} */	 
 	SPARSE_DOTS: Packages.org.apache.poi.ss.usermodel.FillPatternType.SPARSE_DOTS,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.FillPatternType} */	 
 	THICK_HORZ_BANDS: Packages.org.apache.poi.ss.usermodel.FillPatternType.THICK_HORZ_BANDS,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.FillPatternType} */	 
 	THICK_VERT_BANDS: Packages.org.apache.poi.ss.usermodel.FillPatternType.THICK_VERT_BANDS,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.FillPatternType} */	 
 	THICK_BACKWARD_DIAG: Packages.org.apache.poi.ss.usermodel.FillPatternType.THICK_BACKWARD_DIAG,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.FillPatternType} */	 
 	THICK_FORWARD_DIAG: Packages.org.apache.poi.ss.usermodel.FillPatternType.THICK_FORWARD_DIAG,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.FillPatternType} */	 
 	BIG_SPOTS: Packages.org.apache.poi.ss.usermodel.FillPatternType.BIG_SPOTS,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.FillPatternType} */	 
 	BRICKS: Packages.org.apache.poi.ss.usermodel.FillPatternType.BRICKS,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.FillPatternType} */	 
 	THIN_HORZ_BANDS: Packages.org.apache.poi.ss.usermodel.FillPatternType.THICK_HORZ_BANDS,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.FillPatternType} */	 
 	THIN_VERT_BANDS: Packages.org.apache.poi.ss.usermodel.FillPatternType.THICK_VERT_BANDS,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.FillPatternType} */	 
 	THIN_BACKWARD_DIAG: Packages.org.apache.poi.ss.usermodel.FillPatternType.THICK_FORWARD_DIAG,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.FillPatternType} */	 
 	THIN_FORWARD_DIAG: Packages.org.apache.poi.ss.usermodel.FillPatternType.THICK_FORWARD_DIAG,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.FillPatternType} */	 
 	SQUARES: Packages.org.apache.poi.ss.usermodel.FillPatternType.SQUARES,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.FillPatternType} */	 
 	DIAMONDS: Packages.org.apache.poi.ss.usermodel.FillPatternType.DIAMONDS
 }
 
@@ -236,11 +327,17 @@ var SHEET_PANE = {
  * @properties={typeid:35,uuid:"9FF3C911-31DA-416B-86DE-13A8F69ADD96",variableType:-4}
  */
 var CELL_TYPE = {
+	/** @type {Packages.org.apache.poi.ss.usermodel.CellType} */	 
 	BLANK: Packages.org.apache.poi.ss.usermodel.CellType.BLANK,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.CellType} */	 
 	BOOLEAN: Packages.org.apache.poi.ss.usermodel.CellType.BOOLEAN,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.CellType} */	 
 	ERROR: Packages.org.apache.poi.ss.usermodel.CellType.ERROR,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.CellType} */	 
 	FORMULA: Packages.org.apache.poi.ss.usermodel.CellType.FORMULA,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.CellType} */	 
 	NUMERIC: Packages.org.apache.poi.ss.usermodel.CellType.NUMERIC,
+ 	/** @type {Packages.org.apache.poi.ss.usermodel.CellType} */	 
 	STRING: Packages.org.apache.poi.ss.usermodel.CellType.STRING
 }
 
