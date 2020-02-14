@@ -3058,6 +3058,7 @@ function isLoaded() {
 		var c = java.lang.Class.forName("org.apache.poi.xssf.usermodel.XSSFWorkbook", false, cl);
 		return c != null;
 	} catch(e) {
+		logger.error(e);
 		return false;
 	}
 }
