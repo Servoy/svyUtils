@@ -265,15 +265,14 @@ function getServoyBuildNumber() {
  * Returns the clientId of the current client
  * @public 
  * 
+ * @deprecated use plugins.clientmanager.getClientInformation().getClientID() instead
+ * 
  * @return {String}
  * 
  * @properties={typeid:24,uuid:"17820385-9479-4734-AC0A-5D3F272723EC"}
  */
 function getClientId() {
-	var x = new Packages.org.mozilla.javascript.NativeJavaObject(globals, plugins.window, new Packages.org.mozilla.javascript.JavaMembers(globals, Packages.com.servoy.extensions.plugins.window.WindowProvider));
-	/** @type {Packages.com.servoy.j2db.plugins.IClientPluginAccess} */
-	var clientAccess = x['getClientPluginAccess']()
-	return clientAccess.getClientID()
+	return plugins.clientmanager.getClientInformation().getClientID();
 }
 
 /**
