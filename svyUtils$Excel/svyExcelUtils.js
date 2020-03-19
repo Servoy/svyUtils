@@ -1550,10 +1550,12 @@ var initExcelSheet = (/** @constructor */ function() {
 	 * 
 	 * @param {Number} colSplit - the column where the split occurs (one based)
 	 * @param {Number} rowSplit - the row where the split occurs (one based)
+	 * @return {ExcelSheet}
 	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.createFreezePane = function(colSplit, rowSplit) {
 		this.sheet.createFreezePane(colSplit - 1, rowSplit - 1);
+		return this;
 	}
 	
 	/**
@@ -1564,28 +1566,35 @@ var initExcelSheet = (/** @constructor */ function() {
 	 * @param {Number} leftmostColumn - Top row visible in bottom pane
 	 * @param {Number} topRow - Top row visible in bottom pane
 	 * @param {byte} [activePane] - Active pane as any of the SHEET_PANE enum values
+	 * @return {ExcelSheet}
+	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.createSplitPane = function(xSplitPos, ySplitPos, leftmostColumn, topRow, activePane) {
 		this.sheet.createSplitPane(xSplitPos - 1, ySplitPos - 1, leftmostColumn - 1, topRow - 1, activePane ? activePane : SHEET_PANE.UPPER_LEFT);
+		return this;
 	}
 	
 	/**
 	 * Adjusts the column width to fit the contents.<p>
 	 * This process can be relatively slow on large sheets, so this should normally only be called once per column, at the end of your processing.
 	 * @param {Number} column - the column index (one based)
+	 * @return {ExcelSheet}
 	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.autoSizeColumn = function(column) {
 		this.sheet.autoSizeColumn(column - 1);
+		return this;
 	}
 	
 	/**
 	 * Show automatic page breaks or not
 	 * @param {Boolean} autoBreaks
+	 * @return {ExcelSheet}
 	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.setAutoBreaks = function(autoBreaks) {
 		this.sheet.setAutobreaks(autoBreaks);
+		return this;
 	}
 	
 	/**
@@ -1595,11 +1604,13 @@ var initExcelSheet = (/** @constructor */ function() {
 	 * @param {Number} startColumn - one based
 	 * @param {Number} endRow - one based
 	 * @param {Number} endColumn - one based
+	 * @return {ExcelSheet}
 	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.setAutoFilter = function(startRow, startColumn, endRow, endColumn) {
 		var range = new Packages.org.apache.poi.ss.util.CellRangeAddress(startRow - 1, endRow - 1, startColumn - 1, endColumn - 1);
 		this.sheet.setAutoFilter(range);
+		return this;
 	}
 	
 	/**
@@ -1809,21 +1820,37 @@ var initExcelSheet = (/** @constructor */ function() {
 	 * Set the visibility state for a given column.
 	 * @param {Number} column - the column to get (1-based)
 	 * @param {Boolean} hidden - the visiblity state of the column
+	 * @return {ExcelSheet}
 	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.setColumnHidden = function(column, hidden) {
 		this.sheet.setColumnHidden(column - 1, hidden);
+		return this;
 	}
+	
+	/**
+	 * Set the width of a given column.
+	 * @param {Number} column - the column to get (1-based)
+	 * @param {Number} width - the width (in units of 1/256th of a character width)
+	 * @return {ExcelSheet}
+	 * @this {ExcelSheet}
+	 */
+	ExcelSheet.prototype.setColumnWidth = function(column, width) {
+		this.sheet.setColumnWidth(column - 1, width);
+		return this;		
+	}	
 	
 	/**
 	 * Shifts rows between startRow and endRow n number of rows. If you use a negative number, it will shift rows up.
 	 * @param {Number} startRow
 	 * @param {Number} endRow
 	 * @param {Number} n
+	 * @return {ExcelSheet}
 	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.shiftRows = function(startRow, endRow, n) {
 		this.sheet.shiftRows(startRow, endRow, n);
+		return this;
 	}
 	
 	/**
@@ -1832,6 +1859,7 @@ var initExcelSheet = (/** @constructor */ function() {
 	 * @param {Number} startColumn one based
 	 * @param {Number} endRow one based
 	 * @param {Number} endColumn one based
+	 * @return {ExcelSheet}
 	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.addMergedRegion = function(startRow, startColumn, endRow, endColumn) {
@@ -1841,11 +1869,14 @@ var initExcelSheet = (/** @constructor */ function() {
 			startColumn - 1,
 			endColumn - 1
 		));
+		return this;
 	}
+	
+	}	
 	
 	/**
 	 * Returns an array of merged regions of this sheet
-	 * @return {Array<scopes.svyExcelUtils.mergedRegionType>}
+	 * @return {Array<mergedRegionType>}
 	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.getMergedRegions = function() {
@@ -1891,7 +1922,7 @@ var initExcelSheet = (/** @constructor */ function() {
 	
 	/**
 	 * Returns an array of merged regions of this sheet
-	 * @return {Array<scopes.svyExcelUtils.mergedRegionType>}
+	 * @return {Array<mergedRegionType>}
 	 * @this {ExcelSheet}
 	 */
 	ExcelSheet.prototype.getMergedRegions = function() {
@@ -2655,7 +2686,7 @@ var initExcelCell = (/** @constructor */ function() {
 		} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.BOOLEAN) {
 			return this.cell.getBooleanCellValue() ? 1 : 0;
 		} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.NUMERIC) {
-			return this.cell.getNumericCellValue();
+				return this.cell.getNumericCellValue();
 		} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.STRING) {
 			return this.cell.getStringCellValue();
 		} else {
@@ -2991,12 +3022,12 @@ function setDefaultPrintSetup(setup) {
  */
 function getCellData(cell) {
 	var result = null;
-	var cellType = cell.getCellTypeEnum();
-	if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.STRING || (cellType == Packages.org.apache.poi.ss.usermodel.CellType.FORMULA && cell.getCachedFormulaResultTypeEnum() == Packages.org.apache.poi.ss.usermodel.CellType.STRING)) {
+	var cellType = cell.getCellType();
+	if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.STRING || (cellType == Packages.org.apache.poi.ss.usermodel.CellType.FORMULA && cell.getCachedFormulaResultType() == Packages.org.apache.poi.ss.usermodel.CellType.STRING)) {
 		result = cell.getStringCellValue();
-	} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.BOOLEAN || (cellType == Packages.org.apache.poi.ss.usermodel.CellType.FORMULA && cell.getCachedFormulaResultTypeEnum() == Packages.org.apache.poi.ss.usermodel.CellType.BOOLEAN)) {
+	} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.BOOLEAN || (cellType == Packages.org.apache.poi.ss.usermodel.CellType.FORMULA && cell.getCachedFormulaResultType() == Packages.org.apache.poi.ss.usermodel.CellType.BOOLEAN)) {
 		result = cell.getBooleanCellValue() ? 1 : 0;
-	} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.NUMERIC || (cellType == Packages.org.apache.poi.ss.usermodel.CellType.FORMULA && cell.getCachedFormulaResultTypeEnum() == Packages.org.apache.poi.ss.usermodel.CellType.NUMERIC)) {
+	} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.NUMERIC || (cellType == Packages.org.apache.poi.ss.usermodel.CellType.FORMULA && cell.getCachedFormulaResultType() == Packages.org.apache.poi.ss.usermodel.CellType.NUMERIC)) {
 		if (Packages.org.apache.poi.ss.usermodel.DateUtil.isCellDateFormatted(cell)) {
 			result = new Date(cell.getDateCellValue().getTime());
 		} else {
