@@ -1873,6 +1873,32 @@ var initExcelSheet = (/** @constructor */ function() {
 		return this;
 	}
 	
+	/**
+	 * Sets the borders of the merged region
+	 * @param {String} cellReference a cell reference string for the merged region (e.g. "A2:B6")
+	 * @param {Packages.org.apache.poi.ss.usermodel.BorderStyle} borderTop the top border when given
+	 * @param {Packages.org.apache.poi.ss.usermodel.BorderStyle} borderRight the right border when given
+	 * @param {Packages.org.apache.poi.ss.usermodel.BorderStyle} borderBottom the bottom border when given
+	 * @param {Packages.org.apache.poi.ss.usermodel.BorderStyle} borderLeft the left border when given
+	 * @return {ExcelSheet}
+	 * @this {ExcelSheet}
+	 * 
+	 */
+	ExcelSheet.prototype.setMergedRegionBorder = function(cellReference, borderTop, borderRight, borderBottom, borderLeft) {
+		var cellRange = Packages.org.apache.poi.ss.util.CellRangeAddress.valueOf(cellReference);
+		if (borderTop) {			
+			Packages.org.apache.poi.ss.util.RegionUtil.setBorderTop(borderTop, cellRange, this.sheet);
+		}
+		if (borderRight) {			
+			Packages.org.apache.poi.ss.util.RegionUtil.setBorderRight(borderRight, cellRange, this.sheet);
+		}
+		if (borderBottom) {			
+			Packages.org.apache.poi.ss.util.RegionUtil.setBorderBottom(borderBottom, cellRange, this.sheet);
+		}
+		if (borderLeft) {			
+			Packages.org.apache.poi.ss.util.RegionUtil.setBorderLeft(borderLeft, cellRange, this.sheet);
+		}
+		return this;
 	}	
 	
 	/**
