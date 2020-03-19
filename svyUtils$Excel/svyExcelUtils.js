@@ -2511,17 +2511,22 @@ var initExcelRow = (/** @constructor */ function() {
 		if (!c) return null;
 		return new ExcelCell(c);
 	}
+	
 	/**
-	 * Creates a cell in the given column, optionally setting the given style
+	 * Creates a cell in the given column, optionally setting the given style and value
 	 * @param {Number} column - the column index - one based
 	 * @param {ExcelCellStyle} [style]
+	 * @param {String|Number|Date} [value]
 	 * @return {ExcelCell} cell
 	 * @this {ExcelRow}
 	 */
-	ExcelRow.prototype.createCell = function(column, style) {
+	ExcelRow.prototype.createCell = function(column, style, value) {
 		var result = new ExcelCell(this.row.createCell(column - 1));
 		if (style) {
 			result.setCellStyle(style);
+		}
+		if (value != null) {
+			result.setCellValue(value);
 		}
 		return result;
 	}
