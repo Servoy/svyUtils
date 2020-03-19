@@ -586,6 +586,7 @@ function createWorkbookFromDataSet(dataset, columns, headers, templateOrFileType
  * </pre>
  * 
  * @properties={typeid:24,uuid:"397FC940-8B31-44D7-BE4A-AA02A65A8981"}
+ * @SuppressWarnings(deprecated) needs to be added to prevent warnings from deprecated WorkbookFactory.create(Object)
  */
 function ExcelWorkbook(templateOrFileType) {
 	
@@ -2592,7 +2593,7 @@ var initExcelRow = (/** @constructor */ function() {
 		for (var it = r.cellIterator(); it.hasNext();) {
 			/** @type {Packages.org.apache.poi.ss.usermodel.Cell} */
 			var cell = it.next();
-			var cellType = cell.getCellTypeEnum();
+			var cellType = cell.getCellType();
 			if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.STRING) {
 				result.push(cell.getStringCellValue());
 			} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.NUMERIC) {
@@ -2677,9 +2678,9 @@ var initExcelCell = (/** @constructor */ function() {
 	 * @this {ExcelCell}
 	 */
 	ExcelCell.prototype.getCellValue = function() {
-		var cellType = this.cell.getCellTypeEnum();
+		var cellType = this.cell.getCellType();
 		if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.FORMULA) {
-			cellType = this.cell.getCachedFormulaResultTypeEnum();
+			cellType = this.cell.getCachedFormulaResultType();
 		}
 		if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.BLANK) {
 			return null;
@@ -2711,7 +2712,7 @@ var initExcelCell = (/** @constructor */ function() {
 	 */
 	ExcelCell.prototype.getCellType = function() {
 		/** @type {Packages.org.apache.poi.ss.usermodel.CellType} */
-		var result = this.cell.getCellTypeEnum();
+		var result = this.cell.getCellType();
 		return result;
 	}
 	
@@ -2721,7 +2722,7 @@ var initExcelCell = (/** @constructor */ function() {
 	 * @this {ExcelCell}
 	 */
 	ExcelCell.prototype.getBooleanCellValue = function() {
-		if (this.cell.getCellTypeEnum() == Packages.org.apache.poi.ss.usermodel.CellType.BOOLEAN) {
+		if (this.cell.getCellType() == Packages.org.apache.poi.ss.usermodel.CellType.BOOLEAN) {
 			return this.cell.getBooleanCellValue();
 		} else {
 			return null;
@@ -2734,7 +2735,7 @@ var initExcelCell = (/** @constructor */ function() {
 	 * @this {ExcelCell}
 	 */
 	ExcelCell.prototype.getDateCellValue = function() {
-		if (this.cell.getCellTypeEnum() == Packages.org.apache.poi.ss.usermodel.CellType.NUMERIC) {
+		if (this.cell.getCellType() == Packages.org.apache.poi.ss.usermodel.CellType.NUMERIC) {
 			return new Date(this.cell.getDateCellValue().getTime());
 		} else {
 			return null;
