@@ -2686,7 +2686,16 @@ var initExcelCell = (/** @constructor */ function() {
 		} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.BOOLEAN) {
 			return this.cell.getBooleanCellValue() ? 1 : 0;
 		} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.NUMERIC) {
+			if (Packages.org.apache.poi.hssf.usermodel.HSSFDateUtil.isCellDateFormatted(this.cell)) {
+				var dateCellValue = this.cell.getDateCellValue();
+				if (dateCellValue) {
+					return new Date(this.cell.getDateCellValue().getTime());
+				} else {
 				return this.cell.getNumericCellValue();
+				}
+			} else {
+				return this.cell.getNumericCellValue();
+			}
 		} else if (cellType == Packages.org.apache.poi.ss.usermodel.CellType.STRING) {
 			return this.cell.getStringCellValue();
 		} else {
