@@ -2718,7 +2718,7 @@ var initExcelCell = (/** @constructor */ function() {
 				if (dateCellValue) {
 					return new Date(this.cell.getDateCellValue().getTime());
 				} else {
-				return this.cell.getNumericCellValue();
+					return this.cell.getNumericCellValue();
 				}
 			} else {
 				return this.cell.getNumericCellValue();
