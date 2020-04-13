@@ -150,7 +150,6 @@ function unzip(fileToUnzip, targetFile) {
 	return targetFile;
 }
 
-
 /**
  * Zips the given file or directory<br>
  * <br>
@@ -227,7 +226,6 @@ function zip(fileToZip, targetFile, filenamesToStoreUncompressed) {
 				}
 				
 				zipOutputStream.putNextEntry(entry);
-				zipOutputStream.closeEntry();
 				
 				/** @type {java.nio.channels.ReadableByteChannel} */
 				var inputChannel = java.nio.channels.Channels.newChannel(is);
@@ -336,24 +334,24 @@ var HASH_ALGORITHM = {
  * @properties={typeid:24,uuid:"8E3DD438-43FB-4499-A7B4-0D00F4956E90"}
  */
 function channelCopy(src, dest) {
-	var buffer = java.nio.ByteBuffer.allocateDirect(16 * 1024);
-	while (src.read(buffer) != -1) {
-		// prepare the buffer to be drained
+		var buffer = java.nio.ByteBuffer.allocateDirect(16 * 1024);
+		while (src.read(buffer) != -1) {
+			// prepare the buffer to be drained
+			buffer.flip();
+			// write to the channel, may block
+			dest.write(buffer);
+			// If partial transfer, shift remainder down
+			// If buffer is empty, same as doing clear()
+			buffer.compact();
+		}
+		// EOF will leave buffer in fill state
 		buffer.flip();
-		// write to the channel, may block
-		dest.write(buffer);
-		// If partial transfer, shift remainder down
-		// If buffer is empty, same as doing clear()
-		buffer.compact();
-	}
-	// EOF will leave buffer in fill state
-	buffer.flip();
-	// make sure the buffer is fully drained.
-	while (buffer.hasRemaining()) {
-		dest.write(buffer);
-	}
+		// make sure the buffer is fully drained.
+		while (buffer.hasRemaining()) {
+			dest.write(buffer);
+		}
 
-	src.close();
+		src.close();
 }
 
 /**
