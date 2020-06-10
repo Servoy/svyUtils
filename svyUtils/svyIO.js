@@ -334,6 +334,7 @@ var HASH_ALGORITHM = {
  * @properties={typeid:24,uuid:"8E3DD438-43FB-4499-A7B4-0D00F4956E90"}
  */
 function channelCopy(src, dest) {
+	try {
 		var buffer = java.nio.ByteBuffer.allocateDirect(16 * 1024);
 		while (src.read(buffer) != -1) {
 			// prepare the buffer to be drained
@@ -352,6 +353,9 @@ function channelCopy(src, dest) {
 		}
 
 		src.close();
+	} catch (e) {
+		log.error(e);
+	}
 }
 
 /**
