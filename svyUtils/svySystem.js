@@ -512,8 +512,15 @@ function getSystemProperties() {
 	try {
 		/** @type {Packages.com.sun.management.OperatingSystemMXBean} */
 		var os = java.lang.management.ManagementFactory.getOperatingSystemMXBean();
-		result.totalPhysicalMemory = os.getTotalPhysicalMemorySize();
-		result.freePhysicalMemory = os.getFreePhysicalMemorySize();
+		if ('getTotalMemorySize' in os) {
+			//java 14
+			result.totalPhysicalMemory = os['get' + 'TotalMemorySize']();
+			result.freePhysicalMemory = os['get' + 'FreeMemorySize']();
+		} else {
+			//java < 14
+			result.totalPhysicalMemory = os['get' + 'TotalPhysicalMemorySize']();
+			result.freePhysicalMemory = os['get' + 'FreePhysicalMemorySize']();			
+		}
 	} catch (e) {
 	}
 	
