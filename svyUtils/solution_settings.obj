@@ -1,4 +1,5 @@
 firstFormID:"-1",
 titleText:"Utils for Servoy",
 typeid:43,
-uuid:"C0B537C0-C99D-47D9-84D9-7F2D7EC43915"
+uuid:"C0B537C0-C99D-47D9-84D9-7F2D7EC43915",
+version:"1.4.2"
