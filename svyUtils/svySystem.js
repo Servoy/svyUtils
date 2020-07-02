@@ -447,29 +447,30 @@ function getSolutionDeepLinkNGClient(solutionName, methodName, args) {
 /**
  * Returns a number of system properties of the client (or the server for web, ng and headless client)
  * @return {{
- * 	javaClassVersion: String,
- * 	javaVendor: String,
+ * 	availableProcessors: Number,
+ * 	fileEncoding: String,
+ * 	fileSeparator: String,
+ * 	freeMemory: Number,
+ * 	freePhysicalMemory: Number,
  * 	javaClassPath: String,
+ * 	javaClassVersion: String,
  * 	javaIoTmpdir: String,
  * 	javaVendor: String,
  * 	javaVersion: String,
+ * 	lineSeperator: String,
+ * 	maxMemory: Number,
  * 	osArch: String,
  * 	osName: String,
  * 	osVersion: String,
+ * 	pathSeparator: String,
+ * 	totalMemory: Number,
+ * 	totalPhysicalMemory: Number,
+ * 	userCountry: String,
  * 	userDir: String,
  * 	userHome: String,
- * 	userName: String,
  * 	userLanguage: String,
- * 	userRegion: String,
- * 	fileEncoding: String,
- * 	fileSeparator: String,
- * 	lineSeperator: String,
- * 	pathSeparator: String,
- * 	availableProcessors: Number,
- * 	freeMemory: Number,
- * 	maxMemory: Number,
- * 	totalPhysicalMemory: Number,
- * 	freePhysicalMemory: Number
+ * 	userName: String,
+ * 	userRegion: String
  * }}
  * @public 
  * @properties={typeid:24,uuid:"A989592A-2DDD-4E61-BAA8-07021F717B86"}
