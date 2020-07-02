@@ -318,6 +318,7 @@ var init_CustomDialog = (/** @constructor */ function() {
 	 * @param {Function} [onActionMethod]
 	 * @param {Object} [onActionMethodArgs] optional arguments for the onAction method
 	 * @param {String|byte[]|plugins.file.JSFile} [icon]
+	 * @return {Button}
 	 * @this {CustomDialog}
 	 */
 	CustomDialog.prototype.addButton = function(text, onActionMethod, onActionMethodArgs, icon) {
