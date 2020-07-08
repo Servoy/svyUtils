@@ -37,7 +37,7 @@ var logger = scopes.svyLogManager.getLogger("com.servoy.bap.customdialogs");
  *
  * @properties={typeid:35,uuid:"87B61E19-09ED-4ECC-9084-DA147B0CB086"}
  */
-var DEFAULT_STYLE;
+var DEFAULT_STYLE = '';
 
 /**
  * The button orientation
@@ -47,7 +47,7 @@ var DEFAULT_STYLE;
 var BUTTON_ORIENTATION = {
 	RIGHT: 4,
 	BOTTOM: 3
-}
+};
 
 /**
  * Alignment properties for the buttons
@@ -58,7 +58,7 @@ var LAYOUT_ALIGNMENT = {
 	CENTER: 1,
 	LEFT: 0,
 	RIGHT: 2
-}
+};
 
 /**
  * Enum used to control the onClose behaviour of a dialog when the user closes the dialog via the close box
@@ -68,7 +68,7 @@ var LAYOUT_ALIGNMENT = {
 var ON_CLOSE = {
 	CLOSE: 2,
 	IGNORE: 0
-}
+};
 
 /**
  * Enum of default icons
@@ -79,8 +79,8 @@ var DEFAULT_ICON = {
 	INFO: "media:///svyCustomDialogs/info.png",
 	WARNING: "media:///svyCustomDialogs/warning.png",
 	ERROR: "media:///svyCustomDialogs/error.png"
-}
-	
+};
+
 /**
  * @private 
  * @properties={typeid:35,uuid:"0884BCC2-48E9-4B22-8747-FE2098DBA343",variableType:-4}
@@ -290,6 +290,11 @@ function CustomDialog(styleName, dialogTitle, dialogMessage, dialogIcon, dialogB
 	 * @type {Object}
 	 */
 	this.customProperties = null;
+	
+	/**
+	 * @type {Function|String}
+	 */
+	this.onShowMethodOrCode = null;
 }
 
 /**
@@ -631,6 +636,16 @@ var init_CustomDialog = (/** @constructor */ function() {
 	}
 	
 	/**
+	 * Sets an onShow method for this dialog
+	 * 
+	 * @param {String|Function} onShowMethodOrCode
+	 * @this {CustomDialog}
+	 */
+	CustomDialog.prototype.setOnShowMethodOrCode = function(onShowMethodOrCode) {
+		this.onShowMethodOrCode = onShowMethodOrCode;
+	}
+	
+	/**
 	 * Builds the form and shows it in a dialog
 	 * 
 	 * @param {Number} [x] optional x coordinate
@@ -926,7 +941,6 @@ function DialogComponent() {
 		}
 	});	
 }
-
 
 /**
  * @private
@@ -1420,7 +1434,6 @@ var init_Label = (/** @constructor */ function() {
 	
 }());
 
-
 /**
  * @constructor
  * 
@@ -1557,7 +1570,7 @@ function TextField() {
 	/**
 	 * The onDataChangeMethod for this component
 	 * 
-	 * @type {String}
+	 * @type {String|Function}
 	 */
 	this.onDataChangeMethod = null;
 	var _onDataChangeMethod = null;
@@ -1567,7 +1580,11 @@ function TextField() {
 			return _onDataChangeMethod;
 		},
 		set: function(x) {
-			_onDataChangeMethod = scopes.svySystem.convertServoyMethodToQualifiedName(x);
+			if (x instanceof Function) {
+				_onDataChangeMethod = scopes.svySystem.convertServoyMethodToQualifiedName(x);
+			} else {
+				_onDataChangeMethod = x;
+			}
 		}
 	});	
 	
@@ -1701,7 +1718,16 @@ var init_TextField = (/** @constructor */ function() {
 		
 		//onDataChange method?
 		if (this.onDataChangeMethod) {
-			var jsOnDataChangeMethod = customDialog.jsForm.newMethod("function onDataChange_" + this.instanceId + "(oldValue, newValue, event) { return scopes.svySystem.callMethod('" + this.onDataChangeMethod + "', [oldValue, newValue, event, customDialog, customDialog.getComponent(event.getElementName())]) }");
+			var jsOnDataChangeMethod;
+			if (this.onDataChangeMethod instanceof String) {
+				/** @type {String} */
+				var onDataChangeMethodCode = this.onDataChangeMethod;
+				jsOnDataChangeMethod = customDialog.jsForm.newMethod(onDataChangeMethodCode);
+			} else {
+				/** @type {Function} */
+				var onDataChangeFunction = this.onDataChangeMethod;
+				jsOnDataChangeMethod = customDialog.jsForm.newMethod("function onDataChange_" + this.instanceId + "(oldValue, newValue, event) { return scopes.svySystem.callMethod('" + scopes.svySystem.convertServoyMethodToQualifiedName(onDataChangeFunction) + "', [oldValue, newValue, event, customDialog, customDialog.getComponent(event.getElementName())]) }");				
+			}
 			textField.onDataChange = jsOnDataChangeMethod;
 		}
 		return textField;
@@ -1719,7 +1745,7 @@ var init_TextField = (/** @constructor */ function() {
 	 * Sets the onDataChange method for this component<p>
 	 * The onDataChange method receives the CustomDialog and the DialogComponent object as last parameters
 	 * 
-	 * @param {Function} onDataChangeMethod
+	 * @param {Function|String} onDataChangeMethod
 	 * @this {TextField}
 	 * @return {TextField}
 	 */
@@ -2361,6 +2387,18 @@ function buildDialogForm(customDialog) {
 		jsForm.onHide = onHide;
 	}
 	
+	if (customDialog.onShowMethodOrCode) {
+		if (customDialog.onShowMethodOrCode instanceof String) {
+			/** @type {String} */
+			var onShowMethodCode = customDialog.onShowMethodOrCode;
+			jsForm.onShow = jsForm.newMethod(onShowMethodCode);
+		} else if (customDialog.onShowMethodOrCode instanceof Function) {
+			/** @type {Function} */
+			var onShowFunction = this.onShowMethodOrCode;
+			jsForm.onShow = jsForm.newMethod = customDialog.jsForm.newMethod("function onShow(firstShow, event) { scopes.svySystem.callMethod('" + scopes.svySystem.convertServoyMethodToQualifiedName(onShowFunction) + "', [firstShow, event, customDialog]) }");				
+		}
+	}
+	
 	//set default values
 	for (c = 0; c < customDialog.components.length; c++) {
 		comp = customDialog.components[c];
@@ -2702,7 +2740,6 @@ function showFormInDialog(formToShow, x, y, width, height, title, resizable, sho
 		return this;
 	}
 }
-
 
 /**
  * Shows a message dialog with the specified title, message and a customizable set of buttons.
