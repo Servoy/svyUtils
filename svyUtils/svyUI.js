@@ -462,7 +462,7 @@ function setAllToolbarsVisibility(state) {
 	if (application.getApplicationType() === APPLICATION_TYPES.SMART_CLIENT) {
 		/** @type {Function} */
 		var setToolbarVisFunction = application['setToolbarVisible'];
-		plugins.window.getToolbarNames().forEach(function(value){
+		plugins.window['get' + 'ToolbarNames']().forEach(function(value){
 			setToolbarVisFunction.apply(this, [value, state]);
 		});
 	}
