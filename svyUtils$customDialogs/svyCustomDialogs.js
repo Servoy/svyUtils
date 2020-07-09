@@ -575,6 +575,7 @@ var init_CustomDialog = (/** @constructor */ function() {
 	 * Sets the default field height. The default is 25.
 	 * 
 	 * @param {Number} defaultFieldHeight
+	 * @return {CustomDialog} returns this CustomDialog
 	 * @this {CustomDialog}
 	 */
 	CustomDialog.prototype.setDefaultFieldHeight = function(defaultFieldHeight) { 
@@ -586,6 +587,7 @@ var init_CustomDialog = (/** @constructor */ function() {
 	 * Sets the default field width
 	 * 
 	 * @param {Number} defaultFieldWidth
+	 * @return {CustomDialog} returns this CustomDialog
 	 * @this {CustomDialog}
 	 */
 	CustomDialog.prototype.setDefaultFieldWidth = function(defaultFieldWidth) { 
@@ -597,6 +599,7 @@ var init_CustomDialog = (/** @constructor */ function() {
 	 * Sets the horizontal spacing between the labels and the fields of the dialog. The default is 10.
 	 * 
 	 * @param {Number} columnSpacing
+	 * @return {CustomDialog} returns this CustomDialog
 	 * @this {CustomDialog}
 	 */
 	CustomDialog.prototype.setColumnSpacing = function(columnSpacing) { 
@@ -608,6 +611,7 @@ var init_CustomDialog = (/** @constructor */ function() {
 	 * Sets the resizable property of the dialog (defaults to true)
 	 * 
 	 * @param {Boolean} resizable
+	 * @return {CustomDialog} returns this CustomDialog
 	 * @this {CustomDialog}
 	 */
 	CustomDialog.prototype.setResizable = function(resizable) { 
@@ -619,30 +623,36 @@ var init_CustomDialog = (/** @constructor */ function() {
 	 * Sets the title of the dialog (defaults to the solution name)
 	 * 
 	 * @param {String} title
+	 * @return {CustomDialog} returns this CustomDialog
 	 * @this {CustomDialog}
 	 */
 	CustomDialog.prototype.setTitle = function(title) { 
 		this.title = title;
+		return this;
 	}	
 	
 	/**
 	 * Sets the icon used for this dialog
 	 * 
 	 * @param {String|byte[]|plugins.file.JSFile} iconArgs
+	 * @return {CustomDialog} returns this CustomDialog
 	 * @this {CustomDialog}
 	 */
 	CustomDialog.prototype.setIcon = function(iconArgs) { 
 		this.iconMedia = getIconFromArgs(iconArgs);
+		return this;
 	}
 	
 	/**
 	 * Sets an onShow method for this dialog
 	 * 
 	 * @param {String|Function} onShowMethodOrCode
+	 * @return {CustomDialog} returns this CustomDialog
 	 * @this {CustomDialog}
 	 */
 	CustomDialog.prototype.setOnShowMethodOrCode = function(onShowMethodOrCode) {
 		this.onShowMethodOrCode = onShowMethodOrCode;
+		return this;
 	}
 	
 	/**
@@ -1746,8 +1756,8 @@ var init_TextField = (/** @constructor */ function() {
 	 * The onDataChange method receives the CustomDialog and the DialogComponent object as last parameters
 	 * 
 	 * @param {Function|String} onDataChangeMethod
-	 * @this {TextField}
 	 * @return {TextField}
+	 * @this {TextField}
 	 */
 	TextField.prototype.setOnDataChangeMethod = function(onDataChangeMethod) {
 		this.onDataChangeMethod = onDataChangeMethod;
