@@ -1,4 +1,5 @@
 /**
+ * @enum
  * @public 
  * 
  * @properties={typeid:35,uuid:"20E29824-DCB3-4AD5-AD04-D8E44B454765",variableType:-4}

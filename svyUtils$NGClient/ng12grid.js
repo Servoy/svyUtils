@@ -91,13 +91,23 @@ function newContainer(layoutContainer, index, name, containerType) {
  *
  * @properties={typeid:24,uuid:"22B81AE3-4A10-4D49-861F-5E6F2BA5D46C"}
  */
-function newRow(layoutContainer, index, name) {
+function newRow(layoutContainer, index, name, rowClasses) {
 	var row = layoutContainer.newLayoutContainer(index);
 	row.tagType = TAG_TYPES.DIV;
 	row.packageName = PACKAGE_NAME;
 	row.specName = SPEC_NAMES.CONTAINER;
-	row.cssClasses = "row";
 	if (name) row.name = name;
+	
+	var defaultClass = "row";
+
+	// check if has a valid bootstrap rowClass
+	if (!rowClasses) { // set default styleClass
+		rowClasses = defaultClass;
+	} else if (rowClasses && !hasRowClass(rowClasses)) { // set default styleClass if not provided
+		rowClasses = scopes.ngUtils.addStyleClass(rowClasses, defaultClass);
+	}
+	row.cssClasses = rowClasses;
+	
 	return row;
 }
 
@@ -152,4 +162,14 @@ function newColumn(layoutContainer, index, name, columnClasses) {
 function hasColumnClass(columnClasses) {
 	var regex = new RegExp('(^|\\s)\\bcol-(xs|sm|md|lg)-([1-9]|1[0-2])\\b((?=\\s)|$)', 'g');
 	return regex.test(columnClasses);
+}
+
+/**
+ * @param {String} rowClasses
+ * @private
+ * @properties={typeid:24,uuid:"240FB346-85DC-43A4-8A86-92829E025D3C"}
+ */
+function hasRowClass(rowClasses) {
+	var regex = new RegExp('row\\s', 'g');
+	return regex.test(rowClasses);
 }
