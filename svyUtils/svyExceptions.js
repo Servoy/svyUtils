@@ -168,57 +168,61 @@ function ServoyError(exception) {
 	this.ex = exception
 	SvyException.call(this, exception.getMessage());
 	this.name = exception instanceof DataException ? 'DataException' : exception instanceof ServoyException ? 'ServoyException' : 'Exception'
-}
+	}
 
 /**
  * @private
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"36364157-A05A-4806-B13E-DA08DD8C27D6",variableType:-4}
  */
-var init = function() {
-	SvyException.prototype = Object.create(Error.prototype);
-	SvyException.prototype.constructor = SvyException
-	
-	/**
-	 * Returns the exception message
-	 *
-	 * @return {String}
-	 */
-	SvyException.prototype.getMessage = function() {
-		return this.message
-	}
-	
-	IllegalArgumentException.prototype = Object.create(SvyException.prototype)
-	IllegalArgumentException.prototype.constructor = IllegalArgumentException
-	
-	IllegalStateException.prototype = Object.create(SvyException.prototype)
-	IllegalStateException.prototype.constructor = IllegalStateException
+var init = (
+	/** @constructor */ 
+	function() {
+		SvyException.prototype = new Error();
+		SvyException.prototype.constructor = SvyException
 		
-	UnsupportedOperationException.prototype = Object.create(SvyException.prototype)
-	UnsupportedOperationException.prototype.constructor = UnsupportedOperationException
-		
-	AbstractMethodInvocationException.prototype = Object.create(IllegalStateException.prototype)
-	AbstractMethodInvocationException.prototype.constructor = AbstractMethodInvocationException
-	
-	ServoyError.prototype = Object.create(SvyException.prototype)
-	ServoyError.prototype.constructor = ServoyError
-	
-	Object.defineProperty(ServoyError.prototype, 'stack', {
-		get: function() {
-			if (typeof this.ex.getScriptStackTrace === 'function') {
-				return this.ex.getScriptStackTrace()
-			} else if (typeof this.ex.getStackTrace === 'function') {
-				return this.ex.getStackTrace()
-			} else {
-				return undefined;
-			}
+		/**
+		 * Returns the exception message
+		 *
+		 * @return {String}
+		 * @this {SvyException}
+		 */
+		SvyException.prototype.getMessage = function() {
+			return this.message
 		}
-	})
-	ServoyError.prototype.unwrap = function() {
-		return this.ex
+		
+		IllegalArgumentException.prototype = Object.create(SvyException.prototype)
+		IllegalArgumentException.prototype.constructor = IllegalArgumentException
+		
+		IllegalStateException.prototype = Object.create(SvyException.prototype)
+		IllegalStateException.prototype.constructor = IllegalStateException
+			
+		UnsupportedOperationException.prototype = Object.create(SvyException.prototype)
+		UnsupportedOperationException.prototype.constructor = UnsupportedOperationException
+			
+		AbstractMethodInvocationException.prototype = Object.create(IllegalStateException.prototype)
+		AbstractMethodInvocationException.prototype.constructor = AbstractMethodInvocationException
+		
+		ServoyError.prototype = Object.create(SvyException.prototype)
+		ServoyError.prototype.constructor = ServoyError
+		
+		Object.defineProperty(ServoyError.prototype, 'stack', {
+			get: function() {
+				if (typeof this.ex.getScriptStackTrace === 'function') {
+					return this.ex.getScriptStackTrace()
+				} else if (typeof this.ex.getStackTrace === 'function') {
+					return this.ex.getStackTrace()
+				} else {
+					return undefined;
+				}
+			}
+		})
+		ServoyError.prototype.unwrap = function() {
+			return this.ex
+		}
+		
+		ServoyError.prototype.toString = function() {
+			return this.getMessage()
+		}
 	}
-	
-	ServoyError.prototype.toString = function() {
-		return this.getMessage()
-	}
-}()
+())
