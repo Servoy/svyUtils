@@ -1590,11 +1590,7 @@ function TextField() {
 			return _onDataChangeMethod;
 		},
 		set: function(x) {
-			if (x instanceof Function) {
-				_onDataChangeMethod = scopes.svySystem.convertServoyMethodToQualifiedName(x);
-			} else {
-				_onDataChangeMethod = x;
-			}
+			_onDataChangeMethod = x;
 		}
 	});	
 	
