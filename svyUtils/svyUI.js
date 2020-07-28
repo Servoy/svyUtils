@@ -540,7 +540,7 @@ function deepCopyJSForm(newFormName, original, prefix) {
 	for (var i = 0; i < tabPanels.length; i++) {
 		var tabs = tabPanels[i].getTabs();
 		for (var j = 0; j < tabs.length; j++) {
-			formName = prefix ? prefix + tabs[j].containsForm.name.replace(original.name, "") : tabs[j].containsForm.name + application.getUUID();
+			formName = prefix ? prefix + tabs[j].containsForm.name.replace(original.name, "") : tabs[j].containsForm.name + utils.stringReplace(application.getUUID().toString(), '-', '_');
 			tabs[j].containsForm = deepCopyJSForm(formName, tabs[j].containsForm, prefix);
 		}
 	}
