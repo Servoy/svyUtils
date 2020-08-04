@@ -322,7 +322,7 @@ function loadRecords(foundset, pks) {
 	if (!(pks instanceof Array)) {
 		pks = [pks];
 	}
-	var ds = databaseManager.createEmptyDataSet(1, pks.length);
+	var ds = databaseManager.createEmptyDataSet(0, pks.length);
 	ds.addRow(pks);
 
 	return foundset.loadRecords(ds);
@@ -349,7 +349,7 @@ function getRecord(datasource, pks) {
 	if (!(pks instanceof Array)) {
 		pks = [pks];
 	}
-	var ds = databaseManager.createEmptyDataSet(1, pks.length);
+	var ds = databaseManager.createEmptyDataSet(0, pks.length);
 	ds.addRow(pks);
 
 	fs.loadRecords(ds);
