@@ -172,7 +172,7 @@ function buildPopupForm(appender) {
  *
  * @properties={typeid:35,uuid:"A94BF9BD-944A-4642-9F3D-D5EDC0521510",variableType:-4}
  */
-var initPopupAppender = (function() {
+var initPopupAppender = (/** @constructor */ function() {
 	PopupAppender.prototype = Object.create(scopes.svyLogManager.AbstractAppender.prototype);
 	PopupAppender.prototype.constructor = PopupAppender;
 

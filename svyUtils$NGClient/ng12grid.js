@@ -75,6 +75,7 @@ function newContainer(layoutContainer, index, name, containerType) {
  * @param {JSLayoutContainer} layoutContainer
  * @param {Number} index
  * @param {String} [name]
+ * @param {String} [rowClasses]
  * @return {JSLayoutContainer}
  *
  * @example
