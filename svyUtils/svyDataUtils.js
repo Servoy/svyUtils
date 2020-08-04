@@ -727,15 +727,29 @@ function SvyDataException(errorMessage, source, dataProviderID){
 	/** @type {String} */
 	var dataSource = null;
 	
+	/** @type {Array<ServoyException>} */
+	var recordException = [];
+	
 	//	check arg type and create instance vars
 	if(source){
 		if(source instanceof JSFoundSet){
 			foundset = source;
 			dataSource = foundset.getDataSource();
+			// store record exceptions. Can be retrieved even if failed records are reverted.
+			var failedRecords = databaseManager.getFailedRecords(foundset);
+			for (var i = 0; i < failedRecords.length; i++) {
+				if (failedRecords[i].exception) {
+					recordException.push(failedRecords[i].exception);
+				}
+			}
+			
 		} else if(source instanceof JSRecord){
 			record = source;
 			foundset = record.foundset
 			dataSource = record.getDataSource();
+			
+			// store record exceptions. Can be retrieved even if failed records are reverted.
+			recordException = [record.exception];
 		} else if(source instanceof String){
 			dataSource = source;
 		}
@@ -772,6 +786,15 @@ function SvyDataException(errorMessage, source, dataProviderID){
 	this.getDataProviderID = function(){
 		return dataProviderID;
 	}
+	
+	/**
+	 * Gets the record exception (if record or foundset exists) for this exception 
+	 * @return {Array<ServoyException>}
+	 */
+	this.getRecordException = function(){
+		return recordException;
+	}
+	
 	scopes.svyExceptions.SvyException.call(this, errorMessage);
 }
 
