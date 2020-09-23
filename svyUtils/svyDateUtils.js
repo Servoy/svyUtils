@@ -303,6 +303,8 @@ function addDays(date, days) {
  * @param days the number of days to be added/substracted
  * @param {Array<Date>} [holidays] optional array with dates to skip
  * 
+ * @return {Date}
+ * 
  * @properties={typeid:24,uuid:"7E575AE1-AA0D-427D-9972-A2B1C1293912"}
  */
 function addBusinessDays(date, days, holidays) {
@@ -1725,6 +1727,8 @@ function createDurationFromDates(start, end) {
  * @param {Date} endDate the end date
  * @param {Array<Number>} nonWorkingDays Array of non-working days (SUN = 0, MON = 1, TUE = 2, WED = 3, THU = 4, FRI = 5, SAT = 6)
  * @param {Array<Date>} [exceptions] Array of specific non-working dates to exclude such as holidays
+ * 
+ * @return {Array<Date>}
  *
  * @properties={typeid:24,uuid:"F98A303A-D463-401A-BF41-4982516071BE"}
  */
