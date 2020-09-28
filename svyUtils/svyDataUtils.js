@@ -524,14 +524,21 @@ function selectRecord(foundset, record) {
  * @param {JSFoundSet} foundset
  * @param {String|Number|UUID} pk1
  * @param {String|Number|UUID} [pk2]
- * @param {String|Number|UUID} [pknd] up to 10 pks
- * 
+ * @param {String|Number|UUID} [pk3]
+ * @param {String|Number|UUID} [pk4]
+ * @param {String|Number|UUID} [pk5]
+ * @param {String|Number|UUID} [pk6]
+ * @param {String|Number|UUID} [pk7]
+ * @param {String|Number|UUID} [pk8]
+ * @param {String|Number|UUID} [pk9]
+ * @param {String|Number|UUID} [pk10]
+ *  
  * @return {Boolean} false when could not select the record
  *
  * @properties={typeid:24,uuid:"36650093-8113-49D2-9DF6-6438425E8306"}
  * @SuppressWarnings(wrongparameters)
  */
-function selectRecordByPks(foundset, pk1, pk2, pknd) {
+function selectRecordByPks(foundset, pk1, pk2, pk3, pk4, pk5, pk6, pk7, pk8, pk9, pk10) {
 	var pks = Array.prototype.slice.call(arguments, 1);
 	
 	var selected = foundset.selectRecord(pks[0], pks[1], pks[2], pks[3], pks[4], pks[5], pks[6], pks[7], pks[8], pks[9]);
