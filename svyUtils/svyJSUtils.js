@@ -361,3 +361,31 @@ function stringPad(direction, str,length,ch){
 	}
 	throw new Error('STRING PAD: Direction must be left/right'); // this should never happen
 }
+
+
+/**
+ * 
+ * Insert element into array at specific index
+ * 
+ * @param {Array} array
+ * @param {Number} index
+ * @param {*} element
+ * @public 
+ *
+ * @properties={typeid:24,uuid:"CA364542-0C2F-4443-93C1-0FCD71081F25"}
+ */
+function arrayInsert(array, index, element) {
+	if (index < 0) {
+		throw new Error("Invalid index " + index);
+	}
+	
+	if (index > array.length) {
+		array[index] = element;
+	} else {
+		var arrayPart2 = array.splice(index, array.length - index, element);
+		for (var i = 0; i < arrayPart2.length; i++) {
+			array.push(arrayPart2[i]);
+		}
+	}
+	return array;
+}
