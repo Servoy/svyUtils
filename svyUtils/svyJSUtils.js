@@ -79,6 +79,48 @@ function objectHasValue(object, value) {
 }
 
 /**
+ * Determines whether the primary keys of two records are the same<br>
+ * Differs from areObjectsEqual in that it treats UUID objects as Strings when comparing
+ * 
+ * @param {*} recordOrPks1 a JSRecord or the PK(s) of one
+ * @param {*} recordOrPks2 a JSRecord or the PK(s) of one
+ * 
+ * @return {Boolean}
+ * 
+ * @public 
+ *
+ * @properties={typeid:24,uuid:"3A136BEF-73A1-4BF2-BBB3-3A6755572E3B"}
+ */
+function arePKsEqual(recordOrPks1, recordOrPks2) {
+	var o1 = recordOrPks1;
+
+	function convertUUIDs(pkValue) {
+		if (pkValue instanceof UUID) {
+			return pkValue.toString();
+		} else {
+			return pkValue;
+		}
+	}
+	
+	/** @type {JSRecord} */
+	var jsRecord;
+	if (o1 instanceof JSRecord) {
+		jsRecord = recordOrPks1;
+		o1 = jsRecord.getPKs();
+	}
+	o1 = o1.map(convertUUIDs);
+	
+	var o2 = recordOrPks2;
+	if (o2 instanceof JSRecord) {
+		jsRecord = recordOrPks2;
+		o2 = jsRecord.getPKs();		
+	}
+	o2 = o2.map(convertUUIDs);
+	
+	return areObjectsEqual(o1, o2);
+}
+
+/**
  * Determines if two objects or two values are equivalent. Supports value types, regular expressions, arrays and
  * objects.<br>
  * <br>
