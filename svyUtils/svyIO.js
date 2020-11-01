@@ -440,7 +440,7 @@ function getLineCountForFile(file) {
 		throw new FileNotFoundException(null, file);
 	}
 	try {
-		var fr = new Packages.java.io.FileReader(file);
+		var fr = new Packages.java.io.FileReader(file.getAbsolutePath());
 		var lnr = new Packages.java.io.LineNumberReader(fr);
 		while (lnr.readLine() != null) {
 		}
