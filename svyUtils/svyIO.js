@@ -461,6 +461,9 @@ function getLineCountForFile(file) {
  * 
  * @param {String|plugins.file.JSFile} pathOrFile
  * @param {Boolean} [append] if true (default), then data will be written to the end of the file rather than the beginning
+ * @param {String} [charset] See {@link CHAR_SETS}. Default CHAR_SETS.UTF_8
+ * 
+ * @return {BufferedWriter}
  * 
  * @throws {java.io.IOException}
  * 
@@ -498,14 +501,18 @@ function getLineCountForFile(file) {
  *
  * @properties={typeid:24,uuid:"9F518CA2-AF03-4B84-8AD3-87059862C8F0"}
  */
-function BufferedWriter(pathOrFile, append) {
+function BufferedWriter(pathOrFile, append, charset) {
 	if (!(this instanceof BufferedWriter)) {
 		log.warn('scopes.svyIO.BufferedWriter: Constructor functions should be called with the "new" keyword!');
-		return new BufferedWriter(pathOrFile, append);
+		return new BufferedWriter(pathOrFile, append, charset);
 	}
 
 	if (append === undefined) {
 		append = true;
+	}
+	
+	if (charset === undefined) {
+		charset = CHAR_SETS.UTF_8;
 	}
 
 	var filePath = null;
@@ -518,8 +525,9 @@ function BufferedWriter(pathOrFile, append) {
 	}
 
 	try {
-		var fileWriter = new Packages.java.io.FileWriter(filePath, append);
-		var bufferedFileWriter = new Packages.java.io.BufferedWriter(fileWriter);
+		var fileOutputStream = new Packages.java.io.FileOutputStream(filePath, append);
+		var outputstreamWriter = new Packages.java.io.OutputStreamWriter(fileOutputStream, charset);
+		var bufferedFileWriter = new Packages.java.io.BufferedWriter(outputstreamWriter); 
 	} catch (e) {
 		throw e;
 	}
@@ -580,6 +588,8 @@ function BufferedWriter(pathOrFile, append) {
 		try {
 			// don't flush, because that is done by close already and would result in an error on closed streams while close does not
 			bufferedFileWriter.close();
+			outputstreamWriter.close();
+			fileOutputStream.close();
 		} catch (e) {
 			throw e;
 		}
@@ -592,6 +602,8 @@ function BufferedWriter(pathOrFile, append) {
  * @public
  * 
  * @param {plugins.file.JSFile} file
+ * 
+ * @return {Boolean}
  * 
  * @properties={typeid:24,uuid:"61CAFF50-B7A8-499D-8008-4B8457A3E2F6"}
  */
