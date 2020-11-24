@@ -85,6 +85,8 @@ var events = {};
  * @private
  *  
  * @param {*} obj
+ * 
+ * @return {*}
  *
  * @properties={typeid:24,uuid:"B14E62E6-95B1-4AE6-9AF1-032BA6B9495D"}
  */
