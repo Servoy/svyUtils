@@ -413,6 +413,8 @@ function getJSFormHeight(form, includePrintParts) {
  * @public
  * 
  * @param {JSForm|RuntimeForm|String} form identifier of or reference to a form in TableView view
+ * 
+ * @return {Number}
  *
  * @properties={typeid:24,uuid:"53065728-B0C1-449C-91A4-D79B2271723A"}
  */

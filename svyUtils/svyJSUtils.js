@@ -210,6 +210,8 @@ function dynamicConstructorInvoker(constructor, args) {
  * @param {Number} precision
  *
  * @see http://forum.servoy.com/viewtopic.php?f=22&t=20768
+ * 
+ * @return {Number}
  *
  * @properties={typeid:24,uuid:"4DC2E61E-B977-402B-8896-BE64343EB0F3"}
  */
@@ -310,6 +312,7 @@ function mergeObjects(obj1, obj2, override) {
  * @param {Number} length the length of the field
  * @param {String} [ch] the character (string length 1) A single blank space will be used if not specified
  *
+ * @return {String}
  * @properties={typeid:24,uuid:"DBBB0D89-7533-4891-A8AB-4856044CE7D2"}
  */
 function stringPadLeft(str,length,ch){
@@ -324,6 +327,7 @@ function stringPadLeft(str,length,ch){
  * @param {Number} length the length of the field
  * @param {String} [ch] the character (string length 1) A single blank space will be used if not specified
  *
+ * @return {String}
  * @properties={typeid:24,uuid:"39075EE5-5AFE-48BB-A0CF-222EB6D298AF"}
  */
 function stringPadRight(str,length,ch){
@@ -338,6 +342,8 @@ function stringPadRight(str,length,ch){
  * @param {Number} length the length of the field
  * @param {String} [ch] the character (string length 1) A single blank space will be used if not specified
  * @private 
+ * 
+ * @return {String}
  * @properties={typeid:24,uuid:"3F5C38C9-3A00-47A3-B7E7-6D43EBB68770"}
  */
 function stringPad(direction, str,length,ch){
@@ -365,6 +371,7 @@ function stringPad(direction, str,length,ch){
 
 /**
  * 
+ * @return {Array}
  * Insert element into array at specific index
  * 
  * @param {Array} array

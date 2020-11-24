@@ -144,6 +144,8 @@ function setTimeStampsInMilliseconds(timeStampsInMilliseconds) {
 /**
  * TODO figure out what to do with this method. Made it private for now as to not expose it in the API
  * @private
+ * 
+ * @return {Boolean}
  * @properties={typeid:24,uuid:"21804846-E57C-4ECB-8D32-8AC9D114BC5C"}
  */
 function isTimeStampsInMilliseconds() {
@@ -155,6 +157,7 @@ function isTimeStampsInMilliseconds() {
  * Returns a nicely formatted representation of an error
  * @private
  * @param ex
+ * @return {String}
  *
  * @properties={typeid:24,uuid:"C47C85D0-9C6B-4FE0-BB10-BE5CBC6BFCC3"}
  */
@@ -584,6 +587,8 @@ function getAppenderForRef(appenderRef) {
  * @private
  * @param {String} type
  * @param {Object} configNode
+ * 
+ * @return {Object}
  *
  * @properties={typeid:24,uuid:"CA46514A-47F4-4DF0-B880-6033387B96E2"}
  */
@@ -1884,6 +1889,7 @@ var ROOT_LOGGER_DEFAULT_LEVEL = application.isInDeveloper() ? Level.DEBUG : Leve
 var rootLogger
 
 /**
+ * @return {LoggerConfig}
  * @private
  * @properties={typeid:24,uuid:"AB765A70-AFE5-408F-8DA2-AC05200BD87B"}
  */
@@ -2655,6 +2661,8 @@ var initXmlLayout = (/** @constructor */ function() {
 /**
  * @private
  * @param str
+ * 
+ * @return {String}
  *
  * @properties={typeid:24,uuid:"6D1D3E82-FB48-4421-98CF-2A322FD8A11F"}
  */

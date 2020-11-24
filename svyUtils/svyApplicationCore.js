@@ -275,6 +275,8 @@ function addErrorHandler(handler) {
  * If there is no callback registered or the callback does not return false, the default handling of uncaught exceptions of Servoy will take place<br>
  * <br>
  * @param {ServoyException|Error|*} e
+ * 
+ * @return {Boolean}
  *
  * @properties={typeid:24,uuid:"178BE2A9-2E37-49CD-A18F-38900B5109C0"}
  */
