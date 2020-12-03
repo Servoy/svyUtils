@@ -28,7 +28,11 @@ function getRecordMarkers(source, level) {
 	// return markers
 	for (var i = 0; i < records.length; i++) {
 		if (records[i].recordMarkers) {
-			markers = markers.concat(records[i].recordMarkers.getMarkers(level));
+			if (level) {
+				markers = markers.concat(records[i].recordMarkers.getMarkers(level));
+			} else {
+				markers = markers.concat(records[i].recordMarkers.getMarkers());
+			}
 		}
 	}
 
