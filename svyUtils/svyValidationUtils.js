@@ -1,4 +1,47 @@
 /**
+ * Validate the edited records from the given source. If no source is given, will validate all edited records.
+ * Returns all the validation markers with the given level.
+ * 
+ * @public
+ * @param {JSFoundSet|JSRecord|Array<JSRecord>} [source] The source to be validated. If no source is given validate all the edited records
+ * @param {Number} [level]
+ * @param {*} customObject The extra customObject that is passed on the the validation methods.
+ *
+ * @return {Array<JSRecordMarker>}
+ * @properties={typeid:24,uuid:"5A7C78EA-A3DE-477B-9C5C-6FE2B61F523D"}
+ */
+function validateEditedRecords(source, level, customObject) {
+	
+	var markers = [];
+
+	/** @type {Array<JSRecord>} */
+	var records = [];
+	if (!source) {
+		// TODO shoul get failed or edited records ?
+		records = databaseManager.getEditedRecords();
+	} else if (source instanceof JSFoundSet) {
+		/** @type {JSFoundSet} */
+		var fs = source;
+		records = databaseManager.getEditedRecords(fs);
+	} else if (source instanceof JSRecord) {
+		records = [source];
+	} else if (source instanceof Array) {
+		records = source;
+	}
+
+	// return markers
+	for (var i = 0; i < records.length; i++) {
+		// validate the record
+		databaseManager.validate(records[i], customObject);
+		
+		// get the error markers
+		markers = markers.concat(getRecordMarkers(source, level));
+	}
+
+	return markers;
+}
+
+/**
  * @public
  * @param {JSFoundSet|JSRecord|Array<JSRecord>} [source]
  * @param {Number} [level]
@@ -85,6 +128,34 @@ function getMarkerMessages(source, level, separator) {
  */
 function getErrorMessages(source, separator) {
 	return getMarkerMessages(source, LOGGINGLEVEL.ERROR, separator);
+}
+
+/**
+ * Returns the JSRecordMarker for the given dataprovider
+ * @param {Array<JSRecordMarker>} markers
+ * @param {String} dataprovider
+ * 
+ * @public
+ *
+ * @return {Array<JSRecordMarker>} empty array if no marker found for the given dataprovider
+ * @properties={typeid:24,uuid:"CFF6D78C-A2C4-4885-8C1F-088F1FAA9008"}
+ */
+function getMarkersWithDataprovider(markers, dataprovider) {
+	if (!markers) {
+		throw "Null markers argument";
+	}
+	if (dataprovider == null || dataprovider == undefined) {
+		throw "Null dataprovider argument";
+	}
+	
+	var result = [];	
+	for (var i = 0; i < markers.length; i++) {
+		if (markers[i].dataprovider == dataprovider) {
+			result.push(markers[i]);
+		}
+	}
+	
+	return result;
 }
 
 /**
