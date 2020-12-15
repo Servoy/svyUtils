@@ -8,6 +8,7 @@
     "sourceUrl" : "https://github.com/Servoy/svyUtils",
     "releases" : [
         {"version":"1.4.0","url":"https://github.com/Servoy/svyUtils/releases/download/v1.4.0/svyUtilsNGClient.servoy", "servoy-version":"2019.12"},
-        {"version":"1.4.2","url":"https://github.com/Servoy/svyUtils/releases/download/v1.4.2/svyUtilsNGClient.servoy", "servoy-version":"2020.6", "dependency":"svyUtils#>=1.4.2"}
+        {"version":"1.4.2","url":"https://github.com/Servoy/svyUtils/releases/download/v1.4.2/svyUtilsNGClient.servoy", "servoy-version":"2020.6", "dependency":"svyUtils#>=1.4.2"},
+        {"version":"1.5.0","url":"https://github.com/Servoy/svyUtils/releases/download/v1.5.0/svyUtilsNGClient.servoy", "servoy-version":"2020.9", "dependency":"svyUtils#>=1.5.0"}
      ]
 }
