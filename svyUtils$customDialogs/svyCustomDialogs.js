@@ -2854,7 +2854,9 @@ function showInputDialog(title, message, initialValue) {
 		cd.addButton(i18n.getI18NMessage('servoy.button.ok'));
 		cd.addButton(i18n.getI18NMessage('servoy.button.cancel'));
 		var result = cd.showDialog();
-		return result.getResult() ? result.getResult()[0] : null;
+		/** @type {String} */
+		var textBoxResult = result.getResult() ? result.getResult()[0] : null;
+		return textBoxResult;
 	}
 }
 
@@ -2865,7 +2867,7 @@ function showInputDialog(title, message, initialValue) {
  * @param {String} message the message to show
  * @param {String|Array<String>} valueListNameOrDisplayValues either the name of a value list or an array of items to display
  * @param {Array} [realValues] optional array of return values, not used when a value list name is provided
- * @return {String}
+ * @return {*}
  *
  * @properties={typeid:24,uuid:"D3780ED7-154A-460F-B309-F37C059D1920"}
  */
