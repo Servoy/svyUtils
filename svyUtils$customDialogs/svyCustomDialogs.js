@@ -2141,6 +2141,7 @@ var init_Combobox = (/** @constructor */ function() {
 /**
  * Builds the form
  * @param {CustomDialog} customDialog
+ * @return {JSForm}
  * @private 
  *
  * @properties={typeid:24,uuid:"41A91613-3F93-4EC1-AA9D-6CD79497A725"}
@@ -2706,6 +2707,7 @@ function createCombobox(label, values, realValues) {
  * @param {Boolean} [resizable]
  * @param {Boolean} [showTextToolbar]
  * @param {String} [windowName]
+ * @return {*}
  *
  * @properties={typeid:24,uuid:"BD1320BF-A042-4C45-B609-7B8A0340A7EA"}
  */
@@ -2753,6 +2755,7 @@ function showFormInDialog(formToShow, x, y, width, height, title, resizable, sho
  * @param {String} title the dialog title
  * @param {String} message the message to show
  * @param {...String} buttons the buttons
+ * @return {String}
  *
  * @properties={typeid:24,uuid:"20CA7B49-684E-4698-A26F-0EEFE1662889"}
  */
@@ -2774,6 +2777,7 @@ function showInfoDialog(title, message, buttons) {
  * @param {String} title the dialog title
  * @param {String} message the message to show
  * @param {...String} buttons the buttons
+ * @return {String}
  *
  * @properties={typeid:24,uuid:"7101235B-6191-448F-82DE-8C8E722C431C"}
  */
@@ -2795,6 +2799,7 @@ function showQuestionDialog(title, message, buttons) {
  * @param {String} title the dialog title
  * @param {String} message the message to show
  * @param {...String} buttons the buttons
+ * @return {String}
  *
  * @properties={typeid:24,uuid:"A640E147-B068-458B-8578-0DAF431E0AD4"}
  */
@@ -2816,6 +2821,8 @@ function showWarningDialog(title, message, buttons) {
  * @param {String} title the dialog title
  * @param {String} message the message to show
  * @param {...String} buttons the buttons
+ * 
+ * @return {String}
  *
  * @properties={typeid:24,uuid:"6387273F-868D-424E-9164-EDAFF7052A53"}
  */
@@ -2833,6 +2840,7 @@ function showErrorDialog(title, message, buttons) {
  * @param {String} title the dialog title
  * @param {String} message the message to show
  * @param {String} initialValue initial value for the input field
+ * @return {String}
  *
  * @properties={typeid:24,uuid:"475D9BA4-0945-445B-AB64-C9A9C8F44BA3"}
  */
@@ -2857,6 +2865,7 @@ function showInputDialog(title, message, initialValue) {
  * @param {String} message the message to show
  * @param {String|Array<String>} valueListNameOrDisplayValues either the name of a value list or an array of items to display
  * @param {Array} [realValues] optional array of return values, not used when a value list name is provided
+ * @return {String}
  *
  * @properties={typeid:24,uuid:"D3780ED7-154A-460F-B309-F37C059D1920"}
  */
@@ -2955,6 +2964,7 @@ function setDefaultStyleName(styleName) {
 /**
  * @param aArguments
  * @param {String|byte[]} icon
+ * @return {String}
  * @private 
  *
  * @properties={typeid:24,uuid:"49B6D9FD-8962-49B0-ACF2-39600F13C161"}
@@ -3028,6 +3038,7 @@ function getIconFromArgs(iconArgs) {
  * Resolves i18n when provided
  * 
  * @param textToResolve
+ * @return {String}
  * 
  * @private 
  *

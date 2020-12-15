@@ -157,6 +157,7 @@ function newColumn(layoutContainer, index, name, columnClasses) {
 
 /**
  * @param {String} columnClasses
+ * @return {Boolean}
  * @private
  * @properties={typeid:24,uuid:"C44C9773-9994-4C8D-A913-E9A03917B0BB"}
  */
@@ -167,6 +168,7 @@ function hasColumnClass(columnClasses) {
 
 /**
  * @param {String} rowClasses
+ * @return {Boolean}
  * @private
  * @properties={typeid:24,uuid:"240FB346-85DC-43A4-8A86-92829E025D3C"}
  */

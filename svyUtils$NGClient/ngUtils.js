@@ -73,6 +73,7 @@ function hasStyleClass(styleClass, className) {
 /**
  * @private
  * @param {String} className
+ * @return {RegExp}
  *
  * @properties={typeid:24,uuid:"1EEC6A39-0766-46E7-9714-4FE3CA62F956"}
  */

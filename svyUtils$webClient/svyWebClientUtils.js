@@ -631,6 +631,7 @@ function getFormName(element) {
  * <br>
  * This method is low level, allowing a lot of control. For a more straightforward callback, see {@link #getCallbackScript}<br/>
  * @param {function|String} callback Either a Servoy method or a qualifiedName string pointing to a method. Method's first argument receives the bodyContent, second argument the requestParams
+ * @return {String}
  * 
  * @example <pre>
  * \/\/On the Server
@@ -664,6 +665,7 @@ function getCallbackUrl(callback) {
  * @param {Array<String|Number|Boolean>} [args] String values are considered references to browser-side variables. To pass hardcoded String literals the String value needs to be quoted: '"myvalue"' or "'myValue'". All other values are considered hardcoded values as well and will get serialized using JSON
  * @param {Boolean} [options.showLoading] Whether or not to show the Loading indicator
  * @param {String} [options.mimeType] Forces a certain mimeType in the response
+ * @return {String}
  *
  * @properties={typeid:24,uuid:"A16EEE7F-85BE-4649-8E84-1CE50E9C96A6"}
  */

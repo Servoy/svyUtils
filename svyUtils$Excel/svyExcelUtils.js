@@ -3053,6 +3053,7 @@ function setDefaultPrintSetup(setup) {
  * @private
  *
  * @param {Packages.org.apache.poi.ss.usermodel.Cell} cell
+ * @return {*}
  *
  * @properties={typeid:24,uuid:"48AB76B6-8112-465E-8262-DBCC725C770C"}
  */
@@ -3078,6 +3079,7 @@ function getCellData(cell) {
  * 
  * @param {Packages.org.apache.poi.ss.usermodel.Workbook} workbook
  * @param {String} fontString
+ * @return {ExcelFont}
  *
  * @properties={typeid:24,uuid:"D4B36866-2A56-4144-A0C1-826652CC8A76"}
  */
@@ -3104,6 +3106,7 @@ function createExcelFontFromString(workbook, fontString) {
 }
 
 /**
+ * @return {Packages.org.apache.poi.ss.usermodel.BorderStyle}
  * @private 
  * @properties={typeid:24,uuid:"16D87C20-A40E-489A-A59D-CD6565201699"}
  */
@@ -3120,6 +3123,7 @@ function borderForInt(borderNumber) {
 
 /**
  * If true, all required libraries are present and the scope can be used
+ * @return {Boolean}
  * @public  
  * @properties={typeid:24,uuid:"0E11FB23-7B52-43BE-AE30-2775FE0FA02B"}
  */

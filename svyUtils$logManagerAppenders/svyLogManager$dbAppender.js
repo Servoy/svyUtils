@@ -267,6 +267,7 @@ var initDbAppender = (/** @constructor */ function() {
  *
  * @param {String} datasource the database table where the DbAppender should append to
  * @param {DB_MAPPING} dbMapping the mapping used to match logging events to the table's columns
+ * @return {*}
  *
  * @properties={typeid:24,uuid:"4CF81578-F78E-46E9-8741-34AFCE1E9976"}
  */

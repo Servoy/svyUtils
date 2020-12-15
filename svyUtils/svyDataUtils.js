@@ -152,6 +152,8 @@ function byteArrayToString(bytes, encoding) {
  * 
  * @param {String} string
  * 
+ * @return {Array<byte>}
+ * 
  * @properties={typeid:24,uuid:"3A38D37F-4BC4-4315-BA0C-2743A8E2C0C1"}
  */
 function stringToByteArray(string) {
@@ -903,6 +905,8 @@ function getChangedDataProvider(record, dataProvider) {
  * 
  * @param {JSRecord} record
  * @param {String} dataProviderId
+ * 
+ * @return {*}
  *
  * @properties={typeid:24,uuid:"357B80F0-BCCE-4E8E-A047-E2996E6E4CF9"}
  */
