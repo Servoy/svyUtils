@@ -16,5 +16,5 @@ function getId() {
  * @properties={typeid:24,uuid:"223E76B1-0EF5-42AF-B76A-7BD79D5FE65E"}
  */
 function getVersion() {
-	return '1.4.1';
+	return application.getVersionInfo()['svyUtils$tableGrid'];
 }

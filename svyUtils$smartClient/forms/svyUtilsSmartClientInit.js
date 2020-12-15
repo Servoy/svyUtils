@@ -13,5 +13,5 @@ function getId() {
  * @properties={typeid:24,uuid:"BD54BEFF-1914-49EC-AE4A-061E6A456414"}
  */
 function getVersion() {
-	return '1.4.3'
+	return application.getVersionInfo()['svyUtils$smartClient'];
 }
