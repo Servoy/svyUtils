@@ -3,8 +3,6 @@
 	<name>svyUtils$documentEditor</name>
 	<comment></comment>
 	<projects>
-		<project>resources</project>
-		<project>MPCommon</project>
 		<project>svyUtils</project>
 		<project>svyUtils$NGClient</project>
 	</projects>
