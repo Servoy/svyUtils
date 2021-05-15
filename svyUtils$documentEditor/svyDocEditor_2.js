@@ -66,6 +66,14 @@ var REGEX = {
 var httpClient = plugins.http.createNewHttpClient();
 
 /**
+ * @private 
+ * @type {String}
+ *
+ * @properties={typeid:35,uuid:"FE971052-0410-49C1-BEE6-717C8D5C6680"}
+ */
+var apiKey = ''
+
+/**
  * Get a new instance of a document editor
  * @public 
  * @param {RuntimeWebComponent<smartdocumenteditor-smartdocumenteditor_abs>} component The editor component
@@ -497,9 +505,6 @@ function getExporter(){
 function Exporter() {
 	
 	/** @protected **/
-	this.key = '';
-	
-	/** @protected **/
 	this.content = '';
 	
 	/** @protected **/
@@ -519,16 +524,6 @@ function Exporter() {
 	
 	/** @protected **/
 	this.orientation = 'Portrait';
-	
-	/**
-	 * @public 
-	 * @param {String} key
-	 * @return {Exporter}
-	 */
-	this.setKey = function(key){
-		this.key = key;
-		return this;
-	}
 	
 	/**
 	 * @public 
@@ -610,6 +605,9 @@ function Exporter() {
 	 * @return {Array<byte>}
 	 */
 	this.exportToPDF = function(){
+		if(!apiKey){
+			throw 'No API found';
+		}
 		// TODO post URL should perhaps be externalized ?
 		var postURL = application.isInDeveloper() ? 'http://admin-dev.servoy-cloud.eu:4000/generatePDF' : 'http://localhost:4000/generatePDF';
 		var post = httpClient.createPostRequest(postURL);
@@ -629,7 +627,7 @@ function Exporter() {
 	 */
 	this.serialize = function() {
 		return {
-			"key": this.key,
+			"key": apiKey,
 			"html": this.content,
 			"css": this.css,
 			"additionalHead": this.headTags,
@@ -642,22 +640,16 @@ function Exporter() {
 }
 
 /**
+ * Scope initialization. DO NOT put any code below this declaration
+ * ----------------------------------------------------------------
  * @private 
- *  
- * @param {exportObject} exportConfig
- * @return {Array<byte>}
- * 
- * @properties={typeid:24,uuid:"B03C7A48-7534-4939-9FE8-FC3A1FAF5262"}
+ * @SuppressWarnings(unused)
+ * @properties={typeid:35,uuid:"4C1849DF-4498-4307-86AB-EA247E1C0384",variableType:-4}
  */
-function generatePDF(exportConfig) {
-	var postURL = application.isInDeveloper() ? 'http://admin-dev.servoy-cloud.eu:4000/generatePDF' : 'http://localhost:4000/generatePDF';
-	var post = httpClient.createPostRequest(postURL);
-	post.setBodyContent(JSON.stringify(exportConfig.getJSON()));
-	var result = post.executeRequest();
-	if (result.getStatusCode() == 200) {
-		return result.getMediaData();
-	} else {
-		application.output('Connection Error: ' + result.getStatusCode() + ' with error: ' + result.getResponseBody(), LOGGINGLEVEL.ERROR);
-		return null;
+var init = function(){
+	var key = application.getUserProperty('svyDocumentEditorAPIKey');
+	if(key){
+		application.output('svyDocumentEditorAPIKey loaded from configuration',LOGGINGLEVEL.INFO);
+		apiKey = key;
 	}
-}
+}();
