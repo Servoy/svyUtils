@@ -231,6 +231,22 @@ function TagBuilder(dataSource, editor){
 		]
 	}
 	
+	/**
+	 * 
+	 * @public 
+	 * @return {JSDataSet<displayValue:String, realValue:String>}
+	 *  */
+	this.getFields = function() {
+		/** @type {JSDataSet<displayValue:String, realValue:String>} */
+		var dataset = databaseManager.createEmptyDataSet(0,["displayValue", "realValue"])
+		for (var i = 0; i < fieldTags.length; i++) {
+			var fieldTag = fieldTags[i];
+			dataset.addRow([fieldTag.displayValue, fieldTag.realValue])
+		}
+		
+		return dataset;
+	}
+	
 }
 
 /**
