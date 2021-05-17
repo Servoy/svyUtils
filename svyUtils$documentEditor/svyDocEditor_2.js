@@ -274,12 +274,6 @@ function parseJSColumnInfo(dataSource, dataProviderID) {
 		return null;
 	}
 	var column = table.getColumn(colName)
-	if (!column) {
-		// application.output('Parse column info failed. No column found for: dataSource=' + dataSource + ', dataProvider=' + dataProviderID, LOGGINGLEVEL.WARNING);
-		// return null;
-	}
-	// TODO should check if is a calculaiton or aggregation !?
-	
 	return { table: table, column: column, relation : relation };
 }
 
