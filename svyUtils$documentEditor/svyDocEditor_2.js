@@ -175,9 +175,7 @@ function TagBuilder(dataSource, editor){
 					displayTag = jsColumnInfo.table.getSQLName() + '.' + displayTag; 
 				}
 			} else {
-				if (jsColumnInfo.relation){
-					displayTag = jsColumnInfo.table.getSQLName() + '.' + scopes.svyDataUtils.getUnrelatedDataProviderID(dataProviderID);
-				}
+				displayTag = jsColumnInfo.table.getSQLName() + '.' + scopes.svyDataUtils.getUnrelatedDataProviderID(dataProviderID);
 			}
 		}
 		
