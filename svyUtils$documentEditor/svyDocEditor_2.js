@@ -304,10 +304,23 @@ function processMentions(html, record, relationIndex) {
 			var data;
 			if (mention.tag == scopes.svyDocTagValuelists.TAGS.TAG) {
 				if (mention.realValue.includes('.')) {
+					
+					var dataProvider = mention.getDataProvider();
 					var relationName = mention.getRelationBasedOnRecord(record);
-					var dataProvider = mention.getDataProvider()
-					if (utils.hasRecords(record, relationName) && dataProvider) {
-						data = record[relationName].getRecord( (relationIndex || 1))[dataProvider];
+					var path = relationName.split('.')
+					var recordRelationName = path.shift();	// it assumes the first the relation is the one to be iterated
+					var childRelationName = path.join('.');
+					
+					// FIXME may go wrong with nested relations
+					if (utils.hasRecords(record, recordRelationName) && dataProvider) {
+						// in case of nested relations. Iterate over the first relation
+						var relatedRecord = record[recordRelationName].getRecord( (relationIndex || 1));
+						// data for nested relations
+						if (relatedRecord && childRelationName && utils.hasRecords(relatedRecord, childRelationName)) {
+							data = relatedRecord[childRelationName][dataProvider];
+						} else if (relatedRecord && ! childRelationName) {
+							data = relatedRecord[dataProvider];
+						}
 					}
 					//Skip for now it is a relation dataprovider;
 				} else {
