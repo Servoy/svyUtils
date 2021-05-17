@@ -672,6 +672,17 @@ function Exporter() {
 }
 
 /**
+ * @param {String} key
+ * @public 
+ *
+ * @properties={typeid:24,uuid:"0C251095-663C-4F8A-9F85-57983C04989F"}
+ */
+function registerAPIKey(key) {
+	application.setUserProperty('svyDocumentEditorAPIKey', key);
+	application.output('svyDocumentEditorAPIKey set at runtime',LOGGINGLEVEL.INFO);
+}
+
+/**
  * Scope initialization. DO NOT put any code below this declaration
  * ----------------------------------------------------------------
  * @private 
