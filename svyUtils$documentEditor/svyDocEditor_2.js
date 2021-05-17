@@ -143,27 +143,46 @@ function TagBuilder(dataSource, editor){
 	/** @type {Array<{displayValue:String,realValue:String}>} */
 	var fieldTags = [];
 	
+	/** @type {Array<String>} */
+	var fieldRepeats = [];
+	
+	// build the system tags
+	//this.build();
+	
 	/**
 	 * Add a field to the tag lib
 	 * 
 	 * @public 
 	 * @param {String} dataProviderID The field, can be a column, calc, aggregate or related value
 	 * @param {String} [displayTag] The display value for the tag. Default is derrived from the column or title property
+	 * @param {Boolean} [repeats] true if the related field does repeat over multiple records. Default: true for all related fields.
 	 * @return {TagBuilder}
 	 */
-	this.addField = function(dataProviderID, displayTag){
+	this.addField = function(dataProviderID, displayTag, repeats){
 		
+		// TODO dataprovider is a form variable or a scope variable
 		var jsColumnInfo = parseJSColumnInfo(dsName, dataProviderID);
 		if (!jsColumnInfo) {
 			application.output('Field cannot be added, because no column was found for: dataSource=' + dsName + ', dataProvider=' + dataProviderID, LOGGINGLEVEL.WARNING);
 			return this;
 		}
 		
-		if(!displayTag){
-			displayTag = jsColumnInfo.column.getTitle();
-			if(jsColumnInfo.relation){
-				displayTag = jsColumnInfo.table.getSQLName() + '.' + displayTag; 
+		if (!displayTag) {
+			// dataprovider may be a calculation or an aggregation
+			if (jsColumnInfo.column) {
+				displayTag = jsColumnInfo.column.getTitle();
+				if (jsColumnInfo.relation){
+					displayTag = jsColumnInfo.table.getSQLName() + '.' + displayTag; 
+				}
+			} else {
+				if (jsColumnInfo.relation){
+					displayTag = jsColumnInfo.table.getSQLName() + '.' + scopes.svyDataUtils.getUnrelatedDataProviderID(dataProviderID);
+				}
 			}
+		}
+		
+		if (jsColumnInfo.relation && repeats !== false) {
+			fieldRepeats.push(dataProviderID);
 		}
 		
 		fieldTags.push({displayValue:displayTag, realValue:dataProviderID});
@@ -177,10 +196,10 @@ function TagBuilder(dataSource, editor){
 	 */
 	this.getSystemTags = function(){
 		var systemTags = {};
-		for(var i in fieldTags){
-			var fieldTag = fieldTags[i];
-			var jsColumnInfo = parseJSColumnInfo(dsName, fieldTag.realValue);
-			if(jsColumnInfo.relation){
+		for(var i in fieldRepeats){
+			var fieldTag = fieldRepeats[i];
+			var jsColumnInfo = parseJSColumnInfo(dsName, fieldTag);
+			if (jsColumnInfo.relation){
 				var displayTag = DEFAULT_REPEATER.START + '.' + utils.stringReplace(utils.stringInitCap(jsColumnInfo.table.getSQLName().split('_').join(' ')), ' ', '');
 				var tagValue = DEFAULT_REPEATER.START + '-' + jsColumnInfo.relation.name;
 				systemTags[displayTag] = tagValue;
@@ -242,9 +261,11 @@ function parseJSColumnInfo(dataSource, dataProviderID) {
 	}
 	var column = table.getColumn(colName)
 	if (!column) {
-		application.output('Parse column info failed. No column found for: dataSource=' + dataSource + ', dataProvider=' + dataProviderID, LOGGINGLEVEL.WARNING);
-		return null;
+		// application.output('Parse column info failed. No column found for: dataSource=' + dataSource + ', dataProvider=' + dataProviderID, LOGGINGLEVEL.WARNING);
+		// return null;
 	}
+	// TODO should check if is a calculaiton or aggregation !?
+	
 	return { table: table, column: column, relation : relation };
 }
 
