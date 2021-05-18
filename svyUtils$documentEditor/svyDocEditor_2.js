@@ -685,14 +685,23 @@ function Exporter() {
 }
 
 /**
+ * Register the API key required for PDF export. 
+ * This method is best used for testing purposes only.
+ * For deployment purposes, the key can be loaded from configuration using property "user.svyDocumentEditorAPIKey" 
+ * 
  * @param {String} key
  * @public 
  *
  * @properties={typeid:24,uuid:"0C251095-663C-4F8A-9F85-57983C04989F"}
  */
 function registerAPIKey(key) {
+	apiKey = key;
 	application.setUserProperty('svyDocumentEditorAPIKey', key);
-	application.output('svyDocumentEditorAPIKey set at runtime',LOGGINGLEVEL.INFO);
+	if(application.isInDeveloper()){
+		application.output('Key is set, but when in developer, user properties are not persisted until the IDE is closed',LOGGINGLEVEL.INFO);
+	} else {
+		application.output('svyDocumentEditorAPIKey set at runtime',LOGGINGLEVEL.INFO);
+	}
 }
 
 /**
