@@ -219,7 +219,8 @@ function TagBuilder(dataSource, editor){
 	 */
 	this.build = function(){
 
-		editor.mentionFeeds = [
+		// TODO shall add/amend the markers or fully replace them ?
+		var mentionFeeds = [
 			{
 				marker:TAGS.REPEAT,
 				feedItems:this.getSystemTags()
@@ -229,6 +230,8 @@ function TagBuilder(dataSource, editor){
 				feedItems:fieldTags
 			}
 		]
+		editor.setMentionFeeds(mentionFeeds);
+		
 	}
 	
 	/**
