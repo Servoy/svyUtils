@@ -71,7 +71,16 @@ var httpClient = plugins.http.createNewHttpClient();
  *
  * @properties={typeid:35,uuid:"FE971052-0410-49C1-BEE6-717C8D5C6680"}
  */
-var apiKey = ''
+var apiKey = '';
+
+/**
+ * Default export service url, overridden by properties
+ * @private 
+ * @type {String}
+ *
+ * @properties={typeid:35,uuid:"B52F7503-9FA9-4235-B9A9-BA0552E8F5DB"}
+ */
+var exportServiceURL = 'http://admin-dev.servoy-cloud.eu:4000/generatePDF';
 
 /**
  * Get a new instance of a document editor
@@ -653,9 +662,7 @@ function Exporter() {
 		if(!apiKey){
 			throw 'No API found';
 		}
-		// TODO post URL should perhaps be externalized ?
-		var postURL = application.isInDeveloper() ? 'http://admin-dev.servoy-cloud.eu:4000/generatePDF' : 'http://localhost:4000/generatePDF';
-		var post = httpClient.createPostRequest(postURL);
+		var post = httpClient.createPostRequest(exportServiceURL);
 		post.setBodyContent(JSON.stringify(this.serialize()));
 		var result = post.executeRequest();
 		if (result.getStatusCode() == 200) {
@@ -716,5 +723,10 @@ var init = function(){
 	if(key){
 		application.output('svyDocumentEditorAPIKey loaded from configuration',LOGGINGLEVEL.INFO);
 		apiKey = key;
+	}
+	var url = application.getUserProperty('svyDocumentExportServiceURL');
+	if(url){
+		exportServiceURL = url;
+		application.output('svyDocumentExportServiceURL loaded from configuration',LOGGINGLEVEL.INFO)
 	}
 }();
