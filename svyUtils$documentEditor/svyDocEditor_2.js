@@ -429,7 +429,7 @@ function createParsedRepeat(html, record) {
 	 */
 	this.isValidRepeat = function() {
 		if (this.relationName) {
-			return (scopes.svyDocTagValuelists.getRepeatTagsData().indexOf(this.parsedMention.tag + this.parsedMention.realValue) == -1)
+			return true;
 		}
 
 		return false;
@@ -486,7 +486,6 @@ function createParsedMention(mention) {
 	this.isValidTag = function() {
 		if (this.realValue) {
 			return true;
-			//return (scopes.svyDocTagValuelists.getFieldTagsData().indexOf(this.tag + this.realValue) == -1)
 		}
 
 		return false;
