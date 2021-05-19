@@ -485,7 +485,8 @@ function createParsedMention(mention) {
 	 */
 	this.isValidTag = function() {
 		if (this.realValue) {
-			return (scopes.svyDocTagValuelists.getFieldTagsData().indexOf(this.tag + this.realValue) == -1)
+			return true;
+			//return (scopes.svyDocTagValuelists.getFieldTagsData().indexOf(this.tag + this.realValue) == -1)
 		}
 
 		return false;
