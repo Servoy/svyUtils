@@ -315,7 +315,7 @@ function processMentions(html, record, relationIndex) {
 			}
 
 			var data;
-			if (mention.tag == scopes.svyDocTagValuelists.TAGS.TAG) {
+			if (mention.tag == TAGS.TAG) {
 				if (mention.realValue.includes('.')) {
 					
 					var dataProvider = mention.getDataProvider();
@@ -454,7 +454,7 @@ function createParsedRepeat(html, record) {
 	}
 
 	//Setup calculated properties based on input
-	if (this.parsedMention && this.parsedMention.tag == scopes.svyDocTagValuelists.TAGS.REPEAT) {
+	if (this.parsedMention && this.parsedMention.tag == TAGS.REPEAT) {
 		this.relationName = this.parsedMention.realValue;
 		if (utils.hasRecords(record, this.getRelationBasedOnRecord(record))) {
 			this.numberOfRepeats = databaseManager.getFoundSetCount(record[this.getRelationBasedOnRecord(record)]);
@@ -527,7 +527,7 @@ function createParsedMention(mention) {
 			self.display = value.substr(1);
 		} else if (matchItem.startsWith('data-real-value=')) {
 			value = matchItem.trim().replace('data-real-value="', '').replace(new RegExp('"$'), '');
-			self.realValue = value.split(scopes.svyDocTagValuelists.DEFAULT_REPEATER.START + '-').pop();
+			self.realValue = value.split(DEFAULT_REPEATER.START + '-').pop();
 		}
 	});
 }
