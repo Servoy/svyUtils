@@ -87,6 +87,29 @@ var exportServiceURL = 'http://admin-dev.servoy-cloud.eu:4000/generatePDF';
  * @public 
  * @param {RuntimeWebComponent<smartdocumenteditor-smartdocumenteditor_abs>} component The editor component
  * @return {DocumentEditor}
+ * 
+ * @example<pre>
+ * function onLoad(event) {
+ *	// GET NE INSTANCE OF THE DOCUMENT EDITOR
+ *	docEditor = scopes.svyDocEditor.getInstance(elements.smartDoc);
+ * 
+ *	// POPULATE THE TAG FIELDS LIST
+ *	var tagBuilder = docEditor.tagBuilder(datasources.db.example_data.orders.getDataSource());
+ *	tagBuilder.addField('orderid');
+ *	tagBuilder.addField('displayAddressHTML', 'Address');
+ *	tagBuilder.addField('displayOrderDate', 'Order Date');
+ *	tagBuilder.addField('displayShippedDate', 'Shipped Date');
+ *	tagBuilder.addField('displayOrderTotal', 'Total');
+ *	tagBuilder.addField('orders_to_customers.companyname', 'Customer.Company', false);
+ *	tagBuilder.addField('orders_to_order_details.quantity', 'OrderDetails.Quantity');
+ *	tagBuilder.addField('orders_to_order_details.unitprice', 'OrderDetails.Unit Price');
+ *	tagBuilder.addField('orders_to_order_details.subtotal', 'OrderDetails.Subtotal');
+ *	tagBuilder.addField('orders_to_order_details.order_details_to_products.productname', 'Product.Name', false);
+ *  
+ *	// BUILD THE TAG LIST
+ *	tagBuilder.build();
+ * }
+ * </pre>
  *
  * @properties={typeid:24,uuid:"47C90943-797B-4F20-9D1F-25FBF200808C"}
  */
@@ -108,6 +131,30 @@ function DocumentEditor(editor){
 	 * @public 
 	 * @param {JSDataSource|String} dataSource
 	 * @return {TagBuilder}
+	 * 
+	 * @example<pre>
+	 * function onLoad(event) {
+	 *	// GET NE INSTANCE OF THE DOCUMENT EDITOR
+	 *	docEditor = scopes.svyDocEditor.getInstance(elements.smartDoc);
+	 * 
+	 *	// POPULATE THE TAG FIELDS LIST
+	 *	var tagBuilder = docEditor.tagBuilder(datasources.db.example_data.orders.getDataSource());
+	 *	tagBuilder.addField('orderid');
+	 *	tagBuilder.addField('displayAddressHTML', 'Address');
+	 *	tagBuilder.addField('displayOrderDate', 'Order Date');
+	 *	tagBuilder.addField('displayShippedDate', 'Shipped Date');
+	 *	tagBuilder.addField('displayOrderTotal', 'Total');
+	 *	tagBuilder.addField('orders_to_customers.companyname', 'Customer.Company', false);
+	 *	tagBuilder.addField('orders_to_order_details.quantity', 'OrderDetails.Quantity');
+	 *	tagBuilder.addField('orders_to_order_details.unitprice', 'OrderDetails.Unit Price');
+	 *	tagBuilder.addField('orders_to_order_details.subtotal', 'OrderDetails.Subtotal');
+	 *	tagBuilder.addField('orders_to_order_details.order_details_to_products.productname', 'Product.Name', false);
+	 *  
+	 *	// BUILD THE TAG LIST
+	 *	tagBuilder.build();
+	 * }
+	 * </pre>
+	 * 
 	 */
 	this.tagBuilder = function(dataSource){
 		return new TagBuilder(dataSource,editor);
@@ -119,6 +166,27 @@ function DocumentEditor(editor){
 	 * @public 
 	 * @param {JSRecord} record The record object from which to get data values
 	 * @return {String}
+	 * 
+	 * @example <pre>
+	 *	// MERGE TAGS WITH THE RECORD DATA
+	 *	var displayContent = docEditor.mergeTags(record);
+	 *
+	 * 	// GET THE EXPORTER
+	 *	var docExporter = docEditor.exporter();
+	 *	
+	 *	try { // throws an exception if the API key isn't registered.
+	 *		var bytes = docExporter.exportToPDF();
+	 *		if (bytes) {
+	 *			var pdf = plugins.file.createFile('export.pdf');
+	 *			plugins.file.writeFile(pdf,bytes);
+	 *			plugins.file.openFile(pdf);
+	 *		} else {
+	 *			plugins.dialogs.showErrorDialog("Print Failed","Sorry cannot print the document.")
+	 *		}
+	 *	} catch (e) {
+	 *		plugins.dialogs.showWarningDialog("Print Failed", "API Key required for export");
+	 *	}
+	 * </pre>
 	 */
 	this.mergeTags = function(record){
 		return mergeTags(editor.getHTMLData(),record);
@@ -131,6 +199,24 @@ function DocumentEditor(editor){
 	 * @param {Boolean} [inlineCSS]
 	 * @param {String} [filterStylesheetName]
 	 * @return {Exporter}
+	 * 
+	 * @example <pre>
+	 * 	// GET THE EXPORTER
+	 *	var docExporter = docEditor.exporter();
+	 *	
+	 *	try { // throws an exception if the API key isn't registered.
+	 *		var bytes = docExporter.exportToPDF();
+	 *		if (bytes) {
+	 *			var pdf = plugins.file.createFile('export.pdf');
+	 *			plugins.file.writeFile(pdf,bytes);
+	 *			plugins.file.openFile(pdf);
+	 *		} else {
+	 *			plugins.dialogs.showErrorDialog("Print Failed","Sorry cannot print the document.")
+	 *		}
+	 *	} catch (e) {
+	 *		plugins.dialogs.showWarningDialog("Print Failed", "API Key required for export");
+	 *	}
+	 * </pre>
 	 */
 	this.exporter = function(inlineCSS, filterStylesheetName){
 		return new Exporter().setContent(editor.getHTMLData(inlineCSS,filterStylesheetName));
@@ -224,6 +310,30 @@ function TagBuilder(dataSource, editor){
 	/**
 	 * Applies the tag lib to the component (replacing existing tags)
 	 * 
+	 * 
+	 * @example<pre>
+	 * function onLoad(event) {
+	 *	// GET NE INSTANCE OF THE DOCUMENT EDITOR
+	 *	docEditor = scopes.svyDocEditor.getInstance(elements.smartDoc);
+	 * 
+	 *	// POPULATE THE TAG FIELDS LIST
+	 *	var tagBuilder = docEditor.tagBuilder(datasources.db.example_data.orders.getDataSource());
+	 *	tagBuilder.addField('orderid');
+	 *	tagBuilder.addField('displayAddressHTML', 'Address');
+	 *	tagBuilder.addField('displayOrderDate', 'Order Date');
+	 *	tagBuilder.addField('displayShippedDate', 'Shipped Date');
+	 *	tagBuilder.addField('displayOrderTotal', 'Total');
+	 *	tagBuilder.addField('orders_to_customers.companyname', 'Customer.Company', false);
+	 *	tagBuilder.addField('orders_to_order_details.quantity', 'OrderDetails.Quantity');
+	 *	tagBuilder.addField('orders_to_order_details.unitprice', 'OrderDetails.Unit Price');
+	 *	tagBuilder.addField('orders_to_order_details.subtotal', 'OrderDetails.Subtotal');
+	 *	tagBuilder.addField('orders_to_order_details.order_details_to_products.productname', 'Product.Name', false);
+	 *  
+	 *	// BUILD THE TAG LIST
+	 *	tagBuilder.build();
+	 * }
+	 * </pre>
+	 * 
 	 * @public 
 	 */
 	this.build = function(){
@@ -247,6 +357,10 @@ function TagBuilder(dataSource, editor){
 	 * 
 	 * @public 
 	 * @return {JSDataSet<displayValue:String, realValue:String>}
+	 * @example<pre>
+	 * application.setValueListItems("myFieldTags", tagBuilder.getFields());
+	 * </pre>
+	 * 
 	 *  */
 	this.getFields = function() {
 		/** @type {JSDataSet<displayValue:String, realValue:String>} */
@@ -297,6 +411,28 @@ function parseJSColumnInfo(dataSource, dataProviderID) {
  * @param {JSRecord} record The data to merge
  *
  * @return {String} The merged content
+ * 
+ * @example <pre>
+ *	// MERGE TAGS WITH THE RECORD DATA
+ *	var displayContent = scopes.svyDocEditor.mergeTags(content, record);
+ *
+ * 	// GET THE EXPORTER AND SET THE CONTENT
+ *	var docExporter = scopes.svyDocEditor.getExporter();
+ *	docExporter.setContent(displayContent);
+ *	
+ *	try { // throws an exception if the API key isn't registered.
+ *		var bytes = docExporter.exportToPDF();
+ *		if (bytes) {
+ *			var pdf = plugins.file.createFile('export.pdf');
+ *			plugins.file.writeFile(pdf,bytes);
+ *			plugins.file.openFile(pdf);
+ *		} else {
+ *			plugins.dialogs.showErrorDialog("Print Failed","Sorry cannot print the document.")
+ *		}
+ *	} catch (e) {
+ *		plugins.dialogs.showWarningDialog("Print Failed", "API Key required for export");
+ *	}
+ * </pre>
  *
  * @properties={typeid:24,uuid:"B956081F-DA96-4E4B-AD6E-13F9264D5000"}
  */
@@ -545,6 +681,25 @@ function createParsedMention(mention) {
  * 
  * @public 
  * @return {Exporter}
+ * @example <pre>
+ * 	// GET THE EXPORTER AND SET THE CONTENT
+ *	var docExporter = scopes.svyDocEditor.getExporter();
+ *	docExporter.setContent(displayContent);
+ *	
+ *	try { // throws an exception if the API key isn't registered.
+ *		var bytes = docExporter.exportToPDF();
+ *		if (bytes) {
+ *			var pdf = plugins.file.createFile('export.pdf');
+ *			plugins.file.writeFile(pdf,bytes);
+ *			plugins.file.openFile(pdf);
+ *		} else {
+ *			plugins.dialogs.showErrorDialog("Print Failed","Sorry cannot print the document.")
+ *		}
+ *	} catch (e) {
+ *		plugins.dialogs.showWarningDialog("Print Failed", "API Key required for export");
+ *	}
+ * </pre>
+ * 
  * @properties={typeid:24,uuid:"E8B1F610-7727-4661-8B56-1F38F0583A81"}
  */
 function getExporter(){
