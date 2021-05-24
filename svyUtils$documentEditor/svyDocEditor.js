@@ -126,35 +126,11 @@ function getInstance(component){
 function DocumentEditor(editor){
 
 	/**
-	 * Gets a tag builder object to set the lag lib for the editor component
+	 * Gets a tag builder object to set the lag libs for the editor component
 	 * 
 	 * @public 
-	 * @param {JSDataSource|String} dataSource
-	 * @return {TagBuilder}
-	 * 
-	 * @example<pre>
-	 * function onLoad(event) {
-	 *	// GET NE INSTANCE OF THE DOCUMENT EDITOR
-	 *	docEditor = scopes.svyDocEditor.getInstance(elements.smartDoc);
-	 * 
-	 *	// POPULATE THE TAG FIELDS LIST
-	 *	var tagBuilder = docEditor.tagBuilder(datasources.db.example_data.orders.getDataSource());
-	 *	tagBuilder.addField('orderid');
-	 *	tagBuilder.addField('displayAddressHTML', 'Address');
-	 *	tagBuilder.addField('displayOrderDate', 'Order Date');
-	 *	tagBuilder.addField('displayShippedDate', 'Shipped Date');
-	 *	tagBuilder.addField('displayOrderTotal', 'Total');
-	 *	tagBuilder.addField('orders_to_customers.companyname', 'Customer.Company', false);
-	 *	tagBuilder.addField('orders_to_order_details.quantity', 'OrderDetails.Quantity');
-	 *	tagBuilder.addField('orders_to_order_details.unitprice', 'OrderDetails.Unit Price');
-	 *	tagBuilder.addField('orders_to_order_details.subtotal', 'OrderDetails.Subtotal');
-	 *	tagBuilder.addField('orders_to_order_details.order_details_to_products.productname', 'Product.Name', false);
-	 *  
-	 *	// BUILD THE TAG LIST
-	 *	tagBuilder.build();
-	 * }
-	 * </pre>
-	 * 
+	 * @param {JSDataSource|String} dataSource The data source for the tag libs
+	 * @return {TagBuilder} The tag builder object
 	 */
 	this.tagBuilder = function(dataSource){
 		return new TagBuilder(dataSource,editor);
@@ -165,61 +141,24 @@ function DocumentEditor(editor){
 	 * 
 	 * @public 
 	 * @param {JSRecord} record The record object from which to get data values
-	 * @return {String}
-	 * 
-	 * @example <pre>
-	 *	// MERGE TAGS WITH THE RECORD DATA
-	 *	var displayContent = docEditor.mergeTags(record);
-	 *
-	 * 	// GET THE EXPORTER
-	 *	var docExporter = docEditor.exporter();
-	 *	
-	 *	try { // throws an exception if the API key isn't registered.
-	 *		var bytes = docExporter.exportToPDF();
-	 *		if (bytes) {
-	 *			var pdf = plugins.file.createFile('export.pdf');
-	 *			plugins.file.writeFile(pdf,bytes);
-	 *			plugins.file.openFile(pdf);
-	 *		} else {
-	 *			plugins.dialogs.showErrorDialog("Print Failed","Sorry cannot print the document.")
-	 *		}
-	 *	} catch (e) {
-	 *		plugins.dialogs.showWarningDialog("Print Failed", "API Key required for export");
-	 *	}
-	 * </pre>
+	 * @param {Boolean} [withInlineCSS] Optionally in-line the CSS so content is self-contained
+	 * @param {String} [filterStylesheetName] Optionally filter by style sheet name
+	 * @return {String} The merged content
 	 */
-	this.mergeTags = function(record){
-		return mergeTags(editor.getHTMLData(),record);
+	this.mergeTags = function(record, withInlineCSS,filterStylesheetName){
+		return mergeTags(editor.getHTMLData(withInlineCSS,filterStylesheetName),record);
 	}
 	
 	/**
-	 * Gets an Exporter object which can generate PDFs
+	 * Gets the content in the editor component
 	 * 
 	 * @public 
-	 * @param {Boolean} [inlineCSS]
-	 * @param {String} [filterStylesheetName]
-	 * @return {Exporter}
-	 * 
-	 * @example <pre>
-	 * 	// GET THE EXPORTER
-	 *	var docExporter = docEditor.exporter();
-	 *	
-	 *	try { // throws an exception if the API key isn't registered.
-	 *		var bytes = docExporter.exportToPDF();
-	 *		if (bytes) {
-	 *			var pdf = plugins.file.createFile('export.pdf');
-	 *			plugins.file.writeFile(pdf,bytes);
-	 *			plugins.file.openFile(pdf);
-	 *		} else {
-	 *			plugins.dialogs.showErrorDialog("Print Failed","Sorry cannot print the document.")
-	 *		}
-	 *	} catch (e) {
-	 *		plugins.dialogs.showWarningDialog("Print Failed", "API Key required for export");
-	 *	}
-	 * </pre>
+	 * @param {Boolean} [withInlineCSS] Optionally in-line the CSS so content is self-contained
+	 * @param {String} [filterStylesheetName] Optionally filter by style sheet name
+	 * @return {String}
 	 */
-	this.exporter = function(inlineCSS, filterStylesheetName){
-		return new Exporter().setContent(editor.getHTMLData(inlineCSS,filterStylesheetName));
+	this.getContent = function(withInlineCSS, filterStylesheetName){
+		return editor.getHTMLData(withInlineCSS,filterStylesheetName);
 	}
 }
 
@@ -310,30 +249,6 @@ function TagBuilder(dataSource, editor){
 	/**
 	 * Applies the tag lib to the component (replacing existing tags)
 	 * 
-	 * 
-	 * @example<pre>
-	 * function onLoad(event) {
-	 *	// GET NE INSTANCE OF THE DOCUMENT EDITOR
-	 *	docEditor = scopes.svyDocEditor.getInstance(elements.smartDoc);
-	 * 
-	 *	// POPULATE THE TAG FIELDS LIST
-	 *	var tagBuilder = docEditor.tagBuilder(datasources.db.example_data.orders.getDataSource());
-	 *	tagBuilder.addField('orderid');
-	 *	tagBuilder.addField('displayAddressHTML', 'Address');
-	 *	tagBuilder.addField('displayOrderDate', 'Order Date');
-	 *	tagBuilder.addField('displayShippedDate', 'Shipped Date');
-	 *	tagBuilder.addField('displayOrderTotal', 'Total');
-	 *	tagBuilder.addField('orders_to_customers.companyname', 'Customer.Company', false);
-	 *	tagBuilder.addField('orders_to_order_details.quantity', 'OrderDetails.Quantity');
-	 *	tagBuilder.addField('orders_to_order_details.unitprice', 'OrderDetails.Unit Price');
-	 *	tagBuilder.addField('orders_to_order_details.subtotal', 'OrderDetails.Subtotal');
-	 *	tagBuilder.addField('orders_to_order_details.order_details_to_products.productname', 'Product.Name', false);
-	 *  
-	 *	// BUILD THE TAG LIST
-	 *	tagBuilder.build();
-	 * }
-	 * </pre>
-	 * 
 	 * @public 
 	 */
 	this.build = function(){
@@ -357,10 +272,6 @@ function TagBuilder(dataSource, editor){
 	 * 
 	 * @public 
 	 * @return {JSDataSet<displayValue:String, realValue:String>}
-	 * @example<pre>
-	 * application.setValueListItems("myFieldTags", tagBuilder.getFields());
-	 * </pre>
-	 * 
 	 *  */
 	this.getFields = function() {
 		/** @type {JSDataSet<displayValue:String, realValue:String>} */
@@ -735,9 +646,11 @@ function Exporter() {
 	this.orientation = 'Portrait';
 	
 	/**
+	 * Set/Override the css in the exporter
+	 * 
 	 * @public 
-	 * @param {String} css
-	 * @return {Exporter}
+	 * @param {String} css The CSS to set
+	 * @return {Exporter} This exporter object for call chaining
 	 */
 	this.setCSS = function(css){
 		this.css = css;
@@ -745,9 +658,11 @@ function Exporter() {
 	}
 	
 	/**
+	 * Sets the content to be exported
 	 * @public 
 	 * @param {String} content
-	 * @return {Exporter}
+	 * @return {Exporter} This exporter object for call chaining
+	 * @see DocumentEditor.getContent
 	 */
 	this.setContent = function(content){
 		this.content = content;
@@ -755,9 +670,11 @@ function Exporter() {
 	}
 	
 	/**
+	 * Adds additional head tags to the exported content
+	 * 
 	 * @public 
-	 * @param {String} headTag
-	 * @return {Exporter}
+	 * @param {String} headTag The head tag to be added
+	 * @return {Exporter} This exporter object for call chaining
 	 */
 	this.addHeadTag = function(headTag){
 		this.headTags.push(headTag);
@@ -765,9 +682,10 @@ function Exporter() {
 	}
 	
 	/**
+	 * Sets the image URL
 	 * @public 
-	 * @param {String} imageURL
-	 * @return {Exporter}
+	 * @param {String} imageURL The Image URL
+	 * @return {Exporter} This exporter object for call chaining
 	 */
 	this.setImageURL = function(imageURL){
 		this.imageURL = imageURL;
@@ -775,12 +693,14 @@ function Exporter() {
 	}
 	
 	/**
+	 * Sets the page margins
+	 * 
 	 * @public 
 	 * @param {Number} top
 	 * @param {Number} right
 	 * @param {Number} bottom
 	 * @param {Number} left
-	 * @return {Exporter}
+	 * @return {Exporter} This exporter object for call chaining
 	 */
 	this.setMargin = function(top,right,bottom,left){
 		this.margin = {top:top, right:right, bottom:bottom, left:left};
@@ -788,9 +708,10 @@ function Exporter() {
 	}
 	
 	/**
+	 * Sets the page size
 	 * @public 
-	 * @param {String} pageSize
-	 * @return {Exporter}
+	 * @param {String} pageSize Page size, must be one of enum PAGE_SIZE
+	 * @return {Exporter} This exporter object for call chaining
 	 * @see PAGE_SIZE
 	 */
 	this.setPageSize = function(pageSize){
@@ -799,9 +720,11 @@ function Exporter() {
 	}
 	
 	/**
+	 * Sets the page orientation
+	 * 
 	 * @public 
-	 * @param {String} orientation
-	 * @return {Exporter}
+	 * @param {String} orientation The page orientation, must be one of enum ORIENTATION
+	 * @return {Exporter} This exporter object for call chaining
 	 * @see ORIENTATION
 	 */
 	this.setOrientation = function(orientation){
@@ -810,8 +733,12 @@ function Exporter() {
 	}
 	
 	/**
+	 * Exports the content to PDF. An API key must already be registered or an error is thrown.
+	 * 
 	 * @public 
-	 * @return {Array<byte>}
+	 * @return {Array<byte>} The PDF file bytes
+	 * @see registerAPIKey
+	 * @throws {Error} if no API key is registered
 	 */
 	this.exportToPDF = function(){
 		if(!apiKey){
