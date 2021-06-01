@@ -683,7 +683,7 @@ function Exporter() {
 	
 	/**
 	 * Sets the image URL
-	 * @public 
+	 * @protected  
 	 * @param {String} imageURL The Image URL
 	 * @return {Exporter} This exporter object for call chaining
 	 */
