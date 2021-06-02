@@ -2,7 +2,7 @@
     "name":"svyUtils$documentEditor",
     "displayName":"Smart Doc Editor Utils",
     "packageType": "Solution",
-    "icon": "https://commons.wikimedia.org/wiki/Category:Document_icons#/media/File:.rtf_OneDrive_icon.svg",
+    "icon": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/01/Google_Docs_logo_%282014-2020%29.svg/1481px-Google_Docs_logo_%282014-2020%29.svg.png",
     "description": "Supplimentary module to the Smart Doc Editor component, providing additional utilities to manage custom tag libraries, document merge and PDF export.",
     "wikiUrl": "https://github.com/Servoy/svyUtils/wiki/Smart-Doc-Editor-Utils",
     "sourceUrl" : "https://github.com/Servoy/svyUtils/tree/master/svyUtils%24documentEditor",
