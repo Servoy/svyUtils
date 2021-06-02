@@ -1,11 +1,11 @@
 {
-    "name":"svyUtils$webClient",
-    "displayName":"svyUtils$webClient",
+    "name":"svyUtils$documentEditor",
+    "displayName":"Smart Doc Editor Utils",
     "packageType": "Solution",
-    "icon": "https://raw.githubusercontent.com/Servoy/servoy-extra-components/master/servoy.png",
-    "description": "Set of utility methods specifically for the Servoy Web Client Also replaces (most) of the functionality of the WebClientUtils plugin",
-    "wikiUrl": "https://github.com/Servoy/svyUtils/wiki",
-    "sourceUrl" : "https://github.com/Servoy/svyUtils",
+    "icon": "https://commons.wikimedia.org/wiki/Category:Document_icons#/media/File:.rtf_OneDrive_icon.svg",
+    "description": "Supplimentary module to the Smart Doc Editor component, providing additional utilities to manage custom tag libraries, document merge and PDF export.",
+    "wikiUrl": "https://github.com/Servoy/svyUtils/wiki/Smart-Doc-Editor-Utils",
+    "sourceUrl" : "https://github.com/Servoy/svyUtils/tree/master/svyUtils%24documentEditor",
     "releases" : [
         {"version":"1.6.0","url":"https://github.com/Servoy/svyUtils/releases/download/v1.6.0/svyUtilsDocumentEditor.servoy", "servoy-version":"2021.06", "dependency":"smartDocumentEditor#>=1.0.0"}
      ]
