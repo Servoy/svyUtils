@@ -6,7 +6,7 @@
  * @see Exporter.setOrientation 
  * @properties={typeid:35,uuid:"5FF39323-777B-4B3F-930D-F2B6BE25F9AD",variableType:-4}
  */
-var ORIENTATION = {
+ var ORIENTATION = {
 	PORTRAIT:'Portrait',
 	LANDSCAPE:'Landscape'
 }
@@ -23,7 +23,7 @@ var PAGE_SIZE = {
 }
 
 /**
- * @private  
+ * @public   
  * @enum {String}
  * @properties={typeid:35,uuid:"45646E48-A651-4EE5-9824-B33A2452062C",variableType:-4}
  */
@@ -80,12 +80,12 @@ var apiKey = '';
  *
  * @properties={typeid:35,uuid:"B52F7503-9FA9-4235-B9A9-BA0552E8F5DB"}
  */
-var exportServiceURL = 'http://admin-dev.servoy-cloud.eu:4000/generatePDF';
+var exportServiceURL = 'http://admin.servoy-cloud.eu:4000/generatePDF';
 
 /**
  * Get a new instance of a document editor
  * @public 
- * @param {RuntimeWebComponent<smartdocumenteditor-smartdocumenteditor_abs>} component The editor component
+ * @param {RuntimeWebComponent<smartdocumenteditor-smartdocumenteditor_abs>|RuntimeWebComponent<smartdocumenteditor-smartdocumenteditor>} component The editor component
  * @return {DocumentEditor}
  * 
  * @example<pre>
@@ -120,7 +120,7 @@ function getInstance(component){
 /**
  * @private 
  * @constructor 
- * @param {RuntimeWebComponent<smartdocumenteditor-smartdocumenteditor_abs>} editor
+ * @param {RuntimeWebComponent<smartdocumenteditor-smartdocumenteditor_abs>|RuntimeWebComponent<smartdocumenteditor-smartdocumenteditor>} editor
  * @properties={typeid:24,uuid:"71EE688D-E2AD-4705-9247-F3FD5231FE74"}
  */
 function DocumentEditor(editor){
@@ -160,13 +160,33 @@ function DocumentEditor(editor){
 	this.getContent = function(withInlineCSS, filterStylesheetName){
 		return editor.getHTMLData(withInlineCSS,filterStylesheetName);
 	}
+	
+	/**
+	 * Gets the default print css
+	 * 
+	 * @public 
+	 * @return {String}
+	 */
+	this.getDefaultPrintCSS = function() {
+		return editor.getPrintCSSData();
+	}
+	
+	/**
+	 * Gets the form component / element
+	 * 
+	 * @public 
+	 * @return {RuntimeWebComponent<smartdocumenteditor-smartdocumenteditor_abs>|RuntimeWebComponent<smartdocumenteditor-smartdocumenteditor>}
+	 */
+	this.getElement = function() {
+		return editor;
+	}
 }
 
 /**
  * @private 
  * @constructor 
  * @param {JSDataSource|String} dataSource
- * @param {RuntimeWebComponent<smartdocumenteditor-smartdocumenteditor_abs>} editor
+ * @param {RuntimeWebComponent<smartdocumenteditor-smartdocumenteditor_abs>|RuntimeWebComponent<smartdocumenteditor-smartdocumenteditor>} editor
  * @properties={typeid:24,uuid:"6E4E90A1-165A-43BD-887D-9A678DD85DD9"}
  */
 function TagBuilder(dataSource, editor){
@@ -195,25 +215,25 @@ function TagBuilder(dataSource, editor){
 	this.addField = function(dataProviderID, displayTag, repeats){
 		
 		// TODO dataprovider is a form variable or a scope variable
-		var jsColumnInfo = parseJSColumnInfo(dsName, dataProviderID);
-		if (!jsColumnInfo) {
+		var jsColumn = scopes.svyDataUtils.getDataProviderJSColumn(dsName, dataProviderID);
+		if (!jsColumn) {
 			application.output('Field cannot be added, because no column was found for: dataSource=' + dsName + ', dataProvider=' + dataProviderID, LOGGINGLEVEL.WARNING);
 			return this;
 		}
 		
 		if (!displayTag) {
 			// dataprovider may be a calculation or an aggregation
-			if (jsColumnInfo.column) {
-				displayTag = jsColumnInfo.column.getTitle();
-				if (jsColumnInfo.relation){
-					displayTag = jsColumnInfo.table.getSQLName() + '.' + displayTag; 
+			if (jsColumn) {
+				displayTag = jsColumn.getTitle();
+				if (dataProviderID.includes('.')){
+					displayTag = jsColumn.getTable().getSQLName() + '.' + displayTag; 
 				}
 			} else {
-				displayTag = jsColumnInfo.table.getSQLName() + '.' + scopes.svyDataUtils.getUnrelatedDataProviderID(dataProviderID);
+				displayTag = jsColumn.getTable().getSQLName() + '.' + scopes.svyDataUtils.getUnrelatedDataProviderID(dataProviderID);
 			}
 		}
 		
-		if (jsColumnInfo.relation && repeats !== false) {
+		if (dataProviderID.includes('.') && repeats !== false) {
 			fieldRepeats.push(dataProviderID);
 		}
 		
@@ -223,32 +243,53 @@ function TagBuilder(dataSource, editor){
 	}
 	
 	/**
-	 * @protected  
-	 * @return {Array<{displayValue:String,realValue:String}>}
+	 * @public   
+	 * @return {JSDataSet<displayValue:String, realValue:String>}
 	 */
 	this.getSystemTags = function(){
 		var systemTags = {};
 		for(var i in fieldRepeats){
 			var fieldTag = fieldRepeats[i];
-			var jsColumnInfo = parseJSColumnInfo(dsName, fieldTag);
-			if (jsColumnInfo.relation){
-				var displayTag = DEFAULT_REPEATER.START + '.' + utils.stringReplace(utils.stringInitCap(jsColumnInfo.table.getSQLName().split('_').join(' ')), ' ', '');
-				var tagValue = DEFAULT_REPEATER.START + '-' + jsColumnInfo.relation.name;
+			var jsColumn = scopes.svyDataUtils.getDataProviderJSColumn(dsName, fieldTag);
+			if (fieldTag.includes('.')){
+				var relationName = fieldTag.split('.')
+					relationName.pop();
+				var displayTag = DEFAULT_REPEATER.START + '.' + utils.stringReplace(utils.stringInitCap(jsColumn.getTable().getSQLName().split('_').join(' ')), ' ', '');
+				var tagValue = DEFAULT_REPEATER.START + '-' + relationName.pop();
 				systemTags[displayTag] = tagValue;
 			}
 			
 		}
-		var tags = [{displayValue : DEFAULT_REPEATER.STOP, realValue : DEFAULT_REPEATER.STOP}]
+		/** @type {JSDataSet<displayValue:String, realValue:String>} */
+		var dataset = databaseManager.createEmptyDataSet(0,["displayValue", "realValue"])
+			dataset.addRow([DEFAULT_REPEATER.STOP, DEFAULT_REPEATER.STOP])
+		
 		for(var display in systemTags){
-			tags.push({displayValue : display, realValue : systemTags[display]});
+			dataset.addRow([display, systemTags[display]])
 		}
-		return tags;
+
+		return dataset;
 	}
 
+	/**
+	 * Function to convert dataset to array (multi column)
+	 * 
+	 * @param {JSDataSet<displayValue:String, realValue:String>} dataset
+	 * 
+	 * @return {Array<{displayValue:String, realValue:String}>}
+	 * @protected 
+	 */
+	this.convertDataSetToArray = function(dataset) {
+		/**@type {Array<{displayValue:String, realValue:String}>} */
+		var valueArray = [];
+		for(var i = 1; i <= dataset.getMaxRowIndex(); i++) {
+			valueArray.push({displayValue: dataset.getValue(i,1), realValue: dataset.getValue(i,2)})
+		}
+		return valueArray;
+	}
 	
 	/**
 	 * Applies the tag lib to the component (replacing existing tags)
-	 * 
 	 * @public 
 	 */
 	this.build = function(){
@@ -257,7 +298,7 @@ function TagBuilder(dataSource, editor){
 		var mentionFeeds = [
 			{
 				marker:TAGS.REPEAT,
-				feedItems:this.getSystemTags()
+				feedItems: this.convertDataSetToArray(this.getSystemTags())
 			},
 			{
 				marker:TAGS.TAG,
@@ -284,34 +325,6 @@ function TagBuilder(dataSource, editor){
 		return dataset;
 	}
 	
-}
-
-/**
- * Parses the JSTable & Column for a given dataprovider in a datasource.
- * Traverses to relation
- * TODO Move to svyUtils data scope
- *  
- * @private 
- * @param {String} dataSource
- * @param {String} dataProviderID
- * @return {{table:JSTable, column:JSColumn, relation:JSRelation}}
- * 
- * @properties={typeid:24,uuid:"FCDF7FB0-EECA-4E2D-8C9A-1775126B97A7"}
- */
-function parseJSColumnInfo(dataSource, dataProviderID) {
-	var table = databaseManager.getTable(dataSource);
-	var path = dataProviderID.split('.');
-	var colName = path.pop();
-	if (path.length) {
-		var relation = solutionModel.getRelation(path.pop());
-		table = databaseManager.getTable(relation.foreignDataSource);
-	}
-	if (!table) {
-		application.output('Parse column info failed. No table found for: ' + dataSource, LOGGINGLEVEL.WARNING);
-		return null;
-	}
-	var column = table.getColumn(colName)
-	return { table: table, column: column, relation : relation };
 }
 
 /**
