@@ -223,19 +223,26 @@
          // TODO dataprovider is a form variable or a scope variable
          var jsColumn = scopes.svyDataUtils.getDataProviderJSColumn(dsName, dataProviderID);
          if (!jsColumn) {
+             var columnDs = dsName;
+             if (dataProviderID.includes('.')) { 
+                 columnDs = scopes.svyDataUtils.getRelationForeignDataSource(scopes.svyDataUtils.getDataProviderRelationName(dataProviderID));
+             }
+             var dsNode = solutionModel.getDataSourceNode(columnDs.toString());
+             if(!dsNode.getCalculation(scopes.svyDataUtils.getUnrelatedDataProviderID(dataProviderID))) {
                  application.output('Field cannot be added, because no column was found for: dataSource=' + dsName + ', dataProvider=' + dataProviderID, LOGGINGLEVEL.WARNING);
                  return this;
              }
+         }
          
          if (!displayTag) {
              // dataprovider may be a calculation or an aggregation
              if (jsColumn) {
                  displayTag = jsColumn.getTitle();
                  if (dataProviderID.includes('.')){
-					displayTag = jsColumn.getTable().getSQLName() + '.' + displayTag; 
+                     displayTag = this.getJSTable(dataProviderID).getSQLName() + '.' + displayTag; 
                  }
              } else {
-				displayTag = jsColumn.getTable().getSQLName() + '.' + scopes.svyDataUtils.getUnrelatedDataProviderID(dataProviderID);
+                 displayTag = this.getJSTable(dataProviderID).getSQLName() + '.' + scopes.svyDataUtils.getUnrelatedDataProviderID(dataProviderID);
              }
          }
          
@@ -256,12 +263,10 @@
          var systemTags = {};
          for(var i in fieldRepeats){
              var fieldTag = fieldRepeats[i];
-			var jsColumn = scopes.svyDataUtils.getDataProviderJSColumn(dsName, fieldTag);
              if (fieldTag.includes('.')){
-				var relationName = fieldTag.split('.')
-					relationName.pop();
-				var displayTag = DEFAULT_REPEATER.START + '.' + utils.stringReplace(utils.stringInitCap(jsColumn.getTable().getSQLName().split('_').join(' ')), ' ', '');
-				var tagValue = DEFAULT_REPEATER.START + '-' + relationName.pop();
+                 var relationName = scopes.svyDataUtils.getDataProviderRelationName(fieldTag)
+                 var displayTag = DEFAULT_REPEATER.START + '.' + utils.stringReplace(utils.stringInitCap( this.getJSTable(fieldTag).getSQLName().split('_').join(' ')), ' ', '');
+                 var tagValue = DEFAULT_REPEATER.START + '-' + relationName.split('.').pop();
                  systemTags[displayTag] = tagValue;
              }
              
@@ -292,6 +297,26 @@
              valueArray.push({displayValue: dataset.getValue(i,1), realValue: dataset.getValue(i,2)})
          }
          return valueArray;
+     }
+     /**
+      * Fuction to get the JSTable also when dataprovider is a calculation
+      * 
+      * @param {String} dataProviderID
+      * 
+      * @return {JSTable}
+      * @protected 
+      */
+     this.getJSTable = function(dataProviderID) {
+         var jsColumn = scopes.svyDataUtils.getDataProviderJSColumn(dsName, dataProviderID);
+         if (!jsColumn) {
+             var columnDs = dsName;
+             if (dataProviderID.includes('.')) { 
+                 columnDs = scopes.svyDataUtils.getRelationForeignDataSource(scopes.svyDataUtils.getDataProviderRelationName(dataProviderID));
+             }
+             return databaseManager.getTable(columnDs.toString());
+         } else {
+             return jsColumn.getTable();
+         }
      }
      
      /**
