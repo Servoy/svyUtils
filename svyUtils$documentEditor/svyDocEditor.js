@@ -432,6 +432,10 @@
   */
  function processRepeaters(html, record) {
      var repeatItem
+     if(!html ||!record) {
+         return '';
+     }
+     
      return html.replace(REGEX.FULL_REPEAT_BLOCK, /** @param {String} matchItem */ function(matchItem) {
              repeatItem = new createParsedRepeat(matchItem, record);
              if (!repeatItem.isValidRepeat()) {
