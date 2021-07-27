@@ -86,7 +86,7 @@
   *
   * @properties={typeid:35,uuid:"B52F7503-9FA9-4235-B9A9-BA0552E8F5DB"}
   */
-var exportServiceURL = 'http://admin.servoy-cloud.eu:4000/generatePDF';
+ var exportServiceURL = !application.isInDeveloper() && scopes.svyNet.isHostAccessible('localhost',100,4000) ? 'http://localhost:4000/generatePDF' : 'http://admin.servoy-cloud.eu:4000/generatePDF';
  
  /**
   * Get a new instance of a document editor
