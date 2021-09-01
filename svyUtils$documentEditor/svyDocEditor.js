@@ -55,10 +55,10 @@
  var REGEX = {
      MENTION: /<span[^>]+\ssvy-mention\b[^>]*>.*?<\/span>(&nbsp;)?/gm,
      START_REPEAT: /^<span[^>]+\ssvy-mention\b[^>]*>\$startRepeater\b[^<]*<\/span>(\s|&nbsp;|<br>)*/gm,
-     START_REPEAT_TABLE: /^<span[^>]+\ssvy-mention\b[^>]*>\$startRepeater\b[^<]*<\/span>(&nbsp;|<\/p>)*?(<figure class="table">)?<table>/gm,
+     START_REPEAT_TABLE: /^<span[^>]+\ssvy-mention\b[^>]*>\$startRepeater\b[^<]*<\/span>(&nbsp;|<\/p>)*?(<figure class="table".*?>)?<table.*?>/gm,
      END_REPEAT: /<span[^>]+\ssvy-mention\b[^>]*>\$endRepeater<\/span>(&nbsp;)?$/gm,
      END_REPEAT_TABLE: /<\/table>(<\/figure>)?(<p>)?<span[^>]+\ssvy-mention\b[^>]*>\$endRepeater<\/span>(&nbsp;|<\/p>|<br>)*$/gm,
-     FULL_REPEAT_BLOCK: /(<span[^>]+\ssvy-mention\b[^>]*>\$startRepeater\b[^<]*<\/span>(&nbsp;)?(<\/p>)?(<figure class="table">)?(<table>)?).*((<\/table>)?(<\/figure>)?(<p>)?<span[^>]+\ssvy-mention\b[^>]*>\$endRepeater<\/span>(&nbsp;)?)/gm,
+     FULL_REPEAT_BLOCK: /(<span[^>]+\ssvy-mention\b[^>]*>\$startRepeater\b[^<]*<\/span>(&nbsp;)?(<\/p>)?(<figure class="table".*?>)?(<table.*?>)?).*((<\/table>)?(<\/figure>)?(<p>)?<span[^>]+\ssvy-mention\b[^>]*>\$endRepeater<\/span>(&nbsp;)?)/gm,
      FULL_TABLE_ROW: /<tr>.*<\/tr>/gm,
      FULL_TABLE_HEADER: /<tr>.*<\/thead><tbody>/gm,
      BR_END: /<br>$/gm
@@ -408,6 +408,10 @@
   * @properties={typeid:24,uuid:"782A1187-99C9-4BB4-995B-D7D282730EDA"}
   */
  function processMentions(html, record, relationIndex) {
+     if(!html ||!record) {
+         return '';
+     }
+     
      return html.replace(REGEX.MENTION, function(matchItem) {
              var mention = new createParsedMention(matchItem);
              if (!mention.isValidTag()) {
