@@ -206,9 +206,6 @@
      /** @type {Array<String>} */
      var fieldRepeats = [];
      
-     // build the system tags
-     //this.build();
-     
      /**
       * Add a field to the tag lib
       * 
@@ -216,9 +213,10 @@
       * @param {String} dataProviderID The field, can be a column, calc, aggregate or related value
       * @param {String} [displayTag] The display value for the tag. Default is derrived from the column or title property
       * @param {Boolean} [repeats] true if the related field does repeat over multiple records. Default: true for all related fields.
+      * @param {String} [format] optional provided format used when merging the tags
       * @return {TagBuilder}
       */
-     this.addField = function(dataProviderID, displayTag, repeats){
+     this.addField = function(dataProviderID, displayTag, repeats, format){
          
          // TODO dataprovider is a form variable or a scope variable
          var jsColumn = scopes.svyDataUtils.getDataProviderJSColumn(dsName, dataProviderID);
@@ -250,7 +248,7 @@
              fieldRepeats.push(dataProviderID);
          }
          
-         fieldTags.push({displayValue:displayTag, realValue:dataProviderID});
+         fieldTags.push({displayValue:displayTag, realValue:dataProviderID, format:format});
          
          return this;
      }
@@ -324,8 +322,6 @@
       * @public 
       */
      this.build = function(){
- 
-         // TODO shall add/amend the markers or fully replace them ?
          var mentionFeeds = [
              {
                  marker:TAGS.REPEAT,
@@ -444,12 +440,14 @@
                      data = record[mention.realValue];
                  }
                  if (data instanceof Date) {
-                     return utils.dateFormat(data, 'dd-MM-yyyy HH:mm')
+                     return utils.dateFormat(data, mention.format||'dd-MM-yyyy HH:mm');
+                 } else if(mention.format){
+                     return utils.numberFormat(data,mention.format)
                  }
                  return data == null ? '' : data;
              }
              return matchItem;
-         })
+         }).replace(/color:var\(--ck-color-mention-text\);/g,''); //Force replace the default ck-color-mention after parsing
  }
  
  /**
@@ -587,6 +585,9 @@
  
      /** @type {String} */
      this.tag = '';
+     
+     /** @type {String} */
+     this.format = null;
  
      /**
       * @return {Boolean}
@@ -635,6 +636,9 @@
          } else if (matchItem.startsWith('data-real-value=')) {
              value = matchItem.trim().replace('data-real-value="', '').replace(new RegExp('"$'), '');
              self.realValue = value.split(DEFAULT_REPEATER.START + '-').pop();
+         } else if(matchItem.startsWith('data-format=')) {
+             value = matchItem.trim().replace('data-format="', '').replace(new RegExp('"$'), '');
+             self.format = value;
          }
      });
  }
