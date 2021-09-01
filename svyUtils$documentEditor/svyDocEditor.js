@@ -621,7 +621,7 @@
      }
  
      var value = '';
-     var match = mention.match(/data-.*?\s/gm);
+     var match = mention.match(/data-.*?=".*?"/gm);
      var self = this;
      match.forEach(/**@param {String} matchItem */ function(matchItem) {
          if (matchItem.startsWith('data-mention=')) {
