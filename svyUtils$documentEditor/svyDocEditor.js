@@ -483,6 +483,11 @@
                      newValue = matchItem.match(REGEX.FULL_TABLE_HEADER) ? matchItem.match(REGEX.FULL_TABLE_HEADER)[0] : '';
                  }
  
+                 //Force reapply the sorting, when not done only the first time the sort is correct.
+                 if(record[repeatItem.getRelationBasedOnRecord(record)].getCurrentSort()) {
+                     record[repeatItem.getRelationBasedOnRecord(record)].sort(record[repeatItem.getRelationBasedOnRecord(record)].getCurrentSort());
+                 }
+                 
                  for (var i = 1; i <= repeatItem.numberOfRepeats; i++) {
                      var processedRepeat = toRepeat;
                      if (matchItem.match(REGEX.FULL_REPEAT_BLOCK)) {
