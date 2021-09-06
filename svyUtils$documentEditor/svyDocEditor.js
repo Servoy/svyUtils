@@ -25,7 +25,17 @@
   * @properties={typeid:35,uuid:"0CEC1095-8E27-4568-B972-EB0B26869C85",variableType:-4}
   */
  var PAGE_SIZE = {
-     A4 : 'A4'
+     A0 : 'A0',
+     A1 : 'A1',
+     A2 : 'A2',
+     A3 : 'A3',
+     A4 : 'A4',
+     A5 : 'A5',
+     A6 : 'A6',
+     A7 : 'A7',
+     A8 : 'A8',
+     A9 : 'A9',
+     A10: 'A10'
  }
  
  /**
@@ -390,6 +400,9 @@
  function mergeTags(content, record) {
      content = processRepeaters(content, record);
      content = processMentions(content, record);
+     
+     //Force fixing some non working HTML Chars:
+     content = utils.stringReplace(content,'€','&euro;')
      return content;
  }
  
@@ -701,10 +714,28 @@
      this.margin = {"bottom": 20, "left": 12, "right": 12, "top": 20}
      
      /** @protected **/
-     this.pageSize = 'A4';
+     this.pageSize = {"size": 'A4', "width": 21, "height": 29.7};
      
      /** @protected **/
      this.orientation = 'Portrait';
+     
+     /** @protected **/
+     this.smartShrinking = true;
+     
+     
+     /**
+      * Set/Override the smartShrinking property for generating the PDF
+      * 
+      * Enable the intelligent shrinking strategy used by WebKit that makes the pixel/dpi ratio non-constant
+      * 
+      * @public 
+      * @param {Boolean} enableSmartShrinking
+      * @return {Exporter} This exporter object for call chaining
+      */
+     this.setSmartShrinking = function(enableSmartShrinking) {
+         this.smartShrinking = !!enableSmartShrinking;
+         return this;
+     }
      
      /**
       * Set/Override the css in the exporter
@@ -788,11 +819,15 @@
       * Sets the page size
       * @public 
       * @param {String} pageSize Page size, must be one of enum PAGE_SIZE
+      * @param {Number} pageWidth Page width in CM
+      * @param {Number} pageHeight Page height in CM
       * @return {Exporter} This exporter object for call chaining
       * @see PAGE_SIZE
       */
-     this.setPageSize = function(pageSize){
-         this.pageSize = pageSize;
+     this.setPageSize = function(pageSize, pageHeight, pageWidth){
+         this.pageSize.size = pageSize;
+         this.pageSize.height = pageWidth;
+         this.pageSize.width = pageWidth;
          return this;
      }
      
