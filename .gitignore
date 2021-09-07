@@ -1,1 +1,31 @@
+#Resources folder#
 resources/
+resources\
+
+#metadata files#
+*/.metadata/
+.metadata/
+.metadata\
+*metadata/
+*metadata\
+*\.metadata\
+
+#log files#
+*.log
+
+# OS Files #
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+#SonarLinter files
+.sonarlint
+
+
+# Other IDE files
+.vscode/
+.idea/

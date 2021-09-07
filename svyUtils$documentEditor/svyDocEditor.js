@@ -199,6 +199,32 @@
  }
  
  /**
+  * 
+  * Convert HTML from documentEditor into plain text.
+  * 
+  * @public 
+  * 
+  * @param {String} html
+  * 
+  * @return {String}
+  *
+  * @properties={typeid:24,uuid:"D3DBB34B-0760-4D72-A411-1864A34BC67C"}
+  */
+ function HtmlToText(html) {
+     var editorKit = new Packages.javax.swing.text.html.HTMLEditorKit();
+     var doc = editorKit.createDefaultDocument();
+     doc.putProperty("IgnoreCharsetDirective", true);
+      try {
+          var reader = new Packages.java.io.StringReader(html);
+          editorKit.read(reader, doc, 0);
+          reader.close();
+          return doc.getText(0, doc.getLength()); 
+      } catch (e) {
+          return "";
+      }
+ }
+ 
+ /**
   * @private 
   * @constructor 
   * @param {JSDataSource|String} dataSource
