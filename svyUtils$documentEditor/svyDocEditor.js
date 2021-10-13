@@ -15,7 +15,7 @@
  var ORIENTATION = {
      PORTRAIT:'Portrait',
      LANDSCAPE:'Landscape'
- }
+ };
  
  /**
   * Page size options for PDF export
@@ -36,7 +36,7 @@
      A8 : 'A8',
      A9 : 'A9',
      A10: 'A10'
- }
+ };
  
  /**
   * @public   
@@ -45,8 +45,10 @@
   */
  var TAGS = {
      REPEAT: '$',
-     TAG: '#'
- }
+     TAG: '#',
+     IF: '@'
+ };
+ 
  /**
   * @private   
   * @enum {String}
@@ -55,7 +57,18 @@
  var DEFAULT_REPEATER = {
      START: 'startRepeater',
      STOP: 'endRepeater'
- }
+ };
+ 
+ /**
+  * @private 
+  * @enum {String}
+  * 
+  * @properties={typeid:35,uuid:"955C6F99-838F-4A47-915A-042E3EFD9150",variableType:-4}
+  */
+ var DEFAULT_IF = {
+     IF_OPEN: 'if',
+     IF_CLOSE: 'fi'
+ };
  
  /**
   * @private  
@@ -69,10 +82,13 @@
      END_REPEAT: /<span[^>]+\ssvy-mention\b[^>]*>\$endRepeater<\/span>(&nbsp;)?$/gm,
      END_REPEAT_TABLE: /<\/table>(<\/figure>)?(<p>)?<span[^>]+\ssvy-mention\b[^>]*>\$endRepeater<\/span>(&nbsp;|<\/p>|<br>)*$/gm,
      FULL_REPEAT_BLOCK: /(<span[^>]+\ssvy-mention\b[^>]*>\$startRepeater\b[^<]*<\/span>(&nbsp;)?(<\/p>)?(<figure class="table".*?>)?(<table.*?>)?).*((<\/table>)?(<\/figure>)?(<p>)?<span[^>]+\ssvy-mention\b[^>]*>\$endRepeater<\/span>(&nbsp;)?)/gm,
+     FULL_IF_BLOCK: /(<span[^>]+\ssvy-mention\b[^>]*>\@if\b[^<]*<\/span>(&nbsp;)?(<\/p>)?(<figure class="table".*?>)?(<table.*?>)?).*((<\/table>)?(<\/figure>)?(<p>)?<span[^>]+\ssvy-mention\b[^>]*>\@fi<\/span>(&nbsp;)?)/gm,
+     START_IF: /^<span[^>]+\ssvy-mention\b[^>]*>\@if\b[^<]*<\/span>(\s|&nbsp;|<br>)*/gm,
+     CLOSE_IF: /<span[^>]+\ssvy-mention\b[^>]*>\@fi<\/span>(&nbsp;)?$/gm,
      FULL_TABLE_ROW: /<tr>.*<\/tr>/gm,
      FULL_TABLE_HEADER: /<tr>.*<\/thead><tbody>/gm,
      BR_END: /<br>$/gm
- }
+ };
  
  /**
   * @private 
@@ -150,7 +166,7 @@
       */
      this.tagBuilder = function(dataSource){
          return new TagBuilder(dataSource,editor);
-     }
+     };
      
      /**
       * Merges tags with data and returns the content
@@ -159,11 +175,15 @@
       * @param {JSRecord} record The record object from which to get data values
       * @param {Boolean} [withInlineCSS] Optionally in-line the CSS so content is self-contained
       * @param {String} [filterStylesheetName] Optionally filter by style sheet name
+      * @param {function(String):Boolean} [ifCallback] Optionally give callback function to parse if statements, return false will not hide the if block (Args: mentionRealValue).
+      * @param {function(String, String, Number, *, String, String):*} [mentionCallback] Optionally give callback function to overwrite the record data (Args: dataProvider, relationName, relationIndex, value, mentionRealValue, mentionDisplayValue).
+      * @param {function(String, String):Boolean} [repeaterCallback] Optionally give callback function to overwrite the repeat, return false will not repeat (Args: relationName, mentionRealValue).
+      * 
       * @return {String} The merged content
       */
-     this.mergeTags = function(record, withInlineCSS,filterStylesheetName){
-         return mergeTags(editor.getHTMLData(withInlineCSS,filterStylesheetName),record);
-     }
+     this.mergeTags = function(record, withInlineCSS,filterStylesheetName, ifCallback, mentionCallback, repeaterCallback){
+         return mergeTags(editor.getHTMLData(withInlineCSS,filterStylesheetName),record, ifCallback, mentionCallback, repeaterCallback);
+     };
      
      /**
       * Gets the content in the editor component
@@ -175,7 +195,7 @@
       */
      this.getContent = function(withInlineCSS, filterStylesheetName){
          return editor.getHTMLData(withInlineCSS,filterStylesheetName);
-     }
+     };
      
      /**
       * Gets the default print css
@@ -185,7 +205,7 @@
       */
      this.getDefaultPrintCSS = function() {
          return printCSSStyle;
-     }
+     };
      
      /**
       * Gets the form component / element
@@ -195,7 +215,7 @@
       */
      this.getElement = function() {
          return editor;
-     }
+     };
  }
  
  /**
@@ -233,14 +253,28 @@
   */
  function TagBuilder(dataSource, editor){
      
-     /** @type {String} */
+     /**
+      * @type {String} 
+      */
      var dsName = dataSource instanceof String ? dataSource : dataSource.getDataSource();
  
-     /** @type {Array<{displayValue:String,realValue:String}>} */
-     var fieldTags = [];
+     /** 
+      * @protected 
+      * @type {Array<{displayValue:String,realValue:String}>} 
+      */
+     this.fieldTags = [];
      
-     /** @type {Array<String>} */
-     var fieldRepeats = [];
+     /** 
+      * @protected 
+      * @type {Array<String>} 
+      */
+     this.fieldRepeats = [];
+     
+     /** 
+      * @protected 
+      * @type {Array<{displayValue:String,realValue:String}>} 
+      */
+     this.ifTags = [];
      
      /**
       * Add a field to the tag lib
@@ -253,8 +287,6 @@
       * @return {TagBuilder}
       */
      this.addField = function(dataProviderID, displayTag, repeats, format){
-         
-         // TODO dataprovider is a form variable or a scope variable
          var jsColumn = scopes.svyDataUtils.getDataProviderJSColumn(dsName, dataProviderID);
          if (!jsColumn) {
              var columnDs = dsName;
@@ -281,24 +313,55 @@
          }
          
          if (dataProviderID.includes('.') && repeats !== false) {
-             fieldRepeats.push(dataProviderID);
+             this.fieldRepeats.push(dataProviderID);
          }
          
-         fieldTags.push({displayValue:displayTag, realValue:dataProviderID, format:format});
+         this.fieldTags.push({displayValue:displayTag, realValue:dataProviderID, format:format});
          
          return this;
+     };
+     
+     /**
+      * Function to clear the already added fields
+      * @public 
+      */
+     this.clearFields = function() {
+         this.fieldTags = [];
+         this.fieldRepeats = [];
      }
      
+     /**
+      * Add a if to the tag lib
+      * 
+      * @public 
+      * @param {String} realValue The value send in the callback to validate the if statement
+      * @param {String} [displayValue] The display value for the tag.
+      * 
+      * @return {TagBuilder}
+      */
+     this.addIfTag = function(realValue, displayValue){
+         this.ifTags.push({displayValue:DEFAULT_IF.IF_OPEN + '.' + (displayValue||realValue), realValue: realValue});
+         return this;
+     };
+     
+     /**
+      * Function to clear the already added ifTags
+      * @public 
+      */
+      this.clearIfTags = function() {
+		this.ifTags = [];
+	}
+    
      /**
       * @public   
       * @return {JSDataSet<displayValue:String, realValue:String>}
       */
      this.getSystemTags = function(){
          var systemTags = {};
-         for(var i in fieldRepeats){
-             var fieldTag = fieldRepeats[i];
+         for(var i in this.fieldRepeats){
+             var fieldTag = this.fieldRepeats[i];
              if (fieldTag.includes('.')){
-                 var relationName = scopes.svyDataUtils.getDataProviderRelationName(fieldTag)
+                 var relationName = scopes.svyDataUtils.getDataProviderRelationName(fieldTag);
                  var displayTag = DEFAULT_REPEATER.START + '.' + utils.stringReplace(utils.stringInitCap( this.getJSTable(fieldTag).getSQLName().split('_').join(' ')), ' ', '');
                  var tagValue = DEFAULT_REPEATER.START + '-' + relationName.split('.').pop();
                  systemTags[displayTag] = tagValue;
@@ -306,15 +369,17 @@
              
          }
          /** @type {JSDataSet<displayValue:String, realValue:String>} */
-         var dataset = databaseManager.createEmptyDataSet(0,["displayValue", "realValue"])
-             dataset.addRow([DEFAULT_REPEATER.STOP, DEFAULT_REPEATER.STOP])
-         
-         for(var display in systemTags){
-             dataset.addRow([display, systemTags[display]])
-         }
+         var dataset = databaseManager.createEmptyDataSet(0,["displayValue", "realValue"]);
+         if(Object.keys(systemTags).length > 0) {
+             dataset.addRow([DEFAULT_REPEATER.STOP, DEFAULT_REPEATER.STOP]);
+             
+             for(var display in systemTags){
+                 dataset.addRow([display, systemTags[display]]);
+             }
  
+         }
          return dataset;
-     }
+     };
  
      /**
       * Function to convert dataset to array (multi column)
@@ -328,10 +393,11 @@
          /**@type {Array<{displayValue:String, realValue:String}>} */
          var valueArray = [];
          for(var i = 1; i <= dataset.getMaxRowIndex(); i++) {
-             valueArray.push({displayValue: dataset.getValue(i,1), realValue: dataset.getValue(i,2)})
+             valueArray.push({displayValue: dataset.getValue(i,1), realValue: dataset.getValue(i,2)});
          }
          return valueArray;
-     }
+     };
+     
      /**
       * Fuction to get the JSTable also when dataprovider is a calculation
       * 
@@ -351,7 +417,7 @@
          } else {
              return jsColumn.getTable();
          }
-     }
+     };
      
      /**
       * Applies the tag lib to the component (replacing existing tags)
@@ -365,29 +431,50 @@
              },
              {
                  marker:TAGS.TAG,
-                 feedItems:fieldTags
+                 feedItems: this.fieldTags
+             },
+             {
+                 marker: TAGS.IF,
+                 feedItems: this.convertDataSetToArray(this.getIfTags())
              }
-         ]
+         ];
          editor.setMentionFeeds(mentionFeeds);
          
-     }
+     };
      
      /**
-      * 
       * @public 
       * @return {JSDataSet<displayValue:String, realValue:String>}
-      *  */
+      */
      this.getFields = function() {
          /** @type {JSDataSet<displayValue:String, realValue:String>} */
-         var dataset = databaseManager.createEmptyDataSet(0,["displayValue", "realValue"])
-         for (var i = 0; i < fieldTags.length; i++) {
-             var fieldTag = fieldTags[i];
-             dataset.addRow([fieldTag.displayValue, fieldTag.realValue])
+         var dataset = databaseManager.createEmptyDataSet(0,["displayValue", "realValue"]);
+         for (var i = 0; i < this.fieldTags.length; i++) {
+             var fieldTag = this.fieldTags[i];
+             dataset.addRow([fieldTag.displayValue, fieldTag.realValue]);
          }
          
          return dataset;
-     }
+     };
      
+     /**
+      * @public 
+      * @return {JSDataSet<displayValue:String, realValue:String>}
+      */
+     this.getIfTags = function() {
+         /** @type {JSDataSet<displayValue:String, realValue:String>} */
+         var dataset = databaseManager.createEmptyDataSet(0,["displayValue", "realValue"]);
+         for (var i = 0; i < this.ifTags.length; i++) {
+             var ifTag = this.ifTags[i];
+             dataset.addRow([ifTag.displayValue, ifTag.realValue]);
+         }
+         
+         if(dataset.getMaxRowIndex() > 0) {
+             dataset.addRow([DEFAULT_IF.IF_CLOSE, DEFAULT_IF.IF_CLOSE]);
+         }
+         
+         return dataset;
+     };
  }
  
  /**
@@ -396,7 +483,9 @@
   * @public
   * @param {String} content The document's content
   * @param {JSRecord} record The data to merge
-  *
+  * @param {function(String):Boolean} [ifCallback] Optionally give callback function to parse if statements, return false will not hide the if block (Args: mentionRealValue).
+  * @param {function(String, String, Number, *, String, String):*} [mentionCallback] Optionally give callback function to overwrite the record data (Args: dataProvider, relationName, relationIndex, value, mentionRealValue, mentionDisplayValue).
+  * @param {function(String, String):Boolean} [repeaterCallback] Optionally give callback function to overwrite the repeat, return false will not repeat (Args: relationName, mentionRealValue).
   * @return {String} The merged content
   * 
   * @example <pre>
@@ -423,12 +512,15 @@
   *
   * @properties={typeid:24,uuid:"B956081F-DA96-4E4B-AD6E-13F9264D5000"}
   */
- function mergeTags(content, record) {
-     content = processRepeaters(content, record);
-     content = processMentions(content, record);
+ function mergeTags(content, record, ifCallback, mentionCallback, repeaterCallback) {
+     content = processRepeaters(content, record, repeaterCallback);
+     content = processIfBlocks(content, ifCallback);
+     content = processMentions(content, record, null, mentionCallback);
      
      //Force fixing some non working HTML Chars:
-     content = utils.stringReplace(content,'€','&euro;')
+     content = utils.stringReplace(content,'€','&euro;');
+     //Cleaning when having multiple repeaters in one row
+     content = content.replace(/<p>\s*<\/p>/g,'');
      return content;
  }
  
@@ -436,13 +528,56 @@
   * @private
   *
   * @param {String} html
+  * @param {function(String):Boolean} [ifCallback]
+  *
+  * @return {String}
+  * @properties={typeid:24,uuid:"2A4BB51D-041C-4988-BC74-5FAEC518E8CC"}
+  */
+ function processIfBlocks(html, ifCallback) {
+     if(!html) {
+         return '';
+     }
+     
+     return html.replace(REGEX.FULL_IF_BLOCK, function(matchItem) {
+             var mention = new createParsedIf(matchItem);
+             if (!mention.isValidIf()) {
+                 throw Error("Invalid tag item, tag item doesn't exist in valuelist for realValue: " + mention.parsedIfValue);
+             }
+ 
+             if (mention.parsedMention.tag == TAGS.IF) {
+                 
+                 //Added support for callback to overwrite / handle data parsing
+                 if(ifCallback && ifCallback(mention.parsedIfValue)) {
+                     //Clean Start & Close if tag
+                     matchItem = matchItem.replace(REGEX.START_IF, '');
+                     matchItem = matchItem.replace(REGEX.CLOSE_IF, '');
+                 } else {
+                     return '';
+                 }
+             }
+             
+             //If we have an new match inside the existing match we have to rerun it
+             if(matchItem.match(REGEX.FULL_IF_BLOCK)) {
+                 matchItem = processIfBlocks(matchItem,ifCallback);
+             }
+             
+             return matchItem;
+         }).replace(/color:var\(--ck-color-mention-text\);/g,''); //Force replace the default ck-color-mention after parsing
+ }
+ 
+ 
+ /**
+  * @private
+  *
+  * @param {String} html
   * @param {JSRecord} record
   * @param {Number} [relationIndex]
+  * @param {function(String, String, Number, *, String, String):*} [valueCallback]
   *
   * @return {String}
   * @properties={typeid:24,uuid:"782A1187-99C9-4BB4-995B-D7D282730EDA"}
   */
- function processMentions(html, record, relationIndex) {
+ function processMentions(html, record, relationIndex, valueCallback) {
      if(!html ||!record) {
          return '';
      }
@@ -450,7 +585,7 @@
      return html.replace(REGEX.MENTION, function(matchItem) {
              var mention = new createParsedMention(matchItem);
              if (!mention.isValidTag()) {
-                 throw Error("Invalid tag item, tag item doesn't exist in valuelist for realValue: " + mention.realValue)
+                 throw Error("Invalid tag item, tag item doesn't exist in valuelist for realValue: `" + mention.realValue + "`");
              }
  
              var data;
@@ -459,11 +594,10 @@
                      
                      var dataProvider = mention.getDataProvider();
                      var relationName = mention.getRelationBasedOnRecord(record);
-                     var path = relationName.split('.')
+                     var path = relationName.split('.');
                      var recordRelationName = path.shift();	// it assumes the first the relation is the one to be iterated
                      var childRelationName = path.join('.');
                      
-                     // FIXME may go wrong with nested relations
                      if (utils.hasRecords(record, recordRelationName) && dataProvider) {
                          // in case of nested relations. Iterate over the first relation
                          var relatedRecord = record[recordRelationName].getRecord( (relationIndex || 1));
@@ -478,10 +612,17 @@
                  } else {
                      data = record[mention.realValue];
                  }
+                 
+                 //Added support for callback to overwrite / handle data parsing
+                 if(valueCallback) {
+                     //push record not relationIndex
+                     data = valueCallback(dataProvider||mention.realValue, relationName||null, relationIndex, data||null, mention.realValue, mention.display);
+                 }
+                 
                  if (data instanceof Date) {
                      return utils.dateFormat(data, mention.format||'dd-MM-yyyy HH:mm');
                  } else if(mention.format){
-                     return utils.numberFormat(data,mention.format)
+                     return utils.numberFormat(data,mention.format);
                  }
                  return data == null ? '' : data;
              }
@@ -493,11 +634,13 @@
   * @private
   * @param {String} html
   * @param {JSRecord} record
+  * @param {function(String, String):Boolean} [repeaterCallback]
+  * 
   * @return {String}
   * @properties={typeid:24,uuid:"4D3C4CE2-8B01-4FDD-8C56-2541C7427305"}
   */
- function processRepeaters(html, record) {
-     var repeatItem
+ function processRepeaters(html, record, repeaterCallback) {
+     var repeatItem;
      if(!html ||!record) {
          return '';
      }
@@ -505,7 +648,7 @@
      return html.replace(REGEX.FULL_REPEAT_BLOCK, /** @param {String} matchItem */ function(matchItem) {
              repeatItem = new createParsedRepeat(matchItem, record);
              if (!repeatItem.isValidRepeat()) {
-                 throw Error("Invalid repeat item, repeat item doesn't exist in valuelist for relation: " + repeatItem.relationName)
+                 throw Error("Invalid repeat item, repeat item doesn't exist in valuelist for relation: " + repeatItem.relationName);
              }
              //Clean first & last repeater tag
              matchItem = matchItem.replace(REGEX.START_REPEAT, '');
@@ -521,7 +664,10 @@
                      toRepeat = matchItem.match(REGEX.FULL_TABLE_ROW)[0].replace(REGEX.FULL_TABLE_HEADER, '');
                      newValue = matchItem.match(REGEX.FULL_TABLE_HEADER) ? matchItem.match(REGEX.FULL_TABLE_HEADER)[0] : '';
                  }
- 
+                 if(repeaterCallback && !repeaterCallback(repeatItem.relationName, repeatItem.parsedMention.realValue)) {
+                     toRepeat = '';
+                 }
+                 
                  //Force reapply the sorting, when not done only the first time the sort is correct.
                  if(record[repeatItem.getRelationBasedOnRecord(record)].getCurrentSort()) {
                      record[repeatItem.getRelationBasedOnRecord(record)].sort(record[repeatItem.getRelationBasedOnRecord(record)].getCurrentSort());
@@ -530,16 +676,15 @@
                  for (var i = 1; i <= repeatItem.numberOfRepeats; i++) {
                      var processedRepeat = toRepeat;
                      if (matchItem.match(REGEX.FULL_REPEAT_BLOCK)) {
-                         processedRepeat = processRepeaters(toRepeat, record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i));
+                         processedRepeat = processRepeaters(toRepeat, record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i), repeaterCallback);
                      }
                      newValue += processMentions(processedRepeat, record, i);
                  }
  
                  //Clean latest enter
-                 var returnValue = (repeatItem.isTableStartEndRepeat() ? matchItem.replace(REGEX.FULL_TABLE_ROW, newValue) : newValue).trim().replace(REGEX.BR_END, '');
-                 return returnValue;
+                 return (repeatItem.isTableStartEndRepeat() ? matchItem.replace(REGEX.FULL_TABLE_ROW, newValue) : newValue).trim().replace(REGEX.BR_END, '');
              }
-         })
+         });
  }
  
  /**
@@ -572,7 +717,7 @@
       */
      this.isTableStartEndRepeat = function() {
          return (this.hasTableStartRepeat && this.hasTableEndRepeat);
-     }
+     };
  
      /**
       * @return {Boolean}
@@ -583,7 +728,7 @@
          }
  
          return false;
-     }
+     };
  
      /**
       * @param {JSRecord} currentRecord
@@ -594,14 +739,14 @@
          if (this.relationName.includes('.')) {
              return this.relationName.split('.').filter(function(relation) {
                  if (!hasMatch) {
-                     hasMatch = (scopes.svyDataUtils.getRelationPrimaryDataSource(relation) == currentRecord.getDataSource())
+                     hasMatch = (scopes.svyDataUtils.getRelationPrimaryDataSource(relation) == currentRecord.getDataSource());
                  }
                  return hasMatch;
              }).join('.');
          } else {
              return this.relationName;
          }
-     }
+     };
  
      //Setup calculated properties based on input
      if (this.parsedMention && this.parsedMention.tag == TAGS.REPEAT) {
@@ -609,6 +754,34 @@
          if (utils.hasRecords(record, this.getRelationBasedOnRecord(record))) {
              this.numberOfRepeats = databaseManager.getFoundSetCount(record[this.getRelationBasedOnRecord(record)]);
          }
+     }
+ }
+ 
+ /**
+  * @private
+  * @constructor
+  *
+  * @param {String} html
+  *
+  * @properties={typeid:24,uuid:"797B971B-7967-48EA-9DDA-13A17646FDF9"}
+  */
+ function createParsedIf(html) {
+     /** @type {createParsedMention} */
+     this.parsedMention = new createParsedMention(html.match(REGEX.START_IF)[0]);
+ 
+     /** @type {String}*/
+     this.parsedIfValue = '';
+     
+     /**
+      * @return {Boolean}
+      */
+     this.isValidIf = function() {
+         return true;
+     };
+ 
+     //Setup calculated properties based on input
+     if (this.parsedMention && this.parsedMention.tag == TAGS.IF) {
+         this.parsedIfValue = this.parsedMention.realValue;
      }
  }
  
@@ -642,7 +815,7 @@
          }
  
          return false;
-     }
+     };
  
      /**
       * @param {JSRecord} record
@@ -653,35 +826,35 @@
          if (this.realValue.includes('.')) {
              return scopes.svyDataUtils.getDataProviderRelationName(this.realValue).split('.').filter(function(relation) {
                  if (!hasMatch) {
-                     hasMatch = (scopes.svyDataUtils.getRelationPrimaryDataSource(relation) == record.getDataSource())
+                     hasMatch = (scopes.svyDataUtils.getRelationPrimaryDataSource(relation) == record.getDataSource());
                  }
                  return hasMatch;
              }).join('.');
          } else {
              return this.realValue;
          }
-     }
+     };
  
      /**
       * @return {String}
       */
      this.getDataProvider = function() {
          return scopes.svyDataUtils.getUnrelatedDataProviderID(this.realValue);
-     }
+     };
  
      var value = '';
      var match = mention.match(/data-.*?=".*?"/gm);
      var self = this;
      match.forEach(/**@param {String} matchItem */ function(matchItem) {
          if (matchItem.startsWith('data-mention=')) {
-             value = matchItem.trim().replace('data-mention="', '').replace(new RegExp('"$'), '');
+             value = matchItem.trim().replace('data-mention="', '').replace(/"$/, '');
              self.tag = value.substr(0, 1);
              self.display = value.substr(1);
          } else if (matchItem.startsWith('data-real-value=')) {
-             value = matchItem.trim().replace('data-real-value="', '').replace(new RegExp('"$'), '');
+             value = matchItem.trim().replace('data-real-value="', '').replace(/"$/, '');
              self.realValue = value.split(DEFAULT_REPEATER.START + '-').pop();
          } else if(matchItem.startsWith('data-format=')) {
-             value = matchItem.trim().replace('data-format="', '').replace(new RegExp('"$'), '');
+             value = matchItem.trim().replace('data-format="', '').replace(/"$/, '');
              self.format = value;
          }
      });
@@ -737,7 +910,7 @@
      this.imageURL = application.getServerURL();
      
      /** @protected **/
-     this.margin = {"bottom": 20, "left": 12, "right": 12, "top": 20}
+     this.margin = {"bottom": 20, "left": 12, "right": 12, "top": 20};
      
      /** @protected **/
      this.pageSize = {"size": 'A4', "width": 21, "height": 29.7};
@@ -761,7 +934,7 @@
      this.setSmartShrinking = function(enableSmartShrinking) {
          this.smartShrinking = !!enableSmartShrinking;
          return this;
-     }
+     };
      
      /**
       * Set/Override the css in the exporter
@@ -773,7 +946,7 @@
      this.setCSS = function(css){
          this.css = css;
          return this;
-     }
+     };
      
      /**
       * Extend the css of the exporter
@@ -785,7 +958,7 @@
      this.addCss = function(css) {
          this.css += ('\n\n' + css);
          return this;
-     }
+     };
      
      /**
       * Sets the content to be exported
@@ -801,7 +974,7 @@
              this.content = content;
          }
          return this;
-     }
+     };
      
      /**
       * Adds additional head tags to the exported content
@@ -813,7 +986,7 @@
      this.addHeadTag = function(headTag){
          this.headTags.push(headTag);
          return this;
-     }
+     };
      
      /**
       * Sets the image URL
@@ -824,7 +997,7 @@
      this.setImageURL = function(imageURL){
          this.imageURL = imageURL;
          return this;
-     }
+     };
      
      /**
       * Sets the page margins
@@ -839,7 +1012,7 @@
      this.setMargin = function(top,right,bottom,left){
          this.margin = {top:top, right:right, bottom:bottom, left:left};
          return this;
-     }
+     };
      
      /**
       * Sets the page size
@@ -855,7 +1028,7 @@
          this.pageSize.height = pageWidth;
          this.pageSize.width = pageWidth;
          return this;
-     }
+     };
      
      /**
       * Sets the page orientation
@@ -868,19 +1041,19 @@
      this.setOrientation = function(orientation){
          this.orientation = orientation;
          return this;
-     }
+     };
      
      /**
       * Exports the content to PDF. An API key must already be registered or an error is thrown.
       * 
-      * @public 
+      * @public
       * @return {Array<byte>} The PDF file bytes
       * @see registerAPIKey
       * @throws {Error} if no API key is registered
       */
      this.exportToPDF = function(){
          if(!apiKey){
-             throw 'No API found';
+             throw Error('No API found');
          }
          var post = httpClient.createPostRequest(exportServiceURL);
          post.setBodyContent(JSON.stringify(this.serialize()));
@@ -891,7 +1064,27 @@
              application.output('Connection Error: ' + result.getStatusCode() + ' with error: ' + result.getResponseBody(), LOGGINGLEVEL.ERROR);
              return null;
          }
-     }
+     };
+     
+     /**
+      * Exports Async the content to PDF. An API key must already be registerd or an error is thrown
+      * 
+      * @public 
+      * @param {function(Array<byte>)} success Callback function called when async was success
+      * @param {function(Number)} [error] Callback function called when async got an connection error
+      * @param {Array<*>} [extraArguments] Callback function extra arguments, first argument will be pdfByteArray
+      * 
+      * @see registerAPIKey
+      */
+     this.exportToPDFAsync = function(success, error, extraArguments) {
+         if(!apiKey){
+             throw Error('No API found');
+         }
+         var post = httpClient.createPostRequest(exportServiceURL);
+         post.setBodyContent(JSON.stringify(this.serialize()));
+         post.executeAsyncRequest(asyncSuccessCallback,asyncErrorCallback,[scopes.svySystem.convertServoyMethodToQualifiedName(success), scopes.svySystem.convertServoyMethodToQualifiedName(error)].concat(extraArguments||[]));
+         return null;
+     };
      
      /**
       * @protected  
@@ -907,8 +1100,61 @@
              "margin": this.margin,
              "paperSize": this.pageSize,
              "orientation": this.orientation
+         };
+     };
+ }
+ 
+ /**
+  * @private 
+  *  
+  * Function wrapper for async pdf request
+  * 
+  * @param {plugins.http.Response} response
+  * @param {String} [cbFunctionSuccess]
+  * @param {String} [cbFunctionError]
+  *
+  * @properties={typeid:24,uuid:"0E06619F-AB39-494E-BC95-B712253D2F9B"}
+  */
+ function asyncSuccessCallback(response, cbFunctionSuccess, cbFunctionError) {
+     var args = [];
+     if(arguments.length > 3) {
+         for(var i = 3; i < arguments.length; i++) {
+             args.push(arguments[i]);
          }
      }
+     if(response.getStatusCode() == 200) {
+         args.unshift(response.getMediaData());
+         scopes.svySystem.callMethod(cbFunctionSuccess,args);
+     } else {
+         application.output('Connection Error: ' + response.getStatusCode() + ' with error: ' + response.getResponseBody(), LOGGINGLEVEL.ERROR);
+         scopes.svySystem.callMethod(cbFunctionError, [response.getStatusCode(), response.getResponseBody()].concat(args));
+     }
+     response.close();
+ }
+ 
+ /**
+  * @private 
+  * 
+  * Function wrapper for async pdf request
+  *  
+  * @param {plugins.http.Response} response
+  * @param {String} [cbFunctionSuccess]
+  * @param {String} [cbFunctionError]
+  *
+  * @properties={typeid:24,uuid:"891A10A4-2E26-4F7E-8106-8C9CC32621EA"}
+  */
+ function asyncErrorCallback(response, cbFunctionSuccess, cbFunctionError) {
+     var args = [];
+     if(arguments.length > 3) {
+         for(var i = 3; i < arguments.length; i++) {
+             args.push(arguments[i]);
+         }
+     }
+     if(response.getStatusCode() != 200) {
+         application.output('Connection Error: ' + response.getStatusCode() + ' with error: ' + response.getResponseBody(), LOGGINGLEVEL.ERROR);
+         scopes.svySystem.callMethod(cbFunctionError, [response.getStatusCode(), response.getResponseBody()].concat(args));
+     }
+     response.close();
  }
  
  /**
@@ -947,6 +1193,6 @@
      var url = application.getUserProperty('svyDocumentExportServiceURL');
      if(url){
          exportServiceURL = url;
-         application.output('svyDocumentExportServiceURL loaded from configuration',LOGGINGLEVEL.INFO)
+         application.output('svyDocumentExportServiceURL loaded from configuration',LOGGINGLEVEL.INFO);
      }
  }();
