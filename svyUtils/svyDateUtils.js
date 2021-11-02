@@ -1939,3 +1939,43 @@ function getLocalDateTimeOffset(date) {
     
     return diff;
 }
+
+/**
+ * Returns true if the given format has the useLocalDateTime flag
+ * 
+ * @param {String} format
+ * @return {Boolean}
+ *
+ * @properties={typeid:24,uuid:"CF1156C3-D756-48DC-8704-1FE4C455DBA5"}
+ */
+function formatUsesLocalDateTime(format) {
+	if (!format) {
+		return false;
+	}
+
+	if (format instanceof String) {
+		try {
+
+			// the format may be an i18n string
+			if (format.indexOf("i18n:") == 0) {
+				format = i18n.getI18NMessage(format.replace("i18n:", ""));
+			}
+
+			// test for useLocalDateTime
+			if (format.indexOf("useLocalDateTime") > -1) {
+
+				/** @type {{useLocalDateTime:Boolean}} */
+				var formatJSON = JSON.parse(format);
+				if (formatJSON.useLocalDateTime == true) {
+					return true
+				}
+			}
+
+		} catch (e) {
+			application.output(e, LOGGINGLEVEL.WARNING);
+		}
+	}
+
+	return false;
+}
+
