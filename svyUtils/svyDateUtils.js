@@ -1822,3 +1822,120 @@ function createOADateFromDate(date) {
 	
 	return oaDate;
 }
+
+/**
+ * NG client only
+ * 
+ * Returns the date object with current date and time of the client. 
+ * This call will really return a date and time that is the local client date time. 
+ * This is useful when searching on the date when the client is using the format property (UseLocalDateTime = true). 
+ * 
+ * @public
+ * @param {Date} date
+ * @return {Date} returns the local date time
+ * 
+ * @example<pre>
+ * 
+ *  // Server running on timezone Europe/Amsterdam GMT + 1:00
+ *  // NG Client running from the different timezone GMT
+ *  
+ *  application.output(foundset.dateofbirth) => 02/11/2021 00:00:00 GMT+1:00
+ *  application.output(scopes.svyDateUtils.getLocalDateTime(date)) => 01/11/2021 23:00:00 GMT+1:00
+ *  
+ *  </pre>
+ *  
+ * @properties={typeid:24,uuid:"EA440042-9CF1-4A1B-8F68-B08341F02661"}
+ */
+function getLocalDateTime(date) {
+	
+	if (!scopes.svySystem.isNGClient()) {
+		application.output("getLocalDateTime is an NG Client only method; returning the date as it is in the current client", LOGGINGLEVEL.WARNING)
+		return date;
+	}
+
+	// timezone offset between client & server
+	var diff = getLocalDateTimeOffset(date);
+	return scopes.svyDateUtils.addMinutes(date, diff);
+}
+
+/**
+ * NG client only
+ * 
+ * Returns the clientDate object with current date and time of the server.
+ * This call will really return a date and time that is the server date time.
+ * This is useful when searching on the date relative to the client's date time (for example, find all orders of today)
+ * 
+ * @public
+ * @param {Date} clientDate
+ * @return {Date} returns the server date
+ * 
+ * @example<pre>
+ * 
+ *  // Server running on timezone Europe/Amsterdam GMT + 1:00
+ *  // NG Client running from the different timezone GMT
+ *  // Search all orders of today
+ *  
+ *  var today = scopes.svyDateUtils.toStartOfDay(application.getTimeStamp());
+ *  var serverToday = scopes.svyDateUtils.getServerDateTime(today);
+ *  
+ *  var endOfToday = scopes.svyDateUtils.toEndOfDay(application.getTimeStamp());
+ *  var serverEndOfToday = scopes.svyDateUtils.getServerDateTime(endOfToday);
+ *  
+ *  application.output(today) => 02/11/2021 00:00:00 GMT+1:00
+ *  application.output(serverToday) => 02/11/2021 01:00:00 GMT+1:00
+ *  
+ *  application.output(endOfToday) => 02/11/2021 23:59:59 GMT+1:00
+ *  application.output(serverEndOfToday) => 03/11/2021 00:59:59 GMT+1:00
+ *  
+ *  // search all the orders for today
+ *  var q = datasources.db.example_data.orders.createSelect();
+ *  q.where.add(q.columns.orderdate.ge(serverToday));
+ *  q.where.add(q.columns.orderdate.le(serverEndOfToday));
+ *  foundset.loadRecords(q);
+ *  
+ *  </pre>
+ *
+ * @properties={typeid:24,uuid:"74A5FFB4-40B9-4AE6-98DF-B0BD97F7F2E8"}
+ */
+function getServerDateTime(clientDate) {
+	
+	if (!scopes.svySystem.isNGClient()) {
+		application.output("getServerDateTime is an NG Client only method; returning the date as it is in the current client", LOGGINGLEVEL.WARNING)
+		return clientDate;
+	}
+	
+	// timezone offset between client & server
+	var diff = getLocalDateTimeOffset(clientDate);
+    return scopes.svyDateUtils.addMinutes(clientDate, -diff);
+}
+
+/**
+ * TODO shall this method be public ?
+ * @protected 
+ * 
+ * Returns the time offset, expressed in minutes, between the local time and the server time for the given date.
+ * To note the timezone offset between client & server it may depending on the given date because of Daylight Saving Time (DST);
+ * This method takes into account the 
+ * 
+ * @param {Date} date
+ * @return {Number} offset between client expressed in minutes
+ * @properties={typeid:24,uuid:"46BEAEDE-2F46-4CE2-9C0D-B23EB67AFFAD"}
+ */
+function getLocalDateTimeOffset(date) {
+
+    var serverTimeZone = java.util.TimeZone.getDefault().getID();
+    var timeZoneToString = i18n.getCurrentTimeZone();
+    
+    var timeZoneTo = java.time.ZoneId.of(serverTimeZone);
+    var timeZoneFrom = java.time.ZoneId.of(timeZoneToString);
+    var now = java.time.LocalDateTime.now();
+    if (date){
+        now = java.time.LocalDateTime.of(date.getFullYear(),date.getMonth() + 1, date.getDate(), date.getHours(), date.getMinutes(), date.getSeconds(), date.getMilliseconds())
+    }
+    var fromZonedDateTime = now.atZone(timeZoneFrom);
+    var toZonedDateTime = now.atZone(timeZoneTo);
+    
+    var diff = java.time.Duration.between(fromZonedDateTime, toZonedDateTime).toMinutes();
+    
+    return diff;
+}
