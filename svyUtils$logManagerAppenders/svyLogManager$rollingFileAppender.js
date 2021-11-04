@@ -142,7 +142,7 @@ var initRollingFileAppender = (/** @constructor */ function() {
 				}
 				var fos = new java.io.FileOutputStream(this.fileName, true);
 				this.writer = new java.io.OutputStreamWriter(fos, "UTF-8");
-				logger.debug("Now using file " + this.fileName);
+				logger.debug("Now using file " + this.fileName + " at " + file.getAbsolutePath());
 			} catch (e) {
 				var parentName = file.getParent();
 				if (parentName != null) {
