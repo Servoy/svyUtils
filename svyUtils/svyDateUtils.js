@@ -1910,6 +1910,17 @@ function getServerDateTime(clientDate) {
 }
 
 /**
+ * In NG gets the current timezone of the server
+ * 
+ * @public 
+ * @return {String}
+ * @properties={typeid:24,uuid:"7D0A91B2-88DC-49BC-8A8B-52FA7BBDF3DB"}
+ */
+function getServerTimeZone() {
+	return java.util.TimeZone.getDefault().getID();
+}
+
+/**
  * TODO shall this method be public ?
  * @protected 
  * 
@@ -1923,7 +1934,7 @@ function getServerDateTime(clientDate) {
  */
 function getLocalDateTimeOffset(date) {
 
-    var serverTimeZone = java.util.TimeZone.getDefault().getID();
+    var serverTimeZone = getServerTimeZone();
     var timeZoneToString = i18n.getCurrentTimeZone();
     
     var timeZoneTo = java.time.ZoneId.of(serverTimeZone);
@@ -1945,6 +1956,8 @@ function getLocalDateTimeOffset(date) {
  * 
  * @param {String} format
  * @return {Boolean}
+ * 
+ * @public 
  *
  * @properties={typeid:24,uuid:"CF1156C3-D756-48DC-8704-1FE4C455DBA5"}
  */
