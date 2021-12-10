@@ -1591,7 +1591,7 @@ var initHeaderFooter = (/** @constructor */ function() {
 	 * @return {String}
 	 * @this {HeaderFooter}
 	 */
-	HeaderFooter.prototype.page = function () {
+	HeaderFooter.prototype.startDoubleUnderline = function () {
 		return this.headerFooter.startDoubleUnderline();
 	}
 	
@@ -1599,7 +1599,7 @@ var initHeaderFooter = (/** @constructor */ function() {
 	 * @return {String}
 	 * @this {HeaderFooter}
 	 */
-	HeaderFooter.prototype.page = function () {
+	HeaderFooter.prototype.startUnderline = function () {
 		return this.headerFooter.startUnderline();
 	}
 	
@@ -1607,7 +1607,7 @@ var initHeaderFooter = (/** @constructor */ function() {
 	 * @return {String}
 	 * @this {HeaderFooter}
 	 */
-	HeaderFooter.prototype.page = function (arg0) {
+	HeaderFooter.prototype.stripFields = function (arg0) {
 		return this.headerFooter.stripFields(arg0);
 	}
 	
@@ -1615,7 +1615,7 @@ var initHeaderFooter = (/** @constructor */ function() {
 	 * @return {String}
 	 * @this {HeaderFooter}
 	 */
-	HeaderFooter.prototype.page = function () {
+	HeaderFooter.prototype.tab = function () {
 		return this.headerFooter.tab();
 	}
 	
@@ -1623,7 +1623,7 @@ var initHeaderFooter = (/** @constructor */ function() {
 	 * @return {String}
 	 * @this {HeaderFooter}
 	 */
-	HeaderFooter.prototype.page = function () {
+	HeaderFooter.prototype.time = function () {
 		return this.headerFooter.time();
 	}
 	
