@@ -81,8 +81,8 @@ function test_svyExcelUtils() {
 	headerStyle.setFillPattern(scopes.svyExcelUtils.FILL_PATTERN.SOLID_FOREGROUND);
 	
 	//HeaderFooter
-	var pageFooter = sheet.sheet.getFooter();//this works
-	pageFooter.setCenter("Page " + scopes.svyExcelUtils.HeaderFooter.page() + " of " + scopes.svyExcelUtils.HeaderFooter.numPages());//does not work of course
+	var pageFooter = sheet.sheet.getFooter();
+	pageFooter.setCenter("Page " + scopes.svyExcelUtils.HeaderFooter.page() + " of " + scopes.svyExcelUtils.HeaderFooter.numPages());
 	
 	//header row
 	var row = sheet.createRow(1);
