@@ -652,6 +652,13 @@ var initExcelWorkbook = (/** @constructor */ function() {
 	ExcelWorkbook.prototype.constructor = ExcelWorkbook;
 	
 	/**
+	 * Creates HeaderFooter
+	 * */
+	ExcelWorkbook.prototype.createHeaderFooter = function () {
+		return new HeaderFooter();
+	}
+	
+	/**
 	 * Creates a sheet with the given name<p>
 	 * This method makes sure that no illegal names are provided and might change the name if needed
 	 * 
@@ -1469,6 +1476,158 @@ var initDataSetExcelWorkbook = (/** @constructor */ function() {
 		return this.dataset;
 	}
 }())
+
+/**
+ * HeaderFooter in a workbook
+ *
+ * @constructor
+ * @private
+ *
+ *
+ * @properties={typeid:24,uuid:"B09926A5-DCB4-4FA9-AB90-C3F3FAF0BF98"}
+ */
+function HeaderFooter() {
+	
+	/**
+	 * The internal headerFooter object
+	 * @type {Packages.org.apache.poi.ss.usermodel.HeaderFooter}
+	 */
+	this.headerFooter = Packages.org.apache.poi.hssf.usermodel.HeaderFooter;
+	
+}
+
+/**
+ * @private
+ * 
+ * @SuppressWarnings(unused)
+ *
+ * @properties={typeid:35,uuid:"09DAD6DF-71A8-42FD-9E31-D524C90E267A",variableType:-4}
+ */
+var initHeaderFooter = (/** @constructor */ function() {
+	HeaderFooter.prototype = Object.create(Object.prototype, {});
+	HeaderFooter.prototype.constructor = HeaderFooter;
+	
+	/**
+	 * @return {String}
+	 * @this {HeaderFooter}
+	 */
+	HeaderFooter.prototype.date = function () {
+		return this.headerFooter.date();
+	}
+	
+	/**
+	 * @return {String}
+	 * @this {HeaderFooter}
+	 */
+	HeaderFooter.prototype.endBold = function () {
+		return this.headerFooter.endBold();
+	}
+	
+	/**
+	 * @return {String}
+	 * @this {HeaderFooter}
+	 */
+	HeaderFooter.prototype.endDoubleUnderline = function () {
+		return this.headerFooter.endDoubleUnderline();
+	}
+	
+	/**
+	 * @return {String}
+	 * @this {HeaderFooter}
+	 */
+	HeaderFooter.prototype.endUnderline = function () {
+		return this.headerFooter.endUnderline();
+	}
+	
+	/**
+	 * @return {String}
+	 * @this {HeaderFooter}
+	 */
+	HeaderFooter.prototype.file = function () {
+		return this.headerFooter.file();
+	}
+	
+	/**
+	 * @return {String}
+	 * @this {HeaderFooter}
+	 */
+	HeaderFooter.prototype.font = function (arg0,arg1) {
+		return this.headerFooter.font(arg0,arg1);
+	}
+	
+	/**
+	 * @return {String}
+	 * @this {HeaderFooter}
+	 */
+	HeaderFooter.prototype.fontSize = function (arg0) {
+		return this.headerFooter.fontSize(arg0);
+	}
+	
+	/**
+	 * @return {String}
+	 * @this {HeaderFooter}
+	 */
+	HeaderFooter.prototype.numPages = function () {
+		return this.headerFooter.numPages();
+	}
+	
+	/**
+	 * @return {String}
+	 * @this {HeaderFooter}
+	 */
+	HeaderFooter.prototype.page = function () {
+		return this.headerFooter.page();
+	}
+	
+	/**
+	 * @return {String}
+	 * @this {HeaderFooter}
+	 */
+	HeaderFooter.prototype.startBold = function () {
+		return this.headerFooter.startBold();
+	}
+	
+	/**
+	 * @return {String}
+	 * @this {HeaderFooter}
+	 */
+	HeaderFooter.prototype.page = function () {
+		return this.headerFooter.startDoubleUnderline();
+	}
+	
+	/**
+	 * @return {String}
+	 * @this {HeaderFooter}
+	 */
+	HeaderFooter.prototype.page = function () {
+		return this.headerFooter.startUnderline();
+	}
+	
+	/**
+	 * @return {String}
+	 * @this {HeaderFooter}
+	 */
+	HeaderFooter.prototype.page = function (arg0) {
+		return this.headerFooter.stripFields(arg0);
+	}
+	
+	/**
+	 * @return {String}
+	 * @this {HeaderFooter}
+	 */
+	HeaderFooter.prototype.page = function () {
+		return this.headerFooter.tab();
+	}
+	
+	/**
+	 * @return {String}
+	 * @this {HeaderFooter}
+	 */
+	HeaderFooter.prototype.page = function () {
+		return this.headerFooter.time();
+	}
+	
+}());
 
 /**
  * A sheet in a workbook
