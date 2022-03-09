@@ -932,7 +932,12 @@ function ServoyExcelWorkbook(templateOrFileType, sheetNameToUse) {
 	/**
 	 * @type {Array<String>}
 	 */
-	this.columnFormats = [];	
+	this.columnFormats = [];
+	
+	/**
+	 * @type {Array<Boolean>}
+	 */
+	this.columnFormatsUseLocalDateTime = [];
 
 	/**
 	 * The style used for a data cell
@@ -1079,10 +1084,12 @@ var initServoyExcelWorkbook = (/** @constructor */ function() {
 	 * Sets a date or number format used for the given column
 	 * @param {Number} columnIndex
 	 * @param {String} format
+	 * @param {Boolean} [useLocalDateTime]
 	 * @this {ServoyExcelWorkbook}
 	 */
-	ServoyExcelWorkbook.prototype.setFormatForColumn = function(columnIndex, format) {
+	ServoyExcelWorkbook.prototype.setFormatForColumn = function(columnIndex, format, useLocalDateTime) {
 		this.columnFormats[columnIndex - 1] = format;
+		this.columnFormatsUseLocalDateTime[columnIndex - 1] = useLocalDateTime ? true : false;
 	}
 	
 	/**
@@ -1228,6 +1235,12 @@ function FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileT
 			for (var d = 0; d < dataproviders.length; d++) {
 				cell = row.createCell(this.startColumn + d);
 				var dpValue = record[dataproviders[d]];
+				
+				if (dpValue instanceof Date && !this.columnFormatsUseLocalDateTime[d]) {
+					dpValue = scopes.svyDateUtils.getLocalDateTime(dpValue);
+				}
+				
+				// useLocalDateTime
 				cell.setCellValue(dpValue);
 				if (this.columnStyles[d]) {
 					cell.setCellStyle(this.columnStyles[d]);
