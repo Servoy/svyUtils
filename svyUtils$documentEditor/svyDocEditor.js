@@ -286,19 +286,23 @@ function TagBuilder(dataSource, editor) {
 	 * @param {String} [displayTag] The display value for the tag. Default is derrived from the column or title property
 	 * @param {Boolean} [repeats] true if the related field does repeat over multiple records. Default: true for all related fields.
 	 * @param {String} [format] optional provided format used when merging the tags
+	 * @param {Boolean} [forceAdd] optional when true it will skip the dataSource check, can be usefull when having overwrite fields
 	 * @return {TagBuilder}
 	 */
-	this.addField = function(dataProviderID, displayTag, repeats, format) {
+	this.addField = function(dataProviderID, displayTag, repeats, format, forceAdd) {
 		var jsColumn = scopes.svyDataUtils.getDataProviderJSColumn(dsName, dataProviderID);
 		if (!jsColumn) {
-			var columnDs = dsName;
-			if (dataProviderID.includes('.')) {
-				columnDs = scopes.svyDataUtils.getRelationForeignDataSource(scopes.svyDataUtils.getDataProviderRelationName(dataProviderID));
-			}
-			var dsNode = solutionModel.getDataSourceNode(columnDs.toString());
-			if (!dsNode.getCalculation(scopes.svyDataUtils.getUnrelatedDataProviderID(dataProviderID))) {
-				application.output('Field cannot be added, because no column was found for: dataSource=' + dsName + ', dataProvider=' + dataProviderID, LOGGINGLEVEL.WARNING);
-				return this;
+			if (!forceAdd) {
+				var columnDs = dsName;
+				if (dataProviderID.includes('.')) {
+					columnDs = scopes.svyDataUtils.getRelationForeignDataSource(scopes.svyDataUtils.getDataProviderRelationName(dataProviderID));
+				}
+				
+				var dsNode = solutionModel.getDataSourceNode(columnDs.toString());
+				if (!dsNode.getCalculation(scopes.svyDataUtils.getUnrelatedDataProviderID(dataProviderID))) {
+					application.output('Field cannot be added, because no column was found for: dataSource=' + dsName + ', dataProvider=' + dataProviderID, LOGGINGLEVEL.WARNING);
+					return this;
+				}
 			}
 		}
 
@@ -308,9 +312,15 @@ function TagBuilder(dataSource, editor) {
 				displayTag = jsColumn.getTitle();
 				if (dataProviderID.includes('.')) {
 					displayTag = this.getJSTable(dataProviderID).getSQLName() + '.' + displayTag;
+					if (displayTag.startsWith('TEMP_')) {
+						displayTag = this.getJSTable(dataProviderID).getDataSource().split(':').pop() + '.' + displayTag;
+					}
 				}
 			} else {
 				displayTag = this.getJSTable(dataProviderID).getSQLName() + '.' + scopes.svyDataUtils.getUnrelatedDataProviderID(dataProviderID);
+				if (displayTag.startsWith('TEMP_')) {
+					displayTag = this.getJSTable(dataProviderID).getDataSource().split(':').pop() + '.' + scopes.svyDataUtils.getUnrelatedDataProviderID(dataProviderID);
+				}
 			}
 		}
 
@@ -364,7 +374,11 @@ function TagBuilder(dataSource, editor) {
 			var fieldTag = this.fieldRepeats[i];
 			if (fieldTag.includes('.')) {
 				var relationName = scopes.svyDataUtils.getDataProviderRelationName(fieldTag);
-				var displayTag = DEFAULT_REPEATER.START + '.' + utils.stringReplace(utils.stringInitCap(this.getJSTable(fieldTag).getSQLName().split('_').join(' ')), ' ', '');
+				var tableName = utils.stringReplace(utils.stringInitCap(this.getJSTable(fieldTag).getSQLName().split('_').join(' ')), ' ', '');
+				if (this.getJSTable(fieldTag).getSQLName().startsWith('TEMP_')) {
+					tableName = utils.stringReplace(utils.stringInitCap(this.getJSTable(fieldTag).getDataSource().split(':').pop().split('_').join(' ')), ' ', '');
+				}
+				var displayTag = DEFAULT_REPEATER.START + '.' + tableName;
 				var tagValue = DEFAULT_REPEATER.START + '-' + relationName.split('.').pop();
 				systemTags[displayTag] = tagValue;
 			}
