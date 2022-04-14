@@ -67,7 +67,7 @@ var DEFAULT_REPEATER = {
  */
 var DEFAULT_IF = {
 	IF_OPEN: 'if',
-	IF_CLOSE: 'fi'
+	IF_CLOSE: 'endIf'
 };
 
 /**
@@ -84,9 +84,9 @@ var REGEX = {
 	END_REPEAT_TABLE: /<\/table>(<\/figure>)?(<p>)?<span[^>]+\ssvy-mention\b[^>]*>\$endRepeater<\/span>(&nbsp;|<\/p>|<br>)*$/gm,
 	FULL_REPEAT_BLOCK: /(<span[^>]+\ssvy-mention\b[^>]*>\$startRepeater\b[^<]*<\/span>(&nbsp;)?(<\/p>)?(<figure class="table".*?>)?(<table.*?>)?).*((<\/table>)?(<\/figure>)?(<p>)?<span[^>]+\ssvy-mention\b[^>]*>\$endRepeater<\/span>(&nbsp;)?)/gm,
 	FULL_REPEAT_BLOCK_FIRST_MATCH: /(<span[^>]+\ssvy-mention\b[^>]*>\$startRepeater\b[^<]*<\/span>(&nbsp;)?(<\/p>)?(<figure class="table".*?>)?(<table.*?>)?).*?((<\/table>)?(<\/figure>)?(<p>)?<span[^>]+\ssvy-mention\b[^>]*>\$endRepeater<\/span>(&nbsp;)?)/gm,
-	FULL_IF_BLOCK: /(<span[^>]+\ssvy-mention\b[^>]*>\@if\b[^<]*<\/span>(&nbsp;)?(<\/p>)?(<figure class="table".*?>)?(<table.*?>)?).*((<\/table>)?(<\/figure>)?(<p>)?<span[^>]+\ssvy-mention\b[^>]*>\@fi<\/span>(&nbsp;)?)/gm,
+	FULL_IF_BLOCK: /(<span[^>]+\ssvy-mention\b[^>]*>\@if\b[^<]*<\/span>(&nbsp;)?(<\/p>)?(<figure class="table".*?>)?(<table.*?>)?).*((<\/table>)?(<\/figure>)?(<p>)?<span[^>]+\ssvy-mention\b[^>]*>\@endIf<\/span>(&nbsp;)?)/gm,
 	START_IF: /^<span[^>]+\ssvy-mention\b[^>]*>\@if\b[^<]*<\/span>(\s|&nbsp;|<br>)*/gm,
-	CLOSE_IF: /<span[^>]+\ssvy-mention\b[^>]*>\@fi<\/span>(&nbsp;)?$/gm,
+	CLOSE_IF: /<span[^>]+\ssvy-mention\b[^>]*>\@endIf<\/span>(&nbsp;)?$/gm,
 	FULL_TABLE_ROW: /<tr>.*<\/tr>/gm,
 	FULL_TABLE_HEADER: /<tr>.*<\/thead><tbody>/gm,
 	BR_END: /<br>$/gm
@@ -525,8 +525,8 @@ function TagBuilder(dataSource, editor) {
  * @properties={typeid:24,uuid:"B956081F-DA96-4E4B-AD6E-13F9264D5000"}
  */
 function mergeTags(content, record, ifCallback, mentionCallback, repeaterCallback) {
-	content = processRepeaters(content, record, repeaterCallback);
-	content = processIfBlocks(content, ifCallback);
+	content = processRepeaters(content,record,repeaterCallback,ifCallback,mentionCallback);
+	content = processIfBlocks(content, record, ifCallback);
 	content = processMentions(content, record, null, mentionCallback);
 
 	//Force fixing some non working HTML Chars:
@@ -540,12 +540,13 @@ function mergeTags(content, record, ifCallback, mentionCallback, repeaterCallbac
  * @private
  *
  * @param {String} html
- * @param {function(String):Boolean} [ifCallback]
+ * @param {JSRecord} record
+ * @param {function(String,JSRecord):Boolean} [ifCallback]
  *
  * @return {String}
  * @properties={typeid:24,uuid:"2A4BB51D-041C-4988-BC74-5FAEC518E8CC"}
  */
-function processIfBlocks(html, ifCallback) {
+function processIfBlocks(html, record, ifCallback) {
 	if (!html) {
 		return '';
 	}
@@ -559,7 +560,7 @@ function processIfBlocks(html, ifCallback) {
 			if (mention.parsedMention.tag == TAGS.IF) {
 
 				//Added support for callback to overwrite / handle data parsing
-				if (ifCallback && ifCallback(mention.parsedIfValue)) {
+				if (ifCallback && ifCallback(mention.parsedIfValue, record)) {
 					//Clean Start & Close if tag
 					matchItem = matchItem.replace(REGEX.START_IF, '');
 					matchItem = matchItem.replace(REGEX.CLOSE_IF, '');
@@ -646,11 +647,13 @@ function processMentions(html, record, relationIndex, valueCallback) {
  * @param {String} html
  * @param {JSRecord} record
  * @param {function(String, String):Boolean} [repeaterCallback]
+ * @param {function(String,JSRecord):Boolean} [ifCallback]
+ * @param {function(String, String, Number, *, String, String):*} [valueCallback]
  *
  * @return {String}
  * @properties={typeid:24,uuid:"4D3C4CE2-8B01-4FDD-8C56-2541C7427305"}
  */
-function processRepeaters(html, record, repeaterCallback) {
+function processRepeaters(html, record, repeaterCallback, ifCallback, valueCallback) {
 	var repeatItem;
 	if (!html || !record) {
 		return '';
@@ -686,7 +689,7 @@ function processRepeaters(html, record, repeaterCallback) {
 				toRepeat = matchItem.match(REGEX.FULL_TABLE_ROW)[0].replace(REGEX.FULL_TABLE_HEADER, '');
 				newValue = matchItem.match(REGEX.FULL_TABLE_HEADER) ? matchItem.match(REGEX.FULL_TABLE_HEADER)[0] : '';
 			}
-			if (repeaterCallback && !repeaterCallback(repeatItem.relationName, repeatItem.parsedMention.realValue)) {
+			if (repeaterCallback && !repeaterCallback(repeatItem.relationName, repeatItem.parsedMention.realValue, record)) {
 				toRepeat = '';
 			}
 
@@ -700,7 +703,9 @@ function processRepeaters(html, record, repeaterCallback) {
 				if (matchItem.match(REGEX.FULL_REPEAT_BLOCK)) {
 					processedRepeat = processRepeaters(toRepeat, record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i), repeaterCallback);
 				}
-				newValue += processMentions(processedRepeat, record, i);
+				var relatedRecord = record[repeatItem.relationName].getRecord(i);
+				newValue += processIfBlocks(processedRepeat,relatedRecord,ifCallback);
+				newValue = processMentions(newValue,record,i,valueCallback);
 			}
 
 			//Clean latest enter
