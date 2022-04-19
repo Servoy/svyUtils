@@ -177,9 +177,9 @@ function DocumentEditor(editor) {
 	 * @param {JSRecord} record The record object from which to get data values
 	 * @param {Boolean} [withInlineCSS] Optionally in-line the CSS so content is self-contained
 	 * @param {String} [filterStylesheetName] Optionally filter by style sheet name
-	 * @param {function(String):Boolean} [ifCallback] Optionally give callback function to parse if statements, return false will not hide the if block (Args: mentionRealValue).
-	 * @param {function(String, String, Number, *, String, String):*} [mentionCallback] Optionally give callback function to overwrite the record data (Args: dataProvider, relationName, relationIndex, value, mentionRealValue, mentionDisplayValue).
-	 * @param {function(String, String):Boolean} [repeaterCallback] Optionally give callback function to overwrite the repeat, return false will not repeat (Args: relationName, mentionRealValue).
+	 * @param {function(String, JSRecord):Boolean} [ifCallback] Optionally give callback function to parse if statements, return false will not hide the if block (Args: mentionRealValue).
+	 * @param {function(String, String, String, String, JSRecord):*} [mentionCallback] Optionally give callback function to overwrite the record data (Args: dataProvider, relationName, relationIndex, value, mentionRealValue, mentionDisplayValue).
+	 * @param {function(String, String, JSRecord):Boolean} [repeaterCallback] Optionally give callback function to overwrite the repeat, return false will not repeat (Args: relationName, mentionRealValue).
 	 *
 	 * @return {String} The merged content
 	 */
@@ -495,9 +495,9 @@ function TagBuilder(dataSource, editor) {
  * @public
  * @param {String} content The document's content
  * @param {JSRecord} record The data to merge
- * @param {function(String):Boolean} [ifCallback] Optionally give callback function to parse if statements, return false will not hide the if block (Args: mentionRealValue).
- * @param {function(String, String, Number, *, String, String):*} [mentionCallback] Optionally give callback function to overwrite the record data (Args: dataProvider, relationName, relationIndex, value, mentionRealValue, mentionDisplayValue).
- * @param {function(String, String):Boolean} [repeaterCallback] Optionally give callback function to overwrite the repeat, return false will not repeat (Args: relationName, mentionRealValue).
+ * @param {function(String, JSRecord):Boolean} [ifCallback] Optionally give callback function to parse if statements, return false will not hide the if block (Args: mentionRealValue).
+ * @param {function(String, String, String, String, JSRecord):*} [mentionCallback] Optionally give callback function to overwrite the record data (Args: dataProvider, relationName, relationIndex, value, mentionRealValue, mentionDisplayValue).
+ * @param {function(String, String, JSRecord):Boolean} [repeaterCallback] Optionally give callback function to overwrite the repeat, return false will not repeat (Args: relationName, mentionRealValue).
  * @return {String} The merged content
  *
  * @example <pre>
@@ -571,7 +571,7 @@ function processIfBlocks(html, record, ifCallback) {
 
 			//If we have an new match inside the existing match we have to rerun it
 			if (matchItem.match(REGEX.FULL_IF_BLOCK)) {
-				matchItem = processIfBlocks(matchItem, ifCallback);
+				matchItem = processIfBlocks(matchItem, record, ifCallback);
 			}
 
 			return matchItem;
@@ -584,12 +584,12 @@ function processIfBlocks(html, record, ifCallback) {
  * @param {String} html
  * @param {JSRecord} record
  * @param {Number} [relationIndex]
- * @param {function(String, String, Number, *, String, String):*} [valueCallback]
+ * @param {function(String, String, String, String, JSRecord):*} [mentionCallback]
  *
  * @return {String}
  * @properties={typeid:24,uuid:"782A1187-99C9-4BB4-995B-D7D282730EDA"}
  */
-function processMentions(html, record, relationIndex, valueCallback) {
+function processMentions(html, record, relationIndex, mentionCallback) {
 	if (!html || !record) {
 		return '';
 	}
@@ -600,19 +600,19 @@ function processMentions(html, record, relationIndex, valueCallback) {
 				throw Error("Invalid tag item, tag item doesn't exist in valuelist for realValue: `" + mention.realValue + "`");
 			}
 
-			var data;
+			var data, dataProvider, relationName, relatedRecord;
 			if (mention.tag == TAGS.TAG) {
 				if (mention.realValue.includes('.')) {
 
-					var dataProvider = mention.getDataProvider();
-					var relationName = mention.getRelationBasedOnRecord(record);
+					dataProvider = mention.getDataProvider();
+					relationName = mention.getRelationBasedOnRecord(record);
 					var path = relationName.split('.');
 					var recordRelationName = path.shift(); // it assumes the first the relation is the one to be iterated
 					var childRelationName = path.join('.');
 
 					if (utils.hasRecords(record, recordRelationName) && dataProvider) {
 						// in case of nested relations. Iterate over the first relation
-						var relatedRecord = record[recordRelationName].getRecord( (relationIndex || 1));
+						relatedRecord = record[recordRelationName].getRecord( (relationIndex || 1));
 						// data for nested relations
 						if (relatedRecord && childRelationName && utils.hasRecords(relatedRecord, childRelationName)) {
 							data = relatedRecord[childRelationName][dataProvider];
@@ -622,13 +622,14 @@ function processMentions(html, record, relationIndex, valueCallback) {
 					}
 					//Skip for now it is a relation dataprovider;
 				} else {
-					data = record[mention.realValue];
+					dataProvider = mention.realValue;
+					data = record[dataProvider];
 				}
 
 				//Added support for callback to overwrite / handle data parsing
-				if (valueCallback) {
+				if (mentionCallback) {
 					//push record not relationIndex
-					data = valueCallback(dataProvider || mention.realValue, relationName || null, relationIndex, data || null, mention.realValue, mention.display);
+					data = mentionCallback(mention.realValue, mention.display, dataProvider, relationName||null, relatedRecord||record);
 				}
 
 				if (data instanceof Date) {
@@ -646,14 +647,14 @@ function processMentions(html, record, relationIndex, valueCallback) {
  * @private
  * @param {String} html
  * @param {JSRecord} record
- * @param {function(String, String):Boolean} [repeaterCallback]
+ * @param {function(String, String, JSRecord):Boolean} [repeaterCallback]
  * @param {function(String,JSRecord):Boolean} [ifCallback]
- * @param {function(String, String, Number, *, String, String):*} [valueCallback]
+ * @param {function(String, String, String, String, JSRecord):*} [mentionCallback]
  *
  * @return {String}
  * @properties={typeid:24,uuid:"4D3C4CE2-8B01-4FDD-8C56-2541C7427305"}
  */
-function processRepeaters(html, record, repeaterCallback, ifCallback, valueCallback) {
+function processRepeaters(html, record, repeaterCallback, ifCallback, mentionCallback) {
 	var repeatItem;
 	if (!html || !record) {
 		return '';
@@ -689,7 +690,7 @@ function processRepeaters(html, record, repeaterCallback, ifCallback, valueCallb
 				toRepeat = matchItem.match(REGEX.FULL_TABLE_ROW)[0].replace(REGEX.FULL_TABLE_HEADER, '');
 				newValue = matchItem.match(REGEX.FULL_TABLE_HEADER) ? matchItem.match(REGEX.FULL_TABLE_HEADER)[0] : '';
 			}
-			if (repeaterCallback && !repeaterCallback(repeatItem.relationName, repeatItem.parsedMention.realValue, record)) {
+			if (repeaterCallback && !repeaterCallback(repeatItem.parsedMention.realValue, repeatItem.relationName, record)) {
 				toRepeat = '';
 			}
 
@@ -703,9 +704,8 @@ function processRepeaters(html, record, repeaterCallback, ifCallback, valueCallb
 				if (matchItem.match(REGEX.FULL_REPEAT_BLOCK)) {
 					processedRepeat = processRepeaters(toRepeat, record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i), repeaterCallback);
 				}
-				var relatedRecord = record[repeatItem.relationName].getRecord(i);
-				newValue += processIfBlocks(processedRepeat,relatedRecord,ifCallback);
-				newValue = processMentions(newValue,record,i,valueCallback);
+				newValue += processIfBlocks(processedRepeat,record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i),ifCallback);
+				newValue = processMentions(newValue,record,i,mentionCallback);
 			}
 
 			//Clean latest enter
@@ -755,11 +755,7 @@ function createParsedRepeat(html, record) {
 	 * @return {Boolean}
 	 */
 	this.isValidRepeat = function() {
-		if (this.relationName) {
-			return true;
-		}
-
-		return false;
+		return !!this.relationName;
 	};
 
 	/**
@@ -842,11 +838,7 @@ function createParsedMention(mention) {
 	 * @return {Boolean}
 	 */
 	this.isValidTag = function() {
-		if (this.realValue) {
-			return true;
-		}
-
-		return false;
+		return !!this.realValue;
 	};
 
 	/**
