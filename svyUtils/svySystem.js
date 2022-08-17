@@ -44,6 +44,23 @@ var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.system');
 var LINE_SEPARATOR = Packages.java.lang.System.getProperty('line.separator');
 
 /**
+ * Tests if the current client is an NG2/TING Client
+ * 
+ * @public
+ * 
+ * @return {Boolean}
+ *  
+ * @properties={typeid:24,uuid:"D0E23693-4D61-4C07-91EB-B80DC5F47523"}
+ */
+function isTINGClient () {
+	try {
+		return !!(APPLICATION_TYPES.NG_CLIENT && application.getApplicationType() === APPLICATION_TYPES.NG_CLIENT && application.getClientProperty("NG2"));
+	} catch (e) {
+		return false;
+	}
+}
+
+/**
  * Tests if the current client is an NG Client
  * 
  * @public
@@ -54,7 +71,7 @@ var LINE_SEPARATOR = Packages.java.lang.System.getProperty('line.separator');
  */
 function isNGClient () {
 	try {
-		return APPLICATION_TYPES.NG_CLIENT && application.getApplicationType() === APPLICATION_TYPES.NG_CLIENT;
+		return !!(APPLICATION_TYPES.NG_CLIENT && application.getApplicationType() === APPLICATION_TYPES.NG_CLIENT && !application.getClientProperty("NG2"));
 	} catch (e) {
 		return false;
 	}
