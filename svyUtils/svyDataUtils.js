@@ -1143,12 +1143,13 @@
    * 
    * @param {String} csvText
    * @param {{delimiter: String=, newline: String=, firstRowHasColumnNames: Boolean=, textQualifier: String=, comments: String=, preview: Number=, fastMode: Boolean=}} [config]
+   * @param {function({columnNames: Array, data: Array, errors: Array, meta: {delimiter: String, linebreak: String, aborted: Boolean, truncated: Boolean, cursor: Number}})} [dataRowCallback] Optional callback function for each datarow after parsing.
    * 
    * @return {{columnNames: Array, data: Array, errors: Array, meta: {delimiter: String, linebreak: String, aborted: Boolean, truncated: Boolean, cursor: Number}}}
    *
    * @properties={typeid:24,uuid:"8E553656-907E-4CCF-9C60-E99723996993"}
    */
-function parseCSV(csvText, config) {
+function parseCSV(csvText, config, dataRowCallback) {
       if (!(csvText instanceof String)) {
           throw "Input must be a string";
       }
@@ -1434,6 +1435,10 @@ function parseCSV(csvText, config) {
                   colNames = rowToPush;
               } else {
                   data.push(rowToPush);
+                  if(dataRowCallback) {
+					dataRowCallback(returnable());
+					data = [];
+				}
               }
               lastCursor = cursor;
           }
