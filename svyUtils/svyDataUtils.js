@@ -576,7 +576,7 @@
   /**
    * Raised when JSFoundSet.find() fails
    *
-   * @param {String} errorMessage
+   * @param {String} [errorMessage]
    * @param {JSFoundSet} [source] The foundset which failed to enter find
    *
    * @constructor
@@ -596,7 +596,7 @@
   /**
    * Raised when databaseManager.saveData() fails
    *
-   * @param {String} errorMessage
+   * @param {String} [errorMessage]
    * @param {JSFoundSet|JSRecord} [source] The source, saves can be on anything (null), foundset, or record
    *
    * @extends {SvyDataException}
@@ -617,7 +617,7 @@
   /**
    * Raised when a delete fails
    *
-   * @param {String} errorMessage
+   * @param {String} [errorMessage]
    * @param {JSFoundSet|JSRecord} [source] The source of the failed delete
    *
    * @constructor
