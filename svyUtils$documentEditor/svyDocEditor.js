@@ -114,7 +114,7 @@ var apiKey = '';
  *
  * @properties={typeid:35,uuid:"B52F7503-9FA9-4235-B9A9-BA0552E8F5DB"}
  */
-var exportServiceURL = !application.isInDeveloper() && scopes.svyNet.isHostAccessible('localhost', 100, 4000) ? 'http://localhost:4000/generatePDF' : 'https://pdfexport.servoy-cloud.eu/generatePDF';
+var exportServiceURL = !application.isInDeveloper() && scopes.svyNet.isHostAccessible('localhost', 100, 4000) ? 'http://localhost:4000' : 'https://pdfexport.servoy-cloud.eu';
 
 /**
  * Get a new instance of a document editor
@@ -944,6 +944,15 @@ function Exporter() {
 
 	/** @protected **/
 	this.smartShrinking = true;
+	
+	/** @protected **/
+	this.imageQuality = 100;
+	
+	/** @protected **/
+	this.imageType = 'png';
+	
+	/** @protected **/
+	this.imageScaleFactor = 1;
 
 	/**
 	 * Set/Override the smartShrinking property for generating the PDF
@@ -1023,8 +1032,8 @@ function Exporter() {
 	};
 
 	/**
-	 * Sets the page margins
-	 *
+	 * Sets the page margins only used when exporting to PDF
+	 * 
 	 * @public
 	 * @param {Number} top
 	 * @param {Number} right
@@ -1038,7 +1047,7 @@ function Exporter() {
 	};
 
 	/**
-	 * Sets the page size
+	 * Sets the page size only used when exporting to PDF
 	 * @public
 	 * @param {String} pageSize Page size, must be one of enum PAGE_SIZE
 	 * @param {Number} pageWidth Page width in CM
@@ -1048,13 +1057,35 @@ function Exporter() {
 	 */
 	this.setPageSize = function(pageSize, pageHeight, pageWidth) {
 		this.pageSize.size = pageSize;
-		this.pageSize.height = pageWidth;
+		this.pageSize.height = pageHeight;
 		this.pageSize.width = pageWidth;
 		return this;
 	};
 
 	/**
-	 * Sets the page orientation
+	 * Sets the page width size
+	 * @public
+	 * @param {Number} pageWidth Page width in CM
+	 * @return {Exporter} This exporter object for call chaining
+	 */
+	this.setPageWidth = function(pageWidth) {
+		this.pageSize.width = pageWidth
+		return this
+	}
+	
+	/**
+	 * Sets the page height size
+	 * @public
+	 * @param {Number} pageHeight Page width in CM
+	 * @return {Exporter} This exporter object for call chaining
+	 */
+	this.setPageHeight = function(pageHeight) {
+		this.pageSize.height = pageHeight
+		return this
+	}
+	
+	/**
+	 * Sets the page orientation only used when exporting to PDF
 	 *
 	 * @public
 	 * @param {String} orientation The page orientation, must be one of enum ORIENTATION
@@ -1067,6 +1098,45 @@ function Exporter() {
 	};
 
 	/**
+	 * Sets the image quality only used when exporting to IMAGE
+	 *
+	 * @public
+	 * @param {Number} quality Sets the image quality
+	 * @return {Exporter} This exporter object for call chaining
+	 * @see ORIENTATION
+	 */
+	this.setImageQuality = function(quality) {
+		this.imageQuality = quality
+		return this;
+	}
+	
+	/**
+	 * Sets the image type only used when exporting to IMAGE
+	 *
+	 * @public
+	 * @param {String} type Sets the image type, can be png, webp or jpeg
+	 * @return {Exporter} This exporter object for call chaining
+	 * @see ORIENTATION
+	 */
+	this.setImageType = function(type) {
+		this.imageType = type;
+		return this;
+	}
+	
+	/**
+	 * Sets the image scaleFactor only used when exporting to IMAGE
+	 *
+	 * @public
+	 * @param {Number} scaleFactor Sets the image scaleFactor
+	 * @return {Exporter} This exporter object for call chaining
+	 * @see ORIENTATION
+	 */
+	this.setImageScaleFactor = function(scaleFactor) {
+		this.imageScaleFactor = scaleFactor;
+		return this;
+	}
+	
+	/**
 	 * Exports the content to PDF. An API key must already be registered or an error is thrown.
 	 *
 	 * @public
@@ -1078,7 +1148,7 @@ function Exporter() {
 		if (!apiKey) {
 			throw Error('No API found');
 		}
-		var post = httpClient.createPostRequest(exportServiceURL);
+		var post = httpClient.createPostRequest(exportServiceURL + '/generatePDF');
 		post.setBodyContent(JSON.stringify(this.serialize()));
 		var result = post.executeRequest();
 		if (result.getStatusCode() == 200) {
@@ -1103,12 +1173,36 @@ function Exporter() {
 		if (!apiKey) {
 			throw Error('No API found');
 		}
-		var post = httpClient.createPostRequest(exportServiceURL);
+		var post = httpClient.createPostRequest(exportServiceURL + '/generatePDF');
 		post.setBodyContent(JSON.stringify(this.serialize()));
 		post.executeAsyncRequest(asyncSuccessCallback, asyncErrorCallback, [scopes.svySystem.convertServoyMethodToQualifiedName(success), scopes.svySystem.convertServoyMethodToQualifiedName(error)].concat(extraArguments || []));
 		return null;
 	};
 
+	/**
+	 * Exports the content to PNG File. An API key must already be registered or an error is thrown.
+	 *
+	 * @public
+	 * @return {Array<byte>} The PDF file bytes
+	 * @see registerAPIKey
+	 * @throws {Error} if no API key is registered
+	 */
+	this.exportToImage  = function() {
+		if (!apiKey) {
+			throw Error('No API found');
+		}
+		var post = httpClient.createPostRequest(exportServiceURL + '/generateImage');
+		application.output(JSON.stringify(this.serialize()))
+		post.setBodyContent(JSON.stringify(this.serialize()));
+		var result = post.executeRequest();
+		if (result.getStatusCode() == 200) {
+			return result.getMediaData();
+		} else {
+			application.output('Connection Error: ' + result.getStatusCode() + ' with error: ' + result.getResponseBody(), LOGGINGLEVEL.ERROR);
+			return null;
+		}
+	};
+	
 	/**
 	 * @protected
 	 * @return {Object}
@@ -1122,7 +1216,11 @@ function Exporter() {
 			"imageURL": this.imageURL,
 			"margin": this.margin,
 			"paperSize": this.pageSize,
-			"orientation": this.orientation
+			"orientation": this.orientation,
+			"imageScaleFactor": this.imageScaleFactor,
+			"imageType": this.imageType,
+			"imageQuality": this.imageQuality
+			
 		};
 	};
 }
