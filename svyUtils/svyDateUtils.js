@@ -1848,7 +1848,7 @@ function createOADateFromDate(date) {
  */
 function getLocalDateTime(date) {
 	
-	if (!scopes.svySystem.isNGClient()) {
+	if (!scopes.svySystem.isNGClient() && !scopes.svySystem.isTINGClient()) {
 		application.output("getLocalDateTime is an NG Client only method; returning the date as it is in the current client", LOGGINGLEVEL.WARNING)
 		return date;
 	}
@@ -1899,7 +1899,7 @@ function getLocalDateTime(date) {
  */
 function getServerDateTime(clientDate) {
 	
-	if (!scopes.svySystem.isNGClient()) {
+	if (!scopes.svySystem.isNGClient() && !scopes.svySystem.isTINGClient()) {
 		application.output("getServerDateTime is an NG Client only method; returning the date as it is in the current client", LOGGINGLEVEL.WARNING)
 		return clientDate;
 	}
