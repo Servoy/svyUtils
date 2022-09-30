@@ -293,12 +293,16 @@ function calculateHash(file, algorithm) {
 		var digestBytes = md.digest();
 
 		var HEXES = '0123456789abcdef';
-		var hex = new java.lang.StringBuilder(2 * digestBytes.length);
+		//java.lang.StringBuilder is converted to java.lang.String
+		//var hex = new java.lang.StringBuilder(2 * digestBytes.length);
+		var hex = '';
 		for (var i = 0; i < digestBytes.length; i++) {
-			hex.append(HEXES.charAt((digestBytes[i] & 0xF0) >> 4)).append(HEXES.charAt((digestBytes[i] & 0x0F)));
+			//hex.append(HEXES.charAt((digestBytes[i] & 0xF0) >> 4)).append(HEXES.charAt((digestBytes[i] & 0x0F)));
+			hex += HEXES.charAt((digestBytes[i] & 0xF0) >> 4) + HEXES.charAt((digestBytes[i] & 0x0F));
 		}
 
-		return hex.toString();
+		//return hex.toString();
+		return hex;
 	} catch (e) {
 		log.error('Error calculating Hash for file "' + file.getAbsolutePath() + '": ' + e.message);
 		return null;
