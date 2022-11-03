@@ -561,6 +561,7 @@ function getAge(birthdate, compareDate) {
 		var dayOfMonth = now.get(java.util.Calendar.DAY_OF_MONTH);
 		now.add(java.util.Calendar.MONTH, -1);
 		days = now.getActualMaximum(java.util.Calendar.DAY_OF_MONTH) - birthDay.get(java.util.Calendar.DAY_OF_MONTH) + dayOfMonth;
+		months--;
 	} else {
 		days = 0;
 		if (months == 12) {
