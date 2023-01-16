@@ -394,6 +394,15 @@ var PAPER_SIZE = {
 var defaultPrintSetup;
 
 /**
+ * @type {Number}
+ * 
+ * @private 
+ *
+ * @properties={typeid:35,uuid:"11C97E87-3CBF-4780-B588-7EC78AA7C708",variableType:8}
+ */
+var defaultFileFormat;
+
+/**
  * @type {{firstColumn: Number, firstRow: Number, lastColumn: Number, lastRow: Number, numberOfCells: Number}}
  *
  * @properties={typeid:35,uuid:"E87C2833-21CD-4DEF-B706-1F2BB70DE02D",variableType:-4}
@@ -609,7 +618,7 @@ function ExcelWorkbook(templateOrFileType) {
 	this.wb = null;
 
 	if (!templateOrFileType) {
-		templateOrFileType = FILE_FORMAT.XLS;
+		templateOrFileType = defaultFileFormat;
 	}
 
 	//workbook factory
@@ -738,7 +747,41 @@ var initExcelWorkbook = (/** @constructor */ function() {
 	}
 	
 	/**
-	 * Writes this workbook to the given targetFile
+	 * Opens this workbook as a file. 
+	 * Web Client: the data will open as a file inside the browser - if supported (sent using "Content-disposition: inline" HTTP header).
+	 * Smart Client: writes the data to a temporary file, then launches the default OS associated application to open it. 
+	 * 
+	 * @param {String} prefix prefix for the file name
+	 * 
+	 * @return {Boolean} success
+	 * 
+	 * @example <pre>workbook.openFile("myExcel")</pre>
+	 * 
+	 * @this {ExcelWorkbook}
+	 */
+	ExcelWorkbook.prototype.openFile = function(prefix) {
+		
+		var suffix;
+		var mimeType;
+		
+		if (this.wb instanceof Packages.org.apache.poi.hssf.usermodel.HSSFWorkbook) {	
+			suffix = '.xls';	// file format XLS
+			mimeType = 'application/vnd.ms-excel'
+		} else if (this.wb instanceof Packages.org.apache.poi.xssf.streaming.SXSSFWorkbook) {
+			suffix = '.xlsx';	// file format SXLSX
+			mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+		} else {				// default to XSLX
+			suffix = '.xlsx';
+			mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+		}
+
+		// open file
+		return plugins.file.openFile(prefix + suffix, this.getBytes(), mimeType);
+	}
+	
+	/**
+	 * Writes this workbook to the given targetFile.
+	 * When executed from web-based client writes the file in the server path with the given target.
 	 * 
 	 * @param {plugins.file.JSFile|String} targetFile
 	 * @return {Boolean} success
@@ -3068,6 +3111,19 @@ function setDefaultPrintSetup(setup) {
 }
 
 /**
+ * Sets the default file format when workbooks are created
+ * 
+ * @public 
+ * 
+ * @param {Number} fileFormatType one of the FILE_FORMAT constants
+ *
+ * @properties={typeid:24,uuid:"7514026D-1776-42C3-94DE-8041E90C7298"}
+ */
+function setDefaultFileFormat(fileFormatType) {
+	defaultFileFormat = fileFormatType;
+}
+
+/**
  * Gets the value of a cell depending on its data type
  * 
  * @private
@@ -3166,6 +3222,10 @@ function isLoaded() {
  * @properties={typeid:35,uuid:"D1AA3C12-91F1-40DF-888E-6775900C71F1",variableType:-4}
  */
 var init = (function() {
+	
+	// set default file format
+	defaultFileFormat = FILE_FORMAT.XLSX;
+	
 	if (!isLoaded()) {
 		logger.warn("svyExcelUtils cannot be used because the Apache POI package cannot be found");
 		logger.warn("Please follow the installation documentation at https://github.com/Servoy/svyUtils/wiki/ExcelUtils");
