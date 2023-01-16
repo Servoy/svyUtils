@@ -1,5 +1,4 @@
 /**
- * @param {JSFoundSet} foundset
  *
  * @private
  * @constructor
@@ -7,19 +6,44 @@
  * @properties={typeid:24,uuid:"534F747F-6DCD-44AF-BE41-69C04EECF158"}
  * @AllowToRunInFind
  */
-function AbstractExcelBuilder(foundset) {
+function AbstractExcelBuilder() {
 	
-	/**
-	 * @protected
-	 * @type {JSFoundSet}
-	 */
-	this.foundset = foundset;
-
 	/**
 	 * @protected
 	 * @type {Array<ExcelColumn>}
 	 */
 	this.excelColumns = [];
+}
+
+/**
+ * 
+ * @param {JSFoundSet} foundset
+ *
+ * @constructor
+ * @properties={typeid:24,uuid:"7E189939-F7FF-41BE-80F3-1D333A84BEA9"}
+ * @extends {AbstractExcelBuilder}
+ *
+ * @private
+ * 
+ * @this {FoundSetExcelBuilder}
+ */
+function FoundSetExcelBuilder(foundset) {
+	
+	//first set the table component as it is needed when creating default search
+	AbstractExcelBuilder.call(this);
+	
+	/**
+	 * Returns the foundset to be filtered as the foundset of the form the filter UI Component is on<p>
+	 * This method can be overwritten by subclasses to return for example the foundset of an NG Grid
+	 *
+	 * @public
+	 * @return {JSFoundSet}
+	 *
+	 * @this {AbstractExcelBuilder}
+	 */
+	this.getFoundSet = function() {
+		return foundset;
+	}
 }
 
 /**
@@ -43,7 +67,7 @@ function NgGridExcelBuilder(tableComponent, useTableColumnState) {
 	}
 
 	//first set the table component as it is needed when creating default search
-	AbstractExcelBuilder.call(this, tableComponent.myFoundset.foundset);
+	AbstractExcelBuilder.call(this);
 
 	/**
 	 * @protected
@@ -62,6 +86,21 @@ function NgGridExcelBuilder(tableComponent, useTableColumnState) {
 	 * @type {Array<ExcelColumn>}
 	 */
 	this.excelColumns = this.getExcelColumns();
+}
+
+/**
+*
+* @param {JSFoundSet} foundset
+*
+* @returns {FoundSetExcelBuilder}
+* @public
+* @example <pre>
+* </pre>
+*
+* @properties={typeid:24,uuid:"68BC1302-822B-4273-A0C8-E7A185F627F7"}
+*/
+function createFoundSetExcelBuilder(foundset) {
+	return new FoundSetExcelBuilder(foundset);
 }
 
 /**
@@ -178,6 +217,17 @@ function getI18nText(headerTitle) {
 
 /**
  * @constructor
+ * @this {ExcelColumn}
+ * @private
+ * @properties={typeid:24,uuid:"AF236F7D-94CB-4095-A470-264B78E71B0F"}
+ */
+function initExcelColumn() {
+	ExcelColumn.prototype = Object.create(ExcelColumn.prototype);
+	ExcelColumn.prototype.constructor = ExcelColumn;
+}
+
+/**
+ * @constructor
  * @private
  * @properties={typeid:24,uuid:"F2C639E6-E20D-49F6-9200-57975D75D3CA"}
  * @AllowToRunInFind
@@ -196,7 +246,7 @@ function initAbstractExcelBuilder() {
 	 * @this {AbstractExcelBuilder}
 	 */
 	AbstractExcelBuilder.prototype.getFoundSet = function() {
-		return this.foundset;
+		throw "Must implement getFoundSet"
 	}
 
 	/**
@@ -322,6 +372,18 @@ function initAbstractExcelBuilder() {
 	}
 
 	// TODO should consider to get excelColumn by Index !? How !?
+}
+
+/**
+ * @constructor
+ * @extends {AbstractExcelBuilder}
+ * @private
+ * @properties={typeid:24,uuid:"CCEE7954-024D-49D0-A0D1-DF010323C092"}
+ * @AllowToRunInFind
+ */
+function initFoundSetExcelBuilder() {
+	FoundSetExcelBuilder.prototype = Object.create(AbstractExcelBuilder.prototype);
+	FoundSetExcelBuilder.prototype.constructor = FoundSetExcelBuilder;
 }
 
 /**
@@ -531,16 +593,6 @@ function initNgGridExcelBuilder() {
 	}
 }
 
-/**
- * @constructor
- * @this {ExcelColumn}
- * @private
- * @properties={typeid:24,uuid:"AF236F7D-94CB-4095-A470-264B78E71B0F"}
- */
-function initExcelColumn() {
-	ExcelColumn.prototype = Object.create(ExcelColumn.prototype);
-	ExcelColumn.prototype.constructor = ExcelColumn;
-}
 
 /**
  * @private
@@ -550,5 +602,6 @@ function initExcelColumn() {
 var init = (function() {
 		initExcelColumn();
 		initAbstractExcelBuilder();
+		initFoundSetExcelBuilder();
 		initNgGridExcelBuilder();
 	}());
