@@ -394,6 +394,15 @@ var PAPER_SIZE = {
 var defaultPrintSetup;
 
 /**
+ * @type {Number}
+ * 
+ * @private 
+ *
+ * @properties={typeid:35,uuid:"11C97E87-3CBF-4780-B588-7EC78AA7C708",variableType:8}
+ */
+var defaultFileFormat;
+
+/**
  * @type {{firstColumn: Number, firstRow: Number, lastColumn: Number, lastRow: Number, numberOfCells: Number}}
  *
  * @properties={typeid:35,uuid:"E87C2833-21CD-4DEF-B706-1F2BB70DE02D",variableType:-4}
@@ -609,7 +618,7 @@ function ExcelWorkbook(templateOrFileType) {
 	this.wb = null;
 
 	if (!templateOrFileType) {
-		templateOrFileType = FILE_FORMAT.XLS;
+		templateOrFileType = defaultFileFormat;
 	}
 
 	//workbook factory
@@ -3068,6 +3077,19 @@ function setDefaultPrintSetup(setup) {
 }
 
 /**
+ * Sets the default file format when workbooks are created
+ * 
+ * @public 
+ * 
+ * @param {Number} fileFormatType one of the FILE_FORMAT constants
+ *
+ * @properties={typeid:24,uuid:"7514026D-1776-42C3-94DE-8041E90C7298"}
+ */
+function setDefaultFileFormat(fileFormatType) {
+	defaultFileFormat = fileFormatType;
+}
+
+/**
  * Gets the value of a cell depending on its data type
  * 
  * @private
@@ -3166,6 +3188,10 @@ function isLoaded() {
  * @properties={typeid:35,uuid:"D1AA3C12-91F1-40DF-888E-6775900C71F1",variableType:-4}
  */
 var init = (function() {
+	
+	// set default file format
+	defaultFileFormat = FILE_FORMAT.XLSX;
+	
 	if (!isLoaded()) {
 		logger.warn("svyExcelUtils cannot be used because the Apache POI package cannot be found");
 		logger.warn("Please follow the installation documentation at https://github.com/Servoy/svyUtils/wiki/ExcelUtils");
