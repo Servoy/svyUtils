@@ -1,5 +1,4 @@
 /**
- *
  * @private
  * @constructor
  * @this {AbstractExcelBuilder}
@@ -7,7 +6,7 @@
  * @AllowToRunInFind
  */
 function AbstractExcelBuilder() {
-	
+
 	/**
 	 * @protected
 	 * @type {Array<ExcelColumn>}
@@ -16,7 +15,7 @@ function AbstractExcelBuilder() {
 }
 
 /**
- * 
+ *
  * @param {JSFoundSet} foundset
  *
  * @constructor
@@ -24,19 +23,18 @@ function AbstractExcelBuilder() {
  * @extends {AbstractExcelBuilder}
  *
  * @private
- * 
+ *
  * @this {FoundSetExcelBuilder}
  */
 function FoundSetExcelBuilder(foundset) {
-	
+
 	//first set the table component as it is needed when creating default search
 	AbstractExcelBuilder.call(this);
-	
+
 	/**
-	 * Returns the foundset to be filtered as the foundset of the form the filter UI Component is on<p>
-	 * This method can be overwritten by subclasses to return for example the foundset of an NG Grid
+	 * Returns the foundset to be exported
 	 *
-	 * @public
+	 * @protected 
 	 * @return {JSFoundSet}
 	 *
 	 * @this {AbstractExcelBuilder}
@@ -56,7 +54,7 @@ function FoundSetExcelBuilder(foundset) {
  * @extends {AbstractExcelBuilder}
  *
  * @private
- * 
+ *
  * @this {NgGridExcelBuilder}
  *
  * @properties={typeid:24,uuid:"BB9E7D05-0A64-4D4F-B0DC-9799C3705C3A"}
@@ -74,7 +72,7 @@ function NgGridExcelBuilder(tableComponent, useTableColumnState) {
 	 * @type {RuntimeWebComponent<aggrid-groupingtable>|RuntimeWebComponent<aggrid-groupingtable_abs>}
 	 */
 	this.element = tableComponent;
-	
+
 	/**
 	 * @protected
 	 * @type {Boolean}
@@ -89,16 +87,16 @@ function NgGridExcelBuilder(tableComponent, useTableColumnState) {
 }
 
 /**
-*
-* @param {JSFoundSet} foundset
-*
-* @returns {FoundSetExcelBuilder}
-* @public
-* @example <pre>
-* </pre>
-*
-* @properties={typeid:24,uuid:"68BC1302-822B-4273-A0C8-E7A185F627F7"}
-*/
+ *
+ * @param {JSFoundSet} foundset
+ *
+ * @returns {FoundSetExcelBuilder}
+ * @public
+ * @example <pre>
+ * </pre>
+ *
+ * @properties={typeid:24,uuid:"68BC1302-822B-4273-A0C8-E7A185F627F7"}
+ */
 function createFoundSetExcelBuilder(foundset) {
 	return new FoundSetExcelBuilder(foundset);
 }
@@ -118,7 +116,6 @@ function createFoundSetExcelBuilder(foundset) {
 function createNgGridExcelBuilder(tableComponent, useTableColumnState) {
 	return new NgGridExcelBuilder(tableComponent, useTableColumnState);
 }
-
 
 /**
  *
@@ -153,47 +150,50 @@ function createWorkbookFromNgGrid(tableComponent, useTableColumnState, templateO
  */
 function ExcelColumn(dataprovider, titleText, format, alias) {
 	/**
-	 * TODO should change constructor to make id not overridable !?
+	 * @protected
 	 * @type {String}
 	 */
 	this.id = alias ? alias : dataprovider;
-	
+
 	/**
+	 * @protected
 	 * @type {String}
 	 */
 	this.dataprovider = dataprovider;
 
 	/**
+	 * @protected
 	 * @type {String}
 	 */
 	this.text = titleText;
 
 	/**
+	 * @protected
 	 * @type {String}
 	 */
 	this.format = format;
 
 	/**
+	 * @protected
 	 * applicable to Date filters only; true if the Date uses the format useLocalDateTime
 	 * @type {Boolean}
 	 */
 	this.useLocalDateTime = false;
-	
+
 	/**
 	 * TODO use valuelists in Excel Export to substitue values !?
-	 * @private
+	 * @protected
 	 * @type {String}
 	 */
 	this.valuelist = null;
 
 	/**
 	 * TODO Footer Text
-	 * @private 
-	 * The filter type of this filter
+	 * @protected
 	 * @type {String}
 	 */
 	this.footer = null;
-	
+
 	// TODO use setter/getter
 
 	return this;
@@ -224,6 +224,109 @@ function getI18nText(headerTitle) {
 function initExcelColumn() {
 	ExcelColumn.prototype = Object.create(ExcelColumn.prototype);
 	ExcelColumn.prototype.constructor = ExcelColumn;
+
+	/**
+	 *
+	 * @public
+	 * @return {String}
+	 *
+	 * @this {ExcelColumn}
+	 */
+	ExcelColumn.prototype.getAlias = function() {
+		return this.id;
+	}
+
+	/**
+	 *
+	 * @public
+	 * @return {String}
+	 *
+	 * @this {ExcelColumn}
+	 */
+	ExcelColumn.prototype.getDataProvider = function() {
+		return this.dataprovider;
+	}
+
+	/**
+	 * @param {String} dataProvider
+	 * @public
+	 * @return {ExcelColumn}
+	 *
+	 * @this {ExcelColumn}
+	 */
+	ExcelColumn.prototype.setDataProvider = function(dataProvider) {
+		this.dataprovider = dataProvider;
+		return this;
+	}
+
+	/**
+	 *
+	 * @public
+	 * @return {String}
+	 *
+	 * @this {ExcelColumn}
+	 */
+	ExcelColumn.prototype.getHeaderText = function() {
+		return this.text;
+	}
+
+	/**
+	 * @param {String} headerText
+	 * @public
+	 * @return {ExcelColumn}
+	 *
+	 * @this {ExcelColumn}
+	 */
+	ExcelColumn.prototype.setHeaderText = function(headerText) {
+		this.dataprovider = headerText;
+		return this;
+	}
+
+	/**
+	 *
+	 * @public
+	 * @return {String}
+	 *
+	 * @this {ExcelColumn}
+	 */
+	ExcelColumn.prototype.getFormat = function() {
+		return this.format;
+	}
+
+	/**
+	 * @param {String} format
+	 * @public
+	 * @return {ExcelColumn}
+	 *
+	 * @this {ExcelColumn}
+	 */
+	ExcelColumn.prototype.setFormat = function(format) {
+		this.format = format;
+		return this;
+	}
+
+	/**
+	 *
+	 * @public
+	 * @return {Boolean}
+	 *
+	 * @this {ExcelColumn}
+	 */
+	ExcelColumn.prototype.getUseLocalDateTime = function() {
+		return this.useLocalDateTime;
+	}
+
+	/**
+	 * @param {Boolean} useLocalDateTime
+	 * @public
+	 * @return {ExcelColumn}
+	 *
+	 * @this {ExcelColumn}
+	 */
+	ExcelColumn.prototype.setUseLocalDateTime = function(useLocalDateTime) {
+		this.useLocalDateTime = useLocalDateTime;
+		return this;
+	}
 }
 
 /**
@@ -237,10 +340,10 @@ function initAbstractExcelBuilder() {
 	AbstractExcelBuilder.prototype.constructor = AbstractExcelBuilder;
 
 	/**
-	 * Returns the foundset to be filtered as the foundset of the form the filter UI Component is on<p>
+	 * Returns the foundset to be exported<p>
 	 * This method can be overwritten by subclasses to return for example the foundset of an NG Grid
 	 *
-	 * @public
+	 * @protected 
 	 * @return {JSFoundSet}
 	 *
 	 * @this {AbstractExcelBuilder}
@@ -271,8 +374,8 @@ function initAbstractExcelBuilder() {
 		// get dataproviders & headers
 		for (var i = 0; i < this.excelColumns.length; i++) {
 			column = this.excelColumns[i];
-			dataproviders.push(column.dataprovider);
-			headers.push(column.text);
+			dataproviders.push(column.getDataProvider());
+			headers.push(column.getHeaderText());
 		}
 
 		var workbook = scopes.svyExcelUtils.createWorkbookFromFoundSet(foundset, dataproviders, headers, templateOrFileType);
@@ -283,9 +386,9 @@ function initAbstractExcelBuilder() {
 			column = this.excelColumns[i];
 
 			/** @type {String} */
-			var format = column.format;
+			var format = column.getFormat();
 			if (format) {
-				workbook.setFormatForColumn(i + 1, format, column.useLocalDateTime);
+				workbook.setFormatForColumn(i + 1, format, column.getUseLocalDateTime());
 			}
 
 			// TODO should look at format property in DataSource to set a default format !?
@@ -305,10 +408,9 @@ function initAbstractExcelBuilder() {
 	 */
 	AbstractExcelBuilder.prototype.getExcelColumn = function(alias) {
 
-		// TODO should search column by ID instead !?
 		for (var i = 0; i < this.excelColumns.length; i++) {
 			var excelCol = this.excelColumns[i];
-			if (excelCol.id == alias) {
+			if (excelCol.getAlias() == alias) {
 				return excelCol;
 			}
 		}
@@ -328,15 +430,6 @@ function initAbstractExcelBuilder() {
 	 * @this {AbstractExcelBuilder}
 	 */
 	AbstractExcelBuilder.prototype.addExcelColumn = function(dataProvider, index, headerTitle, format, alias) {
-
-//		if (index < 0) {
-//			throw "Index should equal or greater than 0; invalid index " + index;
-//		}
-//
-//		if (index > this.excelColumns.length) {
-//			throw "Index out of bound; invalid index " + index + ", should be smaller or equal than bound " + this.excelColumns.length;
-//			index = null;
-//		}
 
 		var excelCol = new ExcelColumn(dataProvider, headerTitle, format, alias);
 
@@ -362,7 +455,7 @@ function initAbstractExcelBuilder() {
 
 		for (var i = 0; i < this.excelColumns.length; i++) {
 			var excelCol = this.excelColumns[i];
-			if (excelCol.id == alias) {
+			if (excelCol.getAlias() == alias) {
 				this.excelColumns.splice(i, 1);
 				return this;
 			}
@@ -398,9 +491,10 @@ function initNgGridExcelBuilder() {
 	NgGridExcelBuilder.prototype.constructor = NgGridExcelBuilder;
 
 	/**
+	 * TODO do i need this ?
 	 * Returns the datasource to be filtered as the datasource of the NG Grid
 	 *
-	 * @public
+	 * @protected  
 	 * @return {String}
 	 *
 	 * @this {NgGridExcelBuilder}
@@ -445,7 +539,7 @@ function initNgGridExcelBuilder() {
 
 		return tableDataSource || null;
 	}
-	
+
 	/**
 	 * @param {String} id excel column identified
 	 * @public
@@ -458,7 +552,7 @@ function initNgGridExcelBuilder() {
 	}
 
 	/**
-	 * @public
+	 * @protected 
 	 * @return {JSFoundSet}
 	 *
 	 * @this {NgGridExcelBuilder}
@@ -509,7 +603,7 @@ function initNgGridExcelBuilder() {
 
 				// TODO should use ID to identify columns
 				var excelColumn = new ExcelColumn(dataprovider, headerTitle, format);
-				excelColumn.useLocalDateTime = useLocalDateTime;
+				excelColumn.setUseLocalDateTime(useLocalDateTime);
 				excelColumns.push(excelColumn);
 
 			} else {
@@ -580,7 +674,7 @@ function initNgGridExcelBuilder() {
 
 					// TODO should use ID to identify columns
 					var excelColumn = new ExcelColumn(dataprovider, headerTitle, format);
-					excelColumn.useLocalDateTime = useLocalDateTime;
+					excelColumn.setUseLocalDateTime(useLocalDateTime);
 					excelColumns.push(excelColumn);
 
 				} else {
@@ -592,7 +686,6 @@ function initNgGridExcelBuilder() {
 		return excelColumns;
 	}
 }
-
 
 /**
  * @private
