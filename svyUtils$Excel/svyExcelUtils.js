@@ -747,7 +747,41 @@ var initExcelWorkbook = (/** @constructor */ function() {
 	}
 	
 	/**
-	 * Writes this workbook to the given targetFile
+	 * Opens this workbook as a file. 
+	 * Web Client: the data will open as a file inside the browser - if supported (sent using "Content-disposition: inline" HTTP header).
+	 * Smart Client: writes the data to a temporary file, then launches the default OS associated application to open it. 
+	 * 
+	 * @param {String} prefix prefix for the file name
+	 * 
+	 * @return {Boolean} success
+	 * 
+	 * @example <pre>workbook.openFile("myExcel")</pre>
+	 * 
+	 * @this {ExcelWorkbook}
+	 */
+	ExcelWorkbook.prototype.openFile = function(prefix) {
+		
+		var suffix;
+		var mimeType;
+		
+		if (this.wb instanceof Packages.org.apache.poi.hssf.usermodel.HSSFWorkbook) {	
+			suffix = '.xls';	// file format XLS
+			mimeType = 'application/vnd.ms-excel'
+		} else if (this.wb instanceof Packages.org.apache.poi.xssf.streaming.SXSSFWorkbook) {
+			suffix = '.xlsx';	// file format SXLSX
+			mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+		} else {				// default to XSLX
+			suffix = '.xlsx';
+			mimeType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+		}
+
+		// open file
+		return plugins.file.openFile(prefix + suffix, this.getBytes(), mimeType);
+	}
+	
+	/**
+	 * Writes this workbook to the given targetFile.
+	 * When executed from web-based client writes the file in the server path with the given target.
 	 * 
 	 * @param {plugins.file.JSFile|String} targetFile
 	 * @return {Boolean} success
