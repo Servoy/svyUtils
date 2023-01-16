@@ -382,7 +382,23 @@ var PAPER_SIZE = {
 	STATEMENT_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.STATEMENT_PAPERSIZE,
 	TABLOID_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.TABLOID_PAPERSIZE,
 	TEN_BY_FOURTEEN_PAPERSIZE: Packages.org.apache.poi.ss.usermodel.PrintSetup.TEN_BY_FOURTEEN_PAPERSIZE
-}
+};
+
+/**
+ * @private 
+ * @type {Number}
+ *
+ * @properties={typeid:35,uuid:"0D6361F1-7C75-481F-B540-C87A69F74E6F",variableType:4}
+ */
+var maxDataFillForFoundSetWorkbook = -1;
+
+/**
+ * @private 
+ * @type {String}
+ *
+ * @properties={typeid:35,uuid:"D75F2A54-8348-4982-9D22-5E710B920694"}
+ */
+var onDataFillExceededQualifiedCallback
 
 /**
  * @type {PrintSetup}
@@ -1271,7 +1287,23 @@ function FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileT
 			}
 		}
 
+		// do not exceed maxFoundSetDataLimit
 		for (i = 1; i <= foundset.getSize(); i++) {
+			
+			// if foundset size exceeds data limit
+			if (maxDataFillForFoundSetWorkbook != -1 && i == maxDataFillForFoundSetWorkbook + 1 && foundset.getSize() >= i) {
+				if (onDataFillExceededQualifiedCallback) {
+					// callback method can be used to notify the user and ask user to proceed
+					if (scopes.svySystem.callMethod(onDataFillExceededQualifiedCallback, [this]) !== true) {
+						break;
+					}
+				} else {
+					// show warning & exit
+					application.output("Data in Foundset Excel workbook exceeds the limit size of " + maxDataFillForFoundSetWorkbook + " rows. Exceeding rows are discarded.", LOGGINGLEVEL.WARNING);
+					break;
+				}
+			}
+			
 			var record = foundset.getRecord(i);
 			row = this.sheet.createRow(rowNum + (i-1));
 
@@ -3121,6 +3153,47 @@ function setDefaultPrintSetup(setup) {
  */
 function setDefaultFileFormat(fileFormatType) {
 	defaultFileFormat = fileFormatType;
+}
+
+/**
+ * Sets the data limit for foundset workbook
+ * 
+ * @public 
+ * 
+ * @param {Number} maxDataFill Default -1. Set max foundset index to be filled upon FoundSetExcelWorkbook data fill.
+ * @param {Function} [onDataFillExceedCallback] Callback function executed when data fill limit is exceeded. 
+ * Return value of onDataFillExceedCallback callback function will determine if data fill should continue to fill all data ( when return value is true ) or stop to the maxDataFill limit ( any other return value ). 
+ * 
+ * @example <pre>
+ * scopes.svyExcelUtils.setMaxDataFillForFoundSetWorkbook(1000, onDataFillExceedCallback);
+ * 
+ * function onDataFillExceedCallback(workbook) {
+ *
+ *	var count = databaseManager.getFoundSetCount(workbook.getFoundSet());
+ *	if (count > 10000) {	// hard limit of 10.000 rows exceeded
+ *		plugins.dialogs.showWarningDialog("Export limit exceeded", "Only the first 1.000 entries will be exported");
+ *		return false;
+ *	}
+ *	
+ *	// there are more than 1.000 rows to be exported, ask User to export them all
+ *	if (plugins.dialogs.showQuestionDialog("Data Export", "There are " + count + " entries to be exported; The procedure may take few minutes to complete. Do you want to export them all ?","Yes", "No") == "Yes") {
+ *		return true;
+ *	}
+ *	return false
+ * }
+ * </pre>
+ *
+ * @properties={typeid:24,uuid:"0AAAF21D-A18A-4B1F-B931-C929A645E547"}
+ */
+function setMaxDataFillForFoundSetWorkbook(maxDataFill, onDataFillExceedCallback) {
+	
+	maxDataFillForFoundSetWorkbook = maxDataFill;
+	
+	if (onDataFillExceedCallback) {
+		onDataFillExceededQualifiedCallback = scopes.svySystem.convertServoyMethodToQualifiedName(onDataFillExceedCallback);
+	} else {
+		onDataFillExceededQualifiedCallback = null;
+	}
 }
 
 /**
