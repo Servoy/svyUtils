@@ -953,6 +953,12 @@ function Exporter() {
 	
 	/** @protected **/
 	this.imageScaleFactor = 1;
+	
+	/** @protected **/
+	this.footerHTML = '';
+	
+	/** @protected **/
+	this.headerHTML = '';
 
 	/**
 	 * Set/Override the smartShrinking property for generating the PDF
@@ -1004,6 +1010,38 @@ function Exporter() {
 			this.content = '<html><body><div class="ck-content" dir="ltr">' + content + '</div></body></html>';
 		} else {
 			this.content = content;
+		}
+		return this;
+	};
+	
+	/**
+	 * Sets the pageHeader HTML to be exported this will be printed on every page
+	 * @public
+	 * @param {String} header
+	 * @return {Exporter} This exporter object for call chaining
+	 * @see DocumentEditor.getContent
+	 */
+	this.setPageHeaderHtml = function(header) {
+		if (!header.includes("<body>") && !header.includes("<html>")) {
+			this.headerHTML = '<html><body><div class="ck-content" dir="ltr">' + header + '</div></body></html>';
+		} else {
+			this.headerHTML = header;
+		}
+		return this;
+	};
+	
+	/**
+	 * Sets the pageFooter HTML to be exported this will be printed on every page
+	 * @public
+	 * @param {String} footer
+	 * @return {Exporter} This exporter object for call chaining
+	 * @see DocumentEditor.getContent
+	 */
+	this.setPageFooterHtml = function(footer) {
+		if (!footer.includes("<body>") && !footer.includes("<html>")) {
+			this.footerHTML = '<html><body><div class="ck-content" dir="ltr">' + footer + '</div></body></html>';
+		} else {
+			this.footerHTML = footer;
 		}
 		return this;
 	};
@@ -1219,8 +1257,9 @@ function Exporter() {
 			"orientation": this.orientation,
 			"imageScaleFactor": this.imageScaleFactor,
 			"imageType": this.imageType,
-			"imageQuality": this.imageQuality
-			
+			"imageQuality": this.imageQuality,
+			"pageHeaderHTML": this.headerHTML,
+			"pageFooterHTML": this.footerHTML
 		};
 	};
 }
