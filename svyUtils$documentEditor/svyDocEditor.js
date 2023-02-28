@@ -295,6 +295,14 @@ function TagBuilder(dataSource, editor) {
 			if (!forceAdd) {
 				var columnDs = dsName;
 				if (dataProviderID.includes('.')) {
+					var relationNames = scopes.svyDataUtils.getDataProviderRelationName(dataProviderID).split('.');
+					for(var rel in relationNames) {
+						if(!solutionModel.getRelation(relationNames[rel])) {
+							application.output('Field cannot be added, because no relation with name: `' + relationNames[rel] + '` was found in the solution', LOGGINGLEVEL.ERROR);
+							return this;
+						}
+							
+					}
 					columnDs = scopes.svyDataUtils.getRelationForeignDataSource(scopes.svyDataUtils.getDataProviderRelationName(dataProviderID));
 				}
 				
