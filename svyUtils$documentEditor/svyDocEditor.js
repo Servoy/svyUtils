@@ -379,7 +379,7 @@ function TagBuilder(dataSource, editor) {
 					tableName = utils.stringReplace(utils.stringInitCap(this.getJSTable(fieldTag).getDataSource().split(':').pop().split('_').join(' ')), ' ', '');
 				}
 				var displayTag = DEFAULT_REPEATER.START + '.' + tableName;
-				var tagValue = DEFAULT_REPEATER.START + '-' + relationName.split('.').pop();
+				var tagValue = DEFAULT_REPEATER.START + '-' + relationName;
 				systemTags[displayTag] = tagValue;
 			}
 
@@ -607,8 +607,9 @@ function processMentions(html, record, relationIndex, mentionCallback) {
 					dataProvider = mention.getDataProvider();
 					relationName = mention.getRelationBasedOnRecord(record);
 					var path = relationName.split('.');
-					var recordRelationName = path.shift(); // it assumes the first the relation is the one to be iterated
-					var childRelationName = path.join('.');
+					// it assumes the first the relation is the one to be iterated, added extra check if from repeat it should be the full relation 
+					var recordRelationName = (relationIndex != null) ? relationName : path.shift();
+					var childRelationName = (relationIndex != null) ? null : path.join('.');
 
 					if (utils.hasRecords(record, recordRelationName) && dataProvider) {
 						// in case of nested relations. Iterate over the first relation
