@@ -1254,9 +1254,52 @@ function Exporter() {
 		post.executeAsyncRequest(asyncSuccessCallback, asyncErrorCallback, [scopes.svySystem.convertServoyMethodToQualifiedName(success), scopes.svySystem.convertServoyMethodToQualifiedName(error)].concat(extraArguments || []));
 		return null;
 	};
+	
+	/**
+	 * Exports the content to Docx. An API key must already be registered or an error is thrown.
+	 *
+	 * @public
+	 * @return {Array<byte>} The PDF file bytes
+	 * @see registerAPIKey
+	 * @throws {Error} if no API key is registered
+	 */
+	this.exportToDocx = function() {
+		if (!apiKey) {
+			throw Error('No API found');
+		}
+		var post = httpClient.createPostRequest(exportServiceURL + '/generateDocx');
+		post.setBodyContent(JSON.stringify(this.serialize()));
+		var result = post.executeRequest();
+		if (result.getStatusCode() == 200) {
+			return result.getMediaData();
+		} else {
+			application.output('Connection Error: ' + result.getStatusCode() + ' with error: ' + result.getResponseBody(), LOGGINGLEVEL.ERROR);
+			return null;
+		}
+	};
 
 	/**
-	 * Exports the content to PNG File. An API key must already be registered or an error is thrown.
+	 * Exports Async the content to Docx. An API key must already be registerd or an error is thrown
+	 *
+	 * @public
+	 * @param {function(Array<byte>)} success Callback function called when async was success
+	 * @param {function(Number)} [error] Callback function called when async got an connection error
+	 * @param {Array<*>} [extraArguments] Callback function extra arguments, first argument will be pdfByteArray
+	 *
+	 * @see registerAPIKey
+	 */
+	this.exportToDocxAsync = function(success, error, extraArguments) {
+		if (!apiKey) {
+			throw Error('No API found');
+		}
+		var post = httpClient.createPostRequest(exportServiceURL + '/generateDocx');
+		post.setBodyContent(JSON.stringify(this.serialize()));
+		post.executeAsyncRequest(asyncSuccessCallback, asyncErrorCallback, [scopes.svySystem.convertServoyMethodToQualifiedName(success), scopes.svySystem.convertServoyMethodToQualifiedName(error)].concat(extraArguments || []));
+		return null;
+	};
+
+	/**
+	 * Exports the content to PNG/JPEG File. An API key must already be registered or an error is thrown.
 	 *
 	 * @public
 	 * @return {Array<byte>} The PDF file bytes
@@ -1268,7 +1311,6 @@ function Exporter() {
 			throw Error('No API found');
 		}
 		var post = httpClient.createPostRequest(exportServiceURL + '/generateImage');
-		application.output(JSON.stringify(this.serialize()))
 		post.setBodyContent(JSON.stringify(this.serialize()));
 		var result = post.executeRequest();
 		if (result.getStatusCode() == 200) {
@@ -1277,6 +1319,26 @@ function Exporter() {
 			application.output('Connection Error: ' + result.getStatusCode() + ' with error: ' + result.getResponseBody(), LOGGINGLEVEL.ERROR);
 			return null;
 		}
+	};
+	
+	/**
+	 * Exports Async content to PNG/JPEG File. An API key must already be registered or an error is thrown.
+	 *
+	 * @public
+	 * @param {function(Array<byte>)} success Callback function called when async was success
+	 * @param {function(Number)} [error] Callback function called when async got an connection error
+	 * @param {Array<*>} [extraArguments] Callback function extra arguments, first argument will be pdfByteArray
+	 *
+	 * @see registerAPIKey
+	 */
+	this.exportToImageAsync = function(success, error, extraArguments) {
+		if (!apiKey) {
+			throw Error('No API found');
+		}
+		var post = httpClient.createPostRequest(exportServiceURL + '/generateImage');
+		post.setBodyContent(JSON.stringify(this.serialize()));
+		post.executeAsyncRequest(asyncSuccessCallback, asyncErrorCallback, [scopes.svySystem.convertServoyMethodToQualifiedName(success), scopes.svySystem.convertServoyMethodToQualifiedName(error)].concat(extraArguments || []));
+		return null;
 	};
 	
 	/**
