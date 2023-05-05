@@ -623,10 +623,10 @@ function getDateFormat(style, locale) {
  * @properties={typeid:24,uuid:"D9F78345-D31D-4A79-8C28-230F7BC467B4"}
  */
 function getDayDifference(start, end) {
-	var startUtc = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate(), start.getHours(), start.getMinutes(), start.getSeconds(), 0);
-	var endUtc = Date.UTC(end.getFullYear(), end.getMonth(), end.getDate(), end.getHours(), end.getMinutes(), end.getSeconds(), 0);
-	var diff = Math.abs((startUtc.valueOf() - endUtc.valueOf()) / (24 * 60 * 60 * 1000));
-	return diff;
+	var startLocalDateTime = java.time.LocalDateTime.of(start.getFullYear(), start.getMonth() + 1, start.getDate(), start.getHours(), start.getMinutes(), start.getSeconds());
+	var endLocalDateTime = java.time.LocalDateTime.of(end.getFullYear(), end.getMonth() + 1, end.getDate(), end.getHours(), end.getMinutes(), end.getSeconds());
+	var duration = java.time.Duration.between(startLocalDateTime, endLocalDateTime);
+    return duration.toDays();
 }
 
 /**
