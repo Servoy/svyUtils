@@ -52,9 +52,26 @@ var LINE_SEPARATOR = Packages.java.lang.System.getProperty('line.separator');
  *  
  * @properties={typeid:24,uuid:"D0E23693-4D61-4C07-91EB-B80DC5F47523"}
  */
-function isTINGClient () {
+function isTINGClient() {
 	try {
 		return !!(APPLICATION_TYPES.NG_CLIENT && application.getApplicationType() === APPLICATION_TYPES.NG_CLIENT && application.getClientProperty("NG2"));
+	} catch (e) {
+		return false;
+	}
+}
+
+/**
+ * Tests if the current client is an NG1 Client
+ * 
+ * @public
+ * 
+ * @return {Boolean}
+ *  
+ * @properties={typeid:24,uuid:"9F05C1F8-A611-48F8-979D-F6EB48825AB5"}
+ */
+function isNG1Client() {
+	try {
+		return !!(APPLICATION_TYPES.NG_CLIENT && application.getApplicationType() === APPLICATION_TYPES.NG_CLIENT && !application.getClientProperty("NG2"));
 	} catch (e) {
 		return false;
 	}
@@ -69,9 +86,9 @@ function isTINGClient () {
  *  
  * @properties={typeid:24,uuid:"6C703B72-7251-4112-B5CB-495FE79C1B06"}
  */
-function isNGClient () {
+function isNGClient() {
 	try {
-		return !!(APPLICATION_TYPES.NG_CLIENT && application.getApplicationType() === APPLICATION_TYPES.NG_CLIENT && !application.getClientProperty("NG2"));
+		return APPLICATION_TYPES.NG_CLIENT && application.getApplicationType() === APPLICATION_TYPES.NG_CLIENT;
 	} catch (e) {
 		return false;
 	}
