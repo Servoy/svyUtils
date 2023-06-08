@@ -525,51 +525,17 @@ function createDateTimeSearchString(start, end) {
  * @properties={typeid:24,uuid:"CBDA6831-16E8-46F8-8C04-A3233037D7B5"}
  */
 function getAge(birthdate, compareDate) {
-	if (!compareDate) compareDate = new Date();
-	
-	if (compareDate < birthdate) {
-		return {years: 0, months: 0, days: 0};
-	}
-
-	var years, months, days;
-
-	var birthDay = java.util.Calendar.getInstance();
-	birthDay.setTimeInMillis(birthdate.getTime());
-	
-	var now = java.util.Calendar.getInstance();
-	now.setTimeInMillis(compareDate.getTime());
-	
-	years = now.get(java.util.Calendar.YEAR) - birthDay.get(java.util.Calendar.YEAR);
-	
-	var currMonth = now.get(java.util.Calendar.MONTH) + 1;
-	var birthMonth = birthDay.get(java.util.Calendar.MONTH) + 1;
-	months = currMonth - birthMonth;
-	if (months < 0) {
-		years--;
-		months = 12 - birthMonth + currMonth;
-		if (now.get(java.util.Calendar.DATE) < birthDay.get(java.util.Calendar.DATE)) {
-			months--;
-		}
-	} else if (months == 0 && now.get(java.util.Calendar.DATE) < birthDay.get(java.util.Calendar.DATE)) {
-		years--;
-		months = 11;
-	}
-	
-	if (now.get(java.util.Calendar.DATE) > birthDay.get(java.util.Calendar.DATE)) {
-		days = now.get(java.util.Calendar.DATE) - birthDay.get(java.util.Calendar.DATE);
-	} else if (now.get(java.util.Calendar.DATE) < birthDay.get(java.util.Calendar.DATE)) {
-		var dayOfMonth = now.get(java.util.Calendar.DAY_OF_MONTH);
-		now.add(java.util.Calendar.MONTH, -1);
-		days = now.getActualMaximum(java.util.Calendar.DAY_OF_MONTH) - birthDay.get(java.util.Calendar.DAY_OF_MONTH) + dayOfMonth;
+	var birthLocalDate = java.time.LocalDate.of(birthdate.getFullYear(), birthdate.getMonth() + 1, birthdate.getDate());
+	var compareLocalDate;
+	if (compareDate) {
+		compareLocalDate = java.time.LocalDate.of(compareDate.getFullYear(), compareDate.getMonth() + 1, compareDate.getDate());
 	} else {
-		days = 0;
-		if (months == 12) {
-			years++;
-			months = 0;
-		}
+		compareLocalDate = java.time.LocalDate.now();
 	}
-
-	return {years: years, months: months, days: days};
+	
+	var period = java.time.Period.between(birthLocalDate, compareLocalDate);
+	
+	return {years: period.getYears(), months: period.getMonths(), days: period.getDays()};
 }
 
 /**
@@ -657,10 +623,10 @@ function getDateFormat(style, locale) {
  * @properties={typeid:24,uuid:"D9F78345-D31D-4A79-8C28-230F7BC467B4"}
  */
 function getDayDifference(start, end) {
-	var startUtc = Date.UTC(start.getFullYear(), start.getMonth(), start.getDate(), start.getHours(), start.getMinutes(), start.getSeconds(), 0);
-	var endUtc = Date.UTC(end.getFullYear(), end.getMonth(), end.getDate(), end.getHours(), end.getMinutes(), end.getSeconds(), 0);
-	var diff = Math.abs((startUtc.valueOf() - endUtc.valueOf()) / (24 * 60 * 60 * 1000));
-	return diff;
+	var startLocalDateTime = java.time.LocalDateTime.of(start.getFullYear(), start.getMonth() + 1, start.getDate(), start.getHours(), start.getMinutes(), start.getSeconds());
+	var endLocalDateTime = java.time.LocalDateTime.of(end.getFullYear(), end.getMonth() + 1, end.getDate(), end.getHours(), end.getMinutes(), end.getSeconds());
+	var duration = java.time.Duration.between(startLocalDateTime, endLocalDateTime);
+    return duration.toDays();
 }
 
 /**
