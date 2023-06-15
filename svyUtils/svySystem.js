@@ -160,13 +160,13 @@ function isSwingClient() {
 }
 
 /**
- * Returns true if the client is either a Headless or Web Client, both of which execute their logic serverside
+ * Returns true if the client is either a Headless, Web or NG Client, all of which execute their logic serverside
  * @public 
  * @return {Boolean}
  * @properties={typeid:24,uuid:"AB51A99C-5262-4CF4-B338-CE549D417683"}
  */
 function isServersideClient() {
-	return [APPLICATION_TYPES.WEB_CLIENT, APPLICATION_TYPES.HEADLESS_CLIENT].indexOf(application.getApplicationType()) !== -1;
+	return [APPLICATION_TYPES.WEB_CLIENT, APPLICATION_TYPES.HEADLESS_CLIENT, APPLICATION_TYPES.NG_CLIENT].indexOf(application.getApplicationType()) !== -1;
 }
 
 /**
