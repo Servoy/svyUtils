@@ -1101,7 +1101,7 @@ var initObjectMessage = (/** @constructor */ function() {
  * Logger instances that are not backed by config receive all their settings from a parent that is backed by config anyway
  * @private
  * @constructor
- * @this {LoggerConfig}
+ * @this {ILogConfig}
  *
  * @param {String} name
  * @param {AbstractMessageFactory} [messageFactory]
@@ -1853,7 +1853,9 @@ function Logger(internal, messageFactory) {
 	 */
 	this.getEffectiveLevel = function() {
 		var logger = loggers[internal.name];
-		return logger.effectiveLevel
+		/** @type {Level} */
+		var effectiveLevel = logger.effectiveLevel;
+		return effectiveLevel;
 	};	
 }
 
