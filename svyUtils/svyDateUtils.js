@@ -307,6 +307,7 @@ function addDays(date, days) {
 function addBusinessDays(date, days, holidays) {
 	var startDate = getLocalDateFromDate(date);
 	var currentDate = startDate;
+	if (!holidays) holidays = [];
 
 	var businessDaysAdded = 0;
 	var numberOfDaysToAdd = Math.abs(days);
