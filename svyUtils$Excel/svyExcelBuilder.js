@@ -133,8 +133,8 @@ function createNgGridExcelBuilder(tableComponent, useTableColumnState) {
  * @properties={typeid:24,uuid:"E4BE2907-A124-4968-9702-75C50DD8B081"}
  */
 function createWorkbookFromNgGrid(tableComponent, useTableColumnState, templateOrFileType) {
-	var builder = new NgGridExcelBuilder(tableComponent, useTableColumnState);
-	return builder.createWorkbook(templateOrFileType)
+	var excelBuilder = new NgGridExcelBuilder(tableComponent, useTableColumnState);
+	return excelBuilder.createWorkbook(templateOrFileType)
 }
 
 /**
