@@ -23,11 +23,6 @@
  * 
  */
 
-/* 
- * Date helper methods
- * TODO: methos that take a Date as param shoudl also allow taking a DateTime object as param
- */
-
 /**
  * @private
  * 
@@ -38,13 +33,25 @@
 var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.date');
 
 /**
- * A java.util.Calendar instance used to do the math
+ * @type {java.time.ZoneId}
  * 
- * @private
- * 
- * @properties={typeid:35,uuid:"D97BF23E-75BB-4458-AC19-5B31FAF3A053",variableType:-4}
+ * @properties={typeid:35,uuid:"B5F1B378-17E1-4256-937E-F0F1731BF1EF",variableType:-4}
  */
-var calendar = java.util.Calendar.getInstance();
+var zoneId = java.time.ZoneId.of(i18n.getCurrentTimeZone());
+
+/**
+ * @type {java.util.Locale}
+ * 
+ * @properties={typeid:35,uuid:"62C21E71-5331-4505-AAFB-300638B843A1",variableType:-4}
+ */
+var i18nLocale = new java.util.Locale(i18n.getCurrentLanguage(), i18n.getCurrentCountry());
+
+/**
+ * @type {java.time.temporal.WeekFields}
+ * 
+ * @properties={typeid:35,uuid:"8C19571F-18D1-42D5-83ED-5B1862C303A9",variableType:-4}
+ */
+var weekFields = java.time.temporal.WeekFields.of(i18nLocale);
 
 /**
  * @public
@@ -130,25 +137,6 @@ function setTodayVars() {
 }
 
 /**
- * Adds the value of the given field to the given date
- * 
- * @private 
- * 
- * @param {Date} date
- * @param {Number} dateField
- * @param {Number} value
- * 
- * @return {Date}
- *
- * @properties={typeid:24,uuid:"95B13567-2AB2-4871-9573-81FD5D091D5C"}
- */
-function addToDate(date, dateField, value) {
-	calendar.setTimeInMillis(date.getTime());
-	calendar.add(dateField, value);
-	return new Date(calendar.getTimeInMillis());
-}
-
-/**
  * Adds the number of years, months, days, hours, minutes and seconds to the given date and returns a new date
  * 
  * @public
@@ -166,14 +154,15 @@ function addToDate(date, dateField, value) {
  * @properties={typeid:24,uuid:"BD51F7B3-70E4-4532-A14F-7F17111EC0D1"}
  */
 function add(date, years, months, days, hours, minutes, seconds) {
-	calendar.setTimeInMillis(date.getTime());	
-	calendar.add(java.util.Calendar.YEAR, years);
-	calendar.add(java.util.Calendar.MONTH, months);
-	calendar.add(java.util.Calendar.DATE, days);
-	calendar.add(java.util.Calendar.HOUR, hours);
-	calendar.add(java.util.Calendar.MINUTE, minutes);
-	calendar.add(java.util.Calendar.SECOND, seconds);
-	return new Date(calendar.getTimeInMillis());	
+	return getDateFromLocalDateTime(
+		getLocalDateTimeFromDate(date)
+			.plusYears(years)
+			.plusMonths(months)
+			.plusDays(days)
+			.plusHours(hours)
+			.plusMinutes(minutes)
+			.plusSeconds(seconds)
+	);
 }
 
 /**
@@ -238,7 +227,9 @@ function addUnits(date, amount, units) {
  * @properties={typeid:24,uuid:"1D38256D-18CD-4D78-84FC-BC421591BAE1"}
  */
 function addYears(date, years) {
-	return addToDate(date, java.util.Calendar.YEAR, years);
+	return getDateFromLocalDateTime(
+		getLocalDateTimeFromDate(date).plusYears(years)
+	);
 }
 
 /**
@@ -255,7 +246,9 @@ function addYears(date, years) {
  * @properties={typeid:24,uuid:"660C3569-F5FD-4D2F-AB4F-FDC4852B267B"}
  */
 function addMonths(date, months) {
-	return addToDate(date, java.util.Calendar.MONTH, months);
+	return getDateFromLocalDateTime(
+		getLocalDateTimeFromDate(date).plusMonths(months)
+	);
 }
 
 /**
@@ -272,7 +265,9 @@ function addMonths(date, months) {
  * @properties={typeid:24,uuid:"465AEBAA-AA0A-48F2-9B73-3510BD4F0988"}
  */
 function addWeeks(date, weeks) {
-	return addToDate(date, java.util.Calendar.WEEK_OF_YEAR, weeks);
+	return getDateFromLocalDateTime(
+		getLocalDateTimeFromDate(date).plusWeeks(weeks)
+	);
 }
 
 /**
@@ -289,7 +284,9 @@ function addWeeks(date, weeks) {
  * @properties={typeid:24,uuid:"8E119128-4846-49F8-9193-29C7637465B0"}
  */
 function addDays(date, days) {
-	return addToDate(date, java.util.Calendar.DATE, days);
+	return getDateFromLocalDateTime(
+		getLocalDateTimeFromDate(date).plusDays(days)
+	);
 }
 
 /**
@@ -308,39 +305,45 @@ function addDays(date, days) {
  * @properties={typeid:24,uuid:"7E575AE1-AA0D-427D-9972-A2B1C1293912"}
  */
 function addBusinessDays(date, days, holidays) {
-	calendar.setTimeInMillis(date.getTime());
-	var numberOfDaysToAdd = Math.abs(days);
-	var daysToAdd = days < 0 ? -1 : 1;
+	var startDate = getLocalDateFromDate(date);
+	var currentDate = startDate;
+
 	var businessDaysAdded = 0;
+	var numberOfDaysToAdd = Math.abs(days);
 	
 	/**
-	 * @param {java.util.Calendar} dateToCheck
+	 * @type {Array<java.time.LocalDate>}
 	 */
-	function isHoliday(dateToCheck) {
-		if (holidays && holidays.length > 0) {
-			for (var i = 0; i < holidays.length; i++) {
-				if (holidays[i].getFullYear() == dateToCheck.get(java.util.Calendar.YEAR) && holidays[i].getMonth() == dateToCheck.get(java.util.Calendar.MONTH) && holidays[i].getDate() == dateToCheck.get(java.util.Calendar.DAY_OF_MONTH)) {
-					return true;
-				}
-			}
+	var holidayDates = holidays.map(
+		/**
+		 * @param {Date} holiday
+		 */
+		function(holiday) {
+			return getLocalDateFromDate(holiday);
 		}
-		return false;
-	}
+	)
 	
-	while (businessDaysAdded < numberOfDaysToAdd) {
-		calendar.add(java.util.Calendar.DATE, daysToAdd);
-		if (calendar.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.SATURDAY || calendar.get(java.util.Calendar.DAY_OF_WEEK) == java.util.Calendar.SUNDAY) {
-			// add another day
-			continue;
-		}
-		if (isHoliday(calendar)) {
-			// add another day
-			continue;
-		}
-		businessDaysAdded ++;
-	}
+	/**
+	 * @param {java.time.LocalDate} dateToCheck
+	 * @return {Boolean}
+	 */
+	function isWorkingDay(dateToCheck) {
+        var dayOfWeek = dateToCheck.getDayOfWeek();
+        var isWeekDay = dayOfWeek != java.time.DayOfWeek.SATURDAY && dayOfWeek != java.time.DayOfWeek.SUNDAY;
+        if (!isWeekDay) {
+        	return false;
+        }
+        return holidayDates.indexOf(dateToCheck) === -1;
+    }
 	
-	return new Date(calendar.getTimeInMillis());
+    while (businessDaysAdded < numberOfDaysToAdd) {
+        currentDate = currentDate.plusDays(1);
+        if (isWorkingDay(currentDate)) {
+        	businessDaysAdded++;
+        }
+    }
+	
+	return getDateFromLocalDateTime(currentDate);
 }
 
 /**
@@ -357,7 +360,9 @@ function addBusinessDays(date, days, holidays) {
  * @properties={typeid:24,uuid:"DF5683B7-5B98-4425-A711-958D8CFDCAD7"}
  */
 function addHours(date, hours) {
-	return addToDate(date, java.util.Calendar.HOUR, hours);
+	return getDateFromLocalDateTime(
+		getLocalDateTimeFromDate(date).plusHours(hours)
+	);
 }
 
 /**
@@ -374,7 +379,9 @@ function addHours(date, hours) {
  * @properties={typeid:24,uuid:"01F102D2-3604-4016-81C1-DEAB2E5AB06D"}
  */
 function addMinutes(date, minutes) {
-	return addToDate(date, java.util.Calendar.MINUTE, minutes);
+	return getDateFromLocalDateTime(
+		getLocalDateTimeFromDate(date).plusMinutes(minutes)
+	);
 }
 
 /**
@@ -391,7 +398,9 @@ function addMinutes(date, minutes) {
  * @properties={typeid:24,uuid:"520A2683-27A9-49BE-BC10-545E489A0E5F"}
  */
 function addSeconds(date, seconds) {
-	return addToDate(date, java.util.Calendar.SECOND, seconds);
+	return getDateFromLocalDateTime(
+		getLocalDateTimeFromDate(date).plusSeconds(seconds)
+	);
 }
 
 /**
@@ -408,7 +417,7 @@ function addSeconds(date, seconds) {
  * @properties={typeid:24,uuid:"A5EA88C3-4089-4B27-848A-12F4B91CACBD"}
  */
 function addMilliseconds(date, milliseconds) {
-	return addToDate(date, java.util.Calendar.MILLISECOND, milliseconds);
+	return new Date(date.getTime() + milliseconds);
 }
 
 /**
@@ -485,10 +494,11 @@ function createDateSearchString(start, end) {
  * @properties={typeid:24,uuid:"9BE1A5B5-7882-4E15-8EC7-2578F0C6AC81"}
  */
 function createDateFromWeekNumber(year, week) {
-	calendar.clear();
-	calendar.set(java.util.Calendar.YEAR,year);
-	calendar.set(java.util.Calendar.WEEK_OF_YEAR,week);
-	return new Date(calendar.getTimeInMillis());
+	var localDate = getLocalDateTimeFromDate()
+		.withYear(year)
+		.with(weekFields.weekOfYear(), week)
+		.with(weekFields.dayOfWeek(), 1);
+	return getDateFromLocalDateTime(localDate);
 }
 
 /**
@@ -525,10 +535,10 @@ function createDateTimeSearchString(start, end) {
  * @properties={typeid:24,uuid:"CBDA6831-16E8-46F8-8C04-A3233037D7B5"}
  */
 function getAge(birthdate, compareDate) {
-	var birthLocalDate = java.time.LocalDate.of(birthdate.getFullYear(), birthdate.getMonth() + 1, birthdate.getDate());
+	var birthLocalDate = getLocalDateFromDate(birthdate);
 	var compareLocalDate;
 	if (compareDate) {
-		compareLocalDate = java.time.LocalDate.of(compareDate.getFullYear(), compareDate.getMonth() + 1, compareDate.getDate());
+		compareLocalDate = getLocalDateFromDate(compareDate);
 	} else {
 		compareLocalDate = java.time.LocalDate.now();
 	}
@@ -551,21 +561,16 @@ function getAge(birthdate, compareDate) {
  * @properties={typeid:24,uuid:"05B6D44D-1EEB-48A2-8E3F-AFEF07BA4117"}
  */
 function getDateDifference(start, end) {
+	var localDateStart = getLocalDateTimeFromDate(start);
+	var localDateEnd = getLocalDateTimeFromDate(end);
+	
 	var difference = end.getTime() - start.getTime();
+	var days = java.time.temporal.ChronoUnit.DAYS.between(localDateStart, localDateEnd);
+	var hours = java.time.temporal.ChronoUnit.HOURS.between(localDateStart, localDateEnd);
+	var minutes = java.time.temporal.ChronoUnit.MINUTES.between(localDateStart, localDateEnd);
+	var seconds = java.time.temporal.ChronoUnit.SECONDS.between(localDateStart, localDateEnd);
 	
-	var secondsInMillis = 1000;
-	var minutesInMillis = secondsInMillis * 60;
-	var hoursInMillis = minutesInMillis * 60;
-	var daysInMillis = hoursInMillis * 24;
-	
-	var elapsedDays = Math.floor(difference / daysInMillis);
-	difference = difference % daysInMillis;
-	var elapsedHours = Math.floor(difference / hoursInMillis);
-	difference = difference % hoursInMillis;
-	var elapsedMinutes = Math.floor(difference / minutesInMillis);
-	difference = difference % minutesInMillis;
-	var elapsedSeconds = Math.floor(difference / secondsInMillis);
-	return {difference: end.getTime() - start.getTime(), days: elapsedDays, hours: elapsedHours, minutes: elapsedMinutes, seconds: elapsedSeconds};
+	return {difference: difference, days: days, hours: hours, minutes: minutes, seconds: seconds};
 }
 
 /**
@@ -623,8 +628,8 @@ function getDateFormat(style, locale) {
  * @properties={typeid:24,uuid:"D9F78345-D31D-4A79-8C28-230F7BC467B4"}
  */
 function getDayDifference(start, end) {
-	var startLocalDateTime = java.time.LocalDateTime.of(start.getFullYear(), start.getMonth() + 1, start.getDate(), start.getHours(), start.getMinutes(), start.getSeconds());
-	var endLocalDateTime = java.time.LocalDateTime.of(end.getFullYear(), end.getMonth() + 1, end.getDate(), end.getHours(), end.getMinutes(), end.getSeconds());
+	var startLocalDateTime = getLocalDateTimeFromDate(start);
+	var endLocalDateTime = getLocalDateTimeFromDate(end);
 	var duration = java.time.Duration.between(startLocalDateTime, endLocalDateTime);
     return duration.toDays();
 }
@@ -642,8 +647,10 @@ function getDayDifference(start, end) {
  * @properties={typeid:24,uuid:"D1A08B91-8418-41F3-9ACB-1DB2D9648A1C"}
  */
 function getMonthDifference(start, end) {
-	var age = getAge(start, end);
-	return age.years*12 + age.months;
+	var startLocalDateTime = getLocalDateFromDate(start);
+	var endLocalDateTime = getLocalDateFromDate(end);
+	var period = java.time.Period.between(startLocalDateTime, endLocalDateTime);
+	return period.getMonths();
 }
 
 /**
@@ -659,8 +666,10 @@ function getMonthDifference(start, end) {
  * @properties={typeid:24,uuid:"4531D2BC-CCB4-42AB-A7EA-32CCF2ADF478"}
  */
 function getYearDifference(start, end) {
-	var age = getAge(start, end);
-	return age.years;
+	var startLocalDateTime = getLocalDateFromDate(start);
+	var endLocalDateTime = getLocalDateFromDate(end);
+	var period = java.time.Period.between(startLocalDateTime, endLocalDateTime);
+	return period.getYears();
 }
 
 /**
@@ -675,7 +684,7 @@ function getYearDifference(start, end) {
  * @properties={typeid:24,uuid:"EE43B7A9-5072-445A-ABBD-32DB08387D33"}
  */
 function getMinimalDaysInFirstWeek() {
-	return calendar.getMinimalDaysInFirstWeek();
+	return weekFields.getMinimalDaysInFirstWeek();
 }
 
 /**
@@ -808,8 +817,8 @@ function getWeekdayNames(locale) {
  * @properties={typeid:24,uuid:"F8627926-CBDA-4C82-949E-ED924C902BDB"}
  */
 function getWeekOfYear(date) {
-	calendar.setTimeInMillis(date.getTime());
-	return calendar.get(java.util.Calendar.WEEK_OF_YEAR);
+	var localDate = getLocalDateFromDate(date);
+	return localDate.get(weekFields.weekOfYear());
 }
 
 /**
@@ -893,8 +902,7 @@ function getTimeFormat(style, locale) {
  * @properties={typeid:24,uuid:"D088D565-BD12-4640-87CF-B68D1BF465D0"}
  */
 function isLeapYear(year) {
-	var cal = new java.util.GregorianCalendar();
-    return cal.isLeapYear(year);
+	return java.time.Year.isLeap(year);
 }
 
 /**
@@ -903,23 +911,15 @@ function isLeapYear(year) {
  * @public
  * 
  * @param {Date} date
- * @param {Boolean} [useISO8601] if true, the ISO-8601 convention (where Monday is the first day of the week) is used
+ * @param {Boolean} [useISO8601] deprecated - this method will always return ISO8601
  *
  * @return {Number} dayOfWeek
  * 
  * @properties={typeid:24,uuid:"B7A77C91-7F99-4ED1-978B-1CB61D953249"}
  */
 function getDayOfWeek(date, useISO8601) {
-	calendar.setTimeInMillis(date.getTime());
-	var dow = calendar.get(java.util.Calendar.DAY_OF_WEEK);
-	if (useISO8601) {
-		if (dow == 1) {
-			dow = 7;
-		} else {
-			dow = dow - 1;
-		}
-	}
-	return dow;
+	var localDate = getLocalDateFromDate(date);
+	return localDate.getDayOfWeek().getValue();
 }
 
 /**
@@ -934,8 +934,8 @@ function getDayOfWeek(date, useISO8601) {
  * @properties={typeid:24,uuid:"35AF5956-EF79-4C9C-BDA9-EF0F828E945A"}
  */
 function getDayOfYear(date) {
-	calendar.setTimeInMillis(date.getTime());
-	return calendar.get(java.util.Calendar.DAY_OF_YEAR);
+	var localDate = getLocalDateFromDate(date);
+	return localDate.getDayOfYear();
 }
 
 /**
@@ -943,20 +943,19 @@ function getDayOfYear(date) {
  * 
  * @public
  * 
- * @param {Date} date
+ * @param {Date} [date]
  * 
  * @return {Date} firstDayOfWeek
  *
  * @properties={typeid:24,uuid:"0683A145-8BA1-4C12-90F1-A646DA22972B"}
  */
 function getFirstDayOfWeek(date) {
-	calendar.setTimeInMillis(date.getTime());
-	var tmp = java.util.Calendar.getInstance();
-	tmp.clear();
-	tmp.set(java.util.Calendar.YEAR, calendar.get(java.util.Calendar.YEAR));
-	tmp.set(java.util.Calendar.MONTH, calendar.get(java.util.Calendar.MONTH));
-	tmp.set(java.util.Calendar.WEEK_OF_MONTH, calendar.get(java.util.Calendar.WEEK_OF_MONTH));
-	return new Date(tmp.getTimeInMillis());
+	if (!date) {
+		date = new Date();
+	}
+	var localDate = getLocalDateFromDate(date);
+	var firstDay = localDate.with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
+	return getDateFromLocalDateTime(firstDay);
 }
 
 /**
@@ -964,14 +963,19 @@ function getFirstDayOfWeek(date) {
  * 
  * @public
  * 
- * @param {Date} date
+ * @param {Date} [date]
  * 
  * @return {Date} firstDayOfMonth
  *
  * @properties={typeid:24,uuid:"71A159C0-D42F-478B-9D82-65DD96745D81"}
  */
 function getFirstDayOfMonth(date) {
-	return new Date(date.getFullYear(), date.getMonth(), 1);
+	if (!date) {
+		date = new Date();
+	}
+	var localDate = getLocalDateFromDate(date);
+	var firstDay = localDate.with(java.time.temporal.TemporalAdjusters.firstDayOfMonth());
+	return getDateFromLocalDateTime(firstDay);
 }
 
 /**
@@ -979,29 +983,54 @@ function getFirstDayOfMonth(date) {
  * 
  * @public
  * 
- * @param {Date} date
+ * @param {Date} [date]
  * 
  * @return {Date} firstDayOfMonth
  *
  * @properties={typeid:24,uuid:"A94919B7-4EA9-4E78-A25E-A04554C43DE5"}
  */
 function getFirstDayOfYear(date) {
-	return new Date(date.getFullYear(), 0, 1);
+	if (!date) {
+		date = new Date();
+	}
+	var localDate = getLocalDateFromDate(date);
+	var firstDay = localDate.with(java.time.temporal.TemporalAdjusters.firstDayOfYear());
+	return getDateFromLocalDateTime(firstDay);
 }
 
 /**
- * Gets what the minimal days required in the first week of the year are; e.g., if the first week is 
- * defined as one that contains the first day of the first month of a year, this method returns 1. 
- * If the minimal days required must be a full week, this method returns 7.
+ * Gets what the first day of the week is; e.g., SUNDAY in the U.S., MONDAY in France.
+ * 
+ * This method uses the old Java calendar implementation where Sunday is day 1
  * 
  * @public 
+ * 
+ * @deprecated use getFirstWeekDay insted
  * 
  * @return {Number} the minimal days required in the first week of the year
  * 
  * @properties={typeid:24,uuid:"3A12D23A-D9C7-4257-A476-3B8E98717377"}
  */
 function getFirstWeekDayNumber() {
-	return calendar.getFirstDayOfWeek();
+	return java.util.Calendar.getInstance().getFirstDayOfWeek();
+}
+
+/**
+ * Gets the first day-of-week.
+ * 
+ * The first day-of-week varies by culture. For example, the US uses Sunday, while France and the ISO-8601 standard use Monday.
+ * 
+ * The value returned follows the ISO-8601 standard, from 1 (Monday) to 7 (Sunday).
+ * 
+ * @public 
+ * 
+ * @return {Number} the first day of the week in the current locale
+ * 
+ * @properties={typeid:24,uuid:"43B2EBBD-A4BE-4003-90D3-785EE7EDDD9C"}
+ */
+function getFirstWeekDay() {
+	var firstDay = weekFields.getFirstDayOfWeek();
+	return firstDay.getValue();
 }
 
 /**
@@ -1009,21 +1038,19 @@ function getFirstWeekDayNumber() {
  * 
  * @public
  * 
- * @param {Date} date
+ * @param {Date} [date]
  * 
  * @return {Date} lastDayOfWeek
  *
  * @properties={typeid:24,uuid:"2F02AF7E-37DC-4610-B55E-2B6E5EA95B02"}
  */
 function getLastDayOfWeek(date) {
-	calendar.setTimeInMillis(date.getTime());
-	var tmp = java.util.Calendar.getInstance();
-	tmp.clear();
-	tmp.set(calendar.get(java.util.Calendar.YEAR), calendar.get(java.util.Calendar.MONTH), calendar.get(java.util.Calendar.DATE));
-	tmp.add(java.util.Calendar.WEEK_OF_YEAR, 1);
-	tmp.set(java.util.Calendar.DAY_OF_WEEK, calendar.getFirstDayOfWeek());
-	tmp.add(java.util.Calendar.DATE, -1);
-	return new Date(tmp.getTimeInMillis());
+	if (!date) {
+		date = new Date();
+	}
+	var dayOfWeek = java.time.temporal.WeekFields.ISO.dayOfWeek();
+	var localDate = getLocalDateTimeFromDate(date);
+	return getDateFromLocalDateTime(localDate.with(dayOfWeek, dayOfWeek.range().getMaximum()));
 }
 
 /**
@@ -1031,19 +1058,18 @@ function getLastDayOfWeek(date) {
  * 
  * @public
  * 
- * @param {Date} date
+ * @param {Date} [date]
  * 
  * @return {Date} lastDayOfYear
  *
  * @properties={typeid:24,uuid:"1D0F9079-63BE-4999-BB24-597340D2C07D"}
  */
 function getLastDayOfYear(date) {
-	calendar.setTimeInMillis(date.getTime());
-	var tmp = java.util.Calendar.getInstance();
-	tmp.clear();
-	tmp.set(java.util.Calendar.YEAR,calendar.get(java.util.Calendar.YEAR) + 1);
-	tmp.add(java.util.Calendar.DAY_OF_YEAR, -1);
-	return new Date(tmp.getTimeInMillis());
+	if (!date) {
+		date = new Date();
+	}
+	var year = java.time.Year.of(date.getFullYear());
+	return getDateFromLocalDateTime(year.atMonth(12).atEndOfMonth());
 }
 
 /**
@@ -1096,20 +1122,18 @@ function getISOTime(date) {
  * 
  * @public
  * 
- * @param {Date} date
+ * @param {Date} [date]
  * 
  * @return {Date} lastDayOfMonth
  *
  * @properties={typeid:24,uuid:"27CE5406-5029-485F-98F5-DA3A7AF17A7A"}
  */
 function getLastDayOfMonth(date) {
-	calendar.setTimeInMillis(date.getTime());
-	var tmp = java.util.Calendar.getInstance();
-	tmp.clear();
-	tmp.set(java.util.Calendar.YEAR, calendar.get(java.util.Calendar.YEAR));
-	tmp.set(java.util.Calendar.MONTH, calendar.get(java.util.Calendar.MONTH) + 1);
-	tmp.add(java.util.Calendar.DATE, -1);
-	return new Date(tmp.getTimeInMillis());
+	if (!date) {
+		date = new Date();
+	}
+	var yearMonth = java.time.YearMonth.of(date.getFullYear(), date.getMonth() + 1);
+	return getDateFromLocalDateTime(yearMonth.atEndOfMonth());
 }
 
 /**
@@ -1540,58 +1564,22 @@ function Duration(isNegative, weeks, days, hours, minutes, seconds) {
 	 * @param {Date} end
 	 */
 	this.fillFieldsFromDates = function(start, end) {
-		var startCal = java.util.Calendar.getInstance();
-		startCal.setTimeInMillis(start.getTime());
-		var endCal = java.util.Calendar.getInstance();
-		endCal.setTimeInMillis(end.getTime());
+		var duration = java.time.Duration.between(getLocalDateTimeFromDate(start), getLocalDateTimeFromDate(end));
 		
-		this.negative = startCal.compareTo(endCal) > 0;
-		if (this.negative) {
-			startCal.setTimeInMillis(end.getTime());
-			endCal.setTimeInMillis(start.getTime());
-		}
+		this.seconds = Math.abs(duration.toSecondsPart());
+		this.minutes = Math.abs(duration.toMinutesPart());
+		this.hours = Math.abs(duration.toHoursPart());
+		this.days = Math.abs(duration.toDaysPart());
 		
-		var dur = 0;
-		
-		 // Count days to get to the right year (loop in the very rare chance
-	    // that a leap year causes us to come up short)
-	    var numOfYears = endCal.get(java.util.Calendar.YEAR) - startCal.get(java.util.Calendar.YEAR);
-	    while (numOfYears > 0) {
-	        startCal.add(java.util.Calendar.DATE, 365 * numOfYears);
-	        dur += 365 * numOfYears;
-	        numOfYears = endCal.get(java.util.Calendar.YEAR) - startCal.get(java.util.Calendar.YEAR);
-	    }
-	    
-	    // Count days to get to the right day
-	    dur += endCal.get(java.util.Calendar.DAY_OF_YEAR) - startCal.get(java.util.Calendar.DAY_OF_YEAR);
-	    
-	    // Count hours to get to right hour
-	    dur *= 24; // days -> hours
-	    dur += endCal.get(java.util.Calendar.HOUR_OF_DAY) - startCal.get(java.util.Calendar.HOUR_OF_DAY);
-	    
-	    // ... to the right minute
-	    dur *= 60; // hours -> minutes
-	    dur += endCal.get(java.util.Calendar.MINUTE) - startCal.get(java.util.Calendar.MINUTE);
-	    
-	    // ... and second
-	    dur *= 60; // minutes -> seconds
-	    dur += endCal.get(java.util.Calendar.SECOND) - startCal.get(java.util.Calendar.SECOND);
-	    
-	    // Now unwind our units
-	    this.seconds = dur % 60;
-	    dur = dur / 60; // seconds -> minutes (drop remainder seconds)
-	    this.minutes = Math.floor(dur % 60);
-	    dur /= 60; // minutes -> hours (drop remainder minutes)
-	    this.hours = Math.floor(dur % 24);
-	    dur /= 24; // hours -> days (drop remainder hours)
-	    this.days = Math.floor(dur);
-	    this.weeks = 0;
-
-	    // Special case for week-only representation
+		// Special case for week-only representation
 	    if (this.seconds === 0 && this.minutes === 0 && this.hours === 0
 	            && (this.days % 7) === 0) {
 	        this.weeks = this.days / 7;
 	        this.days = 0;
+	    }
+	    
+	    if (duration.isNegative()) {
+	    	this.negative = true;
 	    }
 	}
 	
@@ -1601,22 +1589,13 @@ function Duration(isNegative, weeks, days, hours, minutes, seconds) {
 	 * @return {Date}
 	 */
 	this.getEndOfDuration = function(startDate) {
-		calendar.setTimeInMillis(startDate.getTime());
-        if (this.negative) {
-        	calendar.add(java.util.Calendar.WEEK_OF_YEAR, -this.weeks);
-        	calendar.add(java.util.Calendar.DAY_OF_WEEK, -this.days);
-        	calendar.add(java.util.Calendar.HOUR_OF_DAY, -this.hours);
-        	calendar.add(java.util.Calendar.MINUTE, -this.minutes);
-        	calendar.add(java.util.Calendar.SECOND, -this.seconds);
-        }
-        else {
-        	calendar.add(java.util.Calendar.WEEK_OF_YEAR, this.weeks);
-        	calendar.add(java.util.Calendar.DAY_OF_WEEK, this.days);
-        	calendar.add(java.util.Calendar.HOUR_OF_DAY, this.hours);
-        	calendar.add(java.util.Calendar.MINUTE, this.minutes);
-        	calendar.add(java.util.Calendar.SECOND, this.seconds);
-        }
-        return new Date(calendar.getTimeInMillis());
+		var localStartDate = getLocalDateTimeFromDate(startDate);
+		var numberOfDays = this.weeks > 0 ? this.weeks * 7 + this.days : this.days;
+		var duration = java.time.Duration.ofDays(numberOfDays).plusHours(this.hours).plusMinutes(this.minutes).plusSeconds(this.seconds);
+		if (this.negative) {
+			duration = duration.negated();
+		}
+		return getDateFromLocalDateTime(localStartDate.plus(duration));
 	}
 	
 	/**
@@ -1899,7 +1878,6 @@ function getServerTimeZone() {
  * @properties={typeid:24,uuid:"46BEAEDE-2F46-4CE2-9C0D-B23EB67AFFAD"}
  */
 function getLocalDateTimeOffset(date) {
-
     var serverTimeZone = getServerTimeZone();
     var timeZoneToString = i18n.getCurrentTimeZone();
     
@@ -1958,3 +1936,86 @@ function formatUsesLocalDateTime(format) {
 	return false;
 }
 
+/**
+ * Returns a LocalDateTime object from the given date or now
+ * 
+ * @param {Date} [date]
+ * 
+ * @return {java.time.LocalDate}
+ * 
+ * @private 
+ *
+ * @properties={typeid:24,uuid:"8ECE5B12-1705-4D16-B21B-65C91F9B2DC0"}
+ */
+function getLocalDateFromDate(date) {
+	if (!date) {
+		return java.time.LocalDate.now(zoneId);
+	}
+	/** @type {java.time.LocalDate} */
+	var result = java.time.Instant.ofEpochMilli(date.getTime()).atZone(zoneId).toLocalDate();
+	return result;
+}
+
+/**
+ * Returns a LocalDateTime object from the given date or now
+ * 
+ * @param {Date} [date]
+ * 
+ * @return {java.time.LocalDateTime}
+ * 
+ * @private 
+ *
+ * @properties={typeid:24,uuid:"3CC592DB-7E89-4DBC-91F1-99FD7C9B4850"}
+ */
+function getLocalDateTimeFromDate(date) {
+	if (!date) {
+		return java.time.LocalDateTime.now(zoneId);
+	}
+	/** @type {java.time.LocalDateTime} */
+	var result = java.time.Instant.ofEpochMilli(date.getTime()).atZone(zoneId).toLocalDateTime();
+	return result;
+}
+
+/**
+ * Returns a Date from a LocalDateTime object
+ * 
+ * @param {java.time.LocalDateTime|java.time.temporal.Temporal} [localDateTime]
+ * 
+ * @return {Date}
+ * 
+ * @private 
+ *
+ * @properties={typeid:24,uuid:"F058D9D0-1180-47C9-8168-ACEBEE8F17E5"}
+ */
+function getDateFromLocalDateTime(localDateTime) {
+	if (!localDateTime) {
+		localDateTime = java.time.LocalDateTime.now(zoneId);
+	}
+	if (localDateTime instanceof java.time.LocalDate) {
+		/** @type {java.time.LocalDate} */
+		var localDate = localDateTime;
+		localDateTime = localDate.atStartOfDay();
+	}
+	return new Date(localDateTime.atZone(zoneId).toInstant().toEpochMilli());
+}
+
+/**
+ * Sets the locale and timeZoneId used for the different calculations in this scope
+ * 
+ * @param {String} language
+ * @param {String} country
+ * @param {String} timeZoneId
+ * 
+ * @public 
+ *
+ * @properties={typeid:24,uuid:"1D808B6A-A5EC-4CE9-A7C9-601A91E4746D"}
+ */
+function setLocaleAndTimeZone(language, country, timeZoneId) {
+	if (language && country) {
+		i18nLocale = new java.util.Locale(language, country);
+		weekFields = java.time.temporal.WeekFields.of(i18nLocale);
+	}
+	if (timeZoneId) {
+		zoneId = java.time.ZoneId.of(timeZoneId);
+	}
+}
