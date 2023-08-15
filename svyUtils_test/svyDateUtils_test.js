@@ -168,6 +168,12 @@ function testCreateDateFromWeekNumber() {
 	jsunit.assertEquals('02-01-2023', utils.dateFormat(scopes.svyDateUtils.createDateFromWeekNumber(2023, 1), 'dd-MM-yyyy'));
 	jsunit.assertEquals('09-01-2023', utils.dateFormat(scopes.svyDateUtils.createDateFromWeekNumber(2023, 2), 'dd-MM-yyyy'));
 	jsunit.assertEquals('01-01-2024', utils.dateFormat(scopes.svyDateUtils.createDateFromWeekNumber(2024, 1), 'dd-MM-yyyy'));
+
+	scopes.svyDateUtils.setLocaleAndTimeZone('en', 'US', i18n.getCurrentTimeZone());
+
+	jsunit.assertEquals('01-01-2023', utils.dateFormat(scopes.svyDateUtils.createDateFromWeekNumber(2023, 1), 'dd-MM-yyyy'));
+	jsunit.assertEquals('08-01-2023', utils.dateFormat(scopes.svyDateUtils.createDateFromWeekNumber(2023, 2), 'dd-MM-yyyy'));
+	jsunit.assertEquals('31-12-2023', utils.dateFormat(scopes.svyDateUtils.createDateFromWeekNumber(2024, 1), 'dd-MM-yyyy'));
 }
 
 /**
@@ -321,6 +327,16 @@ function testGetWeekOfYear() {
 	jsunit.assertEquals(1, scopes.svyDateUtils.getWeekOfYear(new Date(2023, 0, 1)));
 	jsunit.assertEquals(1, scopes.svyDateUtils.getWeekOfYear(new Date(2023, 0, 7)));
 	jsunit.assertEquals(2, scopes.svyDateUtils.getWeekOfYear(new Date(2023, 0, 8)));
+
+	jsunit.assertEquals(1, scopes.svyDateUtils.getWeekOfYear(new Date(2023, 11, 31)));
+	jsunit.assertEquals(52, scopes.svyDateUtils.getWeekOfYear(new Date(2022, 11, 25)));
+	jsunit.assertEquals(1, scopes.svyDateUtils.getWeekOfYear(new Date(2022, 11, 26)));
+	jsunit.assertEquals(1, scopes.svyDateUtils.getWeekOfYear(new Date(2022, 11, 31)));
+	jsunit.assertEquals(1, scopes.svyDateUtils.getWeekOfYear(new Date(2023, 0, 1)));
+	jsunit.assertEquals(1, scopes.svyDateUtils.getWeekOfYear(new Date(2023, 0, 1)));
+	jsunit.assertEquals(2, scopes.svyDateUtils.getWeekOfYear(new Date(2023, 0, 2)));
+	jsunit.assertEquals(2, scopes.svyDateUtils.getWeekOfYear(new Date(2023, 0, 8)));
+	jsunit.assertEquals(3, scopes.svyDateUtils.getWeekOfYear(new Date(2023, 0, 9)));
 
 }
 
