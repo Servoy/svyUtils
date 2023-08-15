@@ -819,7 +819,8 @@ function getWeekdayNames(locale) {
  */
 function getWeekOfYear(date) {
 	var localDate = getLocalDateFromDate(date);
-	return localDate.get(weekFields.weekOfYear());
+	// TODO weekOfYear vs weekOfWeekBasedYear: returns 0 or 52 if date falls into previous year week ( e.g. 1,1,2023 )
+	return localDate.get(weekFields.weekOfWeekBasedYear());
 }
 
 /**
