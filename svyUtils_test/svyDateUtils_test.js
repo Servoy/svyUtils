@@ -215,19 +215,50 @@ function testGetAge() {
  */
 function testGetDateDifference() {
 
-	var today = new Date();
+	var today = new Date(2024, 0, 1);
 	var todayPrev = scopes.svyDateUtils.add(today, -1, -1, -1, -1, -1, -1);
 	application.output(scopes.svyDateUtils.getDateDifference(todayPrev, today))
 
 	jsunit.assertEquals(397, scopes.svyDateUtils.getDateDifference(todayPrev, today).days);
-	jsunit.assertEquals((397 * 24 ) + 1, scopes.svyDateUtils.getDateDifference(todayPrev, today).hours);
-	jsunit.assertEquals((397 * 24 * 60) + 61, scopes.svyDateUtils.getDateDifference(todayPrev, today).minutes);
+	jsunit.assertEquals(1, scopes.svyDateUtils.getDateDifference(todayPrev, today).hours);
+	jsunit.assertEquals(1, scopes.svyDateUtils.getDateDifference(todayPrev, today).minutes);
+
+	jsunit.assertEquals( (397 * 24) + 1, scopes.svyDateUtils.getDateDifference(todayPrev, today).totalHours);
+	jsunit.assertEquals( (397 * 24 * 60) + 61, scopes.svyDateUtils.getDateDifference(todayPrev, today).totalMinutes);
+	jsunit.assertEquals( (397 * 24 * 60 * 60) + 61 * 60 + 1, scopes.svyDateUtils.getDateDifference(todayPrev, today).totalSeconds);
 
 	var todayNext = scopes.svyDateUtils.add(today, 1, 1, 1, 1, 1, 1);
+	
+	jsunit.assertEquals(398, scopes.svyDateUtils.getDateDifference(today, todayNext).days);
+	jsunit.assertEquals(1, scopes.svyDateUtils.getDateDifference(today, todayNext).hours);
+	jsunit.assertEquals(1, scopes.svyDateUtils.getDateDifference(today, todayNext).minutes);
+	jsunit.assertEquals( (398 * 24) + 1, scopes.svyDateUtils.getDateDifference(today, todayNext).totalHours);
+	jsunit.assertEquals( (398 * 24 * 60) + 61, scopes.svyDateUtils.getDateDifference(today, todayNext).totalMinutes);
 
 	jsunit.assertEquals(-398, scopes.svyDateUtils.getDateDifference(todayNext, today).days);
-	jsunit.assertEquals(-(398 * 24 ) - 1, scopes.svyDateUtils.getDateDifference(todayNext, today).hours);
-	jsunit.assertEquals(-(398 * 24 * 60) - 61, scopes.svyDateUtils.getDateDifference(todayNext, today).minutes);
+	jsunit.assertEquals(-1, scopes.svyDateUtils.getDateDifference(todayNext, today).hours);
+	jsunit.assertEquals(-1, scopes.svyDateUtils.getDateDifference(todayNext, today).minutes);
+	jsunit.assertEquals(- (398 * 24) - 1, scopes.svyDateUtils.getDateDifference(todayNext, today).totalHours);
+	jsunit.assertEquals(- (398 * 24 * 60) - 61, scopes.svyDateUtils.getDateDifference(todayNext, today).totalMinutes);
+
+
+
+	// test Leap Year
+	jsunit.assertEquals(366, scopes.svyDateUtils.getDateDifference(new Date(2024, 0, 1), new Date(2025, 0, 1)).days);
+
+	// Test DST
+	var summerDate = new Date(2023, 9, 28);
+	summerDate.setHours(0, 0, 0, 0);
+
+	var winterDate = new Date(2023, 9, 30);
+	winterDate.setHours(0, 0, 0, 0);
+
+	jsunit.assertEquals(2, scopes.svyDateUtils.getDateDifference(summerDate, winterDate).days);
+	jsunit.assertEquals(0, scopes.svyDateUtils.getDateDifference(summerDate, winterDate).hours);
+	jsunit.assertEquals(0, scopes.svyDateUtils.getDateDifference(summerDate, winterDate).minutes);
+
+	jsunit.assertEquals( (2 * 24) + 1, scopes.svyDateUtils.getDateDifference(summerDate, winterDate).totalHours);
+	jsunit.assertEquals( (2 * 24 * 60) + 60, scopes.svyDateUtils.getDateDifference(summerDate, winterDate).totalMinutes);
 
 }
 
