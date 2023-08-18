@@ -1204,6 +1204,11 @@ function FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileT
 	 */
 	this.foundset = foundset;
 	
+	/**
+	 * @type {Array<String>}
+	 */
+	this.columnValuelists = [];
+	
 	if (!headers) {
 		this.setAutoFilter = false;
 		this.freezeFirstRow = false;		
@@ -1279,6 +1284,13 @@ function FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileT
 				cell = row.createCell(this.startColumn + d);
 				var dpValue = record[dataproviders[d]];
 				
+				// check if there is a valuelist;
+				if (this.columnValuelists[d]) {
+					var dpDisplayValue = application.getValueListDisplayValue(this.columnValuelists[d], dpValue);
+					// show realValue if cannot find displayValue
+					dpValue = dpDisplayValue ? dpDisplayValue : dpValue;
+				}
+				
 				if (dpValue instanceof Date && !this.columnFormatsUseLocalDateTime[d]) {
 					dpValue = scopes.svyDateUtils.getLocalDateTime(dpValue);
 				}
@@ -1333,6 +1345,22 @@ var initFoundSetExcelWorkbook = (/** @constructor */ function() {
 	 */
 	FoundSetExcelWorkbook.prototype.getFoundSet = function() {
 		return this.foundset;
+	}
+	
+	/**
+	 * Sets a date or number format used for the given column
+	 * @param {Number} columnIndex
+	 * @param {String} valuelistName
+	 * @this {ServoyExcelWorkbook}
+	 */
+	FoundSetExcelWorkbook.prototype.setValueListForColumn = function(columnIndex, valuelistName) {
+		// check if valuelist type is supported
+		var jsValuelist = solutionModel.getValueList(valuelistName);
+		if (jsValuelist.globalMethod || jsValuelist.relationName) {
+			application.output('ExcelColumn does not support valuelist ' + valuelistName + ' with a Global Method or with a Database Relation', LOGGINGLEVEL.WARNING)
+			return;
+		} 
+		this.columnValuelists[columnIndex - 1] = valuelistName;
 	}
 }())
 
