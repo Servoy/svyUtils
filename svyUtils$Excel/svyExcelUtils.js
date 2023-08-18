@@ -1275,20 +1275,42 @@ function FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileT
 				cellFormatToUse.setDataFormat(this.columnFormats[i]);
 			}
 		}
+		
+		// cache qualified name for global method valuelists
+		/** @type {Array<String>} */
+		var columnValuelistsGlobalMethods = [];
+		for (var d = 0; d < this.columnValuelists.length; d++) {
+			if (!this.columnValuelists[d]) continue;
+			
+			var jsValuelist = solutionModel.getValueList(this.columnValuelists[d])
+			if (jsValuelist.globalMethod) {
+				columnValuelistsGlobalMethods[d] = scopes.svySystem.convertServoyMethodToQualifiedName(scopes[jsValuelist.globalMethod.getScopeName()][jsValuelist.globalMethod.getName()]);
+			}
+		}
 
 		for (i = 1; i <= foundset.getSize(); i++) {
 			var record = foundset.getRecord(i);
 			row = this.sheet.createRow(rowNum + (i-1));
 
-			for (var d = 0; d < dataproviders.length; d++) {
+			for (d = 0; d < dataproviders.length; d++) {
 				cell = row.createCell(this.startColumn + d);
 				var dpValue = record[dataproviders[d]];
 				
 				// check if there is a valuelist;
 				if (this.columnValuelists[d]) {
-					var dpDisplayValue = application.getValueListDisplayValue(this.columnValuelists[d], dpValue);
-					// show realValue if cannot find displayValue
-					dpValue = dpDisplayValue ? dpDisplayValue : dpValue;
+					// check if is a global method valuelist
+					if (columnValuelistsGlobalMethods[d]) {
+						try {
+							var ds = scopes.svySystem.callMethod(columnValuelistsGlobalMethods[d], [null, dpValue, null, jsValuelist.name, false]);
+							dpValue = ds.getValue(1, 1) !== null && ds.getValue(1, 1) !== undefined ? ds.getValue(1, 1) : dpValue;
+						} catch (e) {
+							application.output(e, LOGGINGLEVEL.ERROR)
+						}
+					} else {
+						var dpDisplayValue = application.getValueListDisplayValue(this.columnValuelists[d], dpValue);
+						// show realValue if cannot find displayValue
+						dpValue = dpDisplayValue !== null && dpDisplayValue !== undefined ? dpDisplayValue : dpValue;
+					}
 				}
 				
 				if (dpValue instanceof Date && !this.columnFormatsUseLocalDateTime[d]) {
@@ -1356,8 +1378,8 @@ var initFoundSetExcelWorkbook = (/** @constructor */ function() {
 	FoundSetExcelWorkbook.prototype.setValueListForColumn = function(columnIndex, valuelistName) {
 		// check if valuelist type is supported
 		var jsValuelist = solutionModel.getValueList(valuelistName);
-		if (jsValuelist.globalMethod || jsValuelist.relationName) {
-			application.output('ExcelColumn does not support valuelist ' + valuelistName + ' with a Global Method or with a Database Relation', LOGGINGLEVEL.WARNING)
+		if (jsValuelist.relationName) {
+			application.output('ExcelColumn does not support valuelist ' + valuelistName + 'using a Database Relation', LOGGINGLEVEL.WARNING)
 			return;
 		} 
 		this.columnValuelists[columnIndex - 1] = valuelistName;
