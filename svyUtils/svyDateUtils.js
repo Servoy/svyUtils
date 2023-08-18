@@ -154,14 +154,32 @@ function setTodayVars() {
  * @properties={typeid:24,uuid:"BD51F7B3-70E4-4532-A14F-7F17111EC0D1"}
  */
 function add(date, years, months, days, hours, minutes, seconds) {
+
+	/** @type {java.time.temporal.TemporalUnit} */
+	var unit 
+	var zonedDateTime = getLocalDateTimeFromDate(date).atZone(zoneId);
+	var instant = zonedDateTime.toInstant();
+	
+	if (hours) {
+		unit = java.time.temporal.ChronoUnit.HOURS
+		instant = instant.plus(hours, unit);
+	}
+	if (minutes) {
+		unit = java.time.temporal.ChronoUnit.MINUTES
+		instant = instant.plus(minutes, unit);
+	}
+	if (seconds) {
+		unit = java.time.temporal.ChronoUnit.SECONDS
+		instant = instant.plus(seconds, unit);
+	}
+	
+	// 
+	var result = new Date(instant.toEpochMilli());
 	return getDateFromLocalDateTime(
-		getLocalDateTimeFromDate(date)
+	getLocalDateTimeFromDate(result)
 			.plusYears(years)
 			.plusMonths(months)
 			.plusDays(days)
-			.plusHours(hours)
-			.plusMinutes(minutes)
-			.plusSeconds(seconds)
 	);
 }
 
