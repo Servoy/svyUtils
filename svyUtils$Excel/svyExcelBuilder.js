@@ -358,7 +358,7 @@ function initExcelColumn() {
 		
 		// check if valuelist type is supported
 		var jsValuelist = solutionModel.getValueList(valuelist);
-		if (jsValuelist.globalMethod || jsValuelist.relationName) {
+		if (jsValuelist.relationName) {
 			application.output('ExcelColumn does not support valuelist ' + valuelist + ' with a Global Method or with a Database Relation', LOGGINGLEVEL.WARNING)
 			return this;
 		} 
