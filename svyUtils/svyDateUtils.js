@@ -361,9 +361,12 @@ function addBusinessDays(date, days, holidays) {
  * @properties={typeid:24,uuid:"DF5683B7-5B98-4425-A711-958D8CFDCAD7"}
  */
 function addHours(date, hours) {
-	return getDateFromLocalDateTime(
-		getLocalDateTimeFromDate(date).plusHours(hours)
-	);
+	var zonedDateTime = getLocalDateTimeFromDate(date).atZone(zoneId);
+	
+	/** @type {java.time.temporal.TemporalUnit} */
+	var unit = java.time.temporal.ChronoUnit.HOURS
+	var instant =zonedDateTime.toInstant().plus(hours, unit);
+	return new Date(instant.toEpochMilli());
 }
 
 /**
@@ -380,9 +383,13 @@ function addHours(date, hours) {
  * @properties={typeid:24,uuid:"01F102D2-3604-4016-81C1-DEAB2E5AB06D"}
  */
 function addMinutes(date, minutes) {
-	return getDateFromLocalDateTime(
-		getLocalDateTimeFromDate(date).plusMinutes(minutes)
-	);
+	
+	var zonedDateTime = getLocalDateTimeFromDate(date).atZone(zoneId);
+	
+	/** @type {java.time.temporal.TemporalUnit} */
+	var unit = java.time.temporal.ChronoUnit.MINUTES
+	var instant =zonedDateTime.toInstant().plus(minutes, unit);
+	return new Date(instant.toEpochMilli());
 }
 
 /**
@@ -399,9 +406,12 @@ function addMinutes(date, minutes) {
  * @properties={typeid:24,uuid:"520A2683-27A9-49BE-BC10-545E489A0E5F"}
  */
 function addSeconds(date, seconds) {
-	return getDateFromLocalDateTime(
-		getLocalDateTimeFromDate(date).plusSeconds(seconds)
-	);
+	var zonedDateTime = getLocalDateTimeFromDate(date).atZone(zoneId);
+	
+	/** @type {java.time.temporal.TemporalUnit} */
+	var unit = java.time.temporal.ChronoUnit.SECONDS;
+	var instant =zonedDateTime.toInstant().plus(seconds, unit);
+	return new Date(instant.toEpochMilli());
 }
 
 /**
