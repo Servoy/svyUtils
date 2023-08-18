@@ -327,6 +327,36 @@ function initExcelColumn() {
 		this.useLocalDateTime = useLocalDateTime;
 		return this;
 	}
+	
+	/**
+	 *
+	 * @public
+	 * @return {String}
+	 *
+	 * @this {ExcelColumn}
+	 */
+	ExcelColumn.prototype.getValueList = function() {
+		return this.valuelist;
+	}
+
+	/**
+	 * @param {String} valuelist
+	 * @public
+	 * @return {ExcelColumn}
+	 *
+	 * @this {ExcelColumn}
+	 */
+	ExcelColumn.prototype.setValueList = function(valuelist) {
+		
+		// check if valuelist type is supported
+		var jsValuelist = solutionModel.getValueList(valuelist);
+		if (jsValuelist.globalMethod || jsValuelist.relationName) {
+			application.output('ExcelColumn does not support valuelist ' + valuelist + ' with a Global Method or with a Database Relation', LOGGINGLEVEL.WARNING)
+			return this;
+		} 
+		this.valuelist = valuelist;
+		return this;
+	}
 }
 
 /**
@@ -389,6 +419,11 @@ function initAbstractExcelBuilder() {
 			var format = column.getFormat();
 			if (format) {
 				workbook.setFormatForColumn(i + 1, format, column.getUseLocalDateTime());
+			}
+			
+			var valuelist = column.getValueList();
+			if (valuelist) {
+				workbook.setValueListForColumn(i + 1, valuelist);
 			}
 
 			// TODO should look at format property in DataSource to set a default format !?
@@ -604,8 +639,11 @@ function initNgGridExcelBuilder() {
 				// TODO should use ID to identify columns
 				var excelColumn = new ExcelColumn(dataprovider, headerTitle, format);
 				excelColumn.setUseLocalDateTime(useLocalDateTime);
+				if (col.valuelist) {
+					excelColumn.setValueList(col.valuelist.name);
+				}
 				excelColumns.push(excelColumn);
-
+				
 			} else {
 				// TODO shall look at styleClassDataprovider !?
 			}
@@ -675,6 +713,9 @@ function initNgGridExcelBuilder() {
 					// TODO should use ID to identify columns
 					var excelColumn = new ExcelColumn(dataprovider, headerTitle, format);
 					excelColumn.setUseLocalDateTime(useLocalDateTime);
+					if (col.valuelist) {
+						excelColumn.setValueList(col.valuelist.name);
+					}
 					excelColumns.push(excelColumn);
 
 				} else {
