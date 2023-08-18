@@ -581,7 +581,7 @@ function initNgGridExcelBuilder() {
 			return this.getExcelColumnsFromColumnState()
 		}
 
-		return this.getExcelColumns();
+		return this.getExcelColumnsFromDesign();
 	}
 
 	/**
