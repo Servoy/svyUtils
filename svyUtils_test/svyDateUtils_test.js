@@ -48,11 +48,18 @@ function testToFirstDayOfWeek() {
 function testAdd() {
 	// test 14-08-2023
 	var date = getFirstDayOfYear();
-	jsunit.assertEquals('02-02-2024 01:01:01', utils.dateFormat(scopes.svyDateUtils.add(date, 1, 1, 1, 1, 1, 1), 'dd-MM-yyyy hh:mm:ss'));
+	jsunit.assertEquals('02-02-2024 01:01:01', utils.dateFormat(scopes.svyDateUtils.add(date, 1, 1, 1, 1, 1, 1), 'dd-MM-yyyy HH:mm:ss'));
 	
-	
-	date = getDSTEnd();
-	jsunit.assertEquals('30-10-2023 01:01:01', utils.dateFormat(scopes.svyDateUtils.add(date, 0, 0, 1, 1, 1, 1), 'dd-MM-yyyy hh:mm:ss'));
+	var winterDate = getDSTEnd();
+	// add a Day during DST time
+	jsunit.assertEquals('30-10-2023 01:01:01', utils.dateFormat(scopes.svyDateUtils.add(winterDate, 0, 0, 1, 1, 1, 1), 'dd-MM-yyyy HH:mm:ss'));
+	jsunit.assertEquals('30-10-2023 00:01:01', utils.dateFormat(scopes.svyDateUtils.add(winterDate, 0, 0, 1, 0, 1, 1), 'dd-MM-yyyy HH:mm:ss'));
+	jsunit.assertEquals('29-10-2023 23:01:01', utils.dateFormat(scopes.svyDateUtils.add(winterDate, 0, 0, 0, 24, 1, 1), 'dd-MM-yyyy HH:mm:ss'));
+
+	jsunit.assertEquals('29-10-2023 11:01:01', utils.dateFormat(scopes.svyDateUtils.add(winterDate, 0, 0, 0, 12, 1, 1), 'dd-MM-yyyy HH:mm:ss'));
+	jsunit.assertEquals('29-10-2023 11:00:01', utils.dateFormat(scopes.svyDateUtils.add(winterDate, 0, 0, 0, 0, 12 * 60, 1), 'dd-MM-yyyy HH:mm:ss'));
+	jsunit.assertEquals('29-10-2023 11:00:00', utils.dateFormat(scopes.svyDateUtils.add(winterDate, 0, 0, 0, 0, 0, 12 * 60 * 60), 'dd-MM-yyyy HH:mm:ss'));
+
 }
 
 /**
@@ -115,7 +122,6 @@ function testAddDays() {
 	var winterTime = getDSTEnd()
 	jsunit.assertEquals('30-10-2023 00:00:00', utils.dateFormat(scopes.svyDateUtils.addDays(winterTime, 1), 'dd-MM-yyyy HH:mm:ss'));
 	jsunit.assertEquals('31-10-2023 00:00:00', utils.dateFormat(scopes.svyDateUtils.addDays(winterTime, 2), 'dd-MM-yyyy HH:mm:ss'));
-
 }
 
 /**
@@ -142,13 +148,12 @@ function testAddHours() {
 
 	// TODO adding hours should take into account DST changes !?
 	var summerTime = getDSTStart()
-	jsunit.assertEquals('26-03-2023 11:00:00', utils.dateFormat(scopes.svyDateUtils.addHours(summerTime, 12), 'dd-MM-yyyy HH:mm:ss'));
-	jsunit.assertEquals('26-03-2023 23:00:00', utils.dateFormat(scopes.svyDateUtils.addHours(summerTime, 24), 'dd-MM-yyyy HH:mm:ss'));
+	jsunit.assertEquals('26-03-2023 13:00:00', utils.dateFormat(scopes.svyDateUtils.addHours(summerTime, 12), 'dd-MM-yyyy HH:mm:ss'));
+	jsunit.assertEquals('27-03-2023 01:00:00', utils.dateFormat(scopes.svyDateUtils.addHours(summerTime, 24), 'dd-MM-yyyy HH:mm:ss'));
 	
 	var winterTime = getDSTEnd()
-	jsunit.assertEquals('29-10-2023 13:00:00', utils.dateFormat(scopes.svyDateUtils.addHours(winterTime, 12), 'dd-MM-yyyy HH:mm:ss'));
-	jsunit.assertEquals('30-10-2023 01:00:00', utils.dateFormat(scopes.svyDateUtils.addHours(winterTime, 24), 'dd-MM-yyyy HH:mm:ss'));
-
+	jsunit.assertEquals('29-10-2023 11:00:00', utils.dateFormat(scopes.svyDateUtils.addHours(winterTime, 12), 'dd-MM-yyyy HH:mm:ss'));
+	jsunit.assertEquals('29-10-2023 23:00:00', utils.dateFormat(scopes.svyDateUtils.addHours(winterTime, 24), 'dd-MM-yyyy HH:mm:ss'));
 }
 
 /**
@@ -161,6 +166,17 @@ function testAddMinutes() {
 	jsunit.assertEquals('01-01-2023 00:01:00', utils.dateFormat(scopes.svyDateUtils.addMinutes(date, 1), 'dd-MM-yyyy HH:mm:ss'));
 	jsunit.assertEquals('01-01-2023 01:06:00', utils.dateFormat(scopes.svyDateUtils.addMinutes(date, 66), 'dd-MM-yyyy HH:mm:ss'));
 	jsunit.assertEquals('31-12-2022 23:58:00', utils.dateFormat(scopes.svyDateUtils.addMinutes(date, -2), 'dd-MM-yyyy HH:mm:ss'));
+
+
+	// TODO adding hours should take into account DST changes !?
+	var summerTime = getDSTStart()
+	jsunit.assertEquals('26-03-2023 13:00:00', utils.dateFormat(scopes.svyDateUtils.addMinutes(summerTime, 12 * 60), 'dd-MM-yyyy HH:mm:ss'));
+	jsunit.assertEquals('27-03-2023 01:00:00', utils.dateFormat(scopes.svyDateUtils.addMinutes(summerTime, 24 * 60), 'dd-MM-yyyy HH:mm:ss'));
+	
+	var winterTime = getDSTEnd()
+	jsunit.assertEquals('29-10-2023 11:00:00', utils.dateFormat(scopes.svyDateUtils.addMinutes(winterTime, 12 * 60), 'dd-MM-yyyy HH:mm:ss'));
+	jsunit.assertEquals('29-10-2023 23:00:00', utils.dateFormat(scopes.svyDateUtils.addMinutes(winterTime, 24 * 60), 'dd-MM-yyyy HH:mm:ss'));
+
 }
 
 /**
@@ -173,6 +189,16 @@ function testAddSeconds() {
 	jsunit.assertEquals('01-01-2023 00:00:01', utils.dateFormat(scopes.svyDateUtils.addSeconds(date, 1), 'dd-MM-yyyy HH:mm:ss'));
 	jsunit.assertEquals('01-01-2023 00:01:06', utils.dateFormat(scopes.svyDateUtils.addSeconds(date, 66), 'dd-MM-yyyy HH:mm:ss'));
 	jsunit.assertEquals('31-12-2022 23:59:58', utils.dateFormat(scopes.svyDateUtils.addSeconds(date, -2), 'dd-MM-yyyy HH:mm:ss'));
+
+	// TODO adding hours should take into account DST changes !?
+	var summerTime = getDSTStart()
+	jsunit.assertEquals('26-03-2023 13:00:00', utils.dateFormat(scopes.svyDateUtils.addSeconds(summerTime, 12 * 60 * 60), 'dd-MM-yyyy HH:mm:ss'));
+	jsunit.assertEquals('27-03-2023 01:00:00', utils.dateFormat(scopes.svyDateUtils.addSeconds(summerTime, 24 * 60 * 60), 'dd-MM-yyyy HH:mm:ss'));
+	
+	var winterTime = getDSTEnd()
+	jsunit.assertEquals('29-10-2023 11:00:00', utils.dateFormat(scopes.svyDateUtils.addSeconds(winterTime, 12 * 60 * 60), 'dd-MM-yyyy HH:mm:ss'));
+	jsunit.assertEquals('29-10-2023 23:00:00', utils.dateFormat(scopes.svyDateUtils.addSeconds(winterTime, 24 * 60 * 60), 'dd-MM-yyyy HH:mm:ss'));
+
 }
 
 /**
@@ -262,8 +288,6 @@ function testGetDateDifference() {
 	jsunit.assertEquals(- (398 * 24) - 1, scopes.svyDateUtils.getDateDifference(todayNext, today).totalHours);
 	jsunit.assertEquals(- (398 * 24 * 60) - 61, scopes.svyDateUtils.getDateDifference(todayNext, today).totalMinutes);
 
-
-
 	// test Leap Year
 	jsunit.assertEquals(366, scopes.svyDateUtils.getDateDifference(new Date(2024, 0, 1), new Date(2025, 0, 1)).days);
 
@@ -345,6 +369,7 @@ function testGetWeekOfYear() {
 	jsunit.assertEquals(2, scopes.svyDateUtils.getWeekOfYear(new Date(2023, 0, 8)));
 
 	jsunit.assertEquals(1, scopes.svyDateUtils.getWeekOfYear(new Date(2023, 11, 31)));
+	// AssertionFailedError: Expected:<52>, but was:<53>
 	jsunit.assertEquals(52, scopes.svyDateUtils.getWeekOfYear(new Date(2022, 11, 25)));
 	jsunit.assertEquals(1, scopes.svyDateUtils.getWeekOfYear(new Date(2022, 11, 26)));
 	jsunit.assertEquals(1, scopes.svyDateUtils.getWeekOfYear(new Date(2022, 11, 31)));
@@ -370,7 +395,6 @@ function testGetDayOfWeek() {
 
 	jsunit.assertEquals(7, scopes.svyDateUtils.getDayOfWeek(getDSTStart()));
 	jsunit.assertEquals(7, scopes.svyDateUtils.getDayOfWeek(getDSTEnd()));
-
 }
 
 /**
