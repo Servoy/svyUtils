@@ -392,6 +392,25 @@
       }
       return isGlobal;
   }
+
+/**
+ * @public
+ * @param {String} relationName
+ * @return {Boolean}
+ *
+ * Returns true if relation is a cross-database relation
+ *
+ * @properties={typeid:24,uuid:"CB4534A4-6495-4047-80A3-30B21A98A133"}
+ */
+function isCrossDBRelation(relationName) {
+	var relation = solutionModel.getRelation(relationName);
+	var primaryServer = databaseManager.getDataSourceServerName(relation.primaryDataSource);
+	var foreignServer = databaseManager.getDataSourceServerName(relation.foreignDataSource);
+	if (primaryServer != foreignServer) {
+		return true;
+	}
+	return false;
+}
   
   /**
    * Selects the first record in the foundset
