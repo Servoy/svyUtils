@@ -111,7 +111,7 @@ function getMarkerMessages(source, level, separator) {
 
 	for (var i = 0; i < markers.length; i++) {
 		var errorMarker = markers[i];
-		errorMsgs.push(errorMarker.message);
+		errorMsgs.push(errorMarker.i18NMessage);
 	}
 
 	return errorMsgs.join(separator);

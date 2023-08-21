@@ -93,6 +93,11 @@ function NgGridExcelBuilder(tableComponent, useTableColumnState) {
  * @returns {FoundSetExcelBuilder}
  * @public
  * @example <pre>
+ * var excelBuilder = scopes.svyExcelBuilder.createFoundSetExcelBuilder(foundset);
+ * excelBuilder.addExcelColumn('customerid').setHeaderText('Customer')
+ * excelBuilder.addExcelColumn('orderdate').setHeaderText('Date').setFormat('dd-MM-yyyy')
+ * var wb = excelBuilder.createWorkbook();
+ * wb.openFile('excel_export');
  * </pre>
  *
  * @properties={typeid:24,uuid:"68BC1302-822B-4273-A0C8-E7A185F627F7"}
@@ -109,6 +114,9 @@ function createFoundSetExcelBuilder(foundset) {
  * @returns {NgGridExcelBuilder}
  * @public
  * @example <pre>
+ * var excelBuilder = scopes.svyExcelBuilder.createNgGridExcelBuilder(elements.table, true);
+ * var workbook = excelBuilder.createWorkbook(scopes.svyExcelUtils.FILE_FORMAT.XLSX);
+ * workbook.openFile('excel_export');
  * </pre>
  *
  * @properties={typeid:24,uuid:"08C4A34F-D87D-4FA0-AC6B-B1B6F47C19C1"}
@@ -278,7 +286,7 @@ function initExcelColumn() {
 	 * @this {ExcelColumn}
 	 */
 	ExcelColumn.prototype.setHeaderText = function(headerText) {
-		this.dataprovider = headerText;
+		this.text = headerText;
 		return this;
 	}
 
