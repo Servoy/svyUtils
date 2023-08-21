@@ -1531,6 +1531,11 @@ function DataSetExcelWorkbook(dataset, columns, headers, templateOrFileType, she
 			for (var d = 0; d < columns.length; d++) {
 				cell = row.createCell(this.startColumn + d);
 				var dpValue = rowData[columns[d]-1];
+				
+				if (dpValue instanceof Date && !this.columnFormatsUseLocalDateTime[d]) {
+					dpValue = scopes.svyDateUtils.getLocalDateTime(dpValue);
+				}
+				
 				cell.setCellValue(dpValue);
 				if (this.columnStyles[d]) {
 					cell.setCellStyle(this.columnStyles[d]);
