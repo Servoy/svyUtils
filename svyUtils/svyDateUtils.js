@@ -383,7 +383,8 @@ function addHours(date, hours) {
 	
 	/** @type {java.time.temporal.TemporalUnit} */
 	var unit = java.time.temporal.ChronoUnit.HOURS
-	var instant =zonedDateTime.toInstant().plus(hours, unit);
+	var instant = zonedDateTime.toInstant();
+	instant = instant.plus(hours, unit);
 	return new Date(instant.toEpochMilli());
 }
 
@@ -406,7 +407,8 @@ function addMinutes(date, minutes) {
 	
 	/** @type {java.time.temporal.TemporalUnit} */
 	var unit = java.time.temporal.ChronoUnit.MINUTES
-	var instant =zonedDateTime.toInstant().plus(minutes, unit);
+	var instant =zonedDateTime.toInstant()
+	instant = instant.plus(minutes, unit);
 	return new Date(instant.toEpochMilli());
 }
 
@@ -428,7 +430,8 @@ function addSeconds(date, seconds) {
 	
 	/** @type {java.time.temporal.TemporalUnit} */
 	var unit = java.time.temporal.ChronoUnit.SECONDS;
-	var instant =zonedDateTime.toInstant().plus(seconds, unit);
+	var instant =zonedDateTime.toInstant()
+	instant = instant.plus(seconds, unit);
 	return new Date(instant.toEpochMilli());
 }
 
