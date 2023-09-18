@@ -319,7 +319,8 @@ function testGetDayDifference() {
 
 	// count leap year
 	var todayNext = scopes.svyDateUtils.add(today, 1, 1, 1, 1, 1, 1);
-	jsunit.assertEquals(-398, scopes.svyDateUtils.getDayDifference(todayNext, today));
+	jsunit.assertEquals(397, scopes.svyDateUtils.getDayDifference(today, todayNext));
+	jsunit.assertEquals(-397, scopes.svyDateUtils.getDayDifference(todayNext, today));
 
 }
 
