@@ -1313,7 +1313,8 @@ function FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileT
 					}
 				}
 				
-				if (dpValue instanceof Date && !this.columnFormatsUseLocalDateTime[d]) {
+				if (dpValue instanceof Date && !this.columnFormatsUseLocalDateTime[d] && scopes.svySystem.isNGClient()) {
+					// use localDateTime if useLocalDateTime setting is false to use same value seen by the user
 					dpValue = scopes.svyDateUtils.getLocalDateTime(dpValue);
 				}
 				
