@@ -1113,8 +1113,8 @@ function createDataDump(serverName, tablesToUse) {
 				continue;
 			}
 
-			var fsQuery = databaseManager.getSQL(fs, true);
-			var fsQueryParams = databaseManager.getSQLParameters(fs, true);
+			var fsQuery = fs.getSQL(true);
+			var fsQueryParams = fs.getSQLParameters(true);
 			var jsTable = databaseManager.getTable(fs);
 			var dataProviderIds = jsTable.getColumnNames();
 			var pkColumns = jsTable.getRowIdentifierColumnNames();
