@@ -753,6 +753,7 @@ var init = function() {
  * @example <pre>var getRequest = http.createGetRequest(url);
  *getRequest.addHeader('Authorization', 'Basic ' + scopes.svyIO.encodeBase64(user + ':' + passwordOrToken));</pre>
  *
+ * @deprecated Replaced by Servoy Native function: utils.stringToBase64
  * @properties={typeid:24,uuid:"0B0B4F09-09F4-4D11-9DD7-E64E40E3A968"}
  */
 function encodeStringToBase64(inputString) {
