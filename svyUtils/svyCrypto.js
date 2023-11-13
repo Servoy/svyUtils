@@ -44,7 +44,7 @@ var log = scopes.svyLogManager.getLogger('com.servoy.bap.svyCrypto');
 var ALGORITHM_NAMES = {
 	AES: 'AES',
 	DES: 'DES'
-};
+}
 
 /**
  * Supported Hashing algorithms
@@ -61,7 +61,7 @@ var HASH_ALGORITHM_NAMES = {
 	MD5: 'MD5',
 	SHA_1: 'SHA-1',
 	SHA_256: 'SHA-256'
-};
+}
 
 /**
  * BASE-64-ENCODED KEYS (used internally)
@@ -73,7 +73,7 @@ var HASH_ALGORITHM_NAMES = {
 var INTERNAL_KEYS = {
 	AES: 'Hheq+OO753QxiBwUvf0ROQ==',
 	DES: 'V0liO0kq0Js='
-};
+}
 
 /**
  * @private
@@ -84,7 +84,7 @@ var PBE_DEFAULTS = {
 	iterations: 65536,
 	/** @type {Array<byte>} */
 	salt: [ -9, 122, -17, -112, -113, -94, -50, -100]
-};
+}
 
 /**
  * @public 
