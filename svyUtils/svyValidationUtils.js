@@ -195,7 +195,7 @@ function getMarkerElement(formName, marker) {
 	/** @type {RuntimeTextField} */
 	var element;
 	var dataprovider = marker.dataprovider;
-	var dataSource = marker.record.getDataSource();
+	var dataSource = marker.record ? marker.record.getDataSource() : form.foundset.getDataSource();
 	
 	// shall i check record pks too ?
 	var isRelated = dataSource == form.foundset.getDataSource();
