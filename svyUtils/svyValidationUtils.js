@@ -105,16 +105,8 @@ function getErrorMarkers(source) {
  * @properties={typeid:24,uuid:"5FB36DA8-2A86-44DC-B128-9137E1F64B7D"}
  */
 function getMarkerMessages(source, level, separator) {
-	if (!separator) separator = "\n";
-	var markers = getRecordMarkers(source, level)
-	var errorMsgs = [];
-
-	for (var i = 0; i < markers.length; i++) {
-		var errorMarker = markers[i];
-		errorMsgs.push(errorMarker.i18NMessage);
-	}
-
-	return errorMsgs.join(separator);
+	var markers = getRecordMarkers(source, level);
+	return getMessageFromMarkers(markers);
 }
 
 /**
@@ -128,6 +120,29 @@ function getMarkerMessages(source, level, separator) {
  */
 function getErrorMessages(source, separator) {
 	return getMarkerMessages(source, LOGGINGLEVEL.ERROR, separator);
+}
+
+/**
+ * @public
+ * @param {Array<JSRecordMarker>} markers
+ * @param {String} [separator]
+ *
+ * @return {String}
+ *
+ *
+ * @properties={typeid:24,uuid:"A45BD464-048E-45FB-AE95-7AE431F847C0"}
+ */
+function getMessageFromMarkers(markers, separator) {
+	if (!separator) separator = "\n";
+
+	var errorMsgs = [];
+
+	for (var i = 0; i < markers.length; i++) {
+		var errorMarker = markers[i];
+		errorMsgs.push(errorMarker.i18NMessage);
+	}
+
+	return errorMsgs.join(separator);
 }
 
 /**
