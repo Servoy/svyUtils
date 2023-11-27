@@ -245,8 +245,10 @@ function executeErrorHandlers(exception) {
 	try {
 		scopes.svyEventManager.fireEvent(this, APPLICATION_EVENT_TYPES.ERROR, arguments, true)		
 	} catch (e) {
-		if(e instanceof scopes.svyEventManager.VetoEventException) {
+		if (e instanceof scopes.svyEventManager.VetoEventException) {
 			return false
+		} else {
+			throw e;
 		}
 	}
 	return true
@@ -291,8 +293,8 @@ function onErrorHandler(e) {
 	try {
 		notHandled = executeErrorHandlers(e)
 	} catch (ex) {
-		if(ex instanceof scopes.svyEventManager.VetoEventException) {
-		notHandled = false
+		if (ex instanceof scopes.svyEventManager.VetoEventException) {
+			notHandled = false
 		} else {
 			e = ex
 		}
