@@ -325,7 +325,7 @@ var HASH_ALGORITHM = {
 	SHA256: "SHA-256",
 	SHA384: "SHA-384",	
 	SHA512: "SHA-512"
-};
+}
 
 /**
  * Copies streams
@@ -382,7 +382,7 @@ var CHAR_SETS = {
 	UTF_16LE: 'UTF-16LE',
 	/**Sixteen-bit Unicode Transformation Format, byte order specified by a mandatory initial byte-order mark (either order accepted on input, big-endian used on output.)*/	
 	UTF_16: 'UTF-16'
-};
+}
 
 /**
  * Reads the content of a file line by line, without reading the entire file into memory
@@ -753,6 +753,7 @@ var init = function() {
  * @example <pre>var getRequest = http.createGetRequest(url);
  *getRequest.addHeader('Authorization', 'Basic ' + scopes.svyIO.encodeBase64(user + ':' + passwordOrToken));</pre>
  *
+ * @deprecated Replaced by Servoy Native function: utils.stringToBase64
  * @properties={typeid:24,uuid:"0B0B4F09-09F4-4D11-9DD7-E64E40E3A968"}
  */
 function encodeStringToBase64(inputString) {

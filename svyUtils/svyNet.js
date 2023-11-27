@@ -42,7 +42,7 @@ var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.net');
 var IP_VERSIONS = {
 	IPv6: 6,
 	IPv4: 4
-};
+}
 
 /**
  * A Regular Expression to match any IP address which is deemed to be private by the RFC-1918 Standard for IPv4.<br>
