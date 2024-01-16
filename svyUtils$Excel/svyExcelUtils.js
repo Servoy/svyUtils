@@ -2520,6 +2520,22 @@ var initExcelCellStyle = (/** @constructor */ function() {
 		this.cellStyle.setLocked(locked);
 	}
 	
+	/**
+	 * Sets the degree of rotation for the text in the cell
+	 * 
+	 * Expressed in degrees. Values range from 0 to 180. The first letter of the text is considered the center-point of the arc.
+	 * For 0 - 90, the value represents degrees above horizon. For 91-180 the degrees below the horizon is calculated as:
+	 * [degrees below horizon] = 90 - textRotation.
+	 * 
+	 * @param {Number} rotation
+	 * @this {ExcelCellStyle}
+	 */
+	ExcelCellStyle.prototype.setRotation = function(rotation) {
+		if (rotation >= 0 && rotation <= 180) {
+			this.cellStyle.setRotation(rotation);
+		}
+	}
+	
 }());
 
 /**
