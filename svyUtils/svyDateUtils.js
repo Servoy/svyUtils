@@ -694,7 +694,7 @@ function getMonthDifference(start, end) {
 	var startLocalDateTime = getLocalDateFromDate(start);
 	var endLocalDateTime = getLocalDateFromDate(end);
 	var period = java.time.Period.between(startLocalDateTime, endLocalDateTime);
-	return period.getMonths();
+	return (period.getYears() * 12) + period.getMonths();
 }
 
 /**
