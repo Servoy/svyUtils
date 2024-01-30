@@ -466,7 +466,7 @@ function getSolutionDeepLinkNGClient(solutionName, methodName, args) {
 			}
 		}
 	}
-	var link = application.getServerURL() + '/solutions/' + solutionName + '/index.html?';
+	var link = application.getServerURL() + 'solution' + (isTINGClient() ? '/' : 's/') + solutionName + '/index.html?';
 
 	if (params.length) {
 		link += params.join('&');
