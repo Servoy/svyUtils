@@ -313,10 +313,10 @@ var FILL_PATTERN = {
  * @properties={typeid:35,uuid:"C1EAA619-7C53-4E3C-8236-FD83E12B3FE3",variableType:-4}
  */
 var SHEET_PANE = {
-	LOWER_RIGHT: Packages.org.apache.poi.ss.usermodel.Sheet.PANE_LOWER_RIGHT,
-	LOWER_LEFT: Packages.org.apache.poi.ss.usermodel.Sheet.PANE_LOWER_LEFT,
-	UPPER_LEFT: Packages.org.apache.poi.ss.usermodel.Sheet.PANE_UPPER_LEFT,
-	UPPER_RIGHT: Packages.org.apache.poi.ss.usermodel.Sheet.PANE_UPPER_RIGHT
+	LOWER_RIGHT: Packages.org.apache.poi.ss.usermodel.PaneType.LOWER_RIGHT,
+	LOWER_LEFT: Packages.org.apache.poi.ss.usermodel.PaneType.LOWER_LEFT,
+	UPPER_LEFT: Packages.org.apache.poi.ss.usermodel.PaneType.UPPER_LEFT,
+	UPPER_RIGHT: Packages.org.apache.poi.ss.usermodel.PaneType.UPPER_RIGHT
 }
 
 /**
@@ -1685,7 +1685,7 @@ var initExcelSheet = (/** @constructor */ function() {
 	 * @param {Number} ySplitPos - Vertical position of split (in 1/20th of a point).
 	 * @param {Number} leftmostColumn - Top row visible in bottom pane
 	 * @param {Number} topRow - Top row visible in bottom pane
-	 * @param {byte} [activePane] - Active pane as any of the SHEET_PANE enum values
+	 * @param {Packages.org.apache.poi.ss.usermodel.PaneType} [activePane] - Active pane as any of the SHEET_PANE enum values
 	 * @return {ExcelSheet}
 	 * @this {ExcelSheet}
 	 */
@@ -2868,7 +2868,6 @@ var initExcelCell = (/** @constructor */ function() {
 	/**
 	 * Returns the type of cell as any of the CELL_TYPE enum values
 	 * @return {Packages.org.apache.poi.ss.usermodel.CellType} 
-	 * TODO getCellTypeEnum will be deprecated in POI 4 and should then be changed to getCellType() again
 	 * @this {ExcelCell}
 	 */
 	ExcelCell.prototype.getCellType = function() {
