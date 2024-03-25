@@ -830,7 +830,7 @@ function setupRuntimeElementSource() {
 		if (name && form) {
 			/** @type {RuntimeTextField} */
 			var component = form.elements[name];
-			if (component.getDataProviderID) {
+			if (component.getDataProviderID && component.getDataProviderID()) {
 				var dataProvider = component.getDataProviderID();
 				
 				// TODO should i really look into special components such as listcomponent etc.. !?
@@ -884,6 +884,11 @@ function setupRuntimeElementSource() {
 		
 	    /** @type {JSFoundSet} */
 	    var fs;
+	    //First check if it is a component that can have a linked foundset
+		var component = form.elements[elementName];
+		if (component['myFoundset']) {
+			return component['myFoundset'].foundset.getSelectedRecord();
+		} else {
 		var relationName = this.getRelationName(form, elementName);
 		if (relationName) {
 			/** @type {JSFoundSet} */
@@ -895,6 +900,7 @@ function setupRuntimeElementSource() {
 	    if (fs) {
 	        return fs.getSelectedRecord();
 	    }
+		}
 	    return null;
 	}
 }
