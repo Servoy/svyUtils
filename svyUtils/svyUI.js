@@ -906,6 +906,29 @@ function setupRuntimeElementSource() {
 }
 
 /**
+ * Get the title of a database column, returns the column name if the title is empty.
+ * 
+ * @public 
+ *
+ * @param {String} datasource
+ * @param {String} dataproviderName
+ *
+ * @return {String}
+ * 
+ * @properties={typeid:24,uuid:"ED42DD67-F645-471F-A0E4-E4999A633C8A"}
+ */
+function getColumnTitle(datasource, dataproviderName) {
+
+	var split = dataproviderName.split('.');
+	var dataprovider = split.pop();
+	var datasourceTarget = (split.length > 0 ? solutionModel.getRelation(split.pop()).foreignDataSource : datasource);
+	var column = databaseManager.getTable(datasourceTarget).getColumn(dataprovider);
+	var columnTitle = (column !== null ? column.getTitle() : utils.stringInitCap(dataprovider));
+
+	return columnTitle;
+}
+
+/**
  * Initializes the module.
  * NOTE: This var must remain at the BOTTOM of the file.
  * @private 
