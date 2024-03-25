@@ -260,6 +260,67 @@ function getFoundSetWithExactValues(datasource, extraQueryColumns, extraQueryVal
 }
 
 /**
+ * Returns a dataset with given returnColumns and matching the given values in the given columns
+ *
+ * @param {String|JSFoundSet} datasource - A string of datasource path or a JSFoundSet object to query the data from.
+ * @param {Array<String>} returnColumns - An array of column names that you want to include in the returned dataset.
+ * @param {Array<String>} [extraQueryColumns] - Optional. An array of non-related column names in the datasource used to further restrict the query.
+ * @param {Array<*>} [extraQueryValues] - Optional. An array of values corresponding to the extraQueryColumns to match for in the query.
+ *
+ * @return {JSDataSet} - A JSDataSet object containing the queried data from the datasource.
+ *
+ * @example 
+ *  <pre>
+ *    // Example: Getting contact names of customers in UK based in the city of London
+ *    var customers = scopes.svyDataUtils.getDatasetSetWithExactValues("db:/example_data/customers",["contactname"], ["country","city"], ["UK","London"]);
+ * 
+ *    // Iterate over the dataset and print each contact name
+ *    for(var i = 1; i <= customers.getMaxRowIndex(); i++) {
+ *      console.log(customers.getRowAsArray(i));
+ *    }
+ *  </pre>
+ *
+ * @public
+ *
+ * @properties={typeid:24,uuid:"13808116-33F8-438B-874A-33346D05E4E4"}
+ */
+function getDatasetSetWithExactValues(datasource, returnColumns, extraQueryColumns, extraQueryValues) {
+	if (!datasource) {
+		throw new scopes.svyExceptions.IllegalArgumentException('no parameters provided to scopes.svyDataUtils.getDatasetSetWithExactValues(datasource, returnColumns, extraQueryColumns, extraQueryValues)');
+	}
+	/** @type {String} */
+	 var dataSource = (typeof datasource === 'string') ? datasource : datasource.getDataSource();
+	var query = databaseManager.createSelect(dataSource);
+	if (!returnColumns || returnColumns.length === 0) {
+		throw scopes.svyExceptions.IllegalArgumentException('returnColumns parameter is empty');
+	}
+	
+	returnColumns.forEach(function(columnName) {
+		query.result.add(query.getColumn(columnName));
+	});
+	
+	if (extraQueryColumns || extraQueryValues) {
+		if (!Array.isArray(extraQueryColumns) || !Array.isArray(extraQueryValues)) {
+			throw scopes.svyExceptions.IllegalArgumentException('extraQueryColumns and extraQueryValues parameters are not both an Array');
+		}
+		if (extraQueryColumns.length !== extraQueryValues.length) {
+			throw scopes.svyExceptions.IllegalArgumentException('size of extraQueryColumns and extraQueryValues parameters do not match');
+		}
+        for (var j = 0; j < extraQueryColumns.length; j++) {
+            var column = query.getColumn(extraQueryColumns[j]);
+            var value = extraQueryValues[j];
+            if (value == null) {
+                query.where.add(column.isNull);
+            } else {
+                query.where.add(column.eq(value instanceof UUID ? value.toString() : value));
+            }
+        }
+	}
+	
+	return databaseManager.getDataSetByQuery(query, -1);
+}
+
+/**
  * Loads all records matching the given criteria in the given foundset
  *
  * @param {JSFoundSet} foundset the foundset where records will be loaded
