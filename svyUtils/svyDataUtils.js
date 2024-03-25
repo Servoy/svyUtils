@@ -233,7 +233,7 @@ function dataSourceHasValue(datasource, dataproviderName, value, extraQueryColum
  */
 function getFoundSetWithExactValues(datasource, extraQueryColumns, extraQueryValues) {
 	if (!datasource) {
-		throw new scopes.svyExceptions.IllegalArgumentException('no parameters provided to scopes.svyDataUtils.getFoundSetWithExactValues(foundsetOrRecord, dataproviderName, value)');
+		throw new scopes.svyExceptions.IllegalArgumentException('no parameters provided to scopes.svyDataUtils.getFoundSetWithExactValues(datasource, extraQueryColumns, extraQueryValues)');
 	}
 	/** @type {String} */
 	var dataSource = (datasource instanceof String) ? datasource : datasource.getDataSource();
