@@ -5,7 +5,7 @@
  * @public
  * @param {JSFoundSet|JSRecord|Array<JSRecord>} [source] The source to be validated. If no source is given validate all the edited records
  * @param {Number} [level]
- * @param {*} customObject The extra customObject that is passed on the the validation methods.
+ * @param {*} [customObject] The extra customObject that is passed on the the validation methods.
  *
  * @return {Array<JSRecordMarker>}
  * @properties={typeid:24,uuid:"5A7C78EA-A3DE-477B-9C5C-6FE2B61F523D"}
