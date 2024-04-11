@@ -2942,7 +2942,7 @@ var initExcelCell = (/** @constructor */ function() {
 			var numberValue = value;
 			this.cell.setCellValue(numberValue);
 		} else {
-			this.cell.setCellValue("");
+			this.cell.setBlank();
 		}
 		if (style) {
 			this.setCellStyle(style);
