@@ -1533,7 +1533,7 @@ function DataSetExcelWorkbook(dataset, columns, headers, templateOrFileType, she
 				cell = row.createCell(this.startColumn + d);
 				var dpValue = rowData[columns[d]-1];
 				
-				if (dpValue instanceof Date && !this.columnFormatsUseLocalDateTime[d]) {
+				if (dpValue instanceof Date && !this.columnFormatsUseLocalDateTime[d] && scopes.svySystem.isNGClient()) {
 					dpValue = scopes.svyDateUtils.getLocalDateTime(dpValue);
 				}
 				
