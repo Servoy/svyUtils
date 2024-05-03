@@ -12,6 +12,7 @@
         {"version":"1.6.2","url":"https://github.com/Servoy/svyUtils/releases/download/v1.6.1/svyUtilsDocumentEditor.servoy", "servoy-version":"2021.12", "dependency":"smartDocumentEditor#>=1.1.1,svyUtils#>=1.6.1,svyUtils$NGClient#>=1.6.1"},
         {"version":"2022.3.0","url":"https://github.com/Servoy/svyUtils/releases/download/v2022.3.0/svyUtilsDocumentEditor.servoy", "servoy-version":"2022.3.0", "dependency":"smartDocumentEditor#>=2022.3.0,svyUtils#>=2022.3.0,svyUtils$NGClient#>=2022.3.0"},
         {"version":"2022.3.1","url":"https://github.com/Servoy/svyUtils/releases/download/v2022.3.1/svyUtilsDocumentEditor.servoy", "servoy-version":"2022.3.0", "dependency":"smartDocumentEditor#>=2022.3.1,svyUtils#>=2022.3.1,svyUtils$NGClient#>=2022.3.1"},
-        {"version":"2023.3.0","url":"https://github.com/Servoy/svyUtils/releases/download/v2023.3.0/svyUtilsDocumentEditor.servoy", "servoy-version":"2023.3.0", "dependency":"smartDocumentEditor#>=2023.3.0,svyUtils#>=2023.3.0,svyUtils$NGClient#>=2022.3.1"} 
+        {"version":"2023.3.0","url":"https://github.com/Servoy/svyUtils/releases/download/v2023.3.0/svyUtilsDocumentEditor.servoy", "servoy-version":"2023.3.0", "dependency":"smartDocumentEditor#>=2023.3.0,svyUtils#>=2023.3.0,svyUtils$NGClient#>=2022.3.1"},
+        {"version":"2024.3.0","url":"https://github.com/Servoy/svyUtils/releases/download/v2024.3.0/svyUtilsDocumentEditor.servoy", "servoy-version":"2024.3.0", "dependency":"smartDocumentEditor#>=2024.3.0,svyUtils#>=2024.3.0,svyUtils$NGClient#>=2024.3.0"}  
     ]
 }
