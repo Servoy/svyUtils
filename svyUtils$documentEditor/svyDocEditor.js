@@ -1392,7 +1392,6 @@ function asyncSuccessCallback(response, cbFunctionSuccess, cbFunctionError) {
 		application.output('Connection Error: ' + response.getStatusCode() + ' with error: ' + response.getResponseBody(), LOGGINGLEVEL.ERROR);
 		scopes.svySystem.callMethod(cbFunctionError, [response.getStatusCode(), response.getResponseBody()].concat(args));
 	}
-	response.close();
 }
 
 /**
@@ -1417,7 +1416,6 @@ function asyncErrorCallback(response, cbFunctionSuccess, cbFunctionError) {
 		application.output('Connection Error: ' + response.getStatusCode() + ' with error: ' + response.getResponseBody(), LOGGINGLEVEL.ERROR);
 		scopes.svySystem.callMethod(cbFunctionError, [response.getStatusCode(), response.getResponseBody()].concat(args));
 	}
-	response.close();
 }
 
 /**
