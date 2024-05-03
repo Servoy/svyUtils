@@ -143,7 +143,7 @@ function getJSDataSetByQueryAsync(query, maxReturnedRows, onSuccess, onError) {
  */
 function byteArrayToString(bytes, encoding) {
 	/** @type {String} */
-	var result = new java.lang.String(bytes, encoding | scopes.svyIO.CHAR_SETS.UTF_8).toString();
+	var result = new java.lang.String(bytes, encoding || scopes.svyIO.CHAR_SETS.UTF_8).toString();
 	return result;
 }
 
