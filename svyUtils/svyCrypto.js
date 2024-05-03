@@ -161,7 +161,9 @@ function decrypt(value, options, secretPassPhrase, iv) {
  * @properties={typeid:24,uuid:"91C2BABC-2E7C-496A-A324-72B3014F81CA"}
  */
 function decryptAsString(message, options, secretPassPhrase, iv) {
-	return new java.lang.String(decrypt(message, options, secretPassPhrase,  iv)).toString();
+	/** @type {String} */
+	var result = new java.lang.String(decrypt(message, options, secretPassPhrase,  iv)).toString();
+	return result;
 }
 
 /**
@@ -584,7 +586,9 @@ function EncryptionOptions() {
  * @properties={typeid:24,uuid:"73E8A428-BFE1-4B3B-9A8E-2D29645F7B8B"}
  */
 function string2Bytes(str) {
-	return new java.lang.String(str).getBytes();
+	/** @type {Array<byte>} */
+	var bytes = new java.lang.String(str).getBytes();
+	return bytes;
 }
 
 /**

@@ -142,10 +142,13 @@ function getJSDataSetByQueryAsync(query, maxReturnedRows, onSuccess, onError) {
  * @properties={typeid:24,uuid:"A7AD4F97-3CC5-46DB-9FE0-E2BE2580FCDF"}
  */
 function byteArrayToString(bytes, encoding) {
-	return new java.lang.String(bytes, encoding | scopes.svyIO.CHAR_SETS.UTF_8).toString()
+	/** @type {String} */
+	var result = new java.lang.String(bytes, encoding | scopes.svyIO.CHAR_SETS.UTF_8).toString();
+	return result;
 }
 
 /**
+ * @deprecated use utils.stringToBytes instead
  * Converts a String to byte[]
  *
  * @public
@@ -157,7 +160,9 @@ function byteArrayToString(bytes, encoding) {
  * @properties={typeid:24,uuid:"3A38D37F-4BC4-4315-BA0C-2743A8E2C0C1"}
  */
 function stringToByteArray(string) {
-	return new java.lang.String(string).getBytes()
+	/** @type {Array<byte>} */
+    var bytes = new java.lang.String(string).getBytes();
+    return bytes;
 }
 
 /**

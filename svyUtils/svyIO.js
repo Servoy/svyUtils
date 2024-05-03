@@ -757,7 +757,9 @@ var init = function() {
  * @properties={typeid:24,uuid:"0B0B4F09-09F4-4D11-9DD7-E64E40E3A968"}
  */
 function encodeStringToBase64(inputString) {
-    return Packages.org.apache.commons.codec.binary.Base64.encodeBase64String(new Packages.java.lang.String(inputString).getBytes());
+	/** @type {Array<byte>} */
+	var bytes = new Packages.java.lang.String(inputString).getBytes()
+    return Packages.org.apache.commons.codec.binary.Base64.encodeBase64String(bytes);
 }
 
 /**
