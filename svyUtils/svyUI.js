@@ -885,21 +885,22 @@ function setupRuntimeElementSource() {
 	    /** @type {JSFoundSet} */
 	    var fs;
 	    //First check if it is a component that can have a linked foundset
+	    /** @type {Object} */
 		var component = form.elements[elementName];
-		if (component['myFoundset']) {
+		if (component.hasOwnProperty('myFoundset')) {
 			return component['myFoundset'].foundset.getSelectedRecord();
 		} else {
-		var relationName = this.getRelationName(form, elementName);
-		if (relationName) {
-			/** @type {JSFoundSet} */
-			fs = form.foundset[relationName];
-		} else {
-			fs = form.foundset;
-		}
-				
-	    if (fs) {
-	        return fs.getSelectedRecord();
-	    }
+			var relationName = this.getRelationName(form, elementName);
+			if (relationName) {
+				/** @type {JSFoundSet} */
+				fs = form.foundset[relationName];
+			} else {
+				fs = form.foundset;
+			}
+					
+		    if (fs) {
+		        return fs.getSelectedRecord();
+		    }
 		}
 	    return null;
 	}
