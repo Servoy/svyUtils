@@ -690,3 +690,18 @@ function getSHA1(value) {
 function getSHA256(value) {
 	return getHash(value, 'SHA-256');
 }
+
+/**
+ * Converts a string or byte array to a hex using SHA-256
+ * 
+ * @public
+ * 
+ * @param {String|Array<byte>} value The string or bytes to hash
+ * 
+ * @return {String} The hashed bytes in Base-64 encoded string
+ * 
+ * @properties={typeid:24,uuid:"2C0DB669-725F-47D1-A5D4-CD59C11AF446"}
+ */
+function getSHA256Hex(value) {
+	return Packages.org.apache.commons.codec.digest.DigestUtils.sha256Hex(value)	
+}
