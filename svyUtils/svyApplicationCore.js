@@ -118,7 +118,7 @@ function initModules(startupArguments) {
 				scopes.svyEventManager.fireEvent(this, APPLICATION_EVENT_TYPES.MODULE_INITIALIZED, [form])
 				log.debug('Initialized module {} version {}', (form.getId() ? form.getId() : "[no ID provided for moduleDefinition \"" + moduleDefName + "\"]"), form.getVersion());
 			} catch(e) {
-				log.error("Error initializing module '{}'. Application may not function properly", moduleDefName, e)
+				log.error("Error initializing module '{}'. Application may not function properly.\n{}", moduleDefName, e)
 			}
 			stack.pop()
 			processed[moduleDefName] = null
