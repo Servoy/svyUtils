@@ -34,13 +34,23 @@ var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.date');
 
 /**
  * @type {java.time.ZoneId}
+ * @private
  *
  * @properties={typeid:35,uuid:"B5F1B378-17E1-4256-937E-F0F1731BF1EF",variableType:-4}
  */
 var zoneId = java.time.ZoneId.of(i18n.getCurrentTimeZone());
 
 /**
+ * @type {java.time.ZoneId}
+ * @private
+ * 
+ * @properties={typeid:35,uuid:"218C7CDA-A529-483E-807A-7949EA1E276E",variableType:-4}
+ */
+var systemZoneId =  java.time.ZoneId.systemDefault()
+
+/**
  * @type {java.util.Locale}
+ * @private
  *
  * @properties={typeid:35,uuid:"62C21E71-5331-4505-AAFB-300638B843A1",variableType:-4}
  */
@@ -480,7 +490,7 @@ function toStartOfDay(date) {
  * @properties={typeid:24,uuid:"177441D1-3D16-4948-86F8-059809A7ABF7"}
  */
 function toEndOfDay(date) {
-	date.setHours(23, 59, 59, 999);
+	date.setHours(23, 59, 59, 0);
 	return date;
 }
 
@@ -998,9 +1008,9 @@ function getFirstDayOfWeek(date) {
 	if (!date) {
 		date = new Date();
 	}
-	var localDate = getLocalDateFromDate(date);
+	var localDate = getLocalDateFromDate(date, true);
 	var firstDay = localDate.with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
-	return getDateFromLocalDateTime(firstDay);
+	return getDateFromLocalDateTime(firstDay, true);
 }
 
 /**
@@ -1015,12 +1025,13 @@ function getFirstDayOfWeek(date) {
  * @properties={typeid:24,uuid:"71A159C0-D42F-478B-9D82-65DD96745D81"}
  */
 function getFirstDayOfMonth(date) {
+		
 	if (!date) {
 		date = new Date();
 	}
-	var localDate = getLocalDateFromDate(date);
+	var localDate = getLocalDateFromDate(date, true);
 	var firstDay = localDate.with(java.time.temporal.TemporalAdjusters.firstDayOfMonth());
-	return getDateFromLocalDateTime(firstDay);
+	return getDateFromLocalDateTime(firstDay, true);
 }
 
 /**
@@ -1038,9 +1049,9 @@ function getFirstDayOfYear(date) {
 	if (!date) {
 		date = new Date();
 	}
-	var localDate = getLocalDateFromDate(date);
+	var localDate = getLocalDateFromDate(date, true);
 	var firstDay = localDate.with(java.time.temporal.TemporalAdjusters.firstDayOfYear());
-	return getDateFromLocalDateTime(firstDay);
+	return getDateFromLocalDateTime(firstDay, true);
 }
 
 /**
@@ -1094,8 +1105,8 @@ function getLastDayOfWeek(date) {
 		date = new Date();
 	}
 	var dayOfWeek = java.time.temporal.WeekFields.ISO.dayOfWeek();
-	var localDate = getLocalDateTimeFromDate(date);
-	return getDateFromLocalDateTime(localDate.with(dayOfWeek, dayOfWeek.range().getMaximum()));
+	var localDate = getLocalDateTimeFromDate(date, true);
+	return getDateFromLocalDateTime(localDate.with(dayOfWeek, dayOfWeek.range().getMaximum()), true);
 }
 
 /**
@@ -1114,7 +1125,7 @@ function getLastDayOfYear(date) {
 		date = new Date();
 	}
 	var year = java.time.Year.of(date.getFullYear());
-	return getDateFromLocalDateTime(year.atMonth(12).atEndOfMonth());
+	return getDateFromLocalDateTime(year.atMonth(12).atEndOfMonth(), true);
 }
 
 /**
@@ -1178,7 +1189,7 @@ function getLastDayOfMonth(date) {
 		date = new Date();
 	}
 	var yearMonth = java.time.YearMonth.of(date.getFullYear(), date.getMonth() + 1);
-	return getDateFromLocalDateTime(yearMonth.atEndOfMonth());
+	return getDateFromLocalDateTime(yearMonth.atEndOfMonth(), true);
 }
 
 /**
@@ -1985,6 +1996,7 @@ function formatUsesLocalDateTime(format) {
  * Returns a LocalDateTime object from the given date or now
  *
  * @param {Date} [date]
+ * @param {Boolean} [atSystemZone]
  *
  * @return {java.time.LocalDate}
  *
@@ -1992,12 +2004,15 @@ function formatUsesLocalDateTime(format) {
  *
  * @properties={typeid:24,uuid:"8ECE5B12-1705-4D16-B21B-65C91F9B2DC0"}
  */
-function getLocalDateFromDate(date) {
+function getLocalDateFromDate(date, atSystemZone) {
+	
+	var atZoneId = atSystemZone === true ? systemZoneId : zoneId;
+	
 	if (!date) {
-		return java.time.LocalDate.now(zoneId);
+		return java.time.LocalDate.now(atZoneId);
 	}
 	/** @type {java.time.LocalDate} */
-	var result = java.time.Instant.ofEpochMilli(date.getTime()).atZone(zoneId).toLocalDate();
+	var result = java.time.Instant.ofEpochMilli(date.getTime()).atZone(atZoneId).toLocalDate();
 	return result;
 }
 
@@ -2005,6 +2020,7 @@ function getLocalDateFromDate(date) {
  * Returns a LocalDateTime object from the given date or now
  *
  * @param {Date} [date]
+ * @param {Boolean} [atSystemZone]
  *
  * @return {java.time.LocalDateTime}
  *
@@ -2012,12 +2028,15 @@ function getLocalDateFromDate(date) {
  *
  * @properties={typeid:24,uuid:"3CC592DB-7E89-4DBC-91F1-99FD7C9B4850"}
  */
-function getLocalDateTimeFromDate(date) {
+function getLocalDateTimeFromDate(date, atSystemZone) {
+	
+	var atZoneId = atSystemZone === true ? systemZoneId : zoneId;
+	
 	if (!date) {
-		return java.time.LocalDateTime.now(zoneId);
+		return java.time.LocalDateTime.now(atZoneId);
 	}
 	/** @type {java.time.LocalDateTime} */
-	var result = java.time.Instant.ofEpochMilli(date.getTime()).atZone(zoneId).toLocalDateTime();
+	var result = java.time.Instant.ofEpochMilli(date.getTime()).atZone(atZoneId).toLocalDateTime();
 	return result;
 }
 
@@ -2025,6 +2044,7 @@ function getLocalDateTimeFromDate(date) {
  * Returns a Date from a LocalDateTime object
  *
  * @param {java.time.LocalDateTime|java.time.temporal.Temporal} [localDateTime]
+ * @param {Boolean} [atSystemZone]
  *
  * @return {Date}
  *
@@ -2032,16 +2052,19 @@ function getLocalDateTimeFromDate(date) {
  *
  * @properties={typeid:24,uuid:"F058D9D0-1180-47C9-8168-ACEBEE8F17E5"}
  */
-function getDateFromLocalDateTime(localDateTime) {
+function getDateFromLocalDateTime(localDateTime, atSystemZone) {
+	
+	var atZoneId = atSystemZone === true ? systemZoneId : zoneId;
+	
 	if (!localDateTime) {
-		localDateTime = java.time.LocalDateTime.now(zoneId);
+		localDateTime = java.time.LocalDateTime.now(atZoneId);
 	}
 	if (localDateTime instanceof java.time.LocalDate) {
 		/** @type {java.time.LocalDate} */
 		var localDate = localDateTime;
 		localDateTime = localDate.atStartOfDay();
 	}
-	return new Date(localDateTime.atZone(zoneId).toInstant().toEpochMilli());
+	return new Date(localDateTime.atZone(atZoneId).toInstant().toEpochMilli());
 }
 
 /**
