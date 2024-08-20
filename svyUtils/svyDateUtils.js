@@ -539,7 +539,7 @@ function createDateSearchString(start, end) {
  * @properties={typeid:24,uuid:"9BE1A5B5-7882-4E15-8EC7-2578F0C6AC81"}
  */
 function createDateFromWeekNumber(year, week) {
-	var localDate = getLocalDateTimeFromDate()
+	var localDate = getLocalDateFromDate().atStartOfDay()
 		.withYear(year)
 		.with(weekFields.weekOfYear(), week)
 		.with(weekFields.dayOfWeek(), 1);
