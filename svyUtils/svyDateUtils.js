@@ -167,7 +167,7 @@ function add(date, years, months, days, hours, minutes, seconds) {
 
 	/** @type {java.time.temporal.TemporalUnit} */
 	var unit 
-	var zonedDateTime = getLocalDateTimeFromDate(date).atZone(zoneId);
+	var zonedDateTime = getZonedDateTimeFromDate(date)
 	var instant = zonedDateTime.toInstant();
 	
 	if (hours) {
@@ -184,7 +184,7 @@ function add(date, years, months, days, hours, minutes, seconds) {
 	}
 	
 	// 
-	var result = new Date(instant.toEpochMilli());
+	var result = getDateFromZonedInstant(instant);
 	return getDateFromLocalDateTime(
 	getLocalDateTimeFromDate(result)
 			.plusYears(years)
@@ -389,13 +389,14 @@ function addBusinessDays(date, days, holidays) {
  * @properties={typeid:24,uuid:"DF5683B7-5B98-4425-A711-958D8CFDCAD7"}
  */
 function addHours(date, hours) {
-	var zonedDateTime = getLocalDateTimeFromDate(date).atZone(zoneId);
+	var zonedDateTime = getZonedDateTimeFromDate(date);
 	
 	/** @type {java.time.temporal.TemporalUnit} */
 	var unit = java.time.temporal.ChronoUnit.HOURS
 	var instant = zonedDateTime.toInstant();
 	instant = instant.plus(hours, unit);
-	return new Date(instant.toEpochMilli());
+	
+	return getDateFromZonedInstant(instant);
 }
 
 /**
@@ -413,13 +414,14 @@ function addHours(date, hours) {
  */
 function addMinutes(date, minutes) {
 	
-	var zonedDateTime = getLocalDateTimeFromDate(date).atZone(zoneId);
+	var zonedDateTime = getZonedDateTimeFromDate(date)
 	
 	/** @type {java.time.temporal.TemporalUnit} */
 	var unit = java.time.temporal.ChronoUnit.MINUTES
 	var instant =zonedDateTime.toInstant()
 	instant = instant.plus(minutes, unit);
-	return new Date(instant.toEpochMilli());
+	
+	return getDateFromZonedInstant(instant);
 }
 
 /**
@@ -436,13 +438,14 @@ function addMinutes(date, minutes) {
  * @properties={typeid:24,uuid:"520A2683-27A9-49BE-BC10-545E489A0E5F"}
  */
 function addSeconds(date, seconds) {
-	var zonedDateTime = getLocalDateTimeFromDate(date).atZone(zoneId);
+	var zonedDateTime = getZonedDateTimeFromDate(date)
 	
 	/** @type {java.time.temporal.TemporalUnit} */
 	var unit = java.time.temporal.ChronoUnit.SECONDS;
 	var instant =zonedDateTime.toInstant()
 	instant = instant.plus(seconds, unit);
-	return new Date(instant.toEpochMilli());
+	
+	return getDateFromZonedInstant(instant);
 }
 
 /**
@@ -1008,9 +1011,9 @@ function getFirstDayOfWeek(date) {
 	if (!date) {
 		date = new Date();
 	}
-	var localDate = getLocalDateFromDate(date, true);
+	var localDate = getLocalDateFromDate(date);
 	var firstDay = localDate.with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY));
-	return getDateFromLocalDateTime(firstDay, true);
+	return getDateFromLocalDateTime(firstDay);
 }
 
 /**
@@ -1029,9 +1032,9 @@ function getFirstDayOfMonth(date) {
 	if (!date) {
 		date = new Date();
 	}
-	var localDate = getLocalDateFromDate(date, true);
+	var localDate = getLocalDateFromDate(date);
 	var firstDay = localDate.with(java.time.temporal.TemporalAdjusters.firstDayOfMonth());
-	return getDateFromLocalDateTime(firstDay, true);
+	return getDateFromLocalDateTime(firstDay);
 }
 
 /**
@@ -1049,9 +1052,9 @@ function getFirstDayOfYear(date) {
 	if (!date) {
 		date = new Date();
 	}
-	var localDate = getLocalDateFromDate(date, true);
+	var localDate = getLocalDateFromDate(date);
 	var firstDay = localDate.with(java.time.temporal.TemporalAdjusters.firstDayOfYear());
-	return getDateFromLocalDateTime(firstDay, true);
+	return getDateFromLocalDateTime(firstDay);
 }
 
 /**
@@ -1105,8 +1108,8 @@ function getLastDayOfWeek(date) {
 		date = new Date();
 	}
 	var dayOfWeek = java.time.temporal.WeekFields.ISO.dayOfWeek();
-	var localDate = getLocalDateTimeFromDate(date, true);
-	return getDateFromLocalDateTime(localDate.with(dayOfWeek, dayOfWeek.range().getMaximum()), true);
+	var localDate = getLocalDateTimeFromDate(date);
+	return getDateFromLocalDateTime(localDate.with(dayOfWeek, dayOfWeek.range().getMaximum()));
 }
 
 /**
@@ -1125,7 +1128,7 @@ function getLastDayOfYear(date) {
 		date = new Date();
 	}
 	var year = java.time.Year.of(date.getFullYear());
-	return getDateFromLocalDateTime(year.atMonth(12).atEndOfMonth(), true);
+	return getDateFromLocalDateTime(year.atMonth(12).atEndOfMonth());
 }
 
 /**
@@ -1189,7 +1192,7 @@ function getLastDayOfMonth(date) {
 		date = new Date();
 	}
 	var yearMonth = java.time.YearMonth.of(date.getFullYear(), date.getMonth() + 1);
-	return getDateFromLocalDateTime(yearMonth.atEndOfMonth(), true);
+	return getDateFromLocalDateTime(yearMonth.atEndOfMonth());
 }
 
 /**
@@ -1849,14 +1852,13 @@ function createOADateFromDate(date) {
  */
 function getLocalDateTime(date) {
 
-	if (!scopes.svySystem.isNGClient() && !scopes.svySystem.isTINGClient()) {
-		application.output("getLocalDateTime is an NG Client only method; returning the date as it is in the current client", LOGGINGLEVEL.WARNING)
-		return date;
-	}
-
-	// timezone offset between client & server
-	var diff = getLocalDateTimeOffset(date);
-	return scopes.svyDateUtils.addMinutes(date, diff);
+//	if (!scopes.svySystem.isNGClient() && !scopes.svySystem.isTINGClient()) {
+//		application.output("getLocalDateTime is an NG Client only method; returning the date as it is in the current client", LOGGINGLEVEL.WARNING)
+//		return date;
+//	}
+	
+	var localDateTime = java.time.Instant.ofEpochMilli(date.getTime()).atZone(zoneId).toLocalDateTime();
+	return new Date(localDateTime.atZone(systemZoneId).toInstant().toEpochMilli());
 }
 
 /**
@@ -1900,14 +1902,13 @@ function getLocalDateTime(date) {
  */
 function getServerDateTime(clientDate) {
 
-	if (!scopes.svySystem.isNGClient() && !scopes.svySystem.isTINGClient()) {
-		application.output("getServerDateTime is an NG Client only method; returning the date as it is in the current client", LOGGINGLEVEL.WARNING)
-		return clientDate;
-	}
-
-	// timezone offset between client & server
-	var diff = getLocalDateTimeOffset(clientDate);
-	return scopes.svyDateUtils.addMinutes(clientDate, -diff);
+//	if (!scopes.svySystem.isNGClient() && !scopes.svySystem.isTINGClient()) {
+//		application.output("getServerDateTime is an NG Client only method; returning the date as it is in the current client", LOGGINGLEVEL.WARNING)
+//		return clientDate;
+//	}
+	
+	var localDateTime = java.time.Instant.ofEpochMilli(clientDate.getTime()).atZone(systemZoneId).toLocalDateTime();
+	return new Date(localDateTime.atZone(zoneId).toInstant().toEpochMilli());
 }
 
 /**
@@ -1993,10 +1994,40 @@ function formatUsesLocalDateTime(format) {
 }
 
 /**
+ * @private 
+ * @param {java.time.Instant|java.time.temporal.Temporal} instant
+ * 
+ * @return {Date}
+ *
+ * @properties={typeid:24,uuid:"F1B0B7DF-0DE3-4B67-A522-285820D53116"}
+ */
+function getDateFromZonedInstant(instant) {
+	/** @type {java.time.Instant} */
+	var inst = instant;
+	var localDateTime = java.time.LocalDateTime.ofInstant(inst, zoneId);
+	return getDateFromLocalDateTime(localDateTime);
+}
+
+/**
+ * @private 
+ * @param {Date} [date]
+ * 
+ * @return {java.time.ZonedDateTime}
+ *
+ * @properties={typeid:24,uuid:"BDD4F3FA-47C1-4827-906A-4BDEA5A6E1A9"}
+ */
+function getZonedDateTimeFromDate(date) {
+	if (!date) {
+		date = new Date();
+	}
+	
+	return java.time.Instant.ofEpochMilli(date.getTime()).atZone(systemZoneId).withZoneSameLocal(zoneId);
+}
+
+/**
  * Returns a LocalDateTime object from the given date or now
  *
  * @param {Date} [date]
- * @param {Boolean} [atSystemZone]
  *
  * @return {java.time.LocalDate}
  *
@@ -2004,15 +2035,15 @@ function formatUsesLocalDateTime(format) {
  *
  * @properties={typeid:24,uuid:"8ECE5B12-1705-4D16-B21B-65C91F9B2DC0"}
  */
-function getLocalDateFromDate(date, atSystemZone) {
+function getLocalDateFromDate(date) {
+		
+//	if (atSystemZone !== true) {
+//		// translate the date to the server offset. So when localOffset is applied, goes back to 0
+//		date = getServerDateTime(date);
+//	}
 	
-	var atZoneId = atSystemZone === true ? systemZoneId : zoneId;
-	
-	if (!date) {
-		return java.time.LocalDate.now(atZoneId);
-	}
 	/** @type {java.time.LocalDate} */
-	var result = java.time.Instant.ofEpochMilli(date.getTime()).atZone(atZoneId).toLocalDate();
+	var result = getZonedDateTimeFromDate(date).toLocalDate();
 	return result;
 }
 
@@ -2020,7 +2051,6 @@ function getLocalDateFromDate(date, atSystemZone) {
  * Returns a LocalDateTime object from the given date or now
  *
  * @param {Date} [date]
- * @param {Boolean} [atSystemZone]
  *
  * @return {java.time.LocalDateTime}
  *
@@ -2028,15 +2058,15 @@ function getLocalDateFromDate(date, atSystemZone) {
  *
  * @properties={typeid:24,uuid:"3CC592DB-7E89-4DBC-91F1-99FD7C9B4850"}
  */
-function getLocalDateTimeFromDate(date, atSystemZone) {
+function getLocalDateTimeFromDate(date) {
 	
-	var atZoneId = atSystemZone === true ? systemZoneId : zoneId;
+//	if (atSystemZone !== true) {
+//		// translate the date to the server offset. So there is no shift in time/date when local zone is applied
+//		date = getServerDateTime(date);
+//	}
 	
-	if (!date) {
-		return java.time.LocalDateTime.now(atZoneId);
-	}
 	/** @type {java.time.LocalDateTime} */
-	var result = java.time.Instant.ofEpochMilli(date.getTime()).atZone(atZoneId).toLocalDateTime();
+	var result = getZonedDateTimeFromDate(date).toLocalDateTime();
 	return result;
 }
 
@@ -2044,7 +2074,6 @@ function getLocalDateTimeFromDate(date, atSystemZone) {
  * Returns a Date from a LocalDateTime object
  *
  * @param {java.time.LocalDateTime|java.time.temporal.Temporal} [localDateTime]
- * @param {Boolean} [atSystemZone]
  *
  * @return {Date}
  *
@@ -2052,19 +2081,23 @@ function getLocalDateTimeFromDate(date, atSystemZone) {
  *
  * @properties={typeid:24,uuid:"F058D9D0-1180-47C9-8168-ACEBEE8F17E5"}
  */
-function getDateFromLocalDateTime(localDateTime, atSystemZone) {
-	
-	var atZoneId = atSystemZone === true ? systemZoneId : zoneId;
-	
+function getDateFromLocalDateTime(localDateTime) {
+		
 	if (!localDateTime) {
-		localDateTime = java.time.LocalDateTime.now(atZoneId);
+		localDateTime = getZonedDateTimeFromDate().toLocalDateTime();
 	}
 	if (localDateTime instanceof java.time.LocalDate) {
 		/** @type {java.time.LocalDate} */
 		var localDate = localDateTime;
 		localDateTime = localDate.atStartOfDay();
 	}
-	return new Date(localDateTime.atZone(atZoneId).toInstant().toEpochMilli());
+	var date = new Date(localDateTime.atZone(systemZoneId).toInstant().toEpochMilli());
+	
+//	if (atSystemZone !== true) {
+//		// translate the date to the server offset. So when localOffset is applied, goes back to 0
+//		date = getLocalDateTime(date);
+//	}
+	return date;
 }
 
 /**
