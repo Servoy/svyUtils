@@ -366,6 +366,16 @@ function testGetDateDifference() {
 
 	jsunit.assertEquals( (2 * 24) + 1, scopes.svyDateUtils.getDateDifference(summerDate, winterDate).totalHours);
 	jsunit.assertEquals( (2 * 24 * 60) + 60, scopes.svyDateUtils.getDateDifference(summerDate, winterDate).totalMinutes);
+	
+	scopes.svyDateUtils.setLocaleAndTimeZone('en','EN','UTC')
+	
+	// Test UTC without DST
+	jsunit.assertEquals(2, scopes.svyDateUtils.getDateDifference(summerDate, winterDate).days);
+	jsunit.assertEquals(0, scopes.svyDateUtils.getDateDifference(summerDate, winterDate).hours);
+	jsunit.assertEquals(0, scopes.svyDateUtils.getDateDifference(summerDate, winterDate).minutes);
+
+	jsunit.assertEquals( (2 * 24), scopes.svyDateUtils.getDateDifference(summerDate, winterDate).totalHours);
+	jsunit.assertEquals( (2 * 24 * 60), scopes.svyDateUtils.getDateDifference(summerDate, winterDate).totalMinutes);
 
 }
 
@@ -374,15 +384,33 @@ function testGetDateDifference() {
  * @properties={typeid:24,uuid:"AD3ABCCF-EF8F-4BAE-B142-2D63400B4E4D"}
  */
 function testGetDayDifference() {
+	
+	//
 
-	var today = new Date();
+	var today = getDate();
 	var todayPrev = scopes.svyDateUtils.add(today, -1, -1, -1, -1, -1, -1);
+	jsunit.assertEquals('12-07-2022 22:58:59', utils.dateFormat(todayPrev, 'dd-MM-yyyy HH:mm:ss'));
 	jsunit.assertEquals(397, scopes.svyDateUtils.getDayDifference(todayPrev, today));
 
 	// count leap year
 	var todayNext = scopes.svyDateUtils.add(today, 1, 1, 1, 1, 1, 1);
-	jsunit.assertEquals(397, scopes.svyDateUtils.getDayDifference(today, todayNext));
-	jsunit.assertEquals(-397, scopes.svyDateUtils.getDayDifference(todayNext, today));
+	jsunit.assertEquals('15-09-2024 01:01:01', utils.dateFormat(todayNext, 'dd-MM-yyyy HH:mm:ss'));
+
+	jsunit.assertEquals(398, scopes.svyDateUtils.getDayDifference(today, todayNext));
+	jsunit.assertEquals(-398, scopes.svyDateUtils.getDayDifference(todayNext, today));
+	
+	scopes.svyDateUtils.setLocaleAndTimeZone('en','EN','UTC')
+	
+	todayPrev = scopes.svyDateUtils.add(today, -1, -1, -1, -1, -1, -1);
+	jsunit.assertEquals('12-07-2022 22:58:59', utils.dateFormat(todayPrev, 'dd-MM-yyyy HH:mm:ss'));
+	jsunit.assertEquals(397, scopes.svyDateUtils.getDayDifference(todayPrev, today));
+
+	// count leap year
+	todayNext = scopes.svyDateUtils.add(today, 1, 1, 1, 1, 1, 1);
+	jsunit.assertEquals('15-09-2024 01:01:01', utils.dateFormat(todayNext, 'dd-MM-yyyy HH:mm:ss'));
+
+	jsunit.assertEquals(398, scopes.svyDateUtils.getDayDifference(today, todayNext));
+	jsunit.assertEquals(-398, scopes.svyDateUtils.getDayDifference(todayNext, today));
 
 }
 
@@ -774,6 +802,27 @@ function testGetLastDayOfMonth() {
 	jsunit.assertEquals('29-02-2024 00:00:00', utils.dateFormat(scopes.svyDateUtils.getLastDayOfMonth(new Date(2024, 1, 28)), 'dd-MM-yyyy HH:mm:ss'));
 	jsunit.assertEquals('29-02-2024 00:00:00', utils.dateFormat(scopes.svyDateUtils.getLastDayOfMonth(new Date(2024, 1, 29)), 'dd-MM-yyyy HH:mm:ss'));
 
+}
+
+/**
+ * @properties={typeid:24,uuid:"5612BD4B-AB16-44FB-A515-E96089632C16"}
+ */
+function testGetLocalDate() {
+	
+	// TODO this test depends on the actual timezone used by the developer. Is expected to be UTC
+	
+	// test 14-08-2023
+	var date = getDate();
+	jsunit.assertEquals('14-08-2023 02:00:00', utils.dateFormat(scopes.svyDateUtils.getLocalDateTime(date), 'dd-MM-yyyy HH:mm:ss'));
+	jsunit.assertEquals('13-08-2023 22:00:00', utils.dateFormat(scopes.svyDateUtils.getServerDateTime(date), 'dd-MM-yyyy HH:mm:ss'));
+	
+	scopes.svyDateUtils.setLocaleAndTimeZone('en','EN','UTC')
+	jsunit.assertEquals('14-08-2023 00:00:00', utils.dateFormat(scopes.svyDateUtils.getLocalDateTime(date), 'dd-MM-yyyy HH:mm:ss'));
+	jsunit.assertEquals('14-08-2023 00:00:00', utils.dateFormat(scopes.svyDateUtils.getServerDateTime(date), 'dd-MM-yyyy HH:mm:ss'));
+
+	scopes.svyDateUtils.setLocaleAndTimeZone('en','EN','Europe/Athens')
+	jsunit.assertEquals('14-08-2023 03:00:00', utils.dateFormat(scopes.svyDateUtils.getLocalDateTime(date), 'dd-MM-yyyy HH:mm:ss'));
+	jsunit.assertEquals('13-08-2023 21:00:00', utils.dateFormat(scopes.svyDateUtils.getServerDateTime(date), 'dd-MM-yyyy HH:mm:ss'));
 }
 
 /**

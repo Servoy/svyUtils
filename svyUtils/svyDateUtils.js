@@ -609,7 +609,7 @@ function getDateDifference(start, end) {
 	var localDateStart = getLocalDateTimeFromDate(start);
 	var localDateEnd = getLocalDateTimeFromDate(end);
 
-	var difference = end.getTime() - start.getTime();
+	var difference = localDateEnd.atZone(zoneId).toInstant().toEpochMilli() - localDateStart.atZone(zoneId).toInstant().toEpochMilli(); 
 	var days = java.time.temporal.ChronoUnit.DAYS.between(localDateStart, localDateEnd);
 	var totalHours = java.time.temporal.ChronoUnit.HOURS.between(localDateStart, localDateEnd);
 	var totalMinutes = java.time.temporal.ChronoUnit.MINUTES.between(localDateStart, localDateEnd);
@@ -2092,11 +2092,6 @@ function getDateFromLocalDateTime(localDateTime) {
 		localDateTime = localDate.atStartOfDay();
 	}
 	var date = new Date(localDateTime.atZone(systemZoneId).toInstant().toEpochMilli());
-	
-//	if (atSystemZone !== true) {
-//		// translate the date to the server offset. So when localOffset is applied, goes back to 0
-//		date = getLocalDateTime(date);
-//	}
 	return date;
 }
 
