@@ -153,15 +153,31 @@ function testAddDays() {
  * @properties={typeid:24,uuid:"15E67937-E4FD-4FD4-9ABA-B8BCD9B46C29"}
  */
 function testAddBusinessDays() {
-	// test 14-08-2023
 	var date = getFirstDayOfYear();
 	jsunit.assertEquals('13-01-2023 00:00:00', utils.dateFormat(scopes.svyDateUtils.addBusinessDays(date, 10), 'dd-MM-yyyy HH:mm:ss'));
 	jsunit.assertEquals('16-01-2023 00:00:00', utils.dateFormat(scopes.svyDateUtils.addBusinessDays(date, 10, [new Date(2023, 0, 6)]), 'dd-MM-yyyy HH:mm:ss'));
 	
+	// test 14-08-2023
+	date = getDate();
+	jsunit.assertEquals('28-08-2023 00:00:00', utils.dateFormat(scopes.svyDateUtils.addBusinessDays(date, 10), 'dd-MM-yyyy HH:mm:ss'));
+	jsunit.assertEquals('29-08-2023 00:00:00', utils.dateFormat(scopes.svyDateUtils.addBusinessDays(date, 10, [new Date(2023, 7, 15)]), 'dd-MM-yyyy HH:mm:ss'));
+	
+	jsunit.assertEquals('31-07-2023 00:00:00', utils.dateFormat(scopes.svyDateUtils.addBusinessDays(date, -10), 'dd-MM-yyyy HH:mm:ss'));
+	jsunit.assertEquals('28-07-2023 00:00:00', utils.dateFormat(scopes.svyDateUtils.addBusinessDays(date, -10, [new Date(2023, 7, 8)]), 'dd-MM-yyyy HH:mm:ss'));
+	
 	scopes.svyDateUtils.setLocaleAndTimeZone('en','EN','UTC');
 	
+	date = getFirstDayOfYear();
 	jsunit.assertEquals('13-01-2023 00:00:00', utils.dateFormat(scopes.svyDateUtils.addBusinessDays(date, 10), 'dd-MM-yyyy HH:mm:ss'));
 	jsunit.assertEquals('16-01-2023 00:00:00', utils.dateFormat(scopes.svyDateUtils.addBusinessDays(date, 10, [new Date(2023, 0, 6)]), 'dd-MM-yyyy HH:mm:ss'));
+	
+	// test 14-08-2023
+	date = getDate();
+	jsunit.assertEquals('28-08-2023 00:00:00', utils.dateFormat(scopes.svyDateUtils.addBusinessDays(date, 10), 'dd-MM-yyyy HH:mm:ss'));
+	jsunit.assertEquals('29-08-2023 00:00:00', utils.dateFormat(scopes.svyDateUtils.addBusinessDays(date, 10, [new Date(2023, 7, 15)]), 'dd-MM-yyyy HH:mm:ss'));
+	
+	jsunit.assertEquals('31-07-2023 00:00:00', utils.dateFormat(scopes.svyDateUtils.addBusinessDays(date, -10), 'dd-MM-yyyy HH:mm:ss'));
+	jsunit.assertEquals('28-07-2023 00:00:00', utils.dateFormat(scopes.svyDateUtils.addBusinessDays(date, -10, [new Date(2023, 7, 8)]), 'dd-MM-yyyy HH:mm:ss'));
 }
 
 /**
@@ -809,7 +825,7 @@ function testGetLastDayOfMonth() {
  */
 function testGetLocalDate() {
 	
-	// TODO this test depends on the actual timezone used by the developer. Is expected to be UTC
+	// TODO this test depends on the actual timezone used by the developer. Must start the developer from UTC timezone for this test.
 	
 	// test 14-08-2023
 	var date = getDate();

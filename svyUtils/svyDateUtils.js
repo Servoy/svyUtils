@@ -366,7 +366,12 @@ function addBusinessDays(date, days, holidays) {
 	}
 
 	while (businessDaysAdded < numberOfDaysToAdd) {
-		currentDate = currentDate.plusDays(1);
+		if (days >= 0) {
+			currentDate = currentDate.plusDays(1);
+		} else {
+			currentDate = currentDate.minusDays(1);
+		}
+		
 		if (isWorkingDay(currentDate)) {
 			businessDaysAdded++;
 		}
