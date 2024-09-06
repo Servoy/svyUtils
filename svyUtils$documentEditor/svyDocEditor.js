@@ -549,8 +549,8 @@ function TagBuilder(dataSource, editor) {
  */
 function mergeTags(content, record, ifCallback, mentionCallback, repeaterCallback) {
 	content = processRepeaters(content,record,repeaterCallback,ifCallback,mentionCallback);
-	content = processIfBlocksV2(content,record,ifCallback)
-	content = processIfBlocks(content, record, ifCallback);
+	content = processIfBlocks(content,record,ifCallback)
+	content = processIfBlocksSingleIfEnd(content, record, ifCallback);
 	content = processMentions(content, record, null, mentionCallback);
 
 	//Force fixing some non working HTML Chars:
@@ -570,7 +570,7 @@ function mergeTags(content, record, ifCallback, mentionCallback, repeaterCallbac
  * @return {String}
  * @properties={typeid:24,uuid:"93192AF2-73CB-49C6-A705-E14C8988FDCB"}
  */
-function processIfBlocksV2(html, record, ifCallback) {
+function processIfBlocks(html, record, ifCallback) {
 	if (!html) {
 		return '';
 	}
@@ -626,7 +626,7 @@ function processIfBlocksV2(html, record, ifCallback) {
 
 			//If we have an new match inside the existing match we have to rerun it
 			if (matchItem.match(regIfBlock)) {
-				matchItem = processIfBlocksV2(matchItem, record, ifCallback);
+				matchItem = processIfBlocks(matchItem, record, ifCallback);
 			}
 
 			return matchItem;
@@ -641,7 +641,7 @@ function processIfBlocksV2(html, record, ifCallback) {
 }
 
 /**
- * @deprecated this is the old way to process if blocks
+ * This can manage only 1 single ifEnd block
  * @private
  *
  * @param {String} html
@@ -651,7 +651,7 @@ function processIfBlocksV2(html, record, ifCallback) {
  * @return {String}
  * @properties={typeid:24,uuid:"2A4BB51D-041C-4988-BC74-5FAEC518E8CC"}
  */
-function processIfBlocks(html, record, ifCallback) {
+function processIfBlocksSingleIfEnd(html, record, ifCallback) {
 	if (!html) {
 		return '';
 	}
@@ -673,10 +673,12 @@ function processIfBlocks(html, record, ifCallback) {
 					return '';
 				}
 			}
+			
+			// i need to search for the whole regex
 
 			//If we have an new match inside the existing match we have to rerun it
 			if (matchItem.match(REGEX.FULL_IF_BLOCK)) {
-				matchItem = processIfBlocks(matchItem, record, ifCallback);
+				matchItem = processIfBlocksSingleIfEnd(matchItem, record, ifCallback);
 			}
 
 			return matchItem;
@@ -811,7 +813,7 @@ function processRepeaters(html, record, repeaterCallback, ifCallback, mentionCal
 					processedRepeat = processRepeaters(toRepeat, record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i), repeaterCallback);
 				}
 				// TODO need to manage the if within the repeat block
-				newValue += processIfBlocks(processedRepeat,record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i),ifCallback);
+				newValue += processIfBlocksSingleIfEnd(processedRepeat,record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i),ifCallback);
 				newValue = processMentions(newValue,record,i,mentionCallback);
 			}
 
