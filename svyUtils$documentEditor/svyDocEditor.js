@@ -87,10 +87,24 @@ var REGEX = {
 	FULL_IF_BLOCK: /(<span[^>]+\ssvy-mention\b[^>]*>\@if\b[^<]*<\/span>(&nbsp;)?(<\/p>)?(<figure class="table".*?>)?(<table.*?>)?).*((<\/table>)?(<\/figure>)?(<p>)?<span[^>]+\ssvy-mention\b[^>]*>\@endIf<\/span>(&nbsp;)?)/gm,
 	START_IF: /^<span[^>]+\ssvy-mention\b[^>]*>\@if\b[^<]*<\/span>(\s|&nbsp;|<br>)*/gm,
 	CLOSE_IF: /<span[^>]+\ssvy-mention\b[^>]*>\@endIf<\/span>(&nbsp;)?$/gm,
+	ALL_START_IF: /<span[^>]+\ssvy-mention\b[^>]*>\@if\b[^<]*<\/span>(\s|&nbsp;|<br>)*/gm,
+	NAMED_CLOSE_IF: /<span[^>]+\ssvy-mention\b[^>]*>\@endIf\.\b[^<]*<\/span>(&nbsp;)/gm,
 	FULL_TABLE_ROW: /<tr>.*<\/tr>/gm,
 	FULL_TABLE_HEADER: /<tr>.*<\/thead><tbody>/gm,
 	BR_END: /<br>$/gm
 };
+
+
+/**
+ * @private
+ * @enum {String}
+ * @properties={typeid:35,uuid:"A910F6B0-4107-4251-9D11-55A07C41514C",variableType:-4}
+ */
+var REGEX_STRING = {
+	FULL_IF_BLOCK: '(<span[^>]+\\ssvy-mention\\b[^>]*>\\@if\\.{{0}}\\b[^<]*<\\/span>(&nbsp;)?(<\\/p>)?(<figure class="table".*?>)?(<table.*?>)?).*?((<\\/table>)?(<\\/figure>)?(<p>)?<span[^>]+\\ssvy-mention\\b[^>]*>\\@endIf\.{{0}}<\\/span>(&nbsp;)?)',
+	START_IF: '<span[^>]+\\ssvy-mention\\b[^>]*>\\@if\\.{{0}}\\b[^<]*<\\/span>(\\s|&nbsp;|<br>)*',
+	CLOSE_IF: '<span[^>]+\\ssvy-mention\\b[^>]*>\\@endIf\.{{0}}<\\/span>(&nbsp;)*'
+}
 
 /**
  * @private
@@ -487,10 +501,11 @@ function TagBuilder(dataSource, editor) {
 		for (var i = 0; i < this.ifTags.length; i++) {
 			var ifTag = this.ifTags[i];
 			dataset.addRow([ifTag.displayValue, ifTag.realValue]);
+			dataset.addRow([ifTag.displayValue.replace(DEFAULT_IF.IF_OPEN,DEFAULT_IF.IF_CLOSE), ifTag.realValue.replace(DEFAULT_IF.IF_OPEN,DEFAULT_IF.IF_CLOSE)])
 		}
 
 		if (dataset.getMaxRowIndex() > 0) {
-			dataset.addRow([DEFAULT_IF.IF_CLOSE, DEFAULT_IF.IF_CLOSE]);
+			//dataset.addRow([DEFAULT_IF.IF_CLOSE, DEFAULT_IF.IF_CLOSE]);
 		}
 
 		return dataset;
@@ -534,6 +549,7 @@ function TagBuilder(dataSource, editor) {
  */
 function mergeTags(content, record, ifCallback, mentionCallback, repeaterCallback) {
 	content = processRepeaters(content,record,repeaterCallback,ifCallback,mentionCallback);
+	content = processIfBlocksV2(content,record,ifCallback)
 	content = processIfBlocks(content, record, ifCallback);
 	content = processMentions(content, record, null, mentionCallback);
 
@@ -545,6 +561,87 @@ function mergeTags(content, record, ifCallback, mentionCallback, repeaterCallbac
 }
 
 /**
+ * @private
+ *
+ * @param {String} html
+ * @param {JSRecord} record
+ * @param {function(String,JSRecord):Boolean} [ifCallback]
+ *
+ * @return {String}
+ * @properties={typeid:24,uuid:"93192AF2-73CB-49C6-A705-E14C8988FDCB"}
+ */
+function processIfBlocksV2(html, record, ifCallback) {
+	if (!html) {
+		return '';
+	}
+	
+	var matches = html.match(REGEX.ALL_START_IF).map(function (matchItem) {
+		
+		/** @type {String} */
+		var match = matchItem.match(/data-mention=".*?"/gm)[0];
+		// find the data mention value name
+		var realValue = match.trim().replace('data-mention="', '').replace(/^@if./, '');
+		
+		// remove the last " char from the match
+		return realValue.substr(0, realValue.length - 1);
+	});
+
+	application.output(matches);
+	
+	matches.forEach(function (match) {
+		
+		var regIfBlock = new RegExp(REGEX_STRING.FULL_IF_BLOCK.replace(/\{\{0}}/g, match));
+		regIfBlock.multiline = true;
+		regIfBlock.global = true;
+		
+		// FIXME does not work well if the if tag
+		html = html.replace(regIfBlock, function(matchItem) {
+			var mention = new createParsedIf(matchItem);
+			if (!mention.isValidIf()) {
+				throw Error("Invalid tag item, tag item doesn't exist in valuelist for realValue: " + mention.parsedIfValue);
+			}
+
+			if (mention.parsedMention.tag == TAGS.IF) {
+
+				//Added support for callback to overwrite / handle data parsing
+				if (ifCallback && ifCallback(mention.parsedIfValue, record)) {
+					//Clean Start & Close if tag
+					
+					var regIfStart = new RegExp(REGEX_STRING.START_IF.replace(/\{\{0}}/, match));
+					regIfStart.multiline = true;
+					regIfStart.global = true;
+					
+					var regIfEnd = new RegExp(REGEX_STRING.CLOSE_IF.replace(/\{\{0}}/, match));
+					regIfEnd.multiline = true;
+					regIfEnd.global = true;
+					
+					matchItem = matchItem.replace(regIfStart, '');
+					matchItem = matchItem.replace(regIfEnd, '');
+				} else {
+					return '';
+				}
+			}
+			
+			// i need to search for the whole regex
+
+			//If we have an new match inside the existing match we have to rerun it
+			if (matchItem.match(regIfBlock)) {
+				matchItem = processIfBlocksV2(matchItem, record, ifCallback);
+			}
+
+			return matchItem;
+		}).replace(/color:var\(--ck-color-mention-text\);/g, ''); //Force replace the default ck-color-mention after parsing
+		// now here i should replace the content
+		
+	});
+	
+	return html;
+	// count all the tags first..
+	// check all endif ( keep the old one as they are ? )
+}
+
+/**
+ * @deprecated this is the old way to process if blocks
  * @private
  *
  * @param {String} html
@@ -713,6 +810,7 @@ function processRepeaters(html, record, repeaterCallback, ifCallback, mentionCal
 				if (matchItem.match(REGEX.FULL_REPEAT_BLOCK)) {
 					processedRepeat = processRepeaters(toRepeat, record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i), repeaterCallback);
 				}
+				// TODO need to manage the if within the repeat block
 				newValue += processIfBlocks(processedRepeat,record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i),ifCallback);
 				newValue = processMentions(newValue,record,i,mentionCallback);
 			}
