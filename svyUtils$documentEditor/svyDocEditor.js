@@ -585,8 +585,6 @@ function processIfBlocks(html, record, ifCallback) {
 		// remove the last " char from the match
 		return realValue.substr(0, realValue.length - 1);
 	});
-
-	application.output(matches);
 	
 	matches.forEach(function (match) {
 		
