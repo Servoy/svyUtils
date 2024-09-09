@@ -812,9 +812,13 @@ function processRepeaters(html, record, repeaterCallback, ifCallback, mentionCal
 				if (matchItem.match(REGEX.FULL_REPEAT_BLOCK)) {
 					processedRepeat = processRepeaters(toRepeat, record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i), repeaterCallback);
 				}
-				// TODO need to manage the if within the repeat block
-				newValue += processIfBlocksSingleIfEnd(processedRepeat,record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i),ifCallback);
-				newValue = processMentions(newValue,record,i,mentionCallback);
+				// check for legacy @endIf
+				if (REGEX.FULL_IF_BLOCK.test(processedRepeat)) {
+					newValue += processIfBlocksSingleIfEnd(processedRepeat, record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i), ifCallback);
+				} else {
+					newValue += processIfBlocks(processedRepeat, record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i), ifCallback);
+				}
+				newValue = processMentions(newValue, record, i, mentionCallback);
 			}
 
 			//Clean latest enter
