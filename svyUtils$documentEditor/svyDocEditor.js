@@ -808,7 +808,7 @@ function processRepeaters(html, record, repeaterCallback, ifCallback, mentionCal
 			for (var i = 1; i <= repeatItem.numberOfRepeats; i++) {
 				var processedRepeat = toRepeat;
 				if (matchItem.match(REGEX.FULL_REPEAT_BLOCK)) {
-					processedRepeat = processRepeaters(toRepeat, record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i), repeaterCallback);
+					processedRepeat = processRepeaters(toRepeat, record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i), repeaterCallback, ifCallback, mentionCallback);
 				}
 				// check for legacy @endIf
 				if (REGEX.FULL_IF_BLOCK.test(processedRepeat)) {
