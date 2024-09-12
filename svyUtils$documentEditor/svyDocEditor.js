@@ -575,7 +575,12 @@ function processIfBlocks(html, record, ifCallback) {
 		return '';
 	}
 	
-	var matches = html.match(REGEX.ALL_START_IF).map(function (matchItem) {
+	var matches = html.match(REGEX.ALL_START_IF);
+	if (!matches) {
+		return html;
+	}
+	
+	matches = matches.map(function (matchItem) {
 		
 		/** @type {String} */
 		var match = matchItem.match(/data-mention=".*?"/gm)[0];
