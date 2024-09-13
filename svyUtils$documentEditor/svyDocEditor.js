@@ -519,7 +519,7 @@ function TagBuilder(dataSource, editor) {
  * @param {String} content The document's content
  * @param {JSRecord} record The data to merge
  * @param {function(String, JSRecord):Boolean} [ifCallback] Optionally give callback function to parse if statements, return false will not hide the if block (Args: mentionRealValue).
- * @param {function(String, String, String, String, JSRecord):*} [mentionCallback] Optionally give callback function to overwrite the record data (Args: dataProvider, relationName, relationIndex, value, mentionRealValue, mentionDisplayValue).
+ * @param {function(String, String, String, String, JSRecord):*} [mentionCallback] Optionally give callback function to overwrite the record data (Args: mentionRealValue, mentionDisplayValue, dataProvider, relationName, record).
  * @param {function(String, String, JSRecord):Boolean} [repeaterCallback] Optionally give callback function to overwrite the repeat, return false will not repeat (Args: relationName, mentionRealValue).
  * @return {String} The merged content
  *
