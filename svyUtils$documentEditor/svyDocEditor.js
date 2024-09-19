@@ -77,6 +77,7 @@ var DEFAULT_IF = {
  */
 var REGEX = {
 	MENTION: /<span[^>]+\ssvy-mention\b[^>]*>.*?<\/span>(&nbsp;)?/gm,
+	ALL_START_REPEAT: /<span[^>]+\ssvy-mention\b[^>]*>\$startRepeater\b[^<]*<\/span>(\s|&nbsp;|<br>)*/gm,
 	START_REPEAT: /^<span[^>]+\ssvy-mention\b[^>]*>\$startRepeater\b[^<]*<\/span>(\s|&nbsp;|<br>)*/gm,
 	START_REPEAT_TABLE: /^<span[^>]+\ssvy-mention\b[^>]*>\$startRepeater\b[^<]*<\/span>(&nbsp;|<\/p>)*?(<figure class="table".*?>)?<table.*?>/gm,
 	END_REPEAT$: /<span[^>]+\ssvy-mention\b[^>]*>\$endRepeater<\/span>(&nbsp;)?$/gm,
@@ -103,7 +104,10 @@ var REGEX = {
 var REGEX_STRING = {
 	FULL_IF_BLOCK: '(<span[^>]+\\ssvy-mention\\b[^>]*>\\@if\\.{{0}}\\b[^<]*<\\/span>(&nbsp;)?(<\\/p>)?(<figure class="table".*?>)?(<table.*?>)?).*?((<\\/table>)?(<\\/figure>)?(<p>)?<span[^>]+\\ssvy-mention\\b[^>]*>\\@endIf\.{{0}}<\\/span>(&nbsp;)?)',
 	START_IF: '<span[^>]+\\ssvy-mention\\b[^>]*>\\@if\\.{{0}}\\b[^<]*<\\/span>(\\s|&nbsp;|<br>)*',
-	CLOSE_IF: '<span[^>]+\\ssvy-mention\\b[^>]*>\\@endIf\.{{0}}<\\/span>(&nbsp;)*'
+	CLOSE_IF: '<span[^>]+\\ssvy-mention\\b[^>]*>\\@endIf\.{{0}}<\\/span>(&nbsp;)*',
+	FULL_REPEAT_BLOCK: '(<span[^>]+\\ssvy-mention\\b[^>]*>\\$startRepeater.{{0}}<\\/span>(&nbsp;)?(<\\/p>)?(<figure class="table".*?>)?(<table.*?>)?).*?((<\\/table>)?(<\\/figure>)?(<p>)?<span[^>]+\\ssvy-mention\\b[^>]*>\\$endRepeater.{{0}}<\\/span>(&nbsp;)?)',
+	START_REPEAT: '^<span[^>]+\ssvy-mention\b[^>]*>\$startRepeater.{{0}}<\//span>(\s|&nbsp;|<br>)*',
+	END_REPEAT: '<span[^>]+\ssvy-mention\b[^>]*>\$endRepeater.{{0}}<\//span>(&nbsp;)?'
 }
 
 /**
@@ -400,19 +404,20 @@ function TagBuilder(dataSource, editor) {
 				if (this.getJSTable(fieldTag).getSQLName().startsWith('TEMP_')) {
 					tableName = utils.stringReplace(utils.stringInitCap(this.getJSTable(fieldTag).getDataSource().split(':').pop().split('_').join(' ')), ' ', '');
 				}
-				var displayTag = DEFAULT_REPEATER.START + '.' + tableName;
-				var tagValue = DEFAULT_REPEATER.START + '-' + relationName;
-				systemTags[displayTag] = tagValue;
+				var displayTagSuffix = '.' + tableName;
+				var tagValueSuffix = '-' + relationName;
+				systemTags[displayTagSuffix] = tagValueSuffix;
 			}
 
 		}
 		/** @type {JSDataSet<displayValue:String, realValue:String>} */
 		var dataset = databaseManager.createEmptyDataSet(0, ["displayValue", "realValue"]);
 		if (Object.keys(systemTags).length > 0) {
-			dataset.addRow([DEFAULT_REPEATER.STOP, DEFAULT_REPEATER.STOP]);
+			// dataset.addRow([DEFAULT_REPEATER.STOP, DEFAULT_REPEATER.STOP]);
 
 			for (var display in systemTags) {
-				dataset.addRow([display, systemTags[display]]);
+				dataset.addRow([ DEFAULT_REPEATER.START + display, DEFAULT_REPEATER.START + systemTags[display]]);
+				dataset.addRow([ DEFAULT_REPEATER.STOP + display, DEFAULT_REPEATER.STOP + systemTags[display]]);
 			}
 
 		}
@@ -548,8 +553,9 @@ function TagBuilder(dataSource, editor) {
  * @properties={typeid:24,uuid:"B956081F-DA96-4E4B-AD6E-13F9264D5000"}
  */
 function mergeTags(content, record, ifCallback, mentionCallback, repeaterCallback) {
-	content = processRepeaters(content,record,repeaterCallback,ifCallback,mentionCallback);
-	content = processIfBlocks(content,record,ifCallback)
+	content = processRepeaters(content, record, repeaterCallback, ifCallback, mentionCallback);
+	content = processRepeatersUnnamedEnd(content, record, repeaterCallback, ifCallback, mentionCallback);
+	content = processIfBlocks(content, record, ifCallback)
 	content = processIfBlocksSingleIfEnd(content, record, ifCallback);
 	content = processMentions(content, record, null, mentionCallback);
 
@@ -763,9 +769,135 @@ function processMentions(html, record, relationIndex, mentionCallback) {
  * @param {function(String, String, String, String, JSRecord):*} [mentionCallback]
  *
  * @return {String}
- * @properties={typeid:24,uuid:"4D3C4CE2-8B01-4FDD-8C56-2541C7427305"}
+ * @properties={typeid:24,uuid:"0B148351-1FC0-4FC3-96AA-2AC53E485CAA"}
  */
 function processRepeaters(html, record, repeaterCallback, ifCallback, mentionCallback) {
+	var repeatItem;
+	if (!html || !record) {
+		return '';
+	}
+	
+	var matches = html.match(REGEX.ALL_START_REPEAT);
+	if (!matches) {
+		return html;
+	}
+	
+	matches = matches.map(function (matchItem) {
+		
+		/** @type {String} */
+		var match = matchItem.match(/data-mention=".*?"/gm)[0];
+		// find the data mention value name
+		var realValue = match.trim().replace('data-mention="', '').replace(/^\$startRepeater./, '');
+		
+		// remove the last " char from the match
+		return realValue.substr(0, realValue.length - 1);
+	});
+	
+	// MY MATCHES
+	application.output(matches);
+	application.output('*****************************************')
+
+	var returnHTMLValue = html;
+	
+	matches.forEach(function (match) {
+		
+		var regIfBlock = new RegExp(REGEX_STRING.FULL_REPEAT_BLOCK.replace(/\{\{0}}/g, match));
+		regIfBlock.multiline = true;
+		regIfBlock.global = true;
+	
+		//Try to keep track if block is valid
+		var hasValidMatch = false;
+		/** @param {String} matchItem */
+		function repeatProcessor(matchItem) {
+			repeatItem = new createParsedRepeat(matchItem, record);
+			if (!repeatItem.isValidRepeat()) {
+				throw Error("Invalid repeat item, repeat item doesn't exist in valuelist for relation: " + repeatItem.relationName);
+			}
+			
+			var regIfStart = new RegExp(REGEX_STRING.START_REPEAT.replace(/\{\{0}}/, match));
+			regIfStart.multiline = true;
+			regIfStart.global = true;
+			
+			var regIfEnd = new RegExp(REGEX_STRING.END_REPEAT.replace(/\{\{0}}/, match));
+			regIfEnd.multiline = true;
+			regIfEnd.global = true;
+			
+			//Temp clean first & last repeater to see if block is still valid
+			var tempCleaner = matchItem.replace(regIfStart, '');
+			//tempCleaner = tempCleaner.replace(REGEX.END_REPEAT$, '');
+			//Undo replace when it isn't a correct repeat block
+			if (tempCleaner.match(regIfEnd) && !tempCleaner.match(regIfBlock)) {
+				return matchItem;
+			} else {
+				hasValidMatch = true
+			}
+			//If block is still valid.. we write it back and start using that one
+			matchItem = tempCleaner;
+	
+			//Build repeated items
+			if (repeatItem.numberOfRepeats == 0) {
+				return '';
+			} else {
+				var newValue = '';
+				var toRepeat = matchItem;
+				if (repeatItem.isTableStartEndRepeat()) {
+					toRepeat = matchItem.match(REGEX.FULL_TABLE_ROW)[0].replace(REGEX.FULL_TABLE_HEADER, '');
+					newValue = matchItem.match(REGEX.FULL_TABLE_HEADER) ? matchItem.match(REGEX.FULL_TABLE_HEADER)[0] : '';
+				}
+				if (repeaterCallback && !repeaterCallback(repeatItem.parsedMention.realValue, repeatItem.relationName, record)) {
+					toRepeat = '';
+				}
+	
+				//Force reapply the sorting, when not done only the first time the sort is correct.
+				if (record[repeatItem.getRelationBasedOnRecord(record)].getCurrentSort()) {
+					record[repeatItem.getRelationBasedOnRecord(record)].sort(record[repeatItem.getRelationBasedOnRecord(record)].getCurrentSort());
+				}
+	
+				for (var i = 1; i <= repeatItem.numberOfRepeats; i++) {
+					var processedRepeat = toRepeat;
+					
+					// TODO check for the end
+					if (matchItem.match(REGEX.FULL_REPEAT_BLOCK)) {
+						processedRepeat = processRepeaters(toRepeat, record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i), repeaterCallback, ifCallback, mentionCallback);
+					}
+	
+					// check for legacy @endIf
+					if (REGEX.FULL_IF_BLOCK.test(processedRepeat)) {
+						newValue += processIfBlocksSingleIfEnd(processedRepeat, record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i), ifCallback);
+					} else {
+						newValue += processIfBlocks(processedRepeat, record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i), ifCallback);
+					}
+					newValue = processMentions(newValue, record, i, mentionCallback);
+				}
+	
+				//Clean latest enter
+				return (repeatItem.isTableStartEndRepeat() ? matchItem.replace(REGEX.FULL_TABLE_ROW, newValue) : newValue).trim().replace(REGEX.BR_END, '');
+			}
+		}
+		var	innerReturnHTMLValue = html.replace(regIfBlock, repeatProcessor);
+		if (!hasValidMatch) {
+			innerReturnHTMLValue = html.replace(REGEX.FULL_REPEAT_BLOCK_FIRST_MATCH, repeatProcessor);
+		}
+		//return returnHTMLValue
+		returnHTMLValue = innerReturnHTMLValue;
+	});
+	
+	return returnHTMLValue
+}
+
+
+/**
+ * @private
+ * @param {String} html
+ * @param {JSRecord} record
+ * @param {function(String, String, JSRecord):Boolean} [repeaterCallback]
+ * @param {function(String,JSRecord):Boolean} [ifCallback]
+ * @param {function(String, String, String, String, JSRecord):*} [mentionCallback]
+ *
+ * @return {String}
+ * @properties={typeid:24,uuid:"4D3C4CE2-8B01-4FDD-8C56-2541C7427305"}
+ */
+function processRepeatersUnnamedEnd(html, record, repeaterCallback, ifCallback, mentionCallback) {
 	var repeatItem;
 	if (!html || !record) {
 		return '';
@@ -813,7 +945,7 @@ function processRepeaters(html, record, repeaterCallback, ifCallback, mentionCal
 			for (var i = 1; i <= repeatItem.numberOfRepeats; i++) {
 				var processedRepeat = toRepeat;
 				if (matchItem.match(REGEX.FULL_REPEAT_BLOCK)) {
-					processedRepeat = processRepeaters(toRepeat, record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i), repeaterCallback, ifCallback, mentionCallback);
+					processedRepeat = processRepeatersUnnamedEnd(toRepeat, record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i), repeaterCallback, ifCallback, mentionCallback);
 				}
 				// check for legacy @endIf
 				if (REGEX.FULL_IF_BLOCK.test(processedRepeat)) {
