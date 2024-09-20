@@ -106,8 +106,8 @@ var REGEX_STRING = {
 	START_IF: '<span[^>]+\\ssvy-mention\\b[^>]*>\\@if\\.{{0}}\\b[^<]*<\\/span>(\\s|&nbsp;|<br>)*',
 	CLOSE_IF: '<span[^>]+\\ssvy-mention\\b[^>]*>\\@endIf\.{{0}}<\\/span>(&nbsp;)*',
 	FULL_REPEAT_BLOCK: '(<span[^>]+\\ssvy-mention\\b[^>]*>\\$startRepeater.{{0}}<\\/span>(&nbsp;)?(<\\/p>)?(<figure class="table".*?>)?(<table.*?>)?).*?((<\\/table>)?(<\\/figure>)?(<p>)?<span[^>]+\\ssvy-mention\\b[^>]*>\\$endRepeater.{{0}}<\\/span>(&nbsp;)?)',
-	START_REPEAT: '^<span[^>]+\ssvy-mention\b[^>]*>\$startRepeater.{{0}}<\//span>(\s|&nbsp;|<br>)*',
-	END_REPEAT: '<span[^>]+\ssvy-mention\b[^>]*>\$endRepeater.{{0}}<\//span>(&nbsp;)?'
+	START_REPEAT: '^<span[^>]+\\ssvy-mention\\b[^>]*>\\$startRepeater.{{0}}<\\/span>(\\s|&nbsp;|<br>)*',
+	END_REPEAT: '<span[^>]+\\ssvy-mention\\b[^>]*>\\$endRepeater.{{0}}<\\/span>(&nbsp;)?'
 }
 
 /**
@@ -822,9 +822,14 @@ function processRepeaters(html, record, repeaterCallback, ifCallback, mentionCal
 			regIfEnd.multiline = true;
 			regIfEnd.global = true;
 			
+			var regRepeatEndLastLine = new RegExp(REGEX_STRING.END_REPEAT.replace(/\{\{0}}/, match) + '$');
+			regRepeatEndLastLine.multiline = true;
+			regRepeatEndLastLine.global = true;
+			
 			//Temp clean first & last repeater to see if block is still valid
 			var tempCleaner = matchItem.replace(regIfStart, '');
-			//tempCleaner = tempCleaner.replace(REGEX.END_REPEAT$, '');
+			tempCleaner = tempCleaner.replace(regRepeatEndLastLine, '');
+			
 			//Undo replace when it isn't a correct repeat block
 			if (tempCleaner.match(regIfEnd) && !tempCleaner.match(regIfBlock)) {
 				return matchItem;
@@ -856,8 +861,10 @@ function processRepeaters(html, record, repeaterCallback, ifCallback, mentionCal
 				for (var i = 1; i <= repeatItem.numberOfRepeats; i++) {
 					var processedRepeat = toRepeat;
 					
+					// here i need to search for child repeaters
+					
 					// TODO check for the end
-					if (matchItem.match(REGEX.FULL_REPEAT_BLOCK)) {
+					if (matchItem.match(REGEX.ALL_START_REPEAT)) {
 						processedRepeat = processRepeaters(toRepeat, record[repeatItem.getRelationBasedOnRecord(record)].getRecord(i), repeaterCallback, ifCallback, mentionCallback);
 					}
 	
@@ -874,10 +881,22 @@ function processRepeaters(html, record, repeaterCallback, ifCallback, mentionCal
 				return (repeatItem.isTableStartEndRepeat() ? matchItem.replace(REGEX.FULL_TABLE_ROW, newValue) : newValue).trim().replace(REGEX.BR_END, '');
 			}
 		}
-		var	innerReturnHTMLValue = html.replace(regIfBlock, repeatProcessor);
-		if (!hasValidMatch) {
-			innerReturnHTMLValue = html.replace(REGEX.FULL_REPEAT_BLOCK_FIRST_MATCH, repeatProcessor);
-		}
+		
+		// replace all occurrances
+		var htmlToReplace = html;
+		
+		// FIXME i need to change a lot here to manage repeat of nested content.
+		// in each match i need to search if there are nested items.
+		while (htmlToReplace.match(regIfBlock)) {
+
+			var innerReturnHTMLValue = htmlToReplace.replace(regIfBlock, repeatProcessor);
+			if (!hasValidMatch) {
+				innerReturnHTMLValue = htmlToReplace.replace(REGEX.FULL_REPEAT_BLOCK_FIRST_MATCH, repeatProcessor);
+			}
+
+			htmlToReplace = innerReturnHTMLValue;
+		} 
+
 		//return returnHTMLValue
 		returnHTMLValue = innerReturnHTMLValue;
 	});
