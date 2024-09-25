@@ -793,10 +793,6 @@ function processRepeaters(html, record, repeaterCallback, ifCallback, mentionCal
 		return realValue.substr(0, realValue.length - 1);
 	});
 	
-	// MY MATCHES
-	application.output(matches);
-	application.output('*****************************************')
-
 	var returnHTMLValue = html;
 	
 	matches.forEach(function (match) {
@@ -883,7 +879,7 @@ function processRepeaters(html, record, repeaterCallback, ifCallback, mentionCal
 		}
 		
 		// replace all occurrances
-		var htmlToReplace = html;
+		var htmlToReplace = returnHTMLValue;
 		
 		// FIXME i need to change a lot here to manage repeat of nested content.
 		// in each match i need to search if there are nested items.
