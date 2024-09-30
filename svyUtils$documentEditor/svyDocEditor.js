@@ -894,7 +894,9 @@ function processRepeaters(html, record, repeaterCallback, ifCallback, mentionCal
 		} 
 
 		//return returnHTMLValue
-		returnHTMLValue = innerReturnHTMLValue;
+		if (innerReturnHTMLValue) {
+			returnHTMLValue = innerReturnHTMLValue;
+		}
 	});
 	
 	return returnHTMLValue
