@@ -1660,6 +1660,7 @@ function Duration(isNegative, weeks, days, hours, minutes, seconds) {
 	 * @return {String}
 	 */
 	this.getIso = function() {
+		/** @type {String} */
 		var result = '';
 		if (this.negative) {
 			result += '-';
