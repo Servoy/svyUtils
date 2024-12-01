@@ -231,12 +231,7 @@ function isLinuxPlatform() {
  * @properties={typeid:24,uuid:"00D7B1A3-72BF-4A1A-9994-133C8545DBCC"}
  */
 function isIOSPlatform() {
-	if ([APPLICATION_TYPES.WEB_CLIENT].indexOf(application.getApplicationType()) == -1) {
-		return false;
-	}
-	/** @type {Packages.org.apache.wicket.protocol.http.request.WebClientInfo} */
-	var clientInfo = Packages.org.apache.wicket.Session.get().getClientInfo();
-	var userAgent = clientInfo.getUserAgent();
+	var userAgent = plugins.ngclientutils.getUserAgent();
 	return /iPhone|iPad|iPod/.test(userAgent);
 }
 
@@ -250,13 +245,7 @@ function isIOSPlatform() {
  * @properties={typeid:24,uuid:"A3AEA4D4-DA10-4C6B-AC27-35E706C4ED75"}
  */
 function isAndroidPlatform() {
-	if ([APPLICATION_TYPES.WEB_CLIENT].indexOf(application.getApplicationType()) == -1) {
-		return false;
-	}
-	
-	/** @type {Packages.org.apache.wicket.protocol.http.request.WebClientInfo} */
-	var clientInfo = Packages.org.apache.wicket.Session.get().getClientInfo();
-	var userAgent = clientInfo.getUserAgent();
+	var userAgent = plugins.ngclientutils.getUserAgent();
 	return /Android/.test(userAgent);
 }
 
@@ -270,13 +259,7 @@ function isAndroidPlatform() {
  * @properties={typeid:24,uuid:"3B743FE3-088D-4754-BEDD-1A8FD059121A"}
  */
 function isMobilePlatform() {
-	if ([APPLICATION_TYPES.WEB_CLIENT].indexOf(application.getApplicationType()) == -1) {
-		return false;
-	}
-	
-	/** @type {Packages.org.apache.wicket.protocol.http.request.WebClientInfo} */
-	var clientInfo = Packages.org.apache.wicket.Session.get().getClientInfo();
-	var userAgent = clientInfo.getUserAgent();
+	var userAgent = plugins.ngclientutils.getUserAgent();
 	return /iPhone|iPad|iPod|Android/.test(userAgent);
 }
 
