@@ -309,9 +309,13 @@ function getElementsByDesigntimeProperty(form, propertyName, propertyValue, incl
  * @param {JSForm|RuntimeForm|String} form the form on which the element is located
  * @param {JSComponent|RuntimeComponent|String} element the element to get the labelFor label for
  * 
- * @return {Array<JSLabel>} labelFor elements
+ * @return {Array} labelFor elements
+ * 
+ * @deprecated method targets labels of fields in a smart client table view form which is no longer supported
  *
  * @properties={typeid:24,uuid:"6D69CB0F-0EC9-49BB-9FDE-FA69DCC8A1C7"}
+ * 
+ * @SuppressWarnings(deprecated)
  */
 function getLabelForElements(form, element) {
 	/** @type {JSForm} */
@@ -408,14 +412,18 @@ function getJSFormHeight(form, includePrintParts) {
 }
 
 /**
- * Gets the row height of a table view at runtime
+ * Gets the row height of a smart client table view at runtime
  * 
  * @public
  * 
  * @param {JSForm|RuntimeForm|String} form identifier of or reference to a form in TableView view
  * 
+ * @deprecated as smart client is no longer available
+ * 
  * @return {Number}
  *
+ * @SuppressWarnings(deprecated)
+ * 
  * @properties={typeid:24,uuid:"53065728-B0C1-449C-91A4-D79B2271723A"}
  */
 function getRuntimeTableViewRowHeight(form) {
@@ -527,9 +535,13 @@ function getParentFormNameInstanceOf(form, formInstance) {
  * 
  * @return {JSForm} The clone
  * 
+ * @deprecated as this method deals with smart client tab panels which are no longer available
+ * 
  * @throws {scopes.svyExceptions.IllegalArgumentException}
  * 
  * @properties={typeid:24,uuid:"0B4DE5CF-0B58-44F2-B344-3E3B656E549D"}
+ * 
+ * @SuppressWarnings(deprecated)
  */
 function deepCopyJSForm(newFormName, original, prefix) {
 	if (solutionModel.getForm(newFormName)) {
