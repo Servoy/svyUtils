@@ -1513,11 +1513,11 @@ function Logger(internal, messageFactory) {
 			} else {
 				var args = Array.prototype.slice.call(arguments, 1)
 				var lastParam = args[args.length - 1]
-				if (lastParam instanceof ServoyException || lastParam instanceof Packages.java.lang.Exception) {
-					/**@type {ServoyException|Packages.java.lang.Exception}*/
-					var ex = lastParam
-					args[args.length - 1] = new scopes.svyExceptions.ServoyError(ex)				
-				}
+				if (lastParam instanceof ServoyException || lastParam instanceof java.lang.Exception) {
+					/**@type {ServoyException}*/
+					var svyEx = lastParam
+					args[args.length - 1] = new scopes.svyExceptions.ServoyError(svyEx)				
+				} else 
 			
 				internal.log(level, (customMessageFactory||defaultMessageFactory).newMessage.apply(customMessageFactory||defaultMessageFactory, args))
 			}
