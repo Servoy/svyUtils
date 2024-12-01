@@ -129,7 +129,8 @@ function convertObjectToString(obj) {
 					(objStringParts[1] in forms && forms[objStringParts[1]][objStringParts[2]]) ||
 						(
 							(
-								objStringParts[2] == 'elements' && (solutionModel.getForm(objStringParts[1]).getComponent(objStringParts[3]) || solutionModel.getForm(objStringParts[1]).getBean(objStringParts[3])) || 
+								objStringParts[2] == 'elements' && 
+								solutionModel.getForm(objStringParts[1]).getComponent(objStringParts[3]) || 
 								solutionModel.getForm(objStringParts[1]).getMethod(objStringParts[2]) ||
 								solutionModel.getForm(objStringParts[1]).getVariable(objStringParts[2])
 							)
