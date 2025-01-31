@@ -2018,7 +2018,7 @@ function getDateFromZonedInstant(instant) {
  * @private 
  * @param {Date} [date]
  * 
- * @return {java.time.ZonedDateTime}
+ * @return {java.time.chrono.ChronoZonedDateTime}
  *
  * @properties={typeid:24,uuid:"BDD4F3FA-47C1-4827-906A-4BDEA5A6E1A9"}
  */
