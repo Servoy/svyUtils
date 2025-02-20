@@ -663,7 +663,7 @@ function ExcelWorkbook(templateOrFileType) {
  *
  * @properties={typeid:35,uuid:"5D3DBE94-9302-45D7-969B-2CA6AD0B8BD2",variableType:-4}
  */
-var initExcelWorkbook = (/** @constructor */ function() {
+var initExcelWorkbook = (/** @parse */ function() {
 	ExcelWorkbook.prototype = Object.create(Object.prototype, {});
 	ExcelWorkbook.prototype.constructor = ExcelWorkbook;
 	
@@ -1083,11 +1083,14 @@ function ServoyExcelWorkbook(templateOrFileType, sheetNameToUse) {
  *
  * @properties={typeid:35,uuid:"FEBE6A80-7206-4430-9389-A93E8199B52B",variableType:-4}
  */
-var initServoyExcelWorkbook = (/** @constructor */ function() {
+var initServoyExcelWorkbook = (/** @parse */ function() {
 	ServoyExcelWorkbook.prototype = Object.create(ExcelWorkbook.prototype, {});
 	ServoyExcelWorkbook.prototype.constructor = ServoyExcelWorkbook;
 	
 	Object.defineProperty(ServoyExcelWorkbook.prototype, "sheetName", {
+		/**
+		 * @this {ServoyExcelWorkbook}
+		 */
 		get: function() {
 			if (this.sheet) {
 				return this.sheet.name;
@@ -1358,7 +1361,7 @@ function FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileT
  *
  * @properties={typeid:35,uuid:"FF6BB91E-6E17-474B-8371-E73D2BF866DC",variableType:-4}
  */
-var initFoundSetExcelWorkbook = (/** @constructor */ function() {
+var initFoundSetExcelWorkbook = (/** @parse */ function() {
 	FoundSetExcelWorkbook.prototype = Object.create(ServoyExcelWorkbook.prototype, {});
 	FoundSetExcelWorkbook.prototype.constructor = FoundSetExcelWorkbook;
 	
@@ -1576,7 +1579,7 @@ function DataSetExcelWorkbook(dataset, columns, headers, templateOrFileType, she
  *
  * @properties={typeid:35,uuid:"FBDCE3AA-4A94-49B9-988C-9A05EB672C63",variableType:-4}
  */
-var initDataSetExcelWorkbook = (/** @constructor */ function() {
+var initDataSetExcelWorkbook = (/** @parse */ function() {
 	DataSetExcelWorkbook.prototype = Object.create(ServoyExcelWorkbook.prototype, {});
 	DataSetExcelWorkbook.prototype.constructor = DataSetExcelWorkbook;
 	
@@ -1622,11 +1625,14 @@ function ExcelSheet(sheet) {
  *
  * @properties={typeid:35,uuid:"6CDC2194-2A57-472A-B57B-2776B2CE8432",variableType:-4}
  */
-var initExcelSheet = (/** @constructor */ function() {
+var initExcelSheet = (/** @parse */ function() {
 	ExcelSheet.prototype = Object.create(Object.prototype, { });
 	ExcelSheet.prototype.constructor = ExcelSheet;
 	
 	Object.defineProperty(ExcelSheet.prototype, "name", {
+			/**
+			 * @this {ExcelSheet}
+			 */
 			get: function() {
 				return this.sheet.getSheetName();
 			},
@@ -2133,7 +2139,7 @@ function ExcelCellStyle(style, workbook) {
  *
  * @properties={typeid:35,uuid:"2F3FCD8F-49B2-432B-A1B7-004E406F3745",variableType:-4}
  */
-var initExcelCellStyle = (/** @constructor */ function() {
+var initExcelCellStyle = (/** @parse */ function() {
 	ExcelCellStyle.prototype = Object.create(Object.prototype, {});
 	ExcelCellStyle.prototype.constructor = ExcelCellStyle;
 	
@@ -2680,7 +2686,7 @@ function ExcelRow(row) {
  *
  * @properties={typeid:35,uuid:"F4E16CD1-88F9-42FD-8A1E-FC8A7D73C2FD",variableType:-4}
  */
-var initExcelRow = (/** @constructor */ function() {
+var initExcelRow = (/** @parse */ function() {
 	ExcelRow.prototype = Object.create(Object.prototype, {});
 	ExcelRow.prototype.constructor = ExcelRow;
 	
@@ -2801,7 +2807,7 @@ function ExcelCell(cell) {
  *
  * @properties={typeid:35,uuid:"7A311E58-DF12-467E-9A83-F01BF1DC7FA9",variableType:-4}
  */
-var initExcelCell = (/** @constructor */ function() {
+var initExcelCell = (/** @parse */ function() {
 	ExcelCell.prototype = Object.create(Object.prototype, {});
 	ExcelCell.prototype.constructor = ExcelCell;
 	
@@ -3028,7 +3034,7 @@ function PrintSetup() {
  *
  * @properties={typeid:35,uuid:"14D0D0B4-7177-4710-BF29-B3148E41E5DD",variableType:-4}
  */
-var initPrintSetup = (/** @constructor */ function() {
+var initPrintSetup = (/** @parse */ function() {
 	PrintSetup.prototype = Object.create(Object.prototype, {});
 	PrintSetup.prototype.constructor = PrintSetup;
 	
