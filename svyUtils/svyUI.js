@@ -802,7 +802,7 @@ function RuntimeElementSource(formName, elementName) {
 
 /**
  * @since 2019-01-05
- * @constructor
+ * @parse
  * @private 
  * @properties={typeid:24,uuid:"76C229C0-5569-4D03-BDB0-243AB6CC01F1"}
  */
@@ -902,7 +902,7 @@ function setupRuntimeElementSource() {
 		if (component.hasOwnProperty('myFoundset')) {
 			return component['myFoundset'].foundset.getSelectedRecord();
 		} else {
-			var relationName = this.getRelationName(form, elementName);
+			var relationName = this.getRelationName();
 			if (relationName) {
 				/** @type {JSFoundSet} */
 				fs = form.foundset[relationName];
