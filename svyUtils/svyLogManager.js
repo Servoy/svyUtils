@@ -676,7 +676,7 @@ function Level(level, name) {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"8CB2F193-D26E-47E7-AF91-28574067D667",variableType:-4}
  */
-var initLevel = (/** @constructor */ function() {
+var initLevel = (/** @parse */ function() {
 		Level.prototype = {
 			toString: function() {
 				return this.name;
@@ -739,7 +739,7 @@ function AbstractMessageFactory() {}
  *
  * @properties={typeid:35,uuid:"CA03143B-DE1F-40FE-9F21-7F6AD3DF03EF",variableType:-4}
  */
-var initAbstractMessageFactory = (/** @constructor */ function() {
+var initAbstractMessageFactory = (/** @parse */ function() {
 	/**
 	 * @public 
 	 * @param {String|Object|*} message 
@@ -789,7 +789,7 @@ function ParameterizedMessageFactory() {
  *
  * @properties={typeid:35,uuid:"AEB56CA1-2987-4510-940A-B7201936986D",variableType:-4}
  */
-var initParameterizedMessageFactory = (/** @constructor */ function() {
+var initParameterizedMessageFactory = (/** @parse */ function() {
 	ParameterizedMessageFactory.prototype = Object.create(AbstractMessageFactory.prototype)
 	ParameterizedMessageFactory.prototype.constructor = ParameterizedMessageFactory
 
@@ -832,6 +832,7 @@ function AbstractMessage(message, params) {
 	this.parameters = arguments.length == 1 ? null : Array.prototype.slice.call(arguments, 1)
 	/**
 	 * @protected 
+	 * @type {Error}
 	 */
 	this.throwable = this.parameters && this.parameters.length && this.parameters.slice(-1)[0] instanceof Error ? this.parameters.slice(-1)[0] : null
 }
@@ -841,7 +842,7 @@ function AbstractMessage(message, params) {
  * @SuppressWarnings(unused)
   * @properties={typeid:35,uuid:"0960F1DA-3085-4D33-A31E-794E5F7E4F68",variableType:-4}
  */
-var initAbstractMessage = (/** @constructor */ function(){
+var initAbstractMessage = (/** @parse */ function(){
 	/**
 	 * @protected
 	 */
@@ -914,7 +915,7 @@ function StringFormattedMessage(message, params) {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"A7691A61-E4B9-4707-9034-8DDDACF36A3B",variableType:-4}
  */
-var initStringformattedMessage = (/** @constructor */ function() {
+var initStringformattedMessage = (/** @parse */ function() {
 	StringFormattedMessage.prototype = Object.create(AbstractMessage.prototype)
 	StringFormattedMessage.prototype.constructor = StringFormattedMessage
 	
@@ -948,7 +949,7 @@ function ParameterizedMessage(message, params) {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"F678ABD1-57B4-4319-9772-F084F223BAF6",variableType:-4}
  */
-var initParameterizedMessage = (/** @constructor */ function() {
+var initParameterizedMessage = (/** @parse */ function() {
 	ParameterizedMessage.prototype = Object.create(AbstractMessage.prototype)
 	ParameterizedMessage.prototype.constructor = ParameterizedMessage
 
@@ -1043,7 +1044,7 @@ function SimpleMessage(message) {
  *
  * @properties={typeid:35,uuid:"2BAE5202-1155-4923-B40F-72A7ADF26F77",variableType:-4}
  */
-var initSimpleMessage = (/** @constructor */ function() {
+var initSimpleMessage = (/** @parse */ function() {
 	SimpleMessage.prototype = Object.create(AbstractMessage.prototype)
 	SimpleMessage.prototype.constructor = SimpleMessage
 	
@@ -1072,7 +1073,7 @@ function ObjectMessage(object) {
  *
  * @properties={typeid:35,uuid:"6D980F77-FB92-475E-8895-6BA8C01B59A0",variableType:-4}
  */
-var initObjectMessage = (/** @constructor */ function() {
+var initObjectMessage = (/** @parse */ function() {
 	ObjectMessage.prototype = Object.create(AbstractMessage.prototype)
 	ObjectMessage.prototype.constructor = ObjectMessage
 	
@@ -1169,7 +1170,7 @@ function LoggerConfig(name, messageFactory, logger) {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"0F992E15-B252-4AC8-9041-F2AF6A132DE2",variableType:-4}
 	 */
-var initLoggerConfig = (/** @constructor */ function(){
+var initLoggerConfig = (/** @parse */ function(){
 	LoggerConfig.prototype = Object.create(LogPlugin.prototype)
 	LoggerConfig.prototype.constructor = LoggerConfig
 	
@@ -2038,6 +2039,9 @@ function LoggingEvent(logger, timeStamp, level, message) {
 	this.timeStampInMilliseconds = timeStamp.getTime()
 	this.timeStampInSeconds = Math.floor(this.timeStampInMilliseconds / 1000)
 	this.milliseconds = this.timeStamp.getMilliseconds()
+	/**
+	 * @type {Level}
+	 */
 	this.level = level
 	/**
 	 * @type {AbstractMessage}
@@ -2050,7 +2054,7 @@ function LoggingEvent(logger, timeStamp, level, message) {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"6BE6F430-807C-4673-85CC-055DFE1DD45F",variableType:-4}
  */
-var initLoggingEvent = (/** @constructor */ function() {
+var initLoggingEvent = (/** @parse */ function() {
 	LoggingEvent.prototype = {
 		getThrowableStrRep: function() { //CHECKME This seems to not get called from anywhere
 			return this.exception ? getExceptionStringRep(this.exception) : "";
@@ -2125,7 +2129,7 @@ function AbstractAppender() {
  *
  * @properties={typeid:35,uuid:"8B52A861-1DDF-487E-9C89-94551992722F",variableType:-4}
  */
-var initAbstractAppender = (/** @constructor */ function(){
+var initAbstractAppender = (/** @parse */ function(){
 	AbstractAppender.prototype = Object.create(LogPlugin.prototype)
 	AbstractAppender.prototype.constructor = AbstractAppender
 	
@@ -2235,7 +2239,7 @@ function ApplicationOutputAppender() {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"CCE870E3-C277-473F-9332-5B2EC5597282",variableType:-4}
  */
-var initApplicationOutputAppender = (/** @constructor */ function(){
+var initApplicationOutputAppender = (/** @parse */ function(){
 	ApplicationOutputAppender.prototype = Object.create(AbstractAppender.prototype);
 	ApplicationOutputAppender.prototype.constructor = ApplicationOutputAppender
 	
@@ -2353,7 +2357,7 @@ function AbstractLayout() {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"994AF0DE-AA41-453A-B2E0-61047DBFC751",variableType:-4}
  */
-var initAbstractLayout = (/** @constructor */ function() {
+var initAbstractLayout = (/** @parse */ function() {
 	AbstractLayout.prototype = Object.create(LogPlugin.prototype)
 	AbstractLayout.prototype.constructor = AbstractLayout
 	
@@ -2507,7 +2511,7 @@ function SimpleLayout() {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"0427BB0C-1835-4CFC-8477-5F56A5DD8387",variableType:-4}
  */
-var initSimpleLayout = (/** @constructor */ function() {
+var initSimpleLayout = (/** @parse */ function() {
 	SimpleLayout.prototype = Object.create(AbstractLayout.prototype);
 	SimpleLayout.prototype.constructor = SimpleLayout
 
@@ -2551,7 +2555,7 @@ function NullLayout() {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"BEF97D79-9D62-4B12-87B3-ABE53EA0C738",variableType:-4}
  */
-var initNullLayout = (/** @constructor */ function() {
+var initNullLayout = (/** @parse */ function() {
 	NullLayout.prototype = Object.create(AbstractLayout.prototype);
 	NullLayout.prototype.constructor = NullLayout
 
@@ -2599,7 +2603,7 @@ function XmlLayout() {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"5A02CFFB-582D-4B3F-92AD-B4DEA07071F2",variableType:-4}
  */
-var initXmlLayout = (/** @constructor */ function() {
+var initXmlLayout = (/** @parse */ function() {
 	XmlLayout.prototype = Object.create(AbstractLayout.prototype);
 	XmlLayout.prototype.constructor = XmlLayout
 
@@ -2700,7 +2704,7 @@ function JsonLayout(readable) {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"3350BBD8-3E6C-4E29-AEBA-FE90AEB1D0A8",variableType:-4}
  */
-var initJsonLayout = (/** @constructor */ function() {
+var initJsonLayout = (/** @parse */ function() {
 	JsonLayout.prototype = Object.create(AbstractLayout.prototype);
 	JsonLayout.prototype.constructor = JsonLayout
 		
@@ -2800,7 +2804,7 @@ function HttpPostDataLayout() {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"BB86A214-5807-443C-A4F0-934F4671552D",variableType:-4}
  */
-var initHttpPostdataLayout = (/** @constructor */ function() {
+var initHttpPostdataLayout = (/** @parse */ function() {
 	HttpPostDataLayout.prototype = Object.create(AbstractLayout.prototype);
 	HttpPostDataLayout.prototype.constructor = HttpPostDataLayout
 		
@@ -2959,7 +2963,7 @@ function PatternLayout(pattern) {
  * @SuppressWarnings(unused)
  * @properties={typeid:35,uuid:"DEC0D9CB-1760-41E1-9408-5310708D3DC6",variableType:-4}
  */
-var initPatternLayout = (/** @constructor */ function() {
+var initPatternLayout = (/** @parse */ function() {
 		PatternLayout.TTCC_CONVERSION_PATTERN = "%r %p %c - %m%n";
 		PatternLayout.DEFAULT_CONVERSION_PATTERN = "%m%n";
 		PatternLayout.ISO8601_DATEFORMAT = "yyyy-MM-dd HH:mm:ss,SSS";
