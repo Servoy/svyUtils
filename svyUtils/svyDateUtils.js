@@ -1606,6 +1606,9 @@ function Duration(isNegative, weeks, days, hours, minutes, seconds) {
 	 */
 	this.duration = 0;
 	Object.defineProperty(this, 'duration', {
+			/**
+			 * @this {Duration}
+			 */
 			get: function() {
 				var duration = 0;
 				duration = this.weeks * 7 * 24 * 60 * 60 * 1000;
@@ -1615,6 +1618,9 @@ function Duration(isNegative, weeks, days, hours, minutes, seconds) {
 				duration += this.seconds * 1000;
 				return duration;
 			},
+			/**
+			 * @this {Duration}
+			 */
 			set: function(dur) {
 				var start = new Date();
 				var end = new Date(start.getTime() + dur);
