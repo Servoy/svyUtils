@@ -2418,7 +2418,7 @@ var initAbstractLayout = (/** @parse */ function() {
 	/**
 	 * Used by JSOn Layout
 	 * @param {LoggingEvent} loggingEvent
-	 * @return {Array<Array<String|Date>>}
+	 * @return {Array<Array<String|Number>>}
 	 */
 	AbstractLayout.prototype.getDataValues = function(loggingEvent) {
 		var dataValues = [
