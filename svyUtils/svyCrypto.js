@@ -60,7 +60,8 @@ var ALGORITHM_NAMES = {
 var HASH_ALGORITHM_NAMES = {
 	MD5: 'MD5',
 	SHA_1: 'SHA-1',
-	SHA_256: 'SHA-256'
+	SHA_256: 'SHA-256',
+	SHA_384: 'SHA-384'
 }
 
 /**
@@ -634,7 +635,7 @@ function getCipher(options) {
  * @public
  * 
  * @param {String|Array<byte>} value The string or bytes to hash
- * @param {String} algorithm Supported hash algorithms: [MD5,SHA-1,SHA-256]
+ * @param {String} algorithm Supported hash algorithms: [MD5,SHA-1,SHA-256,SHA_384]
  * 
  * @return {String} The hashed bytes in Base-64 encoded string
  *
@@ -658,7 +659,7 @@ function getHash(value, algorithm) {
  * @properties={typeid:24,uuid:"18C4993F-CDE6-412A-A735-1BEB18AF8405"}
  */
 function getMD5(value) {
-	return getHash(value, 'MD5');
+	return getHash(value, HASH_ALGORITHM_NAMES.MD5);
 }
 
 /**
@@ -673,7 +674,7 @@ function getMD5(value) {
  * @properties={typeid:24,uuid:"579860FF-5364-4857-9BFB-A12303F39775"}
  */
 function getSHA1(value) {
-	return getHash(value, 'SHA-1');
+	return getHash(value, HASH_ALGORITHM_NAMES.SHA_1);
 }
 
 /**
@@ -688,7 +689,22 @@ function getSHA1(value) {
  * @properties={typeid:24,uuid:"675B518E-31CF-4BCE-99F1-ADB40997870D"}
  */
 function getSHA256(value) {
-	return getHash(value, 'SHA-256');
+	return getHash(value, HASH_ALGORITHM_NAMES.SHA_256);
+}
+
+/**
+ * Converts a string or byte array to a hashed message using SHA-384
+ * 
+ * @public
+ * 
+ * @param {String|Array<byte>} value The string or bytes to hash
+ * 
+ * @return {String} The hashed bytes in Base-64 encoded string
+ * 
+ * @properties={typeid:24,uuid:"BFA62842-DFCF-4331-946B-2C266BFD8E8F"}
+ */
+function getSHA384(value) {
+	return getHash(value, HASH_ALGORITHM_NAMES.SHA_384);
 }
 
 /**
