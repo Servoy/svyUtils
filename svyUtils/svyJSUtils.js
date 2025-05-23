@@ -30,15 +30,6 @@
   * @properties={typeid:35,uuid:"62CD6687-A1E9-4710-8084-061DA8A366D2",variableType:-4}
   */
  var STRING_PAD = {LEFT:'left',RIGHT:'right'};
- 
- /**
-  * @private
-  * 
-  * @SuppressWarnings(unused)
-  *
-  * @properties={typeid:35,uuid:"99F2409B-72CD-4E7A-AC42-6E84280AD437",variableType:-4}
-  */
- var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.js');
 
 /**
  * Returns true if the supplied argument is a JavaScript object. Returns false for non-objects, including subclasses like Array, Date or Regex

@@ -24,15 +24,6 @@
  */
 
 /**
- * @private
- * 
- * @SuppressWarnings(unused)
- * 
- * @properties={typeid:35,uuid:"25729878-C7ED-4A75-8151-80BDFA9C71C2",variableType:-4}
- */
-var log = scopes.svyLogManager.getLogger('com.servoy.bap.svyCrypto');
-
-/**
  * Supported algorithms
  * 
  * @public

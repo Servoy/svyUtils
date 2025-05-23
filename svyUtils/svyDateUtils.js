@@ -26,11 +26,9 @@
 /**
  * @private
  *
- * @SuppressWarnings(unused)
- *
- * @properties={typeid:35,uuid:"45890609-A12D-49D1-A195-43BA3CAE4093",variableType:-4}
+ * @properties={typeid:35,uuid:"D7955198-B741-4E6D-8C28-44F45AD70816",variableType:-4}
  */
-var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.date');
+var log = application.getLogger('com.servoy.extensions.utils.svyDateUtils');
 
 /**
  * @type {java.time.ZoneId}
@@ -1232,7 +1230,7 @@ function getDecimalHours(date) {
 function DateTime(date) {
 
 	if (! (this instanceof DateTime)) {
-		log.warn("scopes.svyDateUtils.DateTime: Constructor functions should be called with the \"new\" keyword!");
+		log.warn.log("scopes.svyDateUtils.DateTime: Constructor functions should be called with the \"new\" keyword!");
 		return new DateTime(date)
 	}
 

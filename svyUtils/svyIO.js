@@ -35,7 +35,7 @@
  *
  * @properties={typeid:35,uuid:"663420E6-0054-46C0-A328-5257365E0057",variableType:-4}
  */
-var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.io');
+var log = application.getLogger('com.servoy.extensions.utils.svyIO');
 
 /**
  * Opens a file from the file system using the default viewer for the fileType on the current platform. (.txt with editor, .pdf with pdf reader, .doc with word, etc.)
@@ -136,7 +136,7 @@ function unzip(fileToUnzip, targetFile) {
 		}
 	} catch (e) {
 		// IO Exception
-		log.error('Failed to unzip file "{}": {}', fileToUnzip.getAbsolutePath(), e.message);
+		log.error.log('Failed to unzip file "{}": {}', fileToUnzip.getAbsolutePath(), e.message);
 		return null;
 	} finally {
 		if (zipFile) {
@@ -244,7 +244,7 @@ function zip(fileToZip, targetFile, filenamesToStoreUncompressed) {
 		zos.close();
 		zos = null;
 	} catch(e) {
-		log.error('Error zipping file "{}": {}', fileToZip.getAbsolutePath(), e.message);
+		log.error.log('Error zipping file "{}": {}', fileToZip.getAbsolutePath(), e.message);
 		throw e;
 	} finally {
 		try {
@@ -304,7 +304,7 @@ function calculateHash(file, algorithm) {
 		//return hex.toString();
 		return hex;
 	} catch (e) {
-		log.error('Error calculating Hash for file "' + file.getAbsolutePath() + '": ' + e.message);
+		log.error.log('Error calculating Hash for file "' + file.getAbsolutePath() + '": ' + e.message);
 		return null;
 	}
 }
@@ -358,7 +358,7 @@ function channelCopy(src, dest) {
 
 		src.close();
 	} catch (e) {
-		log.error(e);
+		log.error.log(e);
 	}
 }
 
@@ -450,7 +450,7 @@ function getLineCountForFile(file) {
 		}
 	    return lnr.getLineNumber(); 
 	} catch (e) {
-		log.error('Error getting max lines for file "{}"', file.getName(), e);
+		log.error.log('Error getting max lines for file "{}"', file.getName(), e);
 	} finally {
 		lnr.close();
 		fr.close();
@@ -507,7 +507,7 @@ function getLineCountForFile(file) {
  */
 function BufferedWriter(pathOrFile, append, charset) {
 	if (!(this instanceof BufferedWriter)) {
-		log.warn('scopes.svyIO.BufferedWriter: Constructor functions should be called with the "new" keyword!');
+		log.warn.log('scopes.svyIO.BufferedWriter: Constructor functions should be called with the "new" keyword!');
 		return new BufferedWriter(pathOrFile, append, charset);
 	}
 

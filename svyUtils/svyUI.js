@@ -31,11 +31,9 @@
 /**
  * @private
  * 
- * @SuppressWarnings(unused)
- * 
  * @properties={typeid:35,uuid:"7C41BEF4-1A96-499B-8851-43A9A9B31E85",variableType:-4}
  */
-var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.ui');
+var log = application.getLogger('com.servoy.extensions.utils.svyUI');
 
 /**
  * @deprecated
@@ -254,7 +252,7 @@ function getRuntimeFormInstances(superForm){
 		if (form) {
 			runtimeInstances.push(form);
 		} else {
-			log.warn('Unexpected untime form not found by getRuntimeFormInstances: ' + formName);
+			log.warn.log('Unexpected untime form not found by getRuntimeFormInstances: ' + formName);
 		}
 	}
 	
@@ -634,7 +632,7 @@ function initSplitPane(formName, elementName, resizeWeight, dividerLocation, div
  */
 function persistSplitPaneDividerPosition(formName, elementName) {
 	if (!formName || !elementName) {
-		log.error('persistSplitPaneDividerPosition called without mandatory params');
+		log.error.log('persistSplitPaneDividerPosition called without mandatory params');
 		return;
 	}
 	var pos = forms[formName].elements[elementName].dividerLocation;
@@ -658,7 +656,7 @@ function persistSplitPaneDividerPosition(formName, elementName) {
  */
 function restoreSplitPaneDividerPosition(formName, elementName, position) {
 	if (!formName || !elementName) {
-		log.error('restoreSplitPaneDividerPosition called without mandatory params');
+		log.error.log('restoreSplitPaneDividerPosition called without mandatory params');
 		return;
 	}
 	/** @type {String} */

@@ -24,15 +24,6 @@
  */
 
 /**
- * @private
- *
- * @SuppressWarnings(unused)
- *
- * @properties={typeid:35,uuid:"D7955198-B741-4E6D-8C28-44F45AD70816",variableType:-4}
- */
-var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.data');
-
-/**
  * Pivots a JSDataSet: First column in the returned JSDataSet will contain the column names of the original dataset.<br>
  * For each row in the original dataset an column will be added to the returned JSDataSet
  *

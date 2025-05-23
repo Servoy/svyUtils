@@ -25,12 +25,10 @@
 
 /**
  * @private
- * 
- * @SuppressWarnings(unused)
  *
  * @properties={typeid:35,uuid:"511CDD43-7074-4F6E-98DB-76C8436DCB9E",variableType:-4}
  */
-var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.net');
+var log = application.getLogger('com.servoy.extensions.utils.svyNet');
 
 /**
  * @public
@@ -147,13 +145,13 @@ function isHostAccessible(hostname, timeout, port) {
 		reachable = true;
 	} catch (e) {
 		if (e['javaException'] instanceof java.net.UnknownHostException) {
-			log.debug('Host "{}" cannot be reached, might not exist', hostname);
+			log.debug.log('Host "{}" cannot be reached, might not exist', hostname);
 		} else if (e['javaException'] instanceof java.net.SocketTimeoutException) {
-			log.debug('Timeout checking host "{}"', hostname);
+			log.debug.log('Timeout checking host "{}"', hostname);
 		} else if (e['javaException'] instanceof java.io.IOException) {
-			log.debug('Network issue checking host "{}"', hostname);
+			log.debug.log('Network issue checking host "{}"', hostname);
 		} else {
-			log.debug(e);
+			log.debug.log(e);
 		}
 	} finally {
 		if (socket != null) {
@@ -196,10 +194,10 @@ function pingHost(serverAddress, iterations, timeout) {
 	var host = uri.getHost();
 	if (host) {
 		serverAddress = host;
-		log.warn('Host found as ' + serverAddress);
+		log.warn.log('Host found as ' + serverAddress);
 	}
 	var port = uri.getPort();
-	log.warn('Port found as ' + port);
+	log.warn.log('Port found as ' + port);
 	var inetAddress = null;
 	if (!timeout) {
 		timeout = 5000;
@@ -210,7 +208,7 @@ function pingHost(serverAddress, iterations, timeout) {
 	try {
 		inetAddress = java.net.InetAddress.getByName(serverAddress);
 	} catch (/** @type {java.net.UnknownHostException} */ e) {
-		log.debug('Unknown host: ' + serverAddress, e);
+		log.debug.log('Unknown host: ' + serverAddress, e);
 		return -1;
 	}
 
@@ -224,7 +222,7 @@ function pingHost(serverAddress, iterations, timeout) {
 		try {
 			var socketAddress = new java.net.InetSocketAddress(inetAddress, port);
 		} catch (e) {
-			log.debug('Problem obtaining socket address, port may be invalid', e);
+			log.debug.log('Problem obtaining socket address, port may be invalid', e);
 			return -1;
 		}
 		for (i = 1; i <= iterations; i++) {
@@ -235,12 +233,12 @@ function pingHost(serverAddress, iterations, timeout) {
 				if (sc.connect(socketAddress)) {
 					stop = new Date();
 					result = (stop.getTime() - start.getTime());
-					log.debug('Socket connection to ' + serverAddress + ' took ' + result + 'ms');
+					log.debug.log('Socket connection to ' + serverAddress + ' took ' + result + 'ms');
 					pingTimes += result;
 				}
 				return pingTimes / iterations;
 			} catch (e) {
-				log.warn('A network error has occurred', e);
+				log.warn.log('A network error has occurred', e);
 				return -1;
 			} finally {
 				if (sc != null) {
@@ -259,13 +257,13 @@ function pingHost(serverAddress, iterations, timeout) {
 				if (inetAddress.isReachable(timeout)) {
 					stop = new Date();
 					result = (stop.getTime() - start.getTime());
-					log.debug('Ping to ' + serverAddress + ' took ' + result + 'ms');
+					log.debug.log('Ping to ' + serverAddress + ' took ' + result + 'ms');
 					pingTimes += result;
 				}
 			}
 			return pingTimes / iterations;
 		} catch (/** @type {java.io.IOException} */ e) {
-			log.debug('A network error has occurred', e);
+			log.debug.log('A network error has occurred', e);
 			return -1;
 		}
 	}

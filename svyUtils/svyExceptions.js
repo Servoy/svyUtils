@@ -36,7 +36,7 @@
  *
  * @properties={typeid:35,uuid:"CB850A67-F8C0-4C1A-A55B-302810E36FA9",variableType:-4}
  */
-var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.exceptions')
+var log = application.getLogger('com.servoy.extensions.utils.svyExceptions');
 
 /**
  * General exception holding exception message, i18n key and arguments
@@ -53,7 +53,7 @@ var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.exceptions')
  */
 function SvyException(errorMessage) {
 	if (!(this instanceof SvyException)) {
-		log.error('SvyException subclass called without the \'new\' keyword')
+		log.error.log('SvyException subclass called without the \'new\' keyword')
 	}
 	this.message = errorMessage.substr(0,5) === 'i18n:' ? i18n.getI18NMessage(errorMessage) : errorMessage
 	this.name = this.constructor['name']

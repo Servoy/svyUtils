@@ -25,12 +25,10 @@
 
 /**
  * @private
- * 
- * @SuppressWarnings(unused)
  *
  * @properties={typeid:35,uuid:"2BBF34E6-2B0E-4C0E-8453-4A0530CEFC16",variableType:-4}
  */
-var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.system');
+var log = application.getLogger('com.servoy.extensions.utils.svySystem');
  
 /**
  * Returns the platform specific line separator: \n on Unix systems and \r\n\ on Windows systems
@@ -682,7 +680,7 @@ function convertServoyMethodToQualifiedName(method) {
 				return null;
 			}
 		} catch (e) {
-			log.warn(e.message);
+			log.warn.log(e.message);
 			return null;
 		}
 	}
