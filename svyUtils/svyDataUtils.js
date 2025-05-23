@@ -1137,6 +1137,367 @@ function getDataProviderJSColumn(dataSource, dataProviderID) {
 }
 
 /**
+ * Returns the real values of a value list for the given display value.
+ * 
+ * @public 
+ * @param {String} valuelistName - the name of the value list
+ * @param {String} displayValue - the display value to search for (may include search modifiers such as >, >=, +, -, <, <=, ...)
+ * @param {String} [stringMatching] - one of svySearch's STRING_MATCHING constants or one of 'contains', 'starts-with', 'ends-with', 'equals' (default 'contains')
+ * @param {Boolean} [caseSensitivity] - whether to use case sensitivity (default: false)
+ * 
+ * @return {Array<*>|Array<Array<*>>} - the real value(s) of the value list
+ *
+ * @properties={typeid:24,uuid:"F8A682AC-B8E1-4373-8D40-E38D29D994E3"}
+ */
+function getValueListRealValues(valuelistName, displayValue, stringMatching, caseSensitivity) {
+	var jsList = solutionModel.getValueList(valuelistName);
+	if (!jsList) {
+		throw new scopes.svyExceptions.IllegalArgumentException("Valuelist " + valuelistName + " is undefined");
+	}	
+	
+	if (jsList.valueListType != JSValueList.CUSTOM_VALUES && jsList.valueListType != JSValueList.DATABASE_VALUES && !jsList.globalMethod) {
+		throw new scopes.svyExceptions.IllegalArgumentException("The valuelist " + valuelistName + " must be a valuelist of type CUSTOM_VALUES, DATABASE_VALUE, or Global Method Type");
+	}
+	
+	var STRING_MATCHING = {
+		CONTAINS : 'contains',
+		STARTS_WITH : 'starts-with',
+		ENDS_WITH : 'ends-with',
+		EQUALS : 'equals'
+	}
+	
+	stringMatching = stringMatching || STRING_MATCHING.CONTAINS;
+	caseSensitivity = caseSensitivity || false;
+	
+	var mod = displayValue.charAt(0);
+    var term = {
+    	value: displayValue,
+		modifiers: {
+			exact: false,
+			exclude: false,
+			gt: false,
+			ge: false,
+			lt: false,
+			le: false,
+			between: false
+		},
+		valueMax: null
+    }
+	if (mod == '-') {
+		term.modifiers.exclude = true;
+		term.value = term.value.substr(1);
+	} else if (mod == '+') {
+		term.modifiers.exact = true;
+		term.value = term.value.substr(1);
+	} else if (mod == '>') {
+		if (term.value.charAt(1) == '=') {
+			term.modifiers.ge = true;
+			term.value = term.value.substr(1);
+		} else {
+			term.modifiers.gt = true;
+		}
+		term.value = term.value.substr(1);
+	} else if (mod == '<') {
+		if (term.value.charAt(1) == '=') {
+			term.modifiers.le = true;
+			term.value = term.value.substr(1);
+		} else {
+			term.modifiers.lt = true;
+		}
+		term.value = term.value.substr(1);
+	} else if (term.value.indexOf('...') != -1) {
+		term.modifiers.between = true;
+		var values = term.value.split('...');
+		term.value = values[0];
+		term.valueMax = values[1];
+	}
+	
+	var results = [];
+	
+	if (jsList.valueListType === JSValueList.CUSTOM_VALUES) {
+		var items = application.getValueListItems(valuelistName);
+		if (caseSensitivity !== true) {
+			term.value = term.value.toLowerCase();
+		}
+		
+		for (var i = 1; i <= items.getMaxRowIndex(); i++) {
+			/** @type {String} */
+            var vlDisplayValue = items.getValue(i, 1);
+            if (!vlDisplayValue) {
+            	continue;
+            }
+            var vlReturnValue = items.getValue(i, 2) || items.getValue(i, 1);
+            if (caseSensitivity !== true) {
+            	vlDisplayValue = vlDisplayValue.toLowerCase();
+            }
+            if (term.modifiers.exclude) {
+            	if ((stringMatching === STRING_MATCHING.EQUALS || term.modifiers.exact) && term.value != vlDisplayValue) {
+                	results.push(vlReturnValue);
+                } else if (stringMatching === STRING_MATCHING.CONTAINS && !vlDisplayValue.includes(term.value)) {
+                	results.push(vlReturnValue);
+                } else if (stringMatching === STRING_MATCHING.STARTS_WITH && !vlDisplayValue.startsWith(term.value)) {
+                	results.push(vlReturnValue);
+                } else if (stringMatching === STRING_MATCHING.ENDS_WITH && !vlDisplayValue.endsWith(term.value)) {
+                	results.push(vlReturnValue);
+                }
+            } else {
+            	if (term.modifiers.gt && term.value > vlDisplayValue) {
+                	results.push(vlReturnValue);            	
+                } else if (term.modifiers.ge && term.value >= vlDisplayValue) {
+                	results.push(vlReturnValue);            	
+                } else if (term.modifiers.lt && term.value < vlDisplayValue) {
+                	results.push(vlReturnValue);            	
+                } else if (term.modifiers.le && term.value <= vlDisplayValue) {
+                	results.push(vlReturnValue);            	
+                } else if (term.modifiers.between && vlDisplayValue >= term.value && vlDisplayValue <= term.valueMax) {
+                	results.push(vlReturnValue);            	
+                } else if ((stringMatching === STRING_MATCHING.EQUALS || term.modifiers.exact) && term.value == vlDisplayValue) {
+                	results.push(vlReturnValue);
+                } else if (stringMatching === STRING_MATCHING.CONTAINS && vlDisplayValue.includes(term.value)) {
+                	results.push(vlReturnValue);
+                } else if (stringMatching === STRING_MATCHING.STARTS_WITH && vlDisplayValue.startsWith(term.value)) {
+                	results.push(vlReturnValue);
+                } else if (stringMatching === STRING_MATCHING.ENDS_WITH && vlDisplayValue.endsWith(term.value)) {
+                	results.push(vlReturnValue);
+                }  
+            }         	
+        }
+		
+	} else if (jsList.valueListType === JSValueList.DATABASE_VALUES) {
+	    var displayDataProviders = jsList.getDisplayDataProviderIds();
+	    var realDataProviders = jsList.getReturnDataProviderIds();
+	    
+		if (jsList.relationName) {
+			if (!scopes.svyDataUtils.isGlobalRelation(jsList.relationName)) {
+				application.output('Using related valuelists is not fully supported, only relations based on globals are supported', LOGGINGLEVEL.WARNING);
+			}
+		}
+	    
+		var qbSelect = databaseManager.createSelect(jsList.dataSource || scopes.svyDataUtils.getRelationForeignDataSource(jsList.relationName));
+	    
+		if (realDataProviders.length === 3) {
+	    	qbSelect.result.add(
+	    		qbSelect.getColumn(realDataProviders[0])
+				.concat(jsList.separator)
+				.concat(qbSelect.getColumn(realDataProviders[1]))
+				.concat(jsList.separator)
+				.concat(qbSelect.getColumn(realDataProviders[2])), 'realvalue');
+	    } else if (realDataProviders.length === 2) {
+	    	qbSelect.result.add(
+	    		qbSelect.getColumn(realDataProviders[0])
+				.concat(jsList.separator)
+				.concat(qbSelect.getColumn(realDataProviders[1])), 'realvalue');
+	    } else if (realDataProviders.length === 1) {
+	    	qbSelect.result.add(qbSelect.getColumn(realDataProviders[0]), 'realvalue'); 	
+	    }
+	    
+        var queryColumn;
+        if (displayDataProviders.length === 3) {
+        	queryColumn = 
+	    		qbSelect.getColumn(displayDataProviders[0])
+				.concat(jsList.separator)
+				.concat(qbSelect.getColumn(displayDataProviders[1]))
+				.concat(jsList.separator)
+				.concat(qbSelect.getColumn(displayDataProviders[2])); 
+	    } else if (displayDataProviders.length === 2) {
+	    	queryColumn = 
+	    		qbSelect.getColumn(displayDataProviders[0])
+				.concat(jsList.separator)
+				.concat(qbSelect.getColumn(displayDataProviders[1]));
+	    } else if (displayDataProviders.length === 1) {
+	    	queryColumn = qbSelect.getColumn(displayDataProviders[0]);
+	    }
+        
+	    if (term.modifiers.exclude) {
+	    	displayValue = term.value;
+	    	if (stringMatching === STRING_MATCHING.STARTS_WITH || stringMatching === STRING_MATCHING.CONTAINS) {
+	    		displayValue = displayValue + '%';
+			}
+			if (stringMatching === STRING_MATCHING.ENDS_WITH || stringMatching === STRING_MATCHING.CONTAINS) {
+				displayValue = '%' + displayValue;
+			}
+	    	if (caseSensitivity === true) {
+	    		qbSelect.where.add(queryColumn.not[stringMatching === STRING_MATCHING.EQUALS ? 'eq' : 'like'](displayValue));
+			} else {				
+				qbSelect.where.add(queryColumn.upper.not[stringMatching === STRING_MATCHING.EQUALS ? 'eq' : 'like'](qbSelect.functions.upper(displayValue)));	    	
+			}
+	    } else if (term.modifiers.exact) {
+	    	if (caseSensitivity === true) {
+	    		qbSelect.where.add(queryColumn.eq(term.value));
+			} else {				
+				qbSelect.where.add(queryColumn.upper.eq(qbSelect.functions.upper(term.value)));
+			}
+	    } else if (term.modifiers.gt) {
+	    	qbSelect.where.add(queryColumn.gt(term.value));
+	    } else if (term.modifiers.ge) {
+	    	qbSelect.where.add(queryColumn.ge(term.value));
+	    } else if (term.modifiers.lt) {
+	    	qbSelect.where.add(queryColumn.lt(term.value));
+	    } else if (term.modifiers.le) {
+	    	qbSelect.where.add(queryColumn.le(term.value));
+	    } else if (term.modifiers.between) {
+	    	qbSelect.where.add(queryColumn.between(term.value, term.valueMax));
+	    } else {
+	    	if (stringMatching === STRING_MATCHING.STARTS_WITH || stringMatching === STRING_MATCHING.CONTAINS) {
+	    		displayValue = displayValue + '%';
+			}
+			if (stringMatching === STRING_MATCHING.ENDS_WITH || stringMatching === STRING_MATCHING.CONTAINS) {
+				displayValue = '%' + displayValue;
+			}
+	    	
+			if (caseSensitivity === true) {
+				qbSelect.where.add(queryColumn[stringMatching === STRING_MATCHING.EQUALS ? 'eq' : 'like'](displayValue));
+			} else {				
+				qbSelect.where.add(queryColumn.upper[stringMatching === STRING_MATCHING.EQUALS ? 'eq' : 'like'](qbSelect.functions.upper(displayValue)));
+			}
+	    }
+        
+	    // apply valuelist name as filter on column 'valuelist_name'
+	    if (jsList.useTableFilter) {
+	    	qbSelect.where.add(qbSelect.getColumn("valuelist_name").eq(jsList.name));
+	    }
+	    
+	    // realvalue should not be null
+	    qbSelect.where.add(qbSelect.getColumn(realDataProviders[0]).not.isNull);
+	    
+	    var ds = qbSelect.getDataSet(-1);
+	    return ds.getColumnAsArray(1);
+	    
+    } else if (jsList.globalMethod) {
+    	if (caseSensitivity !== true) {
+			term.value = term.value.toLowerCase();
+		}
+    	
+		/** @type {Function} */
+		var globalMethodToCall = scopes[jsList.globalMethod.getScopeName()][jsList.globalMethod.getName()];
+		/** @type {JSDataSet} */
+		var dsGlobalMethod = globalMethodToCall(displayValue, null, null, jsList.name, false, displayValue);
+		for (var g = 1; g <= dsGlobalMethod.getMaxRowIndex(); g++) {
+	        vlDisplayValue = dsGlobalMethod.getValue(g, 1);
+	        if (!vlDisplayValue) {
+	        	continue;
+	        }
+	        var rowDataGlobalMethod = dsGlobalMethod.getValue(g, 2) || vlDisplayValue;
+	        if (caseSensitivity !== true) {
+            	vlDisplayValue = vlDisplayValue.toLowerCase();
+            }
+            if (stringMatching === STRING_MATCHING.EQUALS && term.value == vlDisplayValue) {
+            	results.push(rowDataGlobalMethod);
+            } else if (stringMatching === STRING_MATCHING.CONTAINS && vlDisplayValue.includes(term.value)) {
+            	results.push(rowDataGlobalMethod);
+            } else if (stringMatching === STRING_MATCHING.STARTS_WITH && vlDisplayValue.startsWith(term.value)) {
+            	results.push(rowDataGlobalMethod);
+            } else if (stringMatching === STRING_MATCHING.ENDS_WITH && vlDisplayValue.endsWith(term.value)) {
+            	results.push(rowDataGlobalMethod);
+            }
+	    }
+	}
+
+    return results;
+}
+
+/**
+ * Returns the display values of a value list for the given real value.
+ * 
+ * @public 
+ * @param {String} valuelistName - the name of the value list
+ * @param {*} realValue - the real value to resolve
+ * 
+ * @return {Object} - the display value of the value list
+ *
+ * @properties={typeid:24,uuid:"019CE655-BA1C-4F65-A0A0-322532DD82F3"}
+ */
+function getValueListDisplayValue(valuelistName, realValue) {
+	var result = application.getValueListDisplayValue(valuelistName, realValue);
+	if (result) {
+		return result;
+	}
+	
+	var jsList = solutionModel.getValueList(valuelistName);
+	if (!jsList) {
+		throw new scopes.svyExceptions.IllegalArgumentException("Valuelist " + valuelistName + " is undefined");
+	}	
+	
+	if (jsList.valueListType != JSValueList.CUSTOM_VALUES && jsList.valueListType != JSValueList.DATABASE_VALUES && !jsList.globalMethod) {
+		throw new scopes.svyExceptions.IllegalArgumentException("The valuelist " + valuelistName + " must be a valuelist of type CUSTOM_VALUES, DATABASE_VALUE, or Global Method Type");
+	}
+	
+	if (jsList.valueListType === JSValueList.CUSTOM_VALUES) {
+		var items = application.getValueListItems(valuelistName);
+		
+		for (var i = 1; i <= items.getMaxRowIndex(); i++) {
+			if (items.getValue(i, 2) === realValue) {
+				return items.getValue(i, 1);
+			}         	
+        }
+		
+	} else if (jsList.valueListType === JSValueList.DATABASE_VALUES) {
+	    var displayDataProviders = jsList.getDisplayDataProviderIds();
+	    var realDataProviders = jsList.getReturnDataProviderIds();
+	    
+		if (jsList.relationName) {
+			if (!scopes.svyDataUtils.isGlobalRelation(jsList.relationName)) {
+				application.output('Using related valuelists is not fully supported, only relations based on globals are supported', LOGGINGLEVEL.WARNING);
+			}
+		}
+	    
+		var qbSelect = databaseManager.createSelect(jsList.dataSource || scopes.svyDataUtils.getRelationForeignDataSource(jsList.relationName));
+	    
+		if (displayDataProviders.length === 3) {
+	    	qbSelect.result.add(
+	    		qbSelect.getColumn(displayDataProviders[0])
+				.concat(jsList.separator)
+				.concat(qbSelect.getColumn(displayDataProviders[1]))
+				.concat(jsList.separator)
+				.concat(qbSelect.getColumn(displayDataProviders[2])), 'displayvalue'); 
+	    } else if (displayDataProviders.length === 2) {
+	    	qbSelect.result.add(
+	    		qbSelect.getColumn(displayDataProviders[0])
+				.concat(jsList.separator)
+				.concat(qbSelect.getColumn(displayDataProviders[1])), 'displayvalue');
+	    } else if (displayDataProviders.length === 1) {
+	    	qbSelect.result.add(qbSelect.getColumn(displayDataProviders[0]), 'displayvalue');
+	    }
+
+		if (realDataProviders.length === 3) {
+	    	qbSelect.where.add(
+	    		qbSelect.getColumn(realDataProviders[0])
+				.concat(jsList.separator)
+				.concat(qbSelect.getColumn(realDataProviders[1]))
+				.concat(jsList.separator)
+				.concat(qbSelect.getColumn(realDataProviders[2])).eq(realValue));    	
+	    } else if (realDataProviders.length === 2) {
+	    	qbSelect.where.add(
+	    		qbSelect.getColumn(realDataProviders[0])
+				.concat(jsList.separator)
+				.concat(qbSelect.getColumn(realDataProviders[1])).eq(realValue)); 	
+	    } else if (realDataProviders.length === 1) {
+	    	qbSelect.where.add(qbSelect.getColumn(realDataProviders[0]).eq(realValue)); 	
+	    }
+        
+	    // apply valuelist name as filter on column 'valuelist_name'
+	    if (jsList.useTableFilter) {
+	    	qbSelect.where.add(qbSelect.getColumn("valuelist_name").eq(jsList.name));
+	    }
+	    
+	    var ds = qbSelect.getDataSet(1);
+	    if (ds.getMaxRowIndex() > 0) {
+	    	return ds.getValue(1, 1);
+	    }
+    } else if (jsList.globalMethod) {
+		/** @type {Function} */
+		var globalMethodToCall = scopes[jsList.globalMethod.getScopeName()][jsList.globalMethod.getName()];
+		/** @type {JSDataSet} */
+		var dsGlobalMethod = globalMethodToCall(null, realValue, null, jsList.name, false);
+		if (dsGlobalMethod.getMaxRowIndex() > 0) {
+	    	return dsGlobalMethod.getValue(1, 1);
+	    }
+	}
+
+    return null;
+}
+
+/**
  * Dumps all data of either all or the given tables of the given server to csv files and zips them.<br>
  * <br>
  * NOTE: All possible table filters will be applied.
