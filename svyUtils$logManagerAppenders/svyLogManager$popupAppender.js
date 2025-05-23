@@ -149,6 +149,7 @@ function PopupAppender() {
  * @param {PopupAppender} appender
  *
  * @properties={typeid:24,uuid:"44DC43AE-DDE2-40D8-AF4C-AD97D39A8A2A"}
+ * @SuppressWarnings(deprecated)
  */
 function buildPopupForm(appender) {
 	if (popups && popups.hasOwnProperty(appender.appenderName)) {

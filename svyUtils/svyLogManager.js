@@ -818,9 +818,6 @@ var defaultMessageFactory = new ParameterizedMessageFactory()
  * @properties={typeid:24,uuid:"36095B79-6EF7-4449-A89E-C4867F327578"}
  */
 function AbstractMessage(message, params) {
-	if (this.constructor.name === 'AbstractMessage') {
-		//TODO: throw an exception about invoking an Abstract Constructor
-	}
 	/**
 	 * @protected 
 	 */
@@ -1494,7 +1491,7 @@ function Logger(internal, messageFactory) {
 	 */
 	var customMessageFactory = messageFactory
 	
-	var isRoot = (this.name === ROOT_LOGGER_NAME);
+	var isRoot = (internal && internal.name === ROOT_LOGGER_NAME);
 
 	/**
 	 * Generic logging method<br>
@@ -2056,9 +2053,6 @@ function LoggingEvent(logger, timeStamp, level, message) {
  */
 var initLoggingEvent = (/** @parse */ function() {
 	LoggingEvent.prototype = {
-		getThrowableStrRep: function() { //CHECKME This seems to not get called from anywhere
-			return this.exception ? getExceptionStringRep(this.exception) : "";
-		},
 		toString: function() {
 			return "LoggingEvent[" + this.level + "]";
 		}

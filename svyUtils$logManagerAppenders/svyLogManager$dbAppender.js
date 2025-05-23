@@ -180,6 +180,7 @@ var initDbAppender = (/** @constructor */ function() {
 		
 		var record = this.foundset.getRecord(this.foundset.newRecord());
 
+		/**  @type {Array<*>} */
 		var params = loggingEvent.message.getParameters();
 		/** @type {Object<*>} */
 		var customFieldValues = params ? params.pop() : null;

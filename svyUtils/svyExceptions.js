@@ -207,6 +207,9 @@ var init = (
 		ServoyError.prototype.constructor = ServoyError
 		
 		Object.defineProperty(ServoyError.prototype, 'stack', {
+			/**
+			 * @this {ServoyError}
+			 */
 			get: function() {
 				if (typeof this.ex.getScriptStackTrace === 'function') {
 					return this.ex.getScriptStackTrace()
