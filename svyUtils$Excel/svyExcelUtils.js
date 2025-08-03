@@ -28,7 +28,7 @@
  *
  * @properties={typeid:35,uuid:"65F4692A-A648-4194-AC04-EE82CA94B295",variableType:-4}
  */
-var logger = scopes.svyLogManager.getLogger("com.servoy.bap.svyexcelutils");
+var logger = application.getLogger("com.servoy.bap.svyexcelutils");
 
 /**
  * Possible file formats used instead of templates when creating empty workbooks
@@ -400,7 +400,7 @@ var defaultPrintSetup;
  *
  * @properties={typeid:35,uuid:"11C97E87-3CBF-4780-B588-7EC78AA7C708",variableType:8}
  */
-var defaultFileFormat;
+var defaultFileFormat = FILE_FORMAT.XLSX;
 
 /**
  * @type {{firstColumn: Number, firstRow: Number, lastColumn: Number, lastRow: Number, numberOfCells: Number}}
@@ -607,7 +607,7 @@ function createWorkbookFromDataSet(dataset, columns, headers, templateOrFileType
 function ExcelWorkbook(templateOrFileType) {
 	
 	if (!(this instanceof ExcelWorkbook)) {
-		logger.warn("ExcelWorkbook constructor called without the \"new\" keyword");
+		logger.warn.log("ExcelWorkbook constructor called without the \"new\" keyword");
 		return new ExcelWorkbook(templateOrFileType);
 	}
 
@@ -800,7 +800,7 @@ var initExcelWorkbook = (/** @parse */ function() {
 			this.wb.write(fileOut);
 			return true;
 		} catch (e) {
-			logger.error(e.message);
+			logger.error.log(e.message);
 		} finally {
 			if (fileOut != null) {
 				try {
@@ -826,7 +826,7 @@ var initExcelWorkbook = (/** @parse */ function() {
 			bytesOut.close();
 			return bytesOut.toByteArray();
 		} catch (e) {
-			logger.error(e.message);
+			logger.error.log(e.message);
 		} finally {
 			if (bytesOut) {
 				try {
@@ -920,7 +920,7 @@ var initExcelWorkbook = (/** @parse */ function() {
 		try {
 			this.wb.setSheetName(index - 1, name);
 		} catch (e) {
-			logger.error("Error setting sheet name: " + e.message);
+			logger.error.log("Error setting sheet name: " + e.message);
 		}
 	}
 	
@@ -955,7 +955,7 @@ var initExcelWorkbook = (/** @parse */ function() {
 function ServoyExcelWorkbook(templateOrFileType, sheetNameToUse) {
 	
 	if (!(this instanceof ServoyExcelWorkbook)) {
-		logger.warn("ServoyExcelWorkbook constructor called without the \"new\" keyword");
+		logger.warn.log("ServoyExcelWorkbook constructor called without the \"new\" keyword");
 		return new ServoyExcelWorkbook(templateOrFileType, sheetNameToUse);
 	}
 	
@@ -1190,7 +1190,7 @@ var initServoyExcelWorkbook = (/** @parse */ function() {
 function FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileType, sheetNameToUse) {
 	
 	if (!(this instanceof FoundSetExcelWorkbook)) {
-		logger.warn("FoundSetExcelWorkbook constructor called without the \"new\" keyword");
+		logger.warn.log("FoundSetExcelWorkbook constructor called without the \"new\" keyword");
 		return new FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileType);
 	}
 	
@@ -1437,7 +1437,7 @@ var initFoundSetExcelWorkbook = (/** @parse */ function() {
 function DataSetExcelWorkbook(dataset, columns, headers, templateOrFileType, sheetNameToUse) {
 	
 	if (!(this instanceof DataSetExcelWorkbook)) {
-		logger.warn("DataSetExcelWorkbook constructor called without the \"new\" keyword");
+		logger.warn.log("DataSetExcelWorkbook constructor called without the \"new\" keyword");
 		return new DataSetExcelWorkbook(dataset, columns, headers, templateOrFileType);
 	}
 	
@@ -2203,7 +2203,7 @@ var initExcelCellStyle = (/** @parse */ function() {
 				pattern = Packages.org.apache.poi.ss.usermodel.FillPatternType.forInt(patternNum);
 				this.cellStyle.setFillPattern(pattern);	
 			} catch(e) {
-				logger.warn('Invalid fill pattern type provided');
+				logger.warn.log('Invalid fill pattern type provided');
 			}
 		}
 		return this;
@@ -2225,7 +2225,7 @@ var initExcelCellStyle = (/** @parse */ function() {
 				alignment = Packages.org.apache.poi.ss.usermodel.HorizontalAlignment.forInt(alignNum);
 				this.cellStyle.setAlignment(alignment);	
 			} catch(e) {
-				logger.warn('Invalid horizontal alignment type provided');
+				logger.warn.log('Invalid horizontal alignment type provided');
 			}
 		}
 		return this;
@@ -2247,7 +2247,7 @@ var initExcelCellStyle = (/** @parse */ function() {
 				alignment = Packages.org.apache.poi.ss.usermodel.VerticalAlignment.forInt(alignNum);
 				this.cellStyle.setVerticalAlignment(alignment);	
 			} catch(e) {
-				logger.warn('Invalid vertical alignment type provided');
+				logger.warn.log('Invalid vertical alignment type provided');
 			}
 		}
 		return this;
@@ -2316,7 +2316,7 @@ var initExcelCellStyle = (/** @parse */ function() {
 				borderBottom = borderForInt(border);
 				this.cellStyle.setBorderBottom(borderBottom);	
 			} catch(e) {
-				logger.warn(e.message);
+				logger.warn.log(e.message);
 			}
 		}
 		return this;
@@ -2338,7 +2338,7 @@ var initExcelCellStyle = (/** @parse */ function() {
 				borderTop = borderForInt(border);
 				this.cellStyle.setBorderTop(borderTop);	
 			} catch(e) {
-				logger.warn(e.message);
+				logger.warn.log(e.message);
 			}
 		}
 		return this;
@@ -2360,7 +2360,7 @@ var initExcelCellStyle = (/** @parse */ function() {
 				borderRight = borderForInt(border);
 				this.cellStyle.setBorderRight(borderRight);	
 			} catch(e) {
-				logger.warn(e.message);
+				logger.warn.log(e.message);
 			}
 		}
 		return this;		
@@ -2382,7 +2382,7 @@ var initExcelCellStyle = (/** @parse */ function() {
 				borderLeft = borderForInt(border);
 				this.cellStyle.setBorderLeft(borderLeft);	
 			} catch(e) {
-				logger.warn(e.message);
+				logger.warn.log(e.message);
 			}
 		}
 		return this;
@@ -3278,6 +3278,7 @@ function borderForInt(borderNumber) {
  * If true, all required libraries are present and the scope can be used
  * @return {Boolean}
  * @public  
+ * @deprecated now longer needed as Servoy ships required libraries by default since 2024.03
  * @properties={typeid:24,uuid:"0E11FB23-7B52-43BE-AE30-2775FE0FA02B"}
  */
 function isLoaded() {
@@ -3287,24 +3288,7 @@ function isLoaded() {
 		var c = java.lang.Class.forName("org.apache.poi.xssf.usermodel.XSSFWorkbook", false, cl);
 		return c != null;
 	} catch(e) {
-		logger.error(e);
+		logger.error.log(e);
 		return false;
 	}
 }
-
-/**
- * @private
- * @SuppressWarnings(unused)
- *
- * @properties={typeid:35,uuid:"D1AA3C12-91F1-40DF-888E-6775900C71F1",variableType:-4}
- */
-var init = (function() {
-	
-	// set default file format
-	defaultFileFormat = FILE_FORMAT.XLSX;
-	
-	if (!isLoaded()) {
-		logger.warn("svyExcelUtils cannot be used because the Apache POI package cannot be found");
-		logger.warn("Please follow the installation documentation at https://github.com/Servoy/svyUtils/wiki/ExcelUtils");
-	}
-}());
