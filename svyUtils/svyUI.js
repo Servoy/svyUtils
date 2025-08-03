@@ -462,9 +462,12 @@ function getRuntimeTableViewRowHeight(form) {
  * 
  * @param {Boolean} state
  * 
+ * @deprecated 
+ * 
  * @see Also see {@link #plugins#window#setToolBarAreaVisible()}: hides/shows the entire toolbar area
  *
  * @properties={typeid:24,uuid:"BF888281-F9E0-4907-89FD-ECAAA037C4CB"}
+ * @SuppressWarnings(deprecated)
  */
 function setAllToolbarsVisibility(state) {
 	if (application.getApplicationType() === APPLICATION_TYPES.SMART_CLIENT) {

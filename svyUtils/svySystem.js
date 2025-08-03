@@ -98,8 +98,11 @@ function isNGClient() {
  * @public
  * 
  * @return {Boolean}
+ * 
+ * @deprecated 
  *  
  * @properties={typeid:24,uuid:"CA076FBF-D0BE-4C43-8264-0A9B87D52CC0"}
+ * @SuppressWarnings(deprecated)
  */
 function isWebClient() {
 	return application.getApplicationType() === APPLICATION_TYPES.WEB_CLIENT;
@@ -111,8 +114,11 @@ function isWebClient() {
  * @public
  * 
  * @return {Boolean}
+ * 
+ * @deprecated 
  *  
  * @properties={typeid:24,uuid:"F7529082-605B-4ADC-A010-84936034B364"}
+ * @SuppressWarnings(deprecated)
  */
 function isSmartClient() {
 	return application.getApplicationType() === APPLICATION_TYPES.SMART_CLIENT;
@@ -124,8 +130,11 @@ function isSmartClient() {
  * @public
  * 
  * @return {Boolean}
+ * 
+ * @deprecated 
  *  
  * @properties={typeid:24,uuid:"B37DF176-F87D-49EF-8558-BD6D993C1A8F"}
+ * @SuppressWarnings(deprecated)
  */
 function isRuntimeClient() {
 	return application.getApplicationType() === APPLICATION_TYPES.RUNTIME_CLIENT;
@@ -150,8 +159,12 @@ function isHeadlessClient(){
  * @public
  * 
  * @return {Boolean}
+ * 
+ * @deprecated 
+ * 
  *  
  * @properties={typeid:24,uuid:"C7915F79-3B6C-4F99-B898-D1287B6A7D36"}
+ * @SuppressWarnings(deprecated)
  */
 function isSwingClient() {
 	return [APPLICATION_TYPES.SMART_CLIENT, APPLICATION_TYPES.RUNTIME_CLIENT].indexOf(application.getApplicationType()) !== -1;
@@ -159,9 +172,15 @@ function isSwingClient() {
 
 /**
  * Returns true if the client is either a Headless, Web or NG Client, all of which execute their logic serverside
+ * 
  * @public 
+ * 
  * @return {Boolean}
+ * 
+ * @deprecated 
+ * 
  * @properties={typeid:24,uuid:"AB51A99C-5262-4CF4-B338-CE549D417683"}
+ * @SuppressWarnings(deprecated)
  */
 function isServersideClient() {
 	return [APPLICATION_TYPES.WEB_CLIENT, APPLICATION_TYPES.HEADLESS_CLIENT, APPLICATION_TYPES.NG_CLIENT].indexOf(application.getApplicationType()) !== -1;

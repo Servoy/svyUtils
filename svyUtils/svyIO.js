@@ -42,9 +42,12 @@ var log = application.getLogger('com.servoy.extensions.utils.svyIO');
  * 
  * @public
  * 
+ * @deprecated 
+ * 
  * @param {plugins.file.JSFile|String} file The file that will be opened
  *
  * @properties={typeid:24,uuid:"95C45F79-F469-4542-BB8B-BE226010D8B1"}
+ * @SuppressWarnings(deprecated)
  */
 function openFileWithDefaultViewer(file) {
 	// TODO: Support opening in the WC: either plugins.file.writeFile, but required to read the content first or showUrl, if file is accessible from the outside (see deprecated globals.svy_utl_open_file())

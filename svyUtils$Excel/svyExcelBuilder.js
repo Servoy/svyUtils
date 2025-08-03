@@ -69,7 +69,7 @@ function NgGridExcelBuilder(tableComponent, useTableColumnState) {
 
 	/**
 	 * @protected
-	 * @type {RuntimeWebComponent<aggrid-groupingtable>|RuntimeWebComponent<aggrid-groupingtable_abs>}
+	 * @type {RuntimeWebComponent<aggrid-groupingtable>|RuntimeWebComponent<aggrid-groupingtable_abs>|{myFoundset: {foundset: JSFoundSet}, columns: Array<{headerTitle: String, format: String, dataprovider: String, valuelist: {name: String}}>, getColumnState: Function, getColumn: Function, getColumnIndex: Function, getColumnsCount: Function}}
 	 */
 	this.element = tableComponent;
 
@@ -702,6 +702,7 @@ function initNgGridExcelBuilder() {
 			/** @type {Number}*/
 			var realIndex = columnIndexes[index];
 
+			/** @type {{headerTitle: String, format: String, dataprovider: String, valuelist: {name: String}}} */
 			var col = table.getColumn(realIndex);
 			if (col) {
 
