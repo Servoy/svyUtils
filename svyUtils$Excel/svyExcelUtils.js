@@ -1279,46 +1279,26 @@ function FoundSetExcelWorkbook(foundset, dataproviders, headers, templateOrFileT
 			}
 		}
 		
-		// cache qualified name for global method valuelists
-		/** @type {Array<String>} */
-		var columnValuelistsGlobalMethods = [];
-		for (var d = 0; d < this.columnValuelists.length; d++) {
-			if (!this.columnValuelists[d]) continue;
-			
-			var jsValuelist = solutionModel.getValueList(this.columnValuelists[d])
-			if (jsValuelist.globalMethod) {
-				columnValuelistsGlobalMethods[d] = scopes.svySystem.convertServoyMethodToQualifiedName(scopes[jsValuelist.globalMethod.getScopeName()][jsValuelist.globalMethod.getName()]);
-			}
-		}
-
 		for (i = 1; i <= foundset.getSize(); i++) {
 			var record = foundset.getRecord(i);
 			row = this.sheet.createRow(rowNum + (i-1));
 
-			for (d = 0; d < dataproviders.length; d++) {
+			for (var d = 0; d < dataproviders.length; d++) {
 				cell = row.createCell(this.startColumn + d);
 				var dpValue = record[dataproviders[d]];
 				
 				// check if there is a valuelist;
 				if (this.columnValuelists[d]) {
-					// check if is a global method valuelist
-					if (columnValuelistsGlobalMethods[d]) {
-						try {
-							var ds = scopes.svySystem.callMethod(columnValuelistsGlobalMethods[d], [null, dpValue, null, jsValuelist.name, false]);
-							dpValue = ds.getValue(1, 1) !== null && ds.getValue(1, 1) !== undefined ? ds.getValue(1, 1) : dpValue;
-						} catch (e) {
-							application.output(e, LOGGINGLEVEL.ERROR)
-						}
-					} else {
-						var dpDisplayValue = application.getValueListDisplayValue(this.columnValuelists[d], dpValue);
-						// show realValue if cannot find displayValue
-						dpValue = dpDisplayValue !== null && dpDisplayValue !== undefined ? dpDisplayValue : dpValue;
-					}
+					var dpDisplayValue = scopes.svyDataUtils.getValueListDisplayValue(this.columnValuelists[d], dpValue);
+					// show realValue if cannot find displayValue
+					dpValue = dpDisplayValue ? dpDisplayValue : dpValue;
 				}
 				
 				if (dpValue instanceof Date && !this.columnFormatsUseLocalDateTime[d] && scopes.svySystem.isNGClient()) {
 					// use localDateTime if useLocalDateTime setting is false to use same value seen by the user
-					dpValue = scopes.svyDateUtils.getLocalDateTime(dpValue);
+					/** @type {Date} */
+					var dpValueAsDate = dpValue;
+					dpValue = scopes.svyDateUtils.getLocalDateTime(dpValueAsDate);
 				}
 				
 				// useLocalDateTime
