@@ -388,6 +388,16 @@ function fireEvent(obj, eventType, args, isVetoable, returnValueAggregationType)
 						try {
 							aggregateResult(scope[actionStringParts[2]].apply(scope, args));
 						} catch (e) { //Conditional catch introduced as a fix for SVYUTILS-2 works in Gecko based engines and Rhino
+
+							// log actual error with stack trace
+							var errObj = {
+								err: e.toString(),
+								func: curel[act],
+								type: eventType
+							}
+							
+							log.error(utils.stringReplaceTags('FireEvent %%type%% failed exexuting apply on function: %%func%% \n%%err%%', errObj));
+							
 							if (e instanceof VetoEventException) {
 								throw scopes.svyExceptions.UnsupportedOperationException('Attempt made to veto a non-vetoable event');
 							} else {
