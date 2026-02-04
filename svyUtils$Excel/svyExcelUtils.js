@@ -2498,8 +2498,10 @@ var initExcelCellStyle = (/** @parse */ function() {
 	 * @this {ExcelCellStyle}
 	 */
 	ExcelCellStyle.prototype.cloneFont = function() {
+		/** @type {ExcelFont} */
+		var originalExcelFont = this.getFont();
 		/** @type {Packages.org.apache.poi.ss.usermodel.Font} */
-		var original = this.getFont();
+		var original = originalExcelFont.getFont();
 		/** @type {Packages.org.apache.poi.ss.usermodel.Font} */
 		var result = this.workbook.createFont();
 		result.setBold(original.getBold());
