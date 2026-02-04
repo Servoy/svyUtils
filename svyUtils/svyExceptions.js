@@ -178,7 +178,7 @@ function ServoyError(exception) {
 var init = (
 	/** @constructor */ 
 	function() {
-		SvyException.prototype = new Error();
+		SvyException.prototype = Object.create(Error.prototype)
 		SvyException.prototype.constructor = SvyException
 		
 		/**
