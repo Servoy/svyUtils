@@ -695,6 +695,25 @@ function getDayDifference(start, end) {
 }
 
 /**
+ * Returns the number of hours between the two dates
+ *
+ * @public
+ *
+ * @param {Date} start
+ * @param {Date} end
+ *
+ * @return {Number} hoursBetween
+ *
+ * @properties={typeid:24,uuid:"0E937316-44C3-4313-B589-1528CA7ABBB4"}
+ */
+function getHourDifference(start, end) {
+	var startLocalDateTime = getLocalDateTimeFromDate(start);
+	var endLocalDateTime = getLocalDateTimeFromDate(end);
+	var duration = java.time.Duration.between(startLocalDateTime, endLocalDateTime);
+	return duration.toHours();
+}
+
+/**
  * Returns the number of full months between the two dates
  *
  * @public
