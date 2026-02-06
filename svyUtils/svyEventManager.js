@@ -393,10 +393,11 @@ function fireEvent(obj, eventType, args, isVetoable, returnValueAggregationType)
 							var errObj = {
 								err: e.toString(),
 								func: curel[act],
-								type: eventType
+								type: eventType,
+								stack: e.stack
 							}
 							
-							log.error(utils.stringReplaceTags('FireEvent %%type%% failed exexuting apply on function: %%func%% \n%%err%%', errObj));
+							log.error(utils.stringReplaceTags('FireEvent %%type%% failed exexuting apply on function: %%func%% \n%%err%%\n%%stack%%', errObj));
 							
 							if (e instanceof VetoEventException) {
 								throw scopes.svyExceptions.UnsupportedOperationException('Attempt made to veto a non-vetoable event');
