@@ -1435,10 +1435,13 @@ function getValueListDisplayValue(valuelistName, realValue) {
 	    var displayDataProviders = jsList.getDisplayDataProviderIds();
 	    var realDataProviders = jsList.getReturnDataProviderIds();
 	    
-		if (jsList.relationName) {
-			if (!scopes.svyDataUtils.isGlobalRelation(jsList.relationName)) {
-				application.output('Using related valuelists is not fully supported, only relations based on globals are supported', LOGGINGLEVEL.WARNING);
-			}
+	    if (scopes.svyJSUtils.areObjectsEqual(displayDataProviders, realDataProviders)) {
+	    	//display and real value data providers are the same, so we can return the real value as display value without querying the database
+	    	return realValue;
+	    }
+	    
+		if (jsList.relationName && !scopes.svyDataUtils.isGlobalRelation(jsList.relationName.split('.')[0])) {
+			application.output('getValueListDisplayValue is not fully supported for related value list "' + jsList.name + '"', LOGGINGLEVEL.WARNING);
 		}
 	    
 		var qbSelect = databaseManager.createSelect(jsList.dataSource || scopes.svyDataUtils.getRelationForeignDataSource(jsList.relationName));
