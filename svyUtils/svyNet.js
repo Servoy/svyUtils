@@ -88,7 +88,7 @@ function isInternalIPAddress(ipAddress){
  * 
  * @param {String} ipAddress
  * 
- * @return {Number} version, on of the constants - IPv4, IPv6
+ * @return {IP_VERSIONS} version, on of the constants - IPv4, IPv6
  * 
  * @see IPv4
  * @see IPv6
@@ -313,12 +313,18 @@ function parseUrl(url, strictMode) {
 	o.parser.loose = /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*):?([^:@]*))?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/;
 
 	var m = o.parser[o.strictMode ? 'strict' : 'loose'].exec(url);
-	/**@type {{anchor: String, query: String, file: String, directory: String, path: String, relative: String, port: Number, host: String, password:String, user: String, userInfo: String, authority: String, protocol:String, source: String, queryKey: Object<String>}}*/
+	/**@type {{anchor: String, query: String, file: String, directory: String, path: String, relative: String, port: Number, host: String, password:String, user: String, userInfo: String, authority: String, protocol:String, source: String, queryKey: Object<Array<String>>}}*/
 	var uri = { };
 	var i = 14;
 	while (i--) uri[o.key[i]] = m[i] || '';
 	uri[o.q.name] = { };
-	uri[o.key[12]].replace(o.q.parser, function($0, $1, $2) { 
+	uri[o.key[12]].replace(o.q.parser, 
+		/**
+		 * @param {String} $0
+		 * @param {String} $1
+		 * @param {String} $2
+		 */
+		function($0, $1, $2) { 
 			if ($1) {
 				if (uri[o.q.name].hasOwnProperty($1)) {
 					uri[o.q.name][$1].push($2);

@@ -638,6 +638,7 @@ function persistSplitPaneDividerPosition(formName, elementName) {
 		log.error.log('persistSplitPaneDividerPosition called without mandatory params');
 		return;
 	}
+	/** @type {String} */
 	var pos = forms[formName].elements[elementName].dividerLocation;
 	application.setUserProperty(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc', pos)
 }
@@ -664,8 +665,8 @@ function restoreSplitPaneDividerPosition(formName, elementName, position) {
 	}
 	/** @type {String} */
 	var pos = application.getUserProperty(application.getSolutionName() + '.' + formName + '.' + elementName + '.divLoc');
-	pos = utils.stringToNumber(pos);
-	forms[formName].elements[elementName]['dividerLocation'] = pos ? pos : position;
+	var posNo = utils.stringToNumber(pos);
+	forms[formName].elements[elementName]['dividerLocation'] = posNo ? posNo : position;
 }
 
 /**
@@ -708,7 +709,9 @@ function getContainerElements(form) {
 	/** @type {Array<RuntimeComponent>} */
 	var elem = [];
 	for (var e = 0; e < form.elements.length; e++) {
-		elem.push(form.elements[e]);
+		/** @type {RuntimeComponent} */
+		var elementToPush = form.elements[e];
+		elem.push(elementToPush);
 	}
 	function filterElements(el) {
 		return el instanceof RuntimeTabPanel || el instanceof RuntimeSplitPane || el instanceof RuntimeAccordionPanel
@@ -898,15 +901,16 @@ function setupRuntimeElementSource() {
 	    /** @type {JSFoundSet} */
 	    var fs;
 	    //First check if it is a component that can have a linked foundset
-	    /** @type {Object} */
+	    /** @type {RuntimeComponent} */
 		var component = form.elements[elementName];
-		if (component.hasOwnProperty('myFoundset')) {
+		if ('myFoundset' in component) {
 			return component['myFoundset'].foundset.getSelectedRecord();
 		} else {
 			var relationName = this.getRelationName();
 			if (relationName) {
 				/** @type {JSFoundSet} */
-				fs = form.foundset[relationName];
+				var relatedFs = form.foundset[relationName];
+				fs = relatedFs;
 			} else {
 				fs = form.foundset;
 			}

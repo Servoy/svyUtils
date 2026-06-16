@@ -58,9 +58,11 @@ function openFileWithDefaultViewer(file) {
 	}
 	var osName = application.getOSName();
 	/** @type {String} */
-	var filePath = file;
+	var filePath = null;
 	if (file instanceof plugins.file.JSFile) {
 		filePath = file.getAbsolutePath();
+	} else {
+		filePath = file;
 	}
 	if (/Windows/.test(osName)) {
 		application.executeProgram('rundll32', ['url.dll,FileProtocolHandler', filePath]);
@@ -526,9 +528,7 @@ function BufferedWriter(pathOrFile, append, charset) {
 	if (pathOrFile instanceof String) {
 		filePath = pathOrFile;
 	} else {
-		/** @type {plugins.file.JSFile} */
-		var jsFile = pathOrFile;
-		filePath = jsFile.getAbsolutePath();
+		filePath = pathOrFile.getAbsolutePath();
 	}
 
 	try {
@@ -540,9 +540,11 @@ function BufferedWriter(pathOrFile, append, charset) {
 	}
 	
 	/**
-	 * Writes the given String if the given value is a Date or a Number
+	 * Writes the given String 
 	 * 
-	 * @param stringToWrite
+	 * if the given value is a Date or a Number it will be converted using the default i18n format
+	 * 
+	 * @param {Date|Number|String} stringToWrite
 	 * 
 	 * @public
 	 * 
@@ -550,17 +552,16 @@ function BufferedWriter(pathOrFile, append, charset) {
 	 */
 	this.write = function(stringToWrite) {
 		try {
+			var convertedString = null;
 			if (stringToWrite instanceof Date) {
-				/** @type {Date} */
-				var dateValue = stringToWrite;
-				stringToWrite = utils.dateFormat(dateValue, i18n.getDefaultDateFormat());
+				convertedString = utils.dateFormat(stringToWrite, i18n.getDefaultDateFormat());
 			} else if (stringToWrite instanceof Number) {
-				/** @type {Number} */
-				var numValue = stringToWrite;
-				stringToWrite = utils.numberFormat(numValue, i18n.getDefaultNumberFormat());
+				convertedString = utils.numberFormat(stringToWrite, i18n.getDefaultNumberFormat());
+			} else {
+				convertedString = stringToWrite
 			}
-			if (stringToWrite && stringToWrite instanceof String) {
-				bufferedFileWriter.write(stringToWrite);
+			if (convertedString && convertedString instanceof String) {
+				bufferedFileWriter.write(convertedString);
 			}
 		} catch (e) {
 			throw e;

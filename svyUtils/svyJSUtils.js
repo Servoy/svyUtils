@@ -83,7 +83,10 @@ function objectHasValue(object, value) {
  * @properties={typeid:24,uuid:"3A136BEF-73A1-4BF2-BBB3-3A6755572E3B"}
  */
 function arePKsEqual(recordOrPks1, recordOrPks2) {
-	var o1 = recordOrPks1;
+	/** @type {Array<*>} */
+	var o1 = null;
+	/** @type {Array<*>} */
+	var o2 = null;
 
 	function convertUUIDs(pkValue) {
 		if (pkValue instanceof UUID) {
@@ -93,18 +96,13 @@ function arePKsEqual(recordOrPks1, recordOrPks2) {
 		}
 	}
 	
-	/** @type {JSRecord} */
-	var jsRecord;
-	if (o1 instanceof JSRecord) {
-		jsRecord = recordOrPks1;
-		o1 = jsRecord.getPKs();
+	if (recordOrPks1 instanceof JSRecord) {
+		o1 = recordOrPks1.getPKs();
 	}
 	o1 = o1.map(convertUUIDs);
 	
-	var o2 = recordOrPks2;
-	if (o2 instanceof JSRecord) {
-		jsRecord = recordOrPks2;
-		o2 = jsRecord.getPKs();		
+	if (recordOrPks2 instanceof JSRecord) {
+		o2 = recordOrPks2.getPKs();		
 	}
 	o2 = o2.map(convertUUIDs);
 	
@@ -149,23 +147,26 @@ function areObjectsEqual(o1, o2) {
 	if (o1 !== o1 && o2 !== o2) {
 		return true; // NaN === NaN
 	}
-	var t1 = typeof o1, t2 = typeof o2, length, keySet;
-	/** @type {String} */
+	var t1 = typeof o1, t2 = typeof o2, length;
 	var key;
 	if (t1 == t2) {
 		if (t1 == 'object') {
 			if (o1 instanceof Array) {
 				if (!(o2 instanceof Array)) return false;
 				if ((length = o1.length) == o2.length) {
-					for (key = 0; key < length; key++) {
-						if (!areObjectsEqual(o1[key], o2[key])) {
+					for (var k = 0; k < length; k++) {
+						if (!areObjectsEqual(o1[k], o2[k])) {
 							return false;
 						}
 					}
 					return true;
 				}
 			} else if (o1 instanceof Date) {
-				return (o2 instanceof Date) && o1.getTime() == o2.getTime();
+				if (o2 instanceof Date) {
+					return o1.getTime() == o2.getTime();
+				} else {
+					return false;
+				}
 			} else if (o1 instanceof UUID) {
 				return (o2 instanceof UUID) && o1.toString() == o2.toString();
 			} else if (o1 instanceof RegExp && o2 instanceof RegExp) {
@@ -193,7 +194,7 @@ function areObjectsEqual(o1, o2) {
 					return true;
 				}
 			} else {
-				keySet = { };
+				var keySet = {};
 				for (key in o1) {
 					if (o1[key] instanceof Function || (typeof (o1[key]) == "function")) {
 						continue;

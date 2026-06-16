@@ -156,7 +156,7 @@ function isTimeStampsInMilliseconds() {
 /**
  * Returns a nicely formatted representation of an error
  * @private
- * @param ex
+ * @param {{message: String=, description: String=, lineNumber: Number=, fileName: String=, stack: String=}} ex
  * @return {String}
  *
  * @properties={typeid:24,uuid:"C47C85D0-9C6B-4FE0-BB10-BE5CBC6BFCC3"}
@@ -211,11 +211,11 @@ function getExceptionStringRep(ex) {
  *  		name: String,
  *  		level: String=,
  *  		additivity: boolean=,
- *  		AppenderRef: {ref:String}|Array<{ref:String}>=
+ *  		AppenderRef: {ref:String, level:String=}|Array<{ref:String, level:String=}>=
  *  	}>=,
  *  	root: {
  *  		level: String,
- *  		AppenderRef: {ref:String}|Array<{ref:String}>=
+ *  		AppenderRef: {ref:String, level:String=}|Array<{ref:String, level:String=}>=
  *  	}
  *  }
  * }}
@@ -414,7 +414,6 @@ function loadConfig(configuration) {
 				appenders.push(getAppenderForRef(rootAppenders[raps]));
 			}
 		} else if (rootLoggerConfig.AppenderRef.hasOwnProperty('ref')) {
-			/** @type {{ref: String, level: String}} */
 			var rootAppenderRef = rootLoggerConfig.AppenderRef;
 			appenders.push(getAppenderForRef(rootAppenderRef));
 		} else {
@@ -496,7 +495,6 @@ function loadConfig(configuration) {
 				statusLogger.error("'ref' attribute not specified on Appender configured for Logger '{}'", loggerConfig.name)
 				continue
 			} else {
-				/** @type {{ref: String, level: String}} */
 				var appenderRef = loggerConfig.AppenderRef;
 				appenderConfig = getAppenderForRef(appenderRef);
 				logger.addAppender(appenderConfig.appender, appenderConfig.level)
@@ -586,7 +584,7 @@ function getAppenderForRef(appenderRef) {
  * Generic method to create a configured instance of a LogPlugin subclass, based on the attributes of the configNode
  * @private
  * @param {String} type
- * @param {Object} configNode
+ * @param {*} configNode
  * 
  * @return {Object}
  *
@@ -597,6 +595,7 @@ function getPluginInstance(type, configNode) {
 	
 	/** @type {PLUGIN_FACTORY_TYPE_DEF} */
 	var factory = clazz['PluginFactory'];
+	/** @type {Array<*>} */
 	var args = [];
 	var plugin = null;
 	for (var i = 0; i < factory.parameters.length; i++) { //Find the values in configNode for all the parameters specified by the factory
@@ -668,6 +667,9 @@ function Level(level, name) {
 		return new Level(level, name)
 	}
 	this.intLevel = level;
+	/**
+	 * @type {String}
+	 */
 	this.name = name;
 };
 
@@ -711,7 +713,7 @@ var initLevel = (/** @parse */ function() {
 			    return defaultLevel||Level.DEBUG
 			}
 			var cleanLevel = name.toUpperCase();
-			
+			/** @type {Array<Level>} */
 			var levels = [Level.ALL, Level.TRACE, Level.DEBUG, Level.INFO, Level.WARN, Level.ERROR, Level.FATAL, Level.OFF]
 			for (var i = 0; i < levels.length; i++) {
 			    if (levels[i].name == cleanLevel) {
@@ -1309,6 +1311,7 @@ var initLoggerConfig = (/** @parse */ function(){
 
 	/**
 	 * @public 
+	 * @return {LoggerConfig}
 	 */
 	LoggerConfig.prototype.getParent = function(){
 		return this.parent
@@ -1761,11 +1764,11 @@ function Logger(internal, messageFactory) {
 	 * @public 
 	 */
 	this.setLevel = function(level) {
-		var levelToSet = level;
+		var levelToSet;
 		if (level instanceof String) {
-			/** @type {String} */
-			var levelString = level;
-			levelToSet = Level.toLevel(levelString);
+			levelToSet = Level.toLevel(level);
+		} else {
+			levelToSet = level;
 		}
 		// Having a level of null on the root logger would be very bad.
 		if (isRoot && level === null) {
@@ -1787,11 +1790,11 @@ function Logger(internal, messageFactory) {
 	 * @public 
 	 */
 	this.addAppender = function(appender, level) {
-		var levelToSet = level;
+		var levelToSet;
 		if (level instanceof String) {
-			/** @type {String} */
-			var levelString = level;
-			levelToSet = Level.toLevel(levelString);
+			levelToSet = Level.toLevel(level);
+		} else {
+			levelToSet = level;
 		}
 		if (! (appender instanceof AbstractAppender)) {
 			statusLogger.error("Logger.addAppender: appender supplied ('{}') is not a subclass of Appender", appender);
@@ -1950,19 +1953,14 @@ function getLogger(loggerName, messageFactory) {
 								logger.setAdditivity(logConfig.hasOwnProperty('additivity') && typeof logConfig.additivity === 'boolean' ? logConfig.additivity : true)
 								break;
 							case 'AppenderRef':
-								if (logConfig.AppenderRef instanceof Array) {
-									/** @type {Array<{ref: String, level: String}>} */
-									var appArray = logConfig.AppenderRef;
-									for (var a = 0; a < appArray.length; a++) {
-										/** @type {{appender: AbstractAppender, level: Level}} */
-										var appArrayItem = getAppenderForRef(appArray[a]);
+								var appenderRef = logConfig.AppenderRef;
+								if (appenderRef instanceof Array) {
+									for (var a = 0; a < appenderRef.length; a++) {
+										var appArrayItem = getAppenderForRef(appenderRef[a]);
 										logger.addAppender(appArrayItem.appender, appArrayItem.level);
 									}
 								} else {
-									/** @type {{ref: String, level: String}} */
-									var appRef = logConfig.AppenderRef;
-									/** @type {{appender: AbstractAppender, level: Level}} */
-									var appRefItem = getAppenderForRef(appRef);
+									var appRefItem = getAppenderForRef(appenderRef);
 									logger.addAppender(appRefItem.appender, appRefItem.level);
 								}
 								break;
@@ -2072,7 +2070,7 @@ function LogPlugin (){}
 /**
  * @typedef {{
  *  create: Function,
- *  parameters: Array<{configName: String, type: *}>
+ *  parameters: Array<{configName: String, type: String}>
  * }}
  * @private 
  * @SuppressWarnings(unused)
@@ -2816,10 +2814,16 @@ var initHttpPostdataLayout = (/** @parse */ function() {
 		var dataValues = this.getDataValues(loggingEvent);
 		var queryBits = [];
 		for (var i = 0, len = dataValues.length; i < len; i++) {
-			/** @type {Date} */
-			var date = (dataValues[i][1] instanceof Date) ? dataValues[i][1] : null 
-			/**@type {String}*/
-			var val = date ? date.getTime() : dataValues[i][1];
+			var value = dataValues[i][1];
+			/** @type {String} */
+			var val = null;
+			if (value instanceof Date) {
+				val = value.getTime() + '';
+			} else if (value instanceof Number) {
+				val = value + '';
+			} else {
+				val = value;
+			}
 			queryBits.push(encodeURIComponent(dataValues[i][0].toString()) + "=" + encodeURIComponent(val));
 		}
 		return queryBits.join("&");
@@ -2887,7 +2891,7 @@ function formatObjectExpansion(object, maxdepth, indent) {
 			return "null";
 		} else if (typeof obj === "undefined") {
 			return "undefined";
-		} else if (typeof obj === "string") {
+		} else if (obj instanceof String) {
 			return formatString(obj);
 		} else if (typeof obj === "object" && objectsExpanded.indexOf(obj) != -1) {
 			try {
@@ -2970,6 +2974,7 @@ var initPatternLayout = (/** @parse */ function() {
 		PatternLayout.prototype.constructor = PatternLayout
 
 		/**
+		 * @param {LoggingEvent} loggingEvent
 		 * @this {PatternLayout}
 		 */
 		PatternLayout.prototype.format = function(loggingEvent) {

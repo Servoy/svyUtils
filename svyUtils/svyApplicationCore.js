@@ -31,7 +31,7 @@ var log = scopes.svyLogManager.getLogger('com.servoy.bap.utils.application.core'
 
 /**
  * @private
- * @type {Object}
+ * @type {Object<String>}
  *
  * @properties={typeid:35,uuid:"8E4C4D0D-F783-47C5-A223-7114044680BE",variableType:-4}
  */
@@ -62,6 +62,7 @@ function initModules(startupArguments) {
 	/** @type {RuntimeForm<AbstractModuleDef>}*/
 	var form
 	for (var i = 0; i < mods.length; i++) {
+		/** @type {String} */
 		var id = forms[mods[i].name].getId()
 		if (!id) {
 			log.error("Module ID not provided on '{}'. Skipping the Module definition", mods[i].name)

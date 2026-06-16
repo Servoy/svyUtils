@@ -177,7 +177,15 @@ function dataSourceHasValue(datasource, dataproviderName, value, extraQueryColum
 		throw new scopes.svyExceptions.IllegalArgumentException('no parameters provided to scopes.svyDataUtils.datasourceHasValue(foundsetOrRecord, dataproviderName, value)');
 	}
 	/** @type {String} */
-	var dataSource = (datasource instanceof String) ? datasource : datasource.getDataSource();
+	var dataSource = null;
+	if (datasource instanceof JSRecord) {
+		dataSource = datasource.getDataSource();
+	} else if (datasource instanceof JSFoundSet) {
+		dataSource = datasource.getDataSource();		
+	} else {
+		dataSource = datasource;
+	}
+	
 	var query = databaseManager.createSelect(dataSource);
 	query.result.addPk();
 
@@ -232,7 +240,14 @@ function getFoundSetWithExactValues(datasource, extraQueryColumns, extraQueryVal
 		throw new scopes.svyExceptions.IllegalArgumentException('no parameters provided to scopes.svyDataUtils.getFoundSetWithExactValues(datasource, extraQueryColumns, extraQueryValues)');
 	}
 	/** @type {String} */
-	var dataSource = (datasource instanceof String) ? datasource : datasource.getDataSource();
+	var dataSource = null;
+	if (datasource instanceof JSRecord) {
+		dataSource = datasource.getDataSource();
+	} else if (datasource instanceof JSFoundSet) {		
+		dataSource = datasource.getDataSource();
+	} else {
+		dataSource = datasource;
+	}
 	var query = databaseManager.createSelect(dataSource);
 	query.result.addPk()
 	if (extraQueryColumns || extraQueryValues) {
@@ -285,7 +300,7 @@ function getDatasetSetWithExactValues(datasource, returnColumns, extraQueryColum
 		throw new scopes.svyExceptions.IllegalArgumentException('no parameters provided to scopes.svyDataUtils.getDatasetSetWithExactValues(datasource, returnColumns, extraQueryColumns, extraQueryValues)');
 	}
 	/** @type {String} */
-	 var dataSource = (typeof datasource === 'string') ? datasource : datasource.getDataSource();
+	var dataSource = datasource instanceof JSFoundSet ? datasource.getDataSource() : datasource;
 	var query = databaseManager.createSelect(dataSource);
 	if (!returnColumns || returnColumns.length === 0) {
 		throw scopes.svyExceptions.IllegalArgumentException('returnColumns parameter is empty');
@@ -378,10 +393,14 @@ function loadRecords(foundset, pks) {
 	if (!pks || !foundset) {
 		return false;
 	}
-	if (! (pks instanceof Array)) {
-		pks = [pks];
+	/** @type {Array} */
+	var pkArray;
+	if (pks instanceof Array) {
+		pkArray = pks;
+	} else {
+		pkArray = [pks];
 	}
-	var ds = databaseManager.createEmptyDataSet(0, pks.length);
+	var ds = databaseManager.createEmptyDataSet(0, pkArray.length);
 	ds.addRow(pks);
 
 	return foundset.loadRecords(ds);
@@ -405,10 +424,14 @@ function getRecord(datasource, pks) {
 	}
 
 	var fs = databaseManager.getFoundSet(datasource);
-	if (! (pks instanceof Array)) {
-		pks = [pks];
+	/** @type {Array} */
+	var pkArray;
+	if (pks instanceof Array) {
+		pkArray = pks;
+	} else {
+		pkArray = [pks];
 	}
-	var ds = databaseManager.createEmptyDataSet(0, pks.length);
+	var ds = databaseManager.createEmptyDataSet(0, pkArray.length);
 	ds.addRow(pks);
 
 	fs.loadRecords(ds);
@@ -1317,9 +1340,9 @@ function getValueListRealValues(valuelistName, displayValue, stringMatching, cas
 				displayValue = '%' + displayValue;
 			}
 	    	if (caseSensitivity === true) {
-	    		qbSelect.where.add(queryColumn.not[stringMatching === STRING_MATCHING.EQUALS ? 'eq' : 'like'](displayValue));
+	    		qbSelect.where.add(/** @type {QBCondition} */ queryColumn.not[stringMatching === STRING_MATCHING.EQUALS ? 'eq' : 'like'](displayValue));
 			} else {				
-				qbSelect.where.add(queryColumn.upper.not[stringMatching === STRING_MATCHING.EQUALS ? 'eq' : 'like'](qbSelect.functions.upper(displayValue)));	    	
+				qbSelect.where.add(/** @type {QBCondition} */ queryColumn.upper.not[stringMatching === STRING_MATCHING.EQUALS ? 'eq' : 'like'](qbSelect.functions.upper(displayValue)));	    	
 			}
 	    } else if (term.modifiers.exact) {
 	    	if (caseSensitivity === true) {
@@ -1346,9 +1369,9 @@ function getValueListRealValues(valuelistName, displayValue, stringMatching, cas
 			}
 	    	
 			if (caseSensitivity === true) {
-				qbSelect.where.add(queryColumn[stringMatching === STRING_MATCHING.EQUALS ? 'eq' : 'like'](displayValue));
+				qbSelect.where.add(/** @type {QBCondition} */ queryColumn[stringMatching === STRING_MATCHING.EQUALS ? 'eq' : 'like'](displayValue));
 			} else {				
-				qbSelect.where.add(queryColumn.upper[stringMatching === STRING_MATCHING.EQUALS ? 'eq' : 'like'](qbSelect.functions.upper(displayValue)));
+				qbSelect.where.add(/** @type {QBCondition} */ queryColumn.upper[stringMatching === STRING_MATCHING.EQUALS ? 'eq' : 'like'](qbSelect.functions.upper(displayValue)));
 			}
 	    }
         
@@ -1606,6 +1629,10 @@ function parseCSV(csvText, config, dataRowCallback) {
 
 	var DefaultDelimiter = ",";
 
+	/**
+	 * @param {String} input
+	 * @return {Object}
+	 */
 	function guessDelimiter(input) {
 		var delimChoices = [",", "\t", "|", ";", RECORD_SEP, UNIT_SEP];
 		var bestDelim, bestDelta, fieldCountPrevRow;
@@ -1707,7 +1734,7 @@ function parseCSV(csvText, config, dataRowCallback) {
 
 		// Establish starting state
 		cursor = 0;
-		var data = [], errors = [], row = [], lastCursor = 0;
+		var data = [], errors = [], row, lastCursor = 0;
 
 		if (!input)
 			return returnable();

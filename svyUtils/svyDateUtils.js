@@ -322,8 +322,8 @@ function addDays(date, days) {
  *
  * @public
  *
- * @param date the date to add or substract days to/from
- * @param days the number of days to be added/substracted
+ * @param {Date} date the date to add or substract days to/from
+ * @param {Number} days the number of days to be added/substracted
  * @param {Array<Date>} [holidays] optional array with dates to skip
  *
  * @return {Date}
@@ -341,14 +341,7 @@ function addBusinessDays(date, days, holidays) {
 	/**
 	 * @type {Array<java.time.LocalDate>}
 	 */
-	var holidayDates = holidays.map(
-		/**
-	 * @param {Date} holiday
-	 */
-	function(holiday) {
-		return getLocalDateFromDate(holiday);
-	}
-	)
+	var holidayDates = holidays.map( holiday => getLocalDateFromDate(holiday));
 
 	/**
 	 * @param {java.time.LocalDate} dateToCheck
@@ -889,7 +882,7 @@ function getWeekdayNames(locale) {
  *
  * @public
  *
- * @param date
+ * @param {Date} date
  *
  * @return {Number} weekOfYear
  *
@@ -2111,16 +2104,14 @@ function getLocalDateTimeFromDate(date) {
  * @properties={typeid:24,uuid:"F058D9D0-1180-47C9-8168-ACEBEE8F17E5"}
  */
 function getDateFromLocalDateTime(localDateTime) {
-		
+	var ltd = null;
 	if (!localDateTime) {
-		localDateTime = getZonedDateTimeFromDate().toLocalDateTime();
+		ltd = getZonedDateTimeFromDate().toLocalDateTime();
 	}
 	if (localDateTime instanceof java.time.LocalDate) {
-		/** @type {java.time.LocalDate} */
-		var localDate = localDateTime;
-		localDateTime = localDate.atStartOfDay();
+		ltd = localDateTime.atStartOfDay();
 	}
-	var date = new Date(localDateTime.atZone(systemZoneId).toInstant().toEpochMilli());
+	var date = new Date(ltd.atZone(systemZoneId).toInstant().toEpochMilli());
 	return date;
 }
 

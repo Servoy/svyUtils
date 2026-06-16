@@ -432,7 +432,7 @@ function EncryptionOptions() {
 	/**
 	 * @public
 	 * 
-	 * @return {String}
+	 * @return {ALGORITHM_NAMES}
 	 */
 	this.getAlgorithmName = function() {
 		return algorithmName;
@@ -441,7 +441,7 @@ function EncryptionOptions() {
 	/**
 	 * @public
 	 * 
-	 * @param {String} name
+	 * @param {ALGORITHM_NAMES} name
 	 * 
 	 * @return {EncryptionOptions} This options object
 	 */
@@ -481,8 +481,12 @@ function EncryptionOptions() {
 		if (!newKey) {
 			key = null;
 		} else {
-			/** @type {Array<byte>} */
-			var bytes = newKey instanceof String ? utils.base64ToBytes(newKey.toString()) : newKey;		
+			var bytes;
+			if (newKey instanceof String) {
+				bytes = utils.base64ToBytes(newKey);
+			} else {
+				bytes = newKey;
+			}	
 			key = getKey(bytes, this);
 		}
 		return this;
@@ -539,7 +543,7 @@ function EncryptionOptions() {
 	 * @return {EncryptionOptions} This options object
 	 */
 	this.generateKey = function() {
-		var generator = Packages.javax.crypto.KeyGenerator.getInstance(algorithmName);
+		var generator = Packages.javax.crypto.KeyGenerator.getInstance(algorithmName.valueOf());
 		// TODO consider 256
 //		generator.init(256);
 		key = generator.generateKey();
@@ -626,7 +630,7 @@ function getCipher(options) {
  * @public
  * 
  * @param {String|Array<byte>} value The string or bytes to hash
- * @param {String} algorithm Supported hash algorithms: [MD5,SHA-1,SHA-256,SHA_384]
+ * @param {HASH_ALGORITHM_NAMES} algorithm Supported hash algorithms: [MD5,SHA-1,SHA-256,SHA_384]
  * 
  * @return {String} The hashed bytes in Base-64 encoded string
  *
@@ -635,7 +639,7 @@ function getCipher(options) {
 function getHash(value, algorithm) {
 	/** @type {Array<byte>} */
 	var bytes = value instanceof String ? string2Bytes(value) : value;
-	var digest = Packages.java.security.MessageDigest.getInstance(algorithm);
+	var digest = Packages.java.security.MessageDigest.getInstance(algorithm.valueOf());
 	return utils.bytesToBase64(digest.digest(bytes));
 }
 /**
